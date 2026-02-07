@@ -1,0 +1,14 @@
+LICENSE
+README.md
+pyproject.toml
+src/anagram.py
+src/fib.py
+src/json_flatten.py
+src/copilot_model_bench.egg-info/PKG-INFO
+src/copilot_model_bench.egg-info/SOURCES.txt
+src/copilot_model_bench.egg-info/dependency_links.txt
+src/copilot_model_bench.egg-info/requires.txt
+src/copilot_model_bench.egg-info/top_level.txt
+tests/test_anagram.py
+tests/test_fib.py
+tests/test_json_flatten.py

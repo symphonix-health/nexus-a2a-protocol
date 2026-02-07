@@ -1,0 +1,163 @@
+tasks:
+  - id: fib
+    file: fib.py
+    function: fib
+    signature: "def fib(n: int) -> int:"
+    description: |
+      Implement fib(n) returning the n-th Fibonacci number with n>=0,
+      where fib(0)=0 and fib(1)=1. Use an efficient iterative approach.
+      Add a module docstring and type hints.
+
+  - id: anagram
+    file: anagram.py
+    function: is_anagram
+    signature: "def is_anagram(a: str, b: str) -> bool:"
+    description: |
+      Return True if a and b are anagrams ignoring case and non-letters.
+      Use only standard library. Add a docstring and type hints.
+
+  - id: json_flatten
+    file: json_flatten.py
+    function: flatten_json
+    signature: "def flatten_json(obj: dict, sep: str = '.') -> dict:"
+    description: |
+      Flatten a nested dict into a single-level dict using keys joined by sep.
+      Lists should use integer indexes as path elements. Preserve order.
+      Add a docstring and type hints.
+
+  - id: csv_read
+    file: csv_read.py
+    function: parse_csv
+    signature: "def parse_csv(path: str) -> list[dict[str, str]]:"
+    description: |
+      Read a UTF-8 CSV with a header row and return a list of row dicts.
+      Use the csv module. Handle quoted fields and commas inside quotes.
+      Do not auto-cast types; keep values as strings. Add docstring and hints.
+
+  - id: topk_words
+    file: topk_words.py
+    function: top_k_words
+    signature: "def top_k_words(text: str, k: int) -> list[tuple[str, int]]:"
+    description: |
+      Return the top-k most frequent words from text, case-insensitive,
+      ignoring punctuation. Break ties by alphabetical order ascending.
+      Return a list of (word, count) sorted by count desc then word asc.
+      Add a docstring and type hints.
+
+  - id: lru_cache
+    file: lru_cache.py
+    function: LRUCache
+    signature: "class LRUCache:\n    def __init__(self, capacity: int): ...\n    def get(self, key: int) -> int: ...\n    def put(self, key: int, value: int) -> None: ..."
+    description: |
+      Implement an LRU cache with O(1) get and put using a hashmap + doubly
+      linked list. get returns -1 if missing. put updates value and evicts
+      least-recently-used when at capacity. Add docstrings and type hints.
+
+  - id: csv_to_jsonl
+    file: csv_to_jsonl.py
+    function: csv_to_jsonl
+    signature: "def csv_to_jsonl(in_path: str, out_path: str) -> int:"
+    description: |
+      Read a UTF-8 CSV with a header row and stream-write JSON Lines (one
+      object per line) to out_path. Use csv.DictReader and json.dumps. Keep
+      values as strings; return the number of records written. Add docstring and hints.
+
+  - id: dijkstra
+    file: dijkstra.py
+    function: shortest_paths
+    signature: "def shortest_paths(graph: dict[str, list[tuple[str, int]]], source: str) -> dict[str, int]:"
+    description: |
+      Compute non-negative single-source shortest path distances using Dijkstra's
+      algorithm with a binary heap. Return a dict of distances from source to
+      each reachable node. Edges are (neighbor, weight) with weight>=0.
+      Add docstring and type hints.
+
+  - id: async_pool
+    file: async_pool.py
+    function: run_bounded
+    signature: "from typing import Awaitable, Callable, TypeVar, Sequence\nT = TypeVar('T')\ndef run_bounded(jobs: Sequence[Callable[[], Awaitable[T]]], concurrency: int) -> list[T]: ..."
+    description: |
+      Implement a bounded-concurrency async runner using asyncio. Accept a list
+      of zero-arg callables returning coroutines. Limit concurrency via Semaphore
+      and preserve input order in the returned list of results. Add docstring and hints.
+
+  - id: jsonrpc_utils
+    file: jsonrpc_utils.py
+    function: build_request
+    signature: "def build_request(method: str, params: object | None, id: str | int | None) -> dict:"
+    description: |
+      Build a JSON-RPC 2.0 request object: {"jsonrpc":"2.0","method":method,
+      (optional) "params":params, (optional) "id":id}. Validate types per spec
+      and raise ValueError on invalid input. Add a small validator function
+      `validate_envelope(obj: dict) -> None` too.
+
+  - id: canonical_json
+    file: canonical_json.py
+    function: canonical_dumps
+    signature: "def canonical_dumps(obj: object) -> str:"
+    description: |
+      Serialize JSON with deterministic ordering and no insignificant whitespace.
+      Use separators=(",", ":"), sort_keys=True, ensure_ascii=False. Ensure
+      lists keep order and objects sort keys recursively. Add docstring and hints.
+
+  - id: bytes_chunking
+    file: bytes_chunking.py
+    function: chunk_bytes
+    signature: "def chunk_bytes(data: bytes, size: int) -> list[bytes]:"
+    description: |
+      Split data into chunks of at most size bytes. Validate size>0. Provide
+      a companion `unchunk_bytes(chunks: list[bytes]) -> bytes` that concats
+      back. Add docstrings and hints.
+
+  - id: hmac_sign
+    file: hmac_sign.py
+    function: sign_message
+    signature: "def sign_message(payload: bytes, secret: bytes) -> str:"
+    description: |
+      Compute HMAC-SHA256 hex signature for payload using secret. Provide
+      `verify_message(payload: bytes, secret: bytes, signature_hex: str) -> bool`.
+      Use constant-time comparison. Add docstrings and hints.
+
+  - id: topo_sort
+    file: topo_sort.py
+    function: topo_sort
+    signature: "def topo_sort(edges: dict[str, list[str]]) -> list[str]:"
+    description: |
+      Perform topological sort on a directed acyclic graph given as adjacency
+      list mapping node->list of outgoing neighbors. Raise ValueError on cycle.
+      Return a valid topo order of all nodes seen in keys or values.
+
+  - id: retry
+    file: retry.py
+    function: retry
+    signature: "from typing import Callable, TypeVar, Optional\nT = TypeVar('T')\ndef retry(fn: Callable[[], T], retries: int, base_delay: float, sleeper: Optional[Callable[[float], None]] = None) -> T: ..."
+    description: |
+      Call fn with exponential backoff on exceptions up to `retries` attempts.
+      Delays: base_delay * (2**attempt). If sleeper is provided, call sleeper(delay)
+      instead of time.sleep to allow testing. Re-raise last exception on failure.
+
+  - id: json_validate
+    file: json_validate.py
+    function: validate_simple_schema
+    signature: "def validate_simple_schema(obj: dict, schema: dict) -> None:"
+    description: |
+      Validate `obj` against a simple schema: schema = {"types": {key: "str|int|bool"},
+      "required": [keys]}. Raise ValueError if a required key is missing or if a present
+      key has the wrong type. Ignore extra keys. Add docstring and hints.
+
+  - id: merkle
+    file: merkle.py
+    function: merkle_root
+    signature: "def merkle_root(chunks: list[bytes]) -> str:"
+    description: |
+      Compute a Merkle tree root using SHA-256 over byte chunks. For odd nodes at
+      any level, duplicate the last node. Return the root as a lowercase hex string.
+
+  - id: b64url
+    file: b64url.py
+    function: b64url_suite
+    signature: "def b64url_encode(data: bytes) -> str: ...\ndef b64url_decode(s: str) -> bytes: ..."
+    description: |
+      Implement base64url without padding per RFC 7515/7519 style. Encoding uses
+      '-', '_' and strips '=' padding. Decoding must accept input without padding.
+      Provide both functions in the file.

@@ -1,0 +1,29 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^python -m venv \\.venv$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    },
+    "rest-client.defaultHeaders": {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+    },
+    "rest-client.environmentVariables": {
+        "$shared": {
+            "protocolVersion": "1.0",
+            "clientAgentId": "client-local",
+            "recipientAgentId": "echo",
+            "apiToken": "replace-me"
+        },
+        "local": {
+            "baseUrl": "http://localhost:8000"
+        },
+        "dev": {
+            "baseUrl": "https://dev.nexus.example.com"
+        },
+        "prod": {
+            "baseUrl": "https://nexus.example.com"
+        }
+    }
+}
