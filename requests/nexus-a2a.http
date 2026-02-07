@@ -1,0 +1,48 @@
+@baseUrl = {{baseUrl}}
+@clientAgentId = {{clientAgentId}}
+@recipientAgentId = {{recipientAgentId}}
+
+### Health check
+GET {{baseUrl}}/health
+
+### JSON-RPC tasks/send (A2A style)
+POST {{baseUrl}}/
+Authorization: Bearer {{apiToken}}
+X-Protocol-Version: {{protocolVersion}}
+X-Agent-Id: {{clientAgentId}}
+
+{
+  "jsonrpc": "2.0",
+  "id": "{{$guid}}",
+  "method": "tasks/send",
+  "params": {
+    "sender": "{{clientAgentId}}",
+    "recipient": "{{recipientAgentId}}",
+    "message": {
+      "kind": "message",
+      "messageId": "{{$guid}}",
+      "role": "user",
+      "parts": [
+        {
+          "kind": "text",
+          "text": "ping"
+        }
+      ]
+    }
+  }
+}
+
+### JSON-RPC tasks/get
+POST {{baseUrl}}/
+Authorization: Bearer {{apiToken}}
+X-Protocol-Version: {{protocolVersion}}
+X-Agent-Id: {{clientAgentId}}
+
+{
+  "jsonrpc": "2.0",
+  "id": "{{$guid}}",
+  "method": "tasks/get",
+  "params": {
+    "id": "replace-with-task-id"
+  }
+}

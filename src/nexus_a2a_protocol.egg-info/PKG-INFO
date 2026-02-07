@@ -1,0 +1,58 @@
+Metadata-Version: 2.4
+Name: nexus-a2a-protocol
+Version: 0.1.0
+Summary: Python SDK and PoC implementation for the Nexus A2A protocol
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0.0; extra == "dev"
+Requires-Dist: ruff>=0.6.0; extra == "dev"
+Dynamic: license-file
+
+# Nexus A2A Protocol (Python SDK + PoC)
+
+This repository contains an initial Python SDK and proof-of-concept for a Nexus Agent-to-Agent (A2A) protocol implementation.
+
+Current scope:
+- Protocol data models for messages and tasks
+- JSON-RPC envelope helpers aligned with A2A-style methods
+- In-memory PoC transport to validate end-to-end task exchange
+- Unit test suite
+
+## Quick Start
+
+```powershell
+py -3.10 -m venv .venv
+. .\.venv\Scripts\Activate.ps1
+python -m pip install -U pip
+pip install -e .[dev]
+pytest
+```
+
+## Package Layout
+
+- `src/nexus_a2a_protocol/models.py`: core message/task models and validation
+- `src/nexus_a2a_protocol/jsonrpc.py`: JSON-RPC request/response builders and envelope validation
+- `src/nexus_a2a_protocol/poc.py`: in-memory transport + agent registry PoC
+- `tests/`: unit tests for models, JSON-RPC helpers, and PoC flow
+- `docs/research.md`: protocol research notes and design decisions
+
+## Initial Example
+
+```python
+from nexus_a2a_protocol import AgentCard, InMemoryAgent, InMemoryNexus, new_agent_message
+
+nexus = InMemoryNexus()
+nexus.register(InMemoryAgent(AgentCard(agent_id="client"), lambda msg: msg))
+nexus.register(
+    InMemoryAgent(
+        AgentCard(agent_id="echo"),
+        lambda msg: new_agent_message(f"echo:{msg.parts[0].text}")
+    )
+)
+
+task = nexus.send_text_task("client", "echo", "ping")
+print(task.status.state)  # completed
+print(task.artifacts[-1].parts[0].text)  # echo:ping
+```
