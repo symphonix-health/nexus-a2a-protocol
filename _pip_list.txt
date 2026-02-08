@@ -1,0 +1,1 @@
+C:\nexus-a2a-protocol\.venv\Scripts\python.exe: No module named pip
