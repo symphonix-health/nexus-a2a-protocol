@@ -1,0 +1,20 @@
+{
+  "name": "osint-agent",
+  "description": "Fetches open-source intelligence headlines related to disease outbreaks.  Returns mock news snippets for a given pathogen via JSON-RPC method osint/headlines.",
+  "url": "http://osint-agent:8052",
+  "version": "0.1.0",
+  "capabilities": {
+    "streaming": true,
+    "pushNotifications": false,
+    "multiTransport": false
+  },
+  "skills": [
+    {
+      "id": "osint-headlines",
+      "name": "OSINT Outbreak Headlines",
+      "description": "Returns mock news headlines about a specified pathogen outbreak."
+    }
+  ],
+  "defaultInputModes": ["application/json"],
+  "defaultOutputModes": ["application/json"]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "HITLUI",
+  "description": "Human-in-the-loop approval gate for consent workflow",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://hitl-ui:8044",
+  "capabilities": {"streaming": true, "websocket": true, "humanInTheLoop": true, "pushNotifications": false},
+  "methods": ["hitl/approve"],
+  "authentication": {"schemes": ["bearer"]},
+  "skills": [{"id": "hitl-approve", "name": "HITL Approval", "description": "Human approval/rejection gate for consent decisions"}]
+}

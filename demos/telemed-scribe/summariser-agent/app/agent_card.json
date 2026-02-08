@@ -1,0 +1,11 @@
+{
+  "name": "SummariserAgent",
+  "description": "Summarises clinical transcripts into SOAP notes using LLM",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://summariser-agent:8032",
+  "capabilities": {"streaming": true, "websocket": true, "pushNotifications": false},
+  "methods": ["note/summarise"],
+  "authentication": {"schemes": ["bearer"]},
+  "skills": [{"id": "note-summarise", "name": "SOAP Note Summariser", "description": "Generate structured SOAP note from transcript"}]
+}

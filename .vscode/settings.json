@@ -1,4 +1,7 @@
 {
+    "chat.openFile.editorAssociations": {
+        "*.md": "vscode.markdown.preview.editor"
+    },
     "chat.tools.terminal.autoApprove": {
         "/^python -m venv \\.venv$/": {
             "approve": true,

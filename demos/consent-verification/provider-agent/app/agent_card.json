@@ -1,0 +1,11 @@
+{
+  "name": "ProviderAgent",
+  "description": "Provider agent — supplies patient records after consent verification",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://provider-agent:8042",
+  "capabilities": {"streaming": true, "websocket": true, "pushNotifications": false},
+  "methods": ["records/provide"],
+  "authentication": {"schemes": ["bearer"]},
+  "skills": [{"id": "records-provide", "name": "Record Provider", "description": "Provide patient records after verifying consent"}]
+}

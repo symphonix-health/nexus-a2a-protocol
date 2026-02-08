@@ -1,0 +1,53 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.55
+    ports: ["16686:16686", "4318:4318"]
+
+  hapi-fhir:
+    image: hapiproject/hapi:latest
+    ports: ["8080:8080"]
+
+  openhie-mediator:
+    build:
+      context: ../../
+      dockerfile: demos/ed-triage/openhie-mediator/Dockerfile
+    environment:
+      - PORT=8023
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - FHIR_BASE_URL=${FHIR_BASE_URL}
+      - DID_VERIFY=${DID_VERIFY}
+    ports: ["8023:8023"]
+    depends_on: [hapi-fhir]
+
+  diagnosis-agent:
+    build:
+      context: ../../
+      dockerfile: demos/ed-triage/diagnosis-agent/Dockerfile
+    environment:
+      - PORT=8022
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - NEXUS_OPENHIE_RPC=http://openhie-mediator:8023/rpc
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL}
+      - DID_VERIFY=${DID_VERIFY}
+    ports: ["8022:8022"]
+    depends_on: [openhie-mediator]
+
+  triage-agent:
+    build:
+      context: ../../
+      dockerfile: demos/ed-triage/triage-agent/Dockerfile
+    environment:
+      - PORT=8021
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - NEXUS_DIAGNOSIS_RPC=http://diagnosis-agent:8022/rpc
+      - DID_VERIFY=${DID_VERIFY}
+    ports: ["8021:8021"]
+    depends_on: [diagnosis-agent]

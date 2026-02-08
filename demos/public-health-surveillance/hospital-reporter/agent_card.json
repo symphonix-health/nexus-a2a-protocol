@@ -1,0 +1,20 @@
+{
+  "name": "hospital-reporter",
+  "description": "Reports weekly disease-count statistics from a hospital.  Returns counts for a requested pathogen and region via JSON-RPC method surveillance/report.",
+  "url": "http://hospital-reporter:8051",
+  "version": "0.1.0",
+  "capabilities": {
+    "streaming": true,
+    "pushNotifications": false,
+    "multiTransport": false
+  },
+  "skills": [
+    {
+      "id": "surveillance-report",
+      "name": "Hospital Surveillance Report",
+      "description": "Returns mock weekly case counts for a given pathogen and region."
+    }
+  ],
+  "defaultInputModes": ["application/json"],
+  "defaultOutputModes": ["application/json"]
+}

@@ -1,0 +1,65 @@
+version: "3.9"
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./tools/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/#' -C 1 -W 3 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  hospital-reporter:
+    build:
+      context: ../../
+      dockerfile: demos/public-health-surveillance/hospital-reporter/Dockerfile
+    ports:
+      - "8051:8051"
+    env_file: .env
+    environment:
+      - PORT=8051
+      - AGENT_NAME=hospital-reporter
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+
+  osint-agent:
+    build:
+      context: ../../
+      dockerfile: demos/public-health-surveillance/osint-agent/Dockerfile
+    ports:
+      - "8052:8052"
+    env_file: .env
+    environment:
+      - PORT=8052
+      - AGENT_NAME=osint-agent
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+
+  central-surveillance:
+    build:
+      context: ../../
+      dockerfile: demos/public-health-surveillance/central-surveillance/Dockerfile
+    ports:
+      - "8053:8053"
+    env_file: .env
+    environment:
+      - PORT=8053
+      - AGENT_NAME=central-surveillance
+      - HOSPITAL_REPORTER_URL=http://hospital-reporter:8051
+      - OSINT_AGENT_URL=http://osint-agent:8052
+      - MQTT_BROKER=mosquitto
+      - MQTT_PORT=1883
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+      hospital-reporter:
+        condition: service_started
+      osint-agent:
+        condition: service_started

@@ -1,0 +1,23 @@
+{
+  "name": "DiagnosisAgent",
+  "description": "Performs clinical assessment using LLM with FHIR patient context",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://diagnosis-agent:8022",
+  "capabilities": {
+    "streaming": true,
+    "websocket": true,
+    "pushNotifications": false
+  },
+  "methods": ["diagnosis/assess"],
+  "authentication": {
+    "schemes": ["bearer"]
+  },
+  "skills": [
+    {
+      "id": "diagnosis-assess",
+      "name": "Diagnostic Assessment",
+      "description": "Assess patient condition using chief complaint and FHIR context"
+    }
+  ]
+}
