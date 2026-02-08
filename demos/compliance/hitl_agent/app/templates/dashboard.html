@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nexus Compliance Dashboard</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #f0f0f0; }
+        .card { background: white; padding: 15px; margin-bottom: 10px; border-left: 5px solid #orange; }
+        .high-risk { border-left-color: red; }
+        .btn { padding: 5px 10px; cursor: pointer; }
+        .approve { background: #dfd; border: 1px solid green; }
+        .reject { background: #fdd; border: 1px solid red; }
+    </style>
+</head>
+<body>
+    <h1>🇪🇺 EU AI Act: Human Oversight Queue</h1>
+    <p>Incoming HITL Tasks: {{ tasks|length }}</p>
+
+    {% for task in tasks %}
+    <div class="card {% if task.risk_score > 50 %}high-risk{% endif %}">
+        <h3>Task: {{ task.id }}</h3>
+        <p><strong>Sender:</strong> {{ task.sender }}</p>
+        <p><strong>Risk Score:</strong> {{ task.risk_score }}</p>
+        <p><em>{{ task.content }}</em></p>
+        <form action="/admin/decide" method="post">
+            <input type="hidden" name="task_id" value="{{ task.id }}">
+            <input type="text" name="comment" placeholder="Reviewer notes...">
+            <button type="submit" name="action" value="approve" class="btn approve">Approve & Forward</button>
+            <button type="submit" name="action" value="reject" class="btn reject">Reject</button>
+        </form>
+    </div>
+    {% endfor %}
+</body>
+</html>

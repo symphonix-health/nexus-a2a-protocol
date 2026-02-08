@@ -1,0 +1,22 @@
+Obtaining file:///C:/nexus-a2a-protocol
+  Installing build dependencies: started
+  Installing build dependencies: still running...
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: nexus-a2a-protocol
+  Building editable for nexus-a2a-protocol (pyproject.toml): started
+  Building editable for nexus-a2a-protocol (pyproject.toml): finished with status 'done'
+  Created wheel for nexus-a2a-protocol: filename=nexus_a2a_protocol-0.1.0-0.editable-py3-none-any.whl size=3209 sha256=9a041c9b43c3f321a7f743a6067c38214246c2b35f6a9210de29f4c1a75dd0ff
+  Stored in directory: C:\Users\hgeec\AppData\Local\Temp\pip-ephem-wheel-cache-pvbwymj_\wheels\3e\37\d8\c9b9a72c5622faf60911dbdc7c1d0a5a615d4ba96b7d88a3f9
+Successfully built nexus-a2a-protocol
+Installing collected packages: nexus-a2a-protocol
+  Attempting uninstall: nexus-a2a-protocol
+    Found existing installation: nexus-a2a-protocol 0.1.0
+    Uninstalling nexus-a2a-protocol-0.1.0:
+      Successfully uninstalled nexus-a2a-protocol-0.1.0
+Successfully installed nexus-a2a-protocol-0.1.0

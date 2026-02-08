@@ -1,0 +1,22 @@
+============================================================
+STEP 1: Upgrade pip in existing venv
+============================================================
+>>> "C:\nexus-a2a-protocol\.venv\Scripts\python.exe" -m pip install --upgrade pip
+C:\nexus-a2a-protocol\.venv\Scripts\python.exe: No module named pip
+
+============================================================
+STEP 2: Uninstall ALL conflicting packages
+============================================================
+>>> "C:\nexus-a2a-protocol\.venv\Scripts\pip.exe" uninstall -y fastapi pydantic pydantic-core starlette uvicorn httptools anyio httpx annotated-doc typing-inspection
+'"C:\nexus-a2a-protocol\.venv\Scripts\pip.exe"' is not recognized as an internal or external command,
+operable program or batch file.
+Checking for ghost dirs in C:\nexus-a2a-protocol\.venv\Lib\site-packages...
+
+============================================================
+STEP 3: Install pinned coherent dependency set
+============================================================
+>>> "C:\nexus-a2a-protocol\.venv\Scripts\pip.exe" install fastapi==0.115.0 pydantic==2.8.2 uvicorn[standard]==0.30.6 httpx==0.27.2 websockets==12.0 openai==1.40.6 jinja2 python-multipart pytest>=8.0 pytest-asyncio>=0.21 pytest-xdist ruff>=0.6 pyyaml
+'"C:\nexus-a2a-protocol\.venv\Scripts\pip.exe"' is not recognized as an internal or external command,
+operable program or batch file.
+FAILED (exit 1)
+ERROR: pip install failed!
