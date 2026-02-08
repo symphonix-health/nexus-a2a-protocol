@@ -1,0 +1,11 @@
+{
+  "name": "TranscriberAgent",
+  "description": "Orchestrates telemedicine scribe workflow — transcript → summary → EHR",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://transcriber-agent:8031",
+  "capabilities": {"streaming": true, "websocket": true, "pushNotifications": false},
+  "methods": ["tasks/send", "tasks/sendSubscribe", "tasks/get", "tasks/cancel"],
+  "authentication": {"schemes": ["bearer"]},
+  "skills": [{"id": "telemed-scribe", "name": "Telemedicine Scribe", "description": "Transcribe, summarise, and persist clinical encounters"}]
+}

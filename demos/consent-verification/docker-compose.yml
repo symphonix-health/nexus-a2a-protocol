@@ -1,0 +1,50 @@
+services:
+  insurer-agent:
+    build:
+      context: ../../
+      dockerfile: demos/consent-verification/insurer-agent/Dockerfile
+    environment:
+      - PORT=8041
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - PROVIDER_RPC=http://provider-agent:8042/rpc
+      - HITL_REQUIRED=${HITL_REQUIRED}
+      - HITL_RPC=http://hitl-ui:8044/rpc
+      - DID_VERIFY=${DID_VERIFY}
+    ports: ["8041:8041"]
+    depends_on: [provider-agent, hitl-ui]
+
+  provider-agent:
+    build:
+      context: ../../
+      dockerfile: demos/consent-verification/provider-agent/Dockerfile
+    environment:
+      - PORT=8042
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - CONSENT_RPC=http://consent-analyser:8043/rpc
+      - DID_VERIFY=${DID_VERIFY}
+    ports: ["8042:8042"]
+
+  consent-analyser:
+    build:
+      context: ../../
+      dockerfile: demos/consent-verification/consent-analyser/Dockerfile
+    environment:
+      - PORT=8043
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL}
+      - DID_VERIFY=${DID_VERIFY}
+    ports: ["8043:8043"]
+
+  hitl-ui:
+    build:
+      context: ../../
+      dockerfile: demos/consent-verification/hitl-ui/Dockerfile
+    environment:
+      - PORT=8044
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+    ports: ["8044:8044"]

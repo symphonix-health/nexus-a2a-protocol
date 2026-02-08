@@ -1,0 +1,20 @@
+{
+  "name": "central-surveillance",
+  "description": "Orchestrating surveillance agent.  Receives tasks/sendSubscribe, fans out to hospital-reporter and osint-agent (preferring MQTT, falling back to HTTP), synthesises an alert via LLM.",
+  "url": "http://central-surveillance:8053",
+  "version": "0.1.0",
+  "capabilities": {
+    "streaming": true,
+    "pushNotifications": true,
+    "multiTransport": true
+  },
+  "skills": [
+    {
+      "id": "outbreak-alert",
+      "name": "Outbreak Alert Synthesis",
+      "description": "Collects hospital stats and OSINT headlines, produces a synthesised public-health alert."
+    }
+  ],
+  "defaultInputModes": ["application/json"],
+  "defaultOutputModes": ["application/json"]
+}

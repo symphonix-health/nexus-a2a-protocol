@@ -1,0 +1,2310 @@
+{
+  "generated_at": "2026-02-08T18:39:34.444044+00:00",
+  "total": 140,
+  "passed": 55,
+  "failed": 55,
+  "skipped": 30,
+  "errors": 0,
+  "results": [
+    {
+      "use_case_id": "UC-CONSENT-0001",
+      "scenario_title": "consent-verification positive scenario 1",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-3",
+        "FR-2",
+        "IR-8",
+        "SPR-5",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 8795.999999998457
+    },
+    {
+      "use_case_id": "UC-CONSENT-0006",
+      "scenario_title": "consent-verification positive scenario 6",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "NFR-1",
+        "NFR-6",
+        "SPR-2",
+        "SPR-3",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 5280.99999999904
+    },
+    {
+      "use_case_id": "UC-CONSENT-0007",
+      "scenario_title": "consent-verification positive scenario 7",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-6",
+        "FR-8",
+        "IR-2",
+        "NFR-1",
+        "SPR-2"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 7281.000000002678
+    },
+    {
+      "use_case_id": "UC-CONSENT-0011",
+      "scenario_title": "consent-verification positive scenario 11",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-4",
+        "IR-3",
+        "IR-8",
+        "NFR-5",
+        "NFR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 4780.99999999904
+    },
+    {
+      "use_case_id": "UC-CONSENT-0012",
+      "scenario_title": "consent-verification positive scenario 12",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "IR-2",
+        "IR-5",
+        "NFR-7",
+        "SPR-5",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "Server disconnected without sending a response.",
+      "duration_ms": 6625.0
+    },
+    {
+      "use_case_id": "UC-CONSENT-0013",
+      "scenario_title": "consent-verification positive scenario 13",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-1",
+        "IR-7",
+        "NFR-9",
+        "SPR-1",
+        "SPR-5"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 11875.0
+    },
+    {
+      "use_case_id": "UC-CONSENT-0014",
+      "scenario_title": "consent-verification positive scenario 14",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-7",
+        "IR-5",
+        "IR-7",
+        "NFR-1",
+        "NFR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 7264.999999999418
+    },
+    {
+      "use_case_id": "UC-CONSENT-0015",
+      "scenario_title": "consent-verification positive scenario 15",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-4",
+        "FR-3",
+        "FR-6",
+        "NFR-6",
+        "NFR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 5702.999999997701
+    },
+    {
+      "use_case_id": "UC-CONSENT-0016",
+      "scenario_title": "consent-verification positive scenario 16",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "IR-2",
+        "IR-5",
+        "NFR-10",
+        "NFR-4",
+        "NFR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 6563.000000001921
+    },
+    {
+      "use_case_id": "UC-CONSENT-0017",
+      "scenario_title": "consent-verification positive scenario 17",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-2",
+        "FR-4",
+        "IR-1",
+        "IR-4",
+        "IR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 5155.99999999904
+    },
+    {
+      "use_case_id": "UC-CONSENT-0002",
+      "scenario_title": "consent-verification negative scenario 2",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "NFR-10",
+        "NFR-2",
+        "NFR-9",
+        "SPR-1",
+        "SPR-2"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 2641.0000000032596
+    },
+    {
+      "use_case_id": "UC-CONSENT-0003",
+      "scenario_title": "consent-verification negative scenario 3",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-5",
+        "IR-2",
+        "IR-4",
+        "IR-5",
+        "NFR-3"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 1718.0000000007567
+    },
+    {
+      "use_case_id": "UC-CONSENT-0005",
+      "scenario_title": "consent-verification negative scenario 5",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-3",
+        "FR-8",
+        "IR-3",
+        "IR-5",
+        "SPR-1"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 1594.0000000009604
+    },
+    {
+      "use_case_id": "UC-CONSENT-0008",
+      "scenario_title": "consent-verification negative scenario 8",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "FR-7",
+        "IR-4",
+        "NFR-5",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 1375.0
+    },
+    {
+      "use_case_id": "UC-CONSENT-0009",
+      "scenario_title": "consent-verification negative scenario 9",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "FR-3",
+        "IR-4",
+        "IR-7",
+        "NFR-8"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 2156.9999999992433
+    },
+    {
+      "use_case_id": "UC-CONSENT-0018",
+      "scenario_title": "consent-verification negative scenario 18",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "FR-7",
+        "FR-8",
+        "NFR-5",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 3031.0000000026776
+    },
+    {
+      "use_case_id": "UC-CONSENT-0021",
+      "scenario_title": "consent-verification negative scenario 21",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "IR-2",
+        "IR-3",
+        "IR-4",
+        "SPR-3"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 2592.9999999971187
+    },
+    {
+      "use_case_id": "UC-CONSENT-0023",
+      "scenario_title": "consent-verification negative scenario 23",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "IR-1",
+        "IR-7",
+        "NFR-10",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 2062.000000001717
+    },
+    {
+      "use_case_id": "UC-CONSENT-0024",
+      "scenario_title": "consent-verification negative scenario 24",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-4",
+        "FR-8",
+        "IR-3",
+        "IR-6",
+        "NFR-9"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 2938.000000001921
+    },
+    {
+      "use_case_id": "UC-CONSENT-0025",
+      "scenario_title": "consent-verification negative scenario 25",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-1",
+        "NFR-1",
+        "NFR-6",
+        "SPR-6",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 2780.9999999990396
+    },
+    {
+      "use_case_id": "UC-ED-0001",
+      "scenario_title": "ed-triage positive scenario 1",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "FR-6",
+        "FR-7",
+        "NFR-10",
+        "SPR-1"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 17735.000000000582
+    },
+    {
+      "use_case_id": "UC-ED-0002",
+      "scenario_title": "ed-triage positive scenario 2",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-2",
+        "FR-4",
+        "IR-4",
+        "NFR-1",
+        "NFR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 11969.00000000096
+    },
+    {
+      "use_case_id": "UC-ED-0004",
+      "scenario_title": "ed-triage positive scenario 4",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "FR-6",
+        "FR-7",
+        "NFR-2",
+        "SPR-3"
+      ],
+      "status": "fail",
+      "message": "",
+      "duration_ms": 7812.999999998283
+    },
+    {
+      "use_case_id": "UC-ED-0007",
+      "scenario_title": "ed-triage positive scenario 7",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "CR-5",
+        "SPR-2",
+        "SPR-6",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "",
+      "duration_ms": 6031.999999999243
+    },
+    {
+      "use_case_id": "UC-ED-0008",
+      "scenario_title": "ed-triage positive scenario 8",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "FR-6",
+        "NFR-4",
+        "NFR-9",
+        "SPR-6"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 12562.000000001717
+    },
+    {
+      "use_case_id": "UC-ED-0009",
+      "scenario_title": "ed-triage positive scenario 9",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-2",
+        "FR-5",
+        "IR-7",
+        "IR-8",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "Server disconnected without sending a response.",
+      "duration_ms": 5734.000000000378
+    },
+    {
+      "use_case_id": "UC-ED-0010",
+      "scenario_title": "ed-triage positive scenario 10",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-4",
+        "FR-1",
+        "FR-6",
+        "IR-5",
+        "IR-6"
+      ],
+      "status": "fail",
+      "message": "Server disconnected without sending a response.",
+      "duration_ms": 6110.000000000582
+    },
+    {
+      "use_case_id": "UC-ED-0011",
+      "scenario_title": "ed-triage positive scenario 11",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-4",
+        "IR-1",
+        "NFR-7",
+        "SPR-6",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 13328.000000001339
+    },
+    {
+      "use_case_id": "UC-ED-0013",
+      "scenario_title": "ed-triage positive scenario 13",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-2",
+        "IR-5",
+        "NFR-5",
+        "NFR-9",
+        "SPR-4"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 12438.00000000192
+    },
+    {
+      "use_case_id": "UC-ED-0016",
+      "scenario_title": "ed-triage positive scenario 16",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-2",
+        "FR-3",
+        "IR-3",
+        "NFR-9",
+        "SPR-5"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 12563.00000000192
+    },
+    {
+      "use_case_id": "UC-ED-0003",
+      "scenario_title": "ed-triage negative scenario 3",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-5",
+        "FR-1",
+        "FR-6",
+        "IR-7",
+        "SPR-2"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 7375.0
+    },
+    {
+      "use_case_id": "UC-ED-0005",
+      "scenario_title": "ed-triage negative scenario 5",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "IR-1",
+        "NFR-9",
+        "SPR-2",
+        "SPR-5"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 500.0
+    },
+    {
+      "use_case_id": "UC-ED-0006",
+      "scenario_title": "ed-triage negative scenario 6",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-5",
+        "IR-4",
+        "NFR-6",
+        "SPR-5",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 3796.999999998661
+    },
+    {
+      "use_case_id": "UC-ED-0015",
+      "scenario_title": "ed-triage negative scenario 15",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-1",
+        "FR-1",
+        "FR-5",
+        "IR-7",
+        "SPR-2"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 530.9999999990396
+    },
+    {
+      "use_case_id": "UC-ED-0018",
+      "scenario_title": "ed-triage negative scenario 18",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-1",
+        "FR-4",
+        "IR-2",
+        "IR-7",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 375.0
+    },
+    {
+      "use_case_id": "UC-ED-0030",
+      "scenario_title": "ed-triage negative scenario 30",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-3",
+        "IR-5",
+        "IR-6",
+        "SPR-1",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 2640.9999999996217
+    },
+    {
+      "use_case_id": "UC-ED-0031",
+      "scenario_title": "ed-triage negative scenario 31",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "IR-7",
+        "NFR-4",
+        "NFR-5",
+        "SPR-1"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 2687.999999998283
+    },
+    {
+      "use_case_id": "UC-ED-0044",
+      "scenario_title": "ed-triage negative scenario 44",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "FR-8",
+        "IR-8",
+        "SPR-1",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 530.9999999990396
+    },
+    {
+      "use_case_id": "UC-ED-0045",
+      "scenario_title": "ed-triage negative scenario 45",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-5",
+        "NFR-1",
+        "NFR-2",
+        "SPR-6",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 3436.999999998079
+    },
+    {
+      "use_case_id": "UC-ED-0048",
+      "scenario_title": "ed-triage negative scenario 48",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-8",
+        "IR-1",
+        "IR-2",
+        "IR-3",
+        "NFR-6"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 3155.9999999990396
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0001",
+      "scenario_title": "protocol-core core positive scenario 1",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-2",
+        "IR-3",
+        "NFR-1",
+        "NFR-2",
+        "SPR-5"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 375.0
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0002",
+      "scenario_title": "protocol-core core positive scenario 2",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-6",
+        "FR-7",
+        "IR-8",
+        "NFR-3",
+        "NFR-9"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 2640.9999999996217
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0003",
+      "scenario_title": "protocol-core core positive scenario 3",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "FR-5",
+        "FR-8",
+        "IR-4",
+        "NFR-2",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 578.0000000013388
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0004",
+      "scenario_title": "protocol-core core positive scenario 4",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-4",
+        "IR-3",
+        "IR-8",
+        "NFR-8",
+        "SPR-4",
+        "SPR-5"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 312.9999999982829
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0005",
+      "scenario_title": "protocol-core core positive scenario 5",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "IR-3",
+        "NFR-8",
+        "SPR-1",
+        "SPR-6",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 500.0
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0007",
+      "scenario_title": "protocol-core core positive scenario 7",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-2",
+        "FR-3",
+        "IR-7",
+        "NFR-6",
+        "SPR-6",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 296.9999999986612
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0008",
+      "scenario_title": "protocol-core core positive scenario 8",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "IR-1",
+        "IR-3",
+        "NFR-1",
+        "NFR-8",
+        "SPR-4",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 640.9999999996217
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0009",
+      "scenario_title": "protocol-core core positive scenario 9",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-4",
+        "FR-2",
+        "IR-5",
+        "NFR-3",
+        "SPR-2",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 313.00000000192085
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0010",
+      "scenario_title": "protocol-core core positive scenario 10",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-3",
+        "FR-5",
+        "FR-8",
+        "IR-6",
+        "NFR-3",
+        "NFR-6"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 297.0000000022992
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0011",
+      "scenario_title": "protocol-core core positive scenario 11",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-1",
+        "FR-7",
+        "FR-8",
+        "IR-8",
+        "SPR-1"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 280.9999999990396
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0013",
+      "scenario_title": "protocol-core core negative scenario 13",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-3",
+        "FR-8",
+        "NFR-3",
+        "NFR-6",
+        "NFR-9",
+        "SPR-3"
+      ],
+      "status": "skip",
+      "message": "Non-RPC negative scenario",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0028",
+      "scenario_title": "protocol-core core negative scenario 28",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "FR-5",
+        "FR-8",
+        "NFR-1",
+        "SPR-5",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 484.00000000037835
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0029",
+      "scenario_title": "protocol-core core negative scenario 29",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-2",
+        "IR-2",
+        "NFR-2",
+        "NFR-9",
+        "SPR-1",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 375.0
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0030",
+      "scenario_title": "protocol-core core negative scenario 30",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "FR-7",
+        "FR-8",
+        "IR-7",
+        "NFR-2",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 405.9999999990396
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0031",
+      "scenario_title": "protocol-core core negative scenario 31",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-1",
+        "CR-5",
+        "FR-5",
+        "IR-7",
+        "NFR-10",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 328.0000000013388
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0032",
+      "scenario_title": "protocol-core core negative scenario 32",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-1",
+        "IR-3",
+        "NFR-3",
+        "SPR-1",
+        "SPR-3",
+        "SPR-5"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 296.9999999986612
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0036",
+      "scenario_title": "protocol-core core negative scenario 36",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-3",
+        "IR-2",
+        "NFR-4",
+        "NFR-8",
+        "SPR-3",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 641.0000000032596
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0043",
+      "scenario_title": "protocol-core core negative scenario 43",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-8",
+        "NFR-3",
+        "SPR-2",
+        "SPR-5",
+        "SPR-6",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 625.0
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0050",
+      "scenario_title": "protocol-core core negative scenario 50",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "FR-5",
+        "SPR-2",
+        "SPR-3",
+        "SPR-4",
+        "SPR-6"
+      ],
+      "status": "skip",
+      "message": "Non-RPC negative scenario",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0053",
+      "scenario_title": "protocol-core core negative scenario 53",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "IR-2",
+        "NFR-2",
+        "NFR-3",
+        "NFR-9",
+        "SPR-2"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 733.9999999967404
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0001",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 1",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-6",
+        "FR-7",
+        "IR-7",
+        "NFR-8",
+        "SPR-2"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0003",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 3",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-2",
+        "FR-5",
+        "FR-6",
+        "IR-5",
+        "NFR-3",
+        "NFR-9"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0006",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 6",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "IR-6",
+        "NFR-1",
+        "NFR-2",
+        "NFR-3",
+        "NFR-7",
+        "SPR-3"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0007",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 7",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-2",
+        "FR-5",
+        "IR-2",
+        "IR-3",
+        "NFR-1"
+      ],
+      "status": "fail",
+      "message": "assert 500 == 200\n +  where 500 = <Response [500 Internal Server Error]>.status_code\n +  and   200 = <built-in method get of dict object at 0x0000019D31180DC0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x0000019D31180DC0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 1094.0000000009604
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0008",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 8",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-4",
+        "IR-6",
+        "NFR-3",
+        "NFR-7",
+        "SPR-1",
+        "SPR-2"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0011",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 11",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-3",
+        "IR-5",
+        "SPR-1",
+        "SPR-5",
+        "SPR-6"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0012",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 12",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "FR-6",
+        "IR-6",
+        "NFR-3",
+        "NFR-4",
+        "NFR-5"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0013",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 13",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-6",
+        "FR-7",
+        "IR-3",
+        "NFR-5",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "assert 500 == 200\n +  where 500 = <Response [500 Internal Server Error]>.status_code\n +  and   200 = <built-in method get of dict object at 0x0000019D311D1880>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x0000019D311D1880> = {'auth_mode': 'jwt+did(optional)', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 1047.0000000022992
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0017",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 17",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-3",
+        "FR-2",
+        "FR-7",
+        "IR-3",
+        "NFR-8",
+        "SPR-5"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0018",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 18",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-2",
+        "FR-5",
+        "IR-2",
+        "IR-5",
+        "SPR-5",
+        "SPR-8"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0002",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 2",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-4",
+        "FR-2",
+        "NFR-5",
+        "NFR-9",
+        "SPR-1",
+        "SPR-6"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 32.00000000288128
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0004",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 4",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-4",
+        "FR-3",
+        "NFR-1",
+        "NFR-2",
+        "NFR-7",
+        "SPR-8"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0010",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 10",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-2",
+        "IR-4",
+        "IR-6",
+        "NFR-2",
+        "NFR-5",
+        "SPR-3"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0014",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 14",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-1",
+        "CR-3",
+        "FR-6",
+        "FR-7",
+        "SPR-1",
+        "SPR-6"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 79.0000000015425
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0015",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 15",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-2",
+        "FR-5",
+        "IR-5",
+        "NFR-5",
+        "SPR-6",
+        "SPR-8"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0020",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 20",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-8",
+        "NFR-1",
+        "NFR-4",
+        "NFR-7",
+        "NFR-8",
+        "SPR-3"
+      ],
+      "status": "fail",
+      "message": "Expecting value: line 1 column 1 (char 0)",
+      "duration_ms": 969.0000000009604
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0024",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 24",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-4",
+        "FR-2",
+        "FR-7",
+        "IR-7",
+        "NFR-4",
+        "NFR-8"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0028",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 28",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "FR-1",
+        "FR-7",
+        "IR-6",
+        "NFR-3",
+        "SPR-3"
+      ],
+      "status": "fail",
+      "message": "Expecting value: line 1 column 1 (char 0)",
+      "duration_ms": 452.9999999977008
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0033",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 33",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "FR-3",
+        "FR-6",
+        "FR-8",
+        "IR-6",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "Expecting value: line 1 column 1 (char 0)",
+      "duration_ms": 328.0000000013388
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0036",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 36",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "FR-1",
+        "FR-4",
+        "FR-7",
+        "NFR-2",
+        "SPR-2"
+      ],
+      "status": "fail",
+      "message": "Expecting value: line 1 column 1 (char 0)",
+      "duration_ms": 328.0000000013388
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0002",
+      "scenario_title": "protocol-streaming streaming positive scenario 2",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-2",
+        "FR-2",
+        "IR-3",
+        "NFR-3",
+        "SPR-3",
+        "SPR-4"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0003",
+      "scenario_title": "protocol-streaming streaming positive scenario 3",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-7",
+        "NFR-5",
+        "NFR-6",
+        "SPR-4",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "SSE stream timed out (acceptable)",
+      "duration_ms": 17156.000000002678
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0004",
+      "scenario_title": "protocol-streaming streaming positive scenario 4",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-1",
+        "FR-8",
+        "IR-4",
+        "IR-6",
+        "NFR-3",
+        "NFR-9"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0006",
+      "scenario_title": "protocol-streaming streaming positive scenario 6",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-2",
+        "IR-2",
+        "IR-4",
+        "IR-7",
+        "SPR-8"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0007",
+      "scenario_title": "protocol-streaming streaming positive scenario 7",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-1",
+        "NFR-1",
+        "SPR-1",
+        "SPR-2",
+        "SPR-5"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 16.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0010",
+      "scenario_title": "protocol-streaming streaming positive scenario 10",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-6",
+        "IR-4",
+        "NFR-3",
+        "SPR-1",
+        "SPR-2",
+        "SPR-6"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0011",
+      "scenario_title": "protocol-streaming streaming positive scenario 11",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-6",
+        "FR-8",
+        "NFR-4",
+        "NFR-5",
+        "NFR-7",
+        "SPR-2"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0014",
+      "scenario_title": "protocol-streaming streaming positive scenario 14",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-2",
+        "FR-6",
+        "IR-1",
+        "IR-5",
+        "NFR-7",
+        "SPR-2"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 16.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0015",
+      "scenario_title": "protocol-streaming streaming positive scenario 15",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-4",
+        "IR-5",
+        "NFR-1",
+        "NFR-3",
+        "SPR-2",
+        "SPR-3"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 16.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0018",
+      "scenario_title": "protocol-streaming streaming positive scenario 18",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-1",
+        "FR-2",
+        "FR-5",
+        "NFR-5",
+        "NFR-7",
+        "NFR-8"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0005",
+      "scenario_title": "protocol-streaming streaming negative scenario 5",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-8",
+        "IR-3",
+        "IR-4",
+        "NFR-10",
+        "SPR-6",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 686.9999999980791
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0008",
+      "scenario_title": "protocol-streaming streaming negative scenario 8",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-1",
+        "CR-4",
+        "CR-5",
+        "FR-3",
+        "NFR-1",
+        "SPR-2"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 344.0000000009604
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0009",
+      "scenario_title": "protocol-streaming streaming negative scenario 9",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-5",
+        "FR-3",
+        "FR-8",
+        "IR-1",
+        "NFR-5",
+        "NFR-6"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0012",
+      "scenario_title": "protocol-streaming streaming negative scenario 12",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-5",
+        "FR-6",
+        "NFR-4",
+        "NFR-5",
+        "NFR-7",
+        "SPR-6"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0013",
+      "scenario_title": "protocol-streaming streaming negative scenario 13",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-2",
+        "NFR-6",
+        "NFR-9",
+        "SPR-2",
+        "SPR-5",
+        "SPR-6"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 467.9999999971187
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0016",
+      "scenario_title": "protocol-streaming streaming negative scenario 16",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-2",
+        "FR-4",
+        "FR-6",
+        "IR-8",
+        "NFR-9",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 282.0000000028813
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0017",
+      "scenario_title": "protocol-streaming streaming negative scenario 17",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "FR-5",
+        "IR-1",
+        "IR-7",
+        "NFR-7",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 1889.999999999418
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0027",
+      "scenario_title": "protocol-streaming streaming negative scenario 27",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-5",
+        "FR-7",
+        "IR-2",
+        "NFR-7",
+        "SPR-2",
+        "SPR-8"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0029",
+      "scenario_title": "protocol-streaming streaming negative scenario 29",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-8",
+        "IR-4",
+        "IR-8",
+        "NFR-3",
+        "SPR-1",
+        "SPR-7"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0037",
+      "scenario_title": "protocol-streaming streaming negative scenario 37",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "IR-2",
+        "NFR-1",
+        "NFR-10",
+        "NFR-2",
+        "NFR-9"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SURV-0001",
+      "scenario_title": "public-health-surveillance positive scenario 1",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-2",
+        "FR-3",
+        "IR-2",
+        "NFR-6"
+      ],
+      "status": "fail",
+      "message": "assert 500 == 200\n +  where 500 = <Response [500 Internal Server Error]>.status_code\n +  and   200 = <built-in method get of dict object at 0x0000019D31E06680>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x0000019D31E06680> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 1062.0000000017171
+    },
+    {
+      "use_case_id": "UC-SURV-0002",
+      "scenario_title": "public-health-surveillance positive scenario 2",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-3",
+        "FR-1",
+        "IR-6",
+        "NFR-1",
+        "SPR-1"
+      ],
+      "status": "fail",
+      "message": "assert 500 == 200\n +  where 500 = <Response [500 Internal Server Error]>.status_code\n +  and   200 = <built-in method get of dict object at 0x0000019D316D3E00>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x0000019D316D3E00> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 344.0000000009604
+    },
+    {
+      "use_case_id": "UC-SURV-0005",
+      "scenario_title": "public-health-surveillance positive scenario 5",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-2",
+        "FR-3",
+        "IR-3",
+        "IR-6",
+        "NFR-4"
+      ],
+      "status": "fail",
+      "message": "assert 500 == 200\n +  where 500 = <Response [500 Internal Server Error]>.status_code\n +  and   200 = <built-in method get of dict object at 0x0000019D31710340>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x0000019D31710340> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 859.0000000003783
+    },
+    {
+      "use_case_id": "UC-SURV-0006",
+      "scenario_title": "public-health-surveillance positive scenario 6",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-2",
+        "FR-3",
+        "SPR-4",
+        "SPR-6",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "assert 500 == 200\n +  where 500 = <Response [500 Internal Server Error]>.status_code\n +  and   200 = <built-in method get of dict object at 0x0000019D31711AC0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x0000019D31711AC0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 453.0000000013388
+    },
+    {
+      "use_case_id": "UC-SURV-0007",
+      "scenario_title": "public-health-surveillance positive scenario 7",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-4",
+        "IR-2",
+        "IR-7",
+        "IR-8",
+        "NFR-8"
+      ],
+      "status": "fail",
+      "message": "assert 500 == 200\n +  where 500 = <Response [500 Internal Server Error]>.status_code\n +  and   200 = <built-in method get of dict object at 0x0000019D31723080>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x0000019D31723080> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 532.0000000028813
+    },
+    {
+      "use_case_id": "UC-SURV-0009",
+      "scenario_title": "public-health-surveillance positive scenario 9",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "IR-7",
+        "NFR-1",
+        "NFR-10",
+        "NFR-7",
+        "SPR-3"
+      ],
+      "status": "fail",
+      "message": "assert 500 == 200\n +  where 500 = <Response [500 Internal Server Error]>.status_code\n +  and   200 = <built-in method get of dict object at 0x0000019D3172CAC0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x0000019D3172CAC0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 562.9999999982829
+    },
+    {
+      "use_case_id": "UC-SURV-0010",
+      "scenario_title": "public-health-surveillance positive scenario 10",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-3",
+        "CR-5",
+        "FR-5",
+        "NFR-10",
+        "NFR-6"
+      ],
+      "status": "fail",
+      "message": "assert 500 == 200\n +  where 500 = <Response [500 Internal Server Error]>.status_code\n +  and   200 = <built-in method get of dict object at 0x0000019D31711A40>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x0000019D31711A40> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 389.9999999994179
+    },
+    {
+      "use_case_id": "UC-SURV-0015",
+      "scenario_title": "public-health-surveillance positive scenario 15",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-6",
+        "IR-4",
+        "NFR-2",
+        "NFR-4",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "assert 500 == 200\n +  where 500 = <Response [500 Internal Server Error]>.status_code\n +  and   200 = <built-in method get of dict object at 0x0000019D317C9C80>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x0000019D317C9C80> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 563.0000000019209
+    },
+    {
+      "use_case_id": "UC-SURV-0016",
+      "scenario_title": "public-health-surveillance positive scenario 16",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "IR-3",
+        "IR-6",
+        "NFR-5",
+        "NFR-8",
+        "SPR-6"
+      ],
+      "status": "fail",
+      "message": "assert 500 == 200\n +  where 500 = <Response [500 Internal Server Error]>.status_code\n +  and   200 = <built-in method get of dict object at 0x0000019D317CB440>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x0000019D317CB440> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 327.9999999977008
+    },
+    {
+      "use_case_id": "UC-SURV-0017",
+      "scenario_title": "public-health-surveillance positive scenario 17",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-5",
+        "IR-1",
+        "IR-4",
+        "SPR-5"
+      ],
+      "status": "fail",
+      "message": "assert 500 == 200\n +  where 500 = <Response [500 Internal Server Error]>.status_code\n +  and   200 = <built-in method get of dict object at 0x0000019D317D4C80>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x0000019D317D4C80> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 312.9999999982829
+    },
+    {
+      "use_case_id": "UC-SURV-0004",
+      "scenario_title": "public-health-surveillance negative scenario 4",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "IR-7",
+        "NFR-9",
+        "SPR-5",
+        "SPR-6"
+      ],
+      "status": "fail",
+      "message": "Expecting value: line 1 column 1 (char 0)",
+      "duration_ms": 311.99999999807915
+    },
+    {
+      "use_case_id": "UC-SURV-0011",
+      "scenario_title": "public-health-surveillance negative scenario 11",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-1",
+        "SPR-1",
+        "SPR-4",
+        "SPR-6",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "Expecting value: line 1 column 1 (char 0)",
+      "duration_ms": 280.9999999990396
+    },
+    {
+      "use_case_id": "UC-SURV-0018",
+      "scenario_title": "public-health-surveillance negative scenario 18",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-5",
+        "NFR-1",
+        "NFR-4",
+        "SPR-3",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "Expecting value: line 1 column 1 (char 0)",
+      "duration_ms": 485.0000000005821
+    },
+    {
+      "use_case_id": "UC-SURV-0019",
+      "scenario_title": "public-health-surveillance negative scenario 19",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-2",
+        "FR-3",
+        "FR-8",
+        "IR-7",
+        "NFR-3"
+      ],
+      "status": "fail",
+      "message": "Expecting value: line 1 column 1 (char 0)",
+      "duration_ms": 328.0000000013388
+    },
+    {
+      "use_case_id": "UC-SURV-0020",
+      "scenario_title": "public-health-surveillance negative scenario 20",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "IR-3",
+        "NFR-2",
+        "SPR-5",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "Expecting value: line 1 column 1 (char 0)",
+      "duration_ms": 264.9999999994179
+    },
+    {
+      "use_case_id": "UC-SURV-0026",
+      "scenario_title": "public-health-surveillance negative scenario 26",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-6",
+        "FR-7",
+        "IR-2",
+        "IR-7",
+        "NFR-8"
+      ],
+      "status": "fail",
+      "message": "Expecting value: line 1 column 1 (char 0)",
+      "duration_ms": 296.9999999986612
+    },
+    {
+      "use_case_id": "UC-SURV-0027",
+      "scenario_title": "public-health-surveillance negative scenario 27",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "IR-1",
+        "IR-4",
+        "IR-6",
+        "SPR-3"
+      ],
+      "status": "fail",
+      "message": "Expecting value: line 1 column 1 (char 0)",
+      "duration_ms": 438.00000000192085
+    },
+    {
+      "use_case_id": "UC-SURV-0035",
+      "scenario_title": "public-health-surveillance negative scenario 35",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-7",
+        "IR-4",
+        "NFR-8",
+        "SPR-4",
+        "SPR-5"
+      ],
+      "status": "fail",
+      "message": "Expecting value: line 1 column 1 (char 0)",
+      "duration_ms": 313.00000000192085
+    },
+    {
+      "use_case_id": "UC-SURV-0038",
+      "scenario_title": "public-health-surveillance negative scenario 38",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-3",
+        "FR-6",
+        "FR-8",
+        "NFR-10",
+        "NFR-9"
+      ],
+      "status": "fail",
+      "message": "Expecting value: line 1 column 1 (char 0)",
+      "duration_ms": 453.0000000013388
+    },
+    {
+      "use_case_id": "UC-SURV-0040",
+      "scenario_title": "public-health-surveillance negative scenario 40",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-2",
+        "NFR-10",
+        "NFR-7",
+        "SPR-6",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "Expecting value: line 1 column 1 (char 0)",
+      "duration_ms": 405.9999999990396
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0003",
+      "scenario_title": "telemed-scribe positive scenario 3",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-8",
+        "IR-1",
+        "IR-4",
+        "IR-5",
+        "IR-6"
+      ],
+      "status": "fail",
+      "message": "Server disconnected without sending a response.",
+      "duration_ms": 17687.000000001717
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0004",
+      "scenario_title": "telemed-scribe positive scenario 4",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-5",
+        "FR-6",
+        "IR-2",
+        "SPR-2"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 4750.0
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0005",
+      "scenario_title": "telemed-scribe positive scenario 5",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-7",
+        "NFR-1",
+        "SPR-3",
+        "SPR-7",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 5063.000000001921
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0008",
+      "scenario_title": "telemed-scribe positive scenario 8",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-3",
+        "FR-5",
+        "FR-8",
+        "IR-2"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 5125.0
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0009",
+      "scenario_title": "telemed-scribe positive scenario 9",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-1",
+        "IR-7",
+        "NFR-6",
+        "SPR-1",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 5093.999999997322
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0010",
+      "scenario_title": "telemed-scribe positive scenario 10",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "FR-5",
+        "FR-6",
+        "FR-8",
+        "SPR-2"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 4625.0
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0011",
+      "scenario_title": "telemed-scribe positive scenario 11",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "IR-3",
+        "NFR-1",
+        "NFR-4",
+        "NFR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 5250.0
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0012",
+      "scenario_title": "telemed-scribe positive scenario 12",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-8",
+        "IR-4",
+        "IR-5",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 4297.000000002299
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0013",
+      "scenario_title": "telemed-scribe positive scenario 13",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-2",
+        "FR-3",
+        "NFR-1",
+        "NFR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 4031.9999999992433
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0014",
+      "scenario_title": "telemed-scribe positive scenario 14",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-7",
+        "IR-4",
+        "IR-6",
+        "IR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 4265.999999999622
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0002",
+      "scenario_title": "telemed-scribe negative scenario 2",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "IR-7",
+        "NFR-1",
+        "NFR-2",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 3391.0000000032596
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0006",
+      "scenario_title": "telemed-scribe negative scenario 6",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "FR-3",
+        "NFR-1",
+        "SPR-2",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 344.0000000009604
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0007",
+      "scenario_title": "telemed-scribe negative scenario 7",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-2",
+        "IR-1",
+        "IR-5",
+        "NFR-8",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 2984.0000000003783
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0016",
+      "scenario_title": "telemed-scribe negative scenario 16",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-5",
+        "FR-6",
+        "IR-2",
+        "IR-6",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 3920.9999999984575
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0019",
+      "scenario_title": "telemed-scribe negative scenario 19",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-2",
+        "IR-8",
+        "NFR-7",
+        "NFR-9",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 4139.999999999418
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0022",
+      "scenario_title": "telemed-scribe negative scenario 22",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-4",
+        "FR-7",
+        "IR-8",
+        "NFR-3",
+        "NFR-7"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 2905.9999999990396
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0024",
+      "scenario_title": "telemed-scribe negative scenario 24",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "FR-4",
+        "IR-6",
+        "NFR-4",
+        "SPR-6"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 3109.0000000003783
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0025",
+      "scenario_title": "telemed-scribe negative scenario 25",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-2",
+        "FR-8",
+        "IR-8",
+        "SPR-7",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 328.0000000013388
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0026",
+      "scenario_title": "telemed-scribe negative scenario 26",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-1",
+        "CR-4",
+        "NFR-2",
+        "NFR-3",
+        "SPR-3"
+      ],
+      "status": "fail",
+      "message": "Expected error, got 200",
+      "duration_ms": 4204.0000000015425
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0030",
+      "scenario_title": "telemed-scribe negative scenario 30",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-2",
+        "FR-7",
+        "IR-2",
+        "NFR-3",
+        "SPR-4"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 312.0000000017171
+    }
+  ]
+}

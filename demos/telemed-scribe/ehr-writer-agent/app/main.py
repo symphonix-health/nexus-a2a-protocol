@@ -1,0 +1,129 @@
+"""EHR Writer Agent — persists clinical notes to SQLite."""
+
+from __future__ import annotations
+
+import datetime
+import json
+import logging
+import os
+import sqlite3
+
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi.responses import JSONResponse, StreamingResponse
+
+from shared.nexus_common.auth import AuthError, verify_jwt
+from shared.nexus_common.did import did_verify_enabled, verify_did_signature
+from shared.nexus_common.jsonrpc import JsonRpcError, parse_request, response_error, response_result
+from shared.nexus_common.sse import TaskEventBus
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
+logger = logging.getLogger("nexus.ehr-writer-agent")
+
+app = FastAPI(title="ehr-writer-agent")
+bus = TaskEventBus()
+
+JWT_SECRET = os.getenv("NEXUS_JWT_SECRET", "dev-secret-change-me")
+REQUIRED_SCOPE = os.getenv("NEXUS_REQUIRED_SCOPE", "nexus:invoke")
+
+
+def _require_auth(req: Request) -> str:
+    auth = req.headers.get("authorization", "")
+    if not auth.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Missing bearer token")
+    token = auth.split(" ", 1)[1].strip()
+    try:
+        verify_jwt(token, JWT_SECRET, required_scope=REQUIRED_SCOPE)
+    except AuthError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
+    if did_verify_enabled() and not verify_did_signature():
+        raise HTTPException(status_code=401, detail="DID signature verification failed")
+    return token
+
+
+def _get_db() -> sqlite3.Connection:
+    db_path = os.getenv("EHR_DB", "/data/ehr.sqlite")
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    con = sqlite3.connect(db_path)
+    con.execute(
+        "CREATE TABLE IF NOT EXISTS notes "
+        "(id INTEGER PRIMARY KEY AUTOINCREMENT, patient_ref TEXT, created_at TEXT, note_markdown TEXT)"
+    )
+    return con
+
+
+@app.get("/.well-known/agent-card.json")
+async def agent_card():
+    path = os.path.join(os.path.dirname(__file__), "agent_card.json")
+    with open(path, encoding="utf-8") as f:
+        return JSONResponse(content=json.load(f))
+
+
+@app.get("/events/{task_id}")
+async def events(task_id: str, request: Request):
+    _require_auth(request)
+    return StreamingResponse(bus.stream(task_id), media_type="text/event-stream")
+
+
+@app.websocket("/ws/{task_id}")
+async def ws_stream(websocket: WebSocket, task_id: str):
+    token = websocket.query_params.get("token", "")
+    try:
+        verify_jwt(token, JWT_SECRET, required_scope=REQUIRED_SCOPE)
+    except AuthError:
+        await websocket.close(code=4001, reason="Unauthorized")
+        return
+    await websocket.accept()
+    try:
+        async for evt in bus.stream_ws(task_id):
+            await websocket.send_json(evt)
+    except WebSocketDisconnect:
+        pass
+
+
+METHODS: dict = {}
+
+
+async def _save(params: dict, token: str) -> dict:
+    con = _get_db()
+    con.execute(
+        "INSERT INTO notes(patient_ref, created_at, note_markdown) VALUES (?,?,?)",
+        (params.get("patient_ref"), datetime.datetime.utcnow().isoformat() + "Z", params.get("note_markdown", "")),
+    )
+    con.commit()
+    con.close()
+    return {"saved": True}
+
+
+async def _get_latest(params: dict, token: str) -> dict:
+    con = _get_db()
+    cur = con.execute(
+        "SELECT created_at, note_markdown FROM notes WHERE patient_ref=? ORDER BY id DESC LIMIT 1",
+        (params.get("patient_ref"),),
+    )
+    row = cur.fetchone()
+    con.close()
+    if not row:
+        return {"found": False}
+    return {"found": True, "created_at": row[0], "note_markdown": row[1]}
+
+
+METHODS["ehr/save"] = _save
+METHODS["ehr/getLatestNote"] = _get_latest
+
+
+@app.post("/rpc")
+async def rpc(request: Request):
+    token = _require_auth(request)
+    payload = await request.json()
+    try:
+        req = parse_request(payload)
+        method, params, id_ = req["method"], req["params"], req["id"]
+        if method not in METHODS:
+            raise JsonRpcError(-32601, "Method not found", method)
+        result = await METHODS[method](params, token)
+        return JSONResponse(content=response_result(id_, result))
+    except JsonRpcError as exc:
+        return JSONResponse(content=response_error(payload.get("id"), exc), status_code=200)
+    except Exception as exc:
+        err = JsonRpcError(-32000, "Server error", str(exc))
+        return JSONResponse(content=response_error(payload.get("id"), err), status_code=200)

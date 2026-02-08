@@ -1,0 +1,11 @@
+{
+  "name": "EHRWriterAgent",
+  "description": "Persists clinical notes to SQLite EHR store",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://ehr-writer-agent:8033",
+  "capabilities": {"streaming": true, "websocket": true, "pushNotifications": false},
+  "methods": ["ehr/save", "ehr/getLatestNote"],
+  "authentication": {"schemes": ["bearer"]},
+  "skills": [{"id": "ehr-write", "name": "EHR Writer", "description": "Save and retrieve clinical notes"}]
+}

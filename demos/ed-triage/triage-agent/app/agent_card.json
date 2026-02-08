@@ -1,0 +1,23 @@
+{
+  "name": "TriageAgent",
+  "description": "ED Triage orchestrator — accepts clinical risk assessments, delegates to DiagnosisAgent",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://triage-agent:8021",
+  "capabilities": {
+    "streaming": true,
+    "websocket": true,
+    "pushNotifications": false
+  },
+  "methods": ["tasks/send", "tasks/sendSubscribe", "tasks/get", "tasks/cancel"],
+  "authentication": {
+    "schemes": ["bearer"]
+  },
+  "skills": [
+    {
+      "id": "clinical-risk-assessment",
+      "name": "Clinical Risk Assessment",
+      "description": "Perform ED triage using patient demographics, chief complaint, and FHIR context"
+    }
+  ]
+}

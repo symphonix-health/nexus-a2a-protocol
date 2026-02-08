@@ -1,0 +1,43 @@
+services:
+  transcriber-agent:
+    build:
+      context: ../../
+      dockerfile: demos/telemed-scribe/transcriber-agent/Dockerfile
+    environment:
+      - PORT=8031
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - SUMMARY_RPC=http://summariser-agent:8032/rpc
+      - EHR_RPC=http://ehr-writer-agent:8033/rpc
+      - DID_VERIFY=${DID_VERIFY}
+    ports: ["8031:8031"]
+    depends_on: [summariser-agent, ehr-writer-agent]
+
+  summariser-agent:
+    build:
+      context: ../../
+      dockerfile: demos/telemed-scribe/summariser-agent/Dockerfile
+    environment:
+      - PORT=8032
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL}
+      - DID_VERIFY=${DID_VERIFY}
+    ports: ["8032:8032"]
+
+  ehr-writer-agent:
+    build:
+      context: ../../
+      dockerfile: demos/telemed-scribe/ehr-writer-agent/Dockerfile
+    environment:
+      - PORT=8033
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - EHR_DB=/data/ehr.sqlite
+      - DID_VERIFY=${DID_VERIFY}
+    volumes: ["ehr_data:/data"]
+    ports: ["8033:8033"]
+
+volumes:
+  ehr_data:

@@ -1,0 +1,11 @@
+{
+  "name": "ConsentAnalyserAgent",
+  "description": "AI-powered consent document analyser",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://consent-analyser:8043",
+  "capabilities": {"streaming": true, "websocket": true, "pushNotifications": false},
+  "methods": ["consent/check"],
+  "authentication": {"schemes": ["bearer"]},
+  "skills": [{"id": "consent-check", "name": "Consent Checker", "description": "Analyse consent text and return ALLOW/DENY with reasoning"}]
+}

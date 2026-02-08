@@ -1,0 +1,23 @@
+{
+  "name": "OpenHIEMediatorAgent",
+  "description": "FHIR gateway — retrieves patient resources from HAPI FHIR server",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://openhie-mediator:8023",
+  "capabilities": {
+    "streaming": true,
+    "websocket": true,
+    "pushNotifications": false
+  },
+  "methods": ["fhir/get"],
+  "authentication": {
+    "schemes": ["bearer"]
+  },
+  "skills": [
+    {
+      "id": "fhir-get",
+      "name": "FHIR Resource Retrieval",
+      "description": "Retrieve Patient and AllergyIntolerance resources from FHIR server"
+    }
+  ]
+}
