@@ -16,6 +16,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 
 from shared.nexus_common.auth import AuthError, verify_jwt
 from shared.nexus_common.did import did_verify_enabled, verify_did_signature
+from shared.nexus_common.health import HealthMonitor
 from shared.nexus_common.http_client import jsonrpc_call
 from shared.nexus_common.ids import make_task_id, make_trace_id
 from shared.nexus_common.jsonrpc import JsonRpcError, parse_request, response_error, response_result
@@ -25,7 +26,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname
 logger = logging.getLogger("nexus.triage-agent")
 
 app = FastAPI(title="triage-agent")
-bus = TaskEventBus()
+bus = TaskEventBus(agent_name="triage-agent")
+health_monitor = HealthMonitor("triage-agent")
 
 JWT_SECRET = os.getenv("NEXUS_JWT_SECRET", "dev-secret-change-me")
 REQUIRED_SCOPE = os.getenv("NEXUS_REQUIRED_SCOPE", "nexus:invoke")
@@ -52,6 +54,13 @@ async def agent_card():
     path = os.path.join(os.path.dirname(__file__), "agent_card.json")
     with open(path, encoding="utf-8") as f:
         return JSONResponse(content=json.load(f))
+
+
+# ── Health ───────────────────────────────────────────────────────
+@app.get("/health")
+async def health():
+    """Health check endpoint with metrics."""
+    return JSONResponse(content=health_monitor.get_health())
 
 
 # ── SSE streaming ────────────────────────────────────────────────
@@ -93,6 +102,11 @@ async def _send_subscribe(params: dict, token: str) -> dict:
     task_id = make_task_id()
     trace_id = make_trace_id()
     logger.info("[%s] task=%s ACCEPTED", trace_id, task_id)
+    
+    # Record metrics
+    health_monitor.metrics.record_accepted()
+    start_time = asyncio.get_event_loop().time()
+    
     await bus.publish(task_id, "nexus.task.status", json.dumps({"task_id": task_id, "state": "accepted", "trace_id": trace_id}))
 
     async def run():
@@ -106,14 +120,22 @@ async def _send_subscribe(params: dict, token: str) -> dict:
                 {"task": params.get("task", {}), "task_id": task_id},
                 f"{task_id}-diag",
             )
+            
+            duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
+            
             if "error" in resp:
-                await bus.publish(task_id, "nexus.task.error", json.dumps({"task_id": task_id, "error": resp["error"]}))
+                health_monitor.metrics.record_error(duration_ms)
+                await bus.publish(task_id, "nexus.task.error", json.dumps({"task_id": task_id, "error": resp["error"]}), duration_ms)
                 return
-            await bus.publish(task_id, "nexus.task.final", json.dumps(resp["result"]))
+            
+            health_monitor.metrics.record_completed(duration_ms)
+            await bus.publish(task_id, "nexus.task.final", json.dumps(resp["result"]), duration_ms)
             logger.info("[%s] task=%s COMPLETED", trace_id, task_id)
         except Exception as exc:
+            duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
             logger.exception("[%s] task=%s FAILED", trace_id, task_id)
-            await bus.publish(task_id, "nexus.task.error", json.dumps({"task_id": task_id, "error": str(exc)}))
+            health_monitor.metrics.record_error(duration_ms)
+            await bus.publish(task_id, "nexus.task.error", json.dumps({"task_id": task_id, "error": str(exc)}), duration_ms)
 
     asyncio.create_task(run())
     return {"task_id": task_id, "trace_id": trace_id}

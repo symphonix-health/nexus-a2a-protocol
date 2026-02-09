@@ -1,6 +1,10 @@
 version: "3.9"
 
 services:
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
   mosquitto:
     image: eclipse-mosquitto:2
     ports:
@@ -24,9 +28,12 @@ services:
     environment:
       - PORT=8051
       - AGENT_NAME=hospital-reporter
+      - REDIS_URL=redis://redis:6379
     depends_on:
       mosquitto:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   osint-agent:
     build:
@@ -38,9 +45,12 @@ services:
     environment:
       - PORT=8052
       - AGENT_NAME=osint-agent
+      - REDIS_URL=redis://redis:6379
     depends_on:
       mosquitto:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   central-surveillance:
     build:
@@ -56,6 +66,7 @@ services:
       - OSINT_AGENT_URL=http://osint-agent:8052
       - MQTT_BROKER=mosquitto
       - MQTT_PORT=1883
+      - REDIS_URL=redis://redis:6379
     depends_on:
       mosquitto:
         condition: service_healthy
@@ -63,3 +74,20 @@ services:
         condition: service_started
       osint-agent:
         condition: service_started
+      redis:
+        condition: service_started
+
+  command-centre:
+    build:
+      context: ../../
+      dockerfile: shared/command-centre/Dockerfile
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - AGENT_URLS=http://hospital-reporter:8051,http://osint-agent:8052,http://central-surveillance:8053
+      - UPDATE_INTERVAL_MS=2000
+    ports: ["8099:8099"]
+    depends_on:
+      - redis
+      - hospital-reporter
+      - osint-agent
+      - central-surveillance

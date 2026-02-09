@@ -1,0 +1,245 @@
+"""Command Centre — Real-time monitoring dashboard for NEXUS-A2A agent networks.
+
+Provides:
+- Agent discovery and health polling
+- Real-time event streaming via WebSocket
+- Metrics aggregation with heatmap data
+- Topology visualization support
+"""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import logging
+import os
+from datetime import datetime, timezone
+from typing import Dict, List, Any
+
+import httpx
+import redis.asyncio as aioredis
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
+logger = logging.getLogger("nexus.command-centre")
+
+app = FastAPI(title="command-centre", description="NEXUS-A2A Agent Monitoring Dashboard")
+
+# CORS for development
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Configuration
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
+AGENT_URLS = os.getenv("AGENT_URLS", "").split(",")
+AGENT_URLS = [url.strip() for url in AGENT_URLS if url.strip()]
+UPDATE_INTERVAL_MS = int(os.getenv("UPDATE_INTERVAL_MS", "2000"))
+
+# In-memory agent state
+agent_states: Dict[str, Dict[str, Any]] = {}
+lock = asyncio.Lock()
+
+
+# ── Agent Discovery & Health Polling ──────────────────────────────────
+async def fetch_agent_card(url: str, client: httpx.AsyncClient) -> Dict[str, Any] | None:
+    """Fetch agent card from discovery endpoint."""
+    try:
+        resp = await client.get(f"{url}/.well-known/agent-card.json", timeout=10.0)
+        if resp.status_code == 200:
+            return resp.json()
+    except Exception as exc:
+        logger.debug(f"Failed to fetch agent card from {url}: {exc}")
+    return None
+
+
+async def fetch_agent_health(url: str, client: httpx.AsyncClient) -> Dict[str, Any] | None:
+    """Fetch agent health status."""
+    try:
+        resp = await client.get(f"{url}/health", timeout=10.0)
+        if resp.status_code == 200:
+            return resp.json()
+    except Exception as exc:
+        logger.debug(f"Health check failed for {url}: {exc}")
+    return None
+
+
+async def poll_agents():
+    """Background task to continuously poll agent health."""
+    async with httpx.AsyncClient() as client:
+        while True:
+            try:
+                timestamp = datetime.now(timezone.utc).isoformat()
+                
+                for url in AGENT_URLS:
+                    card = await fetch_agent_card(url, client)
+                    health = await fetch_agent_health(url, client)
+                    
+                    async with lock:
+                        if card or health:
+                            agent_name = (health or {}).get("name") or (card or {}).get("name") or url
+                            
+                            # Infer dependencies from card
+                            dependencies = []
+                            if card and "methods" in card:
+                                # Placeholder: parse from card or env vars
+                                pass
+                            
+                            # Calculate health score
+                            status = "unknown"
+                            health_score = 0.5
+                            metrics = {}
+                            
+                            if health:
+                                status = health.get("status", "unknown")
+                                metrics = health.get("metrics", {})
+                                
+                                # Health score calculation
+                                error_rate = 0.0
+                                total = metrics.get("tasks_completed", 0) + metrics.get("tasks_errored", 0)
+                                if total > 0:
+                                    error_rate = metrics.get("tasks_errored", 0) / total
+                                
+                                latency_factor = max(0, 1 - metrics.get("avg_latency_ms", 0) / 10000)
+                                success_rate = 1 - error_rate
+                                health_score = (latency_factor * 0.5 + success_rate * 0.5)
+                            
+                            agent_states[url] = {
+                                "name": agent_name,
+                                "url": url,
+                                "status": status,
+                                "health_score": round(health_score, 3),
+                                "metrics": metrics,
+                                "dependencies": dependencies,
+                                "card": card or {},
+                                "last_seen": timestamp,
+                            }
+                        
+                        # Mark unreachable agents
+                        else:
+                            if url in agent_states:
+                                agent_states[url]["status"] = "unhealthy"
+                                agent_states[url]["last_seen"] = timestamp
+                
+                await asyncio.sleep(UPDATE_INTERVAL_MS / 1000)
+            except Exception as exc:
+                logger.error(f"Error in poll_agents: {exc}")
+                await asyncio.sleep(5.0)
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Start background polling on startup."""
+    asyncio.create_task(poll_agents())
+    logger.info(f"Command Centre started. Monitoring {len(AGENT_URLS)} agents.")
+
+
+# ── API Endpoints ─────────────────────────────────────────────────────
+@app.get("/health")
+async def health():
+    """Health check endpoint."""
+    return {
+        "status": "healthy",
+        "name": "command-centre",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "monitored_agents": len(AGENT_URLS),
+    }
+
+
+@app.get("/api/agents")
+async def get_agents():
+    """Get current state of all monitored agents."""
+    async with lock:
+        return JSONResponse(content=list(agent_states.values()))
+
+
+@app.get("/api/topology")
+async def get_topology():
+    """Get network topology graph data."""
+    async with lock:
+        nodes = []
+        edges = []
+        
+        for url, state in agent_states.items():
+            nodes.append({
+                "id": state["name"],
+                "url": url,
+                "status": state["status"],
+                "health_score": state["health_score"],
+                "metrics": state["metrics"],
+            })
+            
+            # Build edges from dependencies (placeholder)
+            for dep in state.get("dependencies", []):
+                edges.append({
+                    "source": state["name"],
+                    "target": dep,
+                })
+        
+        return JSONResponse(content={"nodes": nodes, "edges": edges})
+
+
+# ── WebSocket Event Streaming ─────────────────────────────────────────
+@app.websocket("/api/events")
+async def websocket_events(websocket: WebSocket):
+    """Stream real-time events from Redis pub/sub."""
+    await websocket.accept()
+    logger.info("WebSocket client connected")
+    
+    try:
+        # Connect to Redis
+        redis_client = aioredis.from_url(REDIS_URL, decode_responses=True)
+        pubsub = redis_client.pubsub()
+        await pubsub.subscribe("nexus:events")
+        
+        # Send initial agent state
+        async with lock:
+            await websocket.send_json({
+                "type": "agents.snapshot",
+                "payload": list(agent_states.values()),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            })
+        
+        # Stream events
+        async for message in pubsub.listen():
+            if message["type"] == "message":
+                try:
+                    event_data = json.loads(message["data"])
+                    await websocket.send_json({
+                        "type": "task.event",
+                        "payload": event_data,
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    })
+                except json.JSONDecodeError:
+                    logger.warning(f"Invalid JSON in Redis message: {message['data']}")
+            
+            # Periodically send agent updates
+            await asyncio.sleep(0.1)
+    
+    except WebSocketDisconnect:
+        logger.info("WebSocket client disconnected")
+    except Exception as exc:
+        logger.error(f"WebSocket error: {exc}")
+    finally:
+        try:
+            await pubsub.unsubscribe("nexus:events")
+            await redis_client.close()
+        except Exception:
+            pass
+
+
+# ── Static Files ──────────────────────────────────────────────────────
+# Mount static files last (fallback route)
+app.mount("/", StaticFiles(directory="app/static", html=True), name="static")
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8099)

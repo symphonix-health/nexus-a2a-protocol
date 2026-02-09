@@ -11,6 +11,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 
 from shared.nexus_common.auth import AuthError, verify_jwt
 from shared.nexus_common.did import did_verify_enabled, verify_did_signature
+from shared.nexus_common.health import HealthMonitor
 from shared.nexus_common.http_client import jsonrpc_call
 from shared.nexus_common.jsonrpc import JsonRpcError, parse_request, response_error, response_result
 from shared.nexus_common.openai_helper import llm_chat
@@ -20,7 +21,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname
 logger = logging.getLogger("nexus.diagnosis-agent")
 
 app = FastAPI(title="diagnosis-agent")
-bus = TaskEventBus()
+bus = TaskEventBus(agent_name="diagnosis-agent")
+health_monitor = HealthMonitor("diagnosis-agent")
 
 JWT_SECRET = os.getenv("NEXUS_JWT_SECRET", "dev-secret-change-me")
 REQUIRED_SCOPE = os.getenv("NEXUS_REQUIRED_SCOPE", "nexus:invoke")
@@ -45,6 +47,12 @@ async def agent_card():
     path = os.path.join(os.path.dirname(__file__), "agent_card.json")
     with open(path, encoding="utf-8") as f:
         return JSONResponse(content=json.load(f))
+
+
+@app.get("/health")
+async def health():
+    """Health check endpoint with metrics."""
+    return JSONResponse(content=health_monitor.get_health())
 
 
 @app.get("/events/{task_id}")
@@ -73,29 +81,41 @@ METHODS: dict = {}
 
 
 async def _assess(params: dict, token: str) -> dict:
-    task = params.get("task", {})
-    patient_ref = task.get("patient_ref", "Patient/unknown")
-    openhie = os.getenv("NEXUS_OPENHIE_RPC", "http://openhie-mediator:8023/rpc")
-
-    # Fetch FHIR context via OpenHIE mediator
+    import asyncio
+    health_monitor.metrics.record_accepted()
+    start_time = asyncio.get_event_loop().time()
+    
     try:
-        ctx = await jsonrpc_call(openhie, token, "fhir/get", {"patient_ref": patient_ref}, "fhir-1")
-    except Exception:
-        ctx = {"result": {"patient": {}, "allergies": {}}}
+        task = params.get("task", {})
+        patient_ref = task.get("patient_ref", "Patient/unknown")
+        openhie = os.getenv("NEXUS_OPENHIE_RPC", "http://openhie-mediator:8023/rpc")
 
-    chief = (task.get("inputs") or {}).get("chief_complaint", "")
-    triage = "EMERGENCY" if "chest" in chief.lower() else "URGENT"
+        # Fetch FHIR context via OpenHIE mediator
+        try:
+            ctx = await jsonrpc_call(openhie, token, "fhir/get", {"patient_ref": patient_ref}, "fhir-1")
+        except Exception:
+            ctx = {"result": {"patient": {}, "allergies": {}}}
 
-    system = "You are a cautious ED triage support assistant. Provide brief rationale."
-    user = f"Complaint: {chief}. Context: {json.dumps(ctx.get('result', {}))[:1200]}"
-    rationale = llm_chat(system, user)
+        chief = (task.get("inputs") or {}).get("chief_complaint", "")
+        triage = "EMERGENCY" if "chest" in chief.lower() else "URGENT"
 
-    return {
-        "task_id": params.get("task_id"),
-        "triage_priority": triage,
-        "rationale": rationale,
-        "patient_context": ctx.get("result", {}),
-    }
+        system = "You are a cautious ED triage support assistant. Provide brief rationale."
+        user = f"Complaint: {chief}. Context: {json.dumps(ctx.get('result', {}))[:1200]}"
+        rationale = llm_chat(system, user)
+
+        duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
+        health_monitor.metrics.record_completed(duration_ms)
+        
+        return {
+            "task_id": params.get("task_id"),
+            "triage_priority": triage,
+            "rationale": rationale,
+            "patient_context": ctx.get("result", {}),
+        }
+    except Exception as exc:
+        duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
+        health_monitor.metrics.record_error(duration_ms)
+        raise
 
 
 METHODS["diagnosis/assess"] = _assess

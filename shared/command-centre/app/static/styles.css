@@ -1,0 +1,426 @@
+/**
+ * NEXUS-A2A Command Centre Styles
+ * Features: Dark theme, color-coded heatmaps, smooth animations
+ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-primary: #0f172a;
+    --bg-surface: #1e293b;
+    --bg-elevated: #334155;
+    --border-color: #475569;
+    --text-primary: #f1f5f9;
+    --text-muted: #94a3b8;
+    --accent: #3b82f6;
+    
+    --status-healthy: #10b981;
+    --status-degraded: #f59e0b;
+    --status-unhealthy: #ef4444;
+    --status-unknown: #6b7280;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.dashboard {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.dashboard-header {
+    background: var(--bg-surface);
+    border-bottom: 2px solid var(--border-color);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dashboard-header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.header-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.status-dot.connected {
+    background: var(--status-healthy);
+}
+
+.status-dot.disconnected {
+    background: var(--status-unhealthy);
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Main Content Grid */
+.dashboard-content {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    grid-template-rows: auto auto;
+    gap: 1rem;
+    padding: 1rem;
+    flex: 1;
+}
+
+.panel {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    overflow: hidden;
+}
+
+.panel h2 {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Topology Panel */
+.topology-panel {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+#topology-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    background: var(--bg-primary);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+#topology-svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* SVG Node Styles */
+.node-circle {
+    stroke-width: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.node-circle:hover {
+    filter: brightness(1.3);
+}
+
+.node-text {
+    fill: var(--text-primary);
+    font-size: 12px;
+    text-anchor: middle;
+    pointer-events: none;
+}
+
+.edge-line {
+    stroke: var(--border-color);
+    stroke-width: 2px;
+    fill: none;
+}
+
+.edge-particle {
+    fill: var(--accent);
+    animation: flow 2s linear infinite;
+}
+
+@keyframes flow {
+    0% { offset-distance: 0%; }
+    100% { offset-distance: 100%; }
+}
+
+/* Heatmap Panel */
+.heatmap-panel {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+#heatmap-container {
+    overflow-x: auto;
+}
+
+.heatmap-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 4px;
+}
+
+.heatmap-table th,
+.heatmap-table td {
+    padding: 0.75rem;
+    text-align: center;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.heatmap-table th {
+    background: var(--bg-elevated);
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.heatmap-table .metric-label {
+    background: var(--bg-elevated);
+    font-weight: 600;
+    text-align: left;
+    min-width: 120px;
+}
+
+.heatmap-cell {
+    background: var(--bg-primary);
+    font-size: 0.875rem;
+    cursor: pointer;
+    position: relative;
+}
+
+.heatmap-cell:hover {
+    filter: brightness(1.2);
+    transform: scale(1.05);
+}
+
+.heatmap-cell .value {
+    font-weight: 600;
+}
+
+.heatmap-cell .label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Timeline Panel */
+.timeline-panel {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+}
+
+.timeline-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+.timeline-filters label {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    cursor: pointer;
+}
+
+.timeline-events {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+}
+
+.timeline-event {
+    background: var(--bg-primary);
+    border-left: 3px solid var(--accent);
+    padding: 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.timeline-event .timestamp {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+.timeline-event .agent-name {
+    font-weight: 600;
+    margin: 0.25rem 0;
+}
+
+.timeline-event .task-id {
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    cursor: pointer;
+}
+
+.timeline-event .task-id:hover {
+    text-decoration: underline;
+}
+
+.timeline-event .state-badge {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin: 0.25rem 0;
+}
+
+.timeline-event .duration {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+/* Performance Panel */
+.performance-panel {
+    grid-column: 1 / 3;
+    transition: all 0.3s ease;
+}
+
+.performance-panel.collapsed .charts-container {
+    display: none;
+}
+
+.performance-panel .toggle-btn {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.performance-panel.collapsed .toggle-btn {
+    transform: rotate(-90deg);
+}
+
+.charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.chart-box {
+    background: var(--bg-primary);
+    padding: 1rem;
+    border-radius: 4px;
+}
+
+.chart-box h3 {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+/* Toast Notifications */
+#toast-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.toast {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 1rem;
+    min-width: 300px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.toast.error {
+    border-left: 4px solid var(--status-unhealthy);
+}
+
+.toast.warning {
+    border-left: 4px solid var(--status-degraded);
+}
+
+.toast.success {
+    border-left: 4px solid var(--status-healthy);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .dashboard-content {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+    }
+    
+    .timeline-panel {
+        grid-column: 1;
+        grid-row: 3;
+        max-height: 400px;
+    }
+}
