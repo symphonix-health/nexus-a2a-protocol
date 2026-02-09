@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-02-09T00:29:40.635201+00:00",
-  "total": 24,
+  "generated_at": "2026-02-09T20:16:41.522237+00:00",
+  "total": 87,
   "passed": 5,
-  "failed": 0,
-  "skipped": 5,
+  "failed": 58,
+  "skipped": 10,
   "errors": 14,
   "results": [
     {
@@ -18,7 +18,7 @@
       ],
       "status": "error",
       "message": "All connection attempts failed",
-      "duration_ms": 2375.0
+      "duration_ms": 2327.999999994063
     },
     {
       "use_case_id": "UC-CMD-0002",
@@ -31,7 +31,7 @@
       ],
       "status": "error",
       "message": "All connection attempts failed",
-      "duration_ms": 2343.0000000007567
+      "duration_ms": 2312.000000005355
     },
     {
       "use_case_id": "UC-CMD-0003",
@@ -44,7 +44,7 @@
       ],
       "status": "error",
       "message": "All connection attempts failed",
-      "duration_ms": 2421.0000000020955
+      "duration_ms": 2312.999999994645
     },
     {
       "use_case_id": "UC-CMD-0004",
@@ -57,7 +57,7 @@
       ],
       "status": "error",
       "message": "All connection attempts failed",
-      "duration_ms": 2311.999999998079
+      "duration_ms": 2328.0000000086147
     },
     {
       "use_case_id": "UC-CMD-0005",
@@ -70,7 +70,7 @@
       ],
       "status": "error",
       "message": "All connection attempts failed",
-      "duration_ms": 2358.9999999967404
+      "duration_ms": 2297.000000005937
     },
     {
       "use_case_id": "UC-CMD-0006",
@@ -83,7 +83,7 @@
       ],
       "status": "error",
       "message": "All connection attempts failed",
-      "duration_ms": 2313.000000001921
+      "duration_ms": 2297.000000005937
     },
     {
       "use_case_id": "UC-CMD-0007",
@@ -95,7 +95,7 @@
       ],
       "status": "error",
       "message": "All connection attempts failed",
-      "duration_ms": 2328.000000001339
+      "duration_ms": 2312.999999994645
     },
     {
       "use_case_id": "UC-CMD-0008",
@@ -107,7 +107,7 @@
       ],
       "status": "error",
       "message": "All connection attempts failed",
-      "duration_ms": 2360.000000000582
+      "duration_ms": 2312.999999994645
     },
     {
       "use_case_id": "UC-CMD-0009",
@@ -119,7 +119,7 @@
       ],
       "status": "error",
       "message": "All connection attempts failed",
-      "duration_ms": 2313.000000001921
+      "duration_ms": 2297.000000005937
     },
     {
       "use_case_id": "UC-CMD-0010",
@@ -132,7 +132,7 @@
       ],
       "status": "error",
       "message": "All connection attempts failed",
-      "duration_ms": 2390.9999999959837
+      "duration_ms": 2327.999999994063
     },
     {
       "use_case_id": "UC-CMD-0023",
@@ -145,7 +145,7 @@
       ],
       "status": "error",
       "message": "All connection attempts failed",
-      "duration_ms": 2391.0000000032596
+      "duration_ms": 2312.000000005355
     },
     {
       "use_case_id": "UC-CMD-0024",
@@ -157,7 +157,7 @@
       ],
       "status": "error",
       "message": "All connection attempts failed",
-      "duration_ms": 2343.9999999973224
+      "duration_ms": 2297.000000005937
     },
     {
       "use_case_id": "UC-CMD-0025",
@@ -169,7 +169,7 @@
       ],
       "status": "error",
       "message": "All connection attempts failed",
-      "duration_ms": 2311.999999998079
+      "duration_ms": 2311.999999990803
     },
     {
       "use_case_id": "UC-CMD-0011",
@@ -195,7 +195,7 @@
       ],
       "status": "pass",
       "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2344.0000000045984
+      "duration_ms": 2312.000000005355
     },
     {
       "use_case_id": "UC-CMD-0013",
@@ -208,7 +208,7 @@
       ],
       "status": "pass",
       "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2344.0000000045984
+      "duration_ms": 2313.000000009197
     },
     {
       "use_case_id": "UC-CMD-0014",
@@ -221,7 +221,7 @@
       ],
       "status": "error",
       "message": "All connection attempts failed",
-      "duration_ms": 2406.0000000026776
+      "duration_ms": 2297.000000005937
     },
     {
       "use_case_id": "UC-CMD-0015",
@@ -234,7 +234,7 @@
       ],
       "status": "pass",
       "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2328.000000001339
+      "duration_ms": 2297.000000005937
     },
     {
       "use_case_id": "UC-CMD-0016",
@@ -247,7 +247,7 @@
       ],
       "status": "pass",
       "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2328.9999999979045
+      "duration_ms": 2312.999999994645
     },
     {
       "use_case_id": "UC-CMD-0017",
@@ -260,7 +260,7 @@
       ],
       "status": "skip",
       "message": "Command centre not running",
-      "duration_ms": 2328.000000001339
+      "duration_ms": 2297.000000005937
     },
     {
       "use_case_id": "UC-CMD-0018",
@@ -273,7 +273,7 @@
       ],
       "status": "skip",
       "message": "Command centre not running",
-      "duration_ms": 2375.0
+      "duration_ms": 2312.000000005355
     },
     {
       "use_case_id": "UC-CMD-0019",
@@ -300,7 +300,7 @@
       ],
       "status": "skip",
       "message": "Command centre not running",
-      "duration_ms": 2359.0000000040163
+      "duration_ms": 2296.9999999913853
     },
     {
       "use_case_id": "UC-CMD-0021",
@@ -312,7 +312,1038 @@
       ],
       "status": "skip",
       "message": "Command centre not running",
+      "duration_ms": 2312.999999994645
+    },
+    {
+      "use_case_id": "UC-CONSENT-0001",
+      "scenario_title": "consent-verification positive scenario 1",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-3",
+        "FR-2",
+        "IR-8",
+        "SPR-5",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2609.0000000112923
+    },
+    {
+      "use_case_id": "UC-CONSENT-0006",
+      "scenario_title": "consent-verification positive scenario 6",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "NFR-1",
+        "NFR-6",
+        "SPR-2",
+        "SPR-3",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
+    },
+    {
+      "use_case_id": "UC-CONSENT-0007",
+      "scenario_title": "consent-verification positive scenario 7",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-6",
+        "FR-8",
+        "IR-2",
+        "NFR-1",
+        "SPR-2"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2297.000000005937
+    },
+    {
+      "use_case_id": "UC-CONSENT-0011",
+      "scenario_title": "consent-verification positive scenario 11",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-4",
+        "IR-3",
+        "IR-8",
+        "NFR-5",
+        "NFR-8"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.999999994645
+    },
+    {
+      "use_case_id": "UC-CONSENT-0012",
+      "scenario_title": "consent-verification positive scenario 12",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "IR-2",
+        "IR-5",
+        "NFR-7",
+        "SPR-5",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2311.999999990803
+    },
+    {
+      "use_case_id": "UC-CONSENT-0013",
+      "scenario_title": "consent-verification positive scenario 13",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-1",
+        "IR-7",
+        "NFR-9",
+        "SPR-1",
+        "SPR-5"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
+    },
+    {
+      "use_case_id": "UC-CONSENT-0014",
+      "scenario_title": "consent-verification positive scenario 14",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-7",
+        "IR-5",
+        "IR-7",
+        "NFR-1",
+        "NFR-7"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2297.000000005937
+    },
+    {
+      "use_case_id": "UC-CONSENT-0015",
+      "scenario_title": "consent-verification positive scenario 15",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-4",
+        "FR-3",
+        "FR-6",
+        "NFR-6",
+        "NFR-7"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.999999994645
+    },
+    {
+      "use_case_id": "UC-CONSENT-0016",
+      "scenario_title": "consent-verification positive scenario 16",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "IR-2",
+        "IR-5",
+        "NFR-10",
+        "NFR-4",
+        "NFR-8"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
+    },
+    {
+      "use_case_id": "UC-CONSENT-0017",
+      "scenario_title": "consent-verification positive scenario 17",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-2",
+        "FR-4",
+        "IR-1",
+        "IR-4",
+        "IR-8"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2297.000000005937
+    },
+    {
+      "use_case_id": "UC-CONSENT-0002",
+      "scenario_title": "consent-verification negative scenario 2",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "NFR-10",
+        "NFR-2",
+        "NFR-9",
+        "SPR-1",
+        "SPR-2"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.999999994645
+    },
+    {
+      "use_case_id": "UC-CONSENT-0003",
+      "scenario_title": "consent-verification negative scenario 3",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-5",
+        "IR-2",
+        "IR-4",
+        "IR-5",
+        "NFR-3"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2297.000000005937
+    },
+    {
+      "use_case_id": "UC-CONSENT-0005",
+      "scenario_title": "consent-verification negative scenario 5",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-3",
+        "FR-8",
+        "IR-3",
+        "IR-5",
+        "SPR-1"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.0000000020955
+    },
+    {
+      "use_case_id": "UC-CONSENT-0008",
+      "scenario_title": "consent-verification negative scenario 8",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "FR-7",
+        "IR-4",
+        "NFR-5",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
+    },
+    {
+      "use_case_id": "UC-CONSENT-0009",
+      "scenario_title": "consent-verification negative scenario 9",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "FR-3",
+        "IR-4",
+        "IR-7",
+        "NFR-8"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2313.000000009197
+    },
+    {
+      "use_case_id": "UC-CONSENT-0018",
+      "scenario_title": "consent-verification negative scenario 18",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "FR-7",
+        "FR-8",
+        "NFR-5",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.999999994645
+    },
+    {
+      "use_case_id": "UC-CONSENT-0021",
+      "scenario_title": "consent-verification negative scenario 21",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "IR-2",
+        "IR-3",
+        "IR-4",
+        "SPR-3"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2297.000000005937
+    },
+    {
+      "use_case_id": "UC-CONSENT-0023",
+      "scenario_title": "consent-verification negative scenario 23",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "IR-1",
+        "IR-7",
+        "NFR-10",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.999999994645
+    },
+    {
+      "use_case_id": "UC-CONSENT-0024",
+      "scenario_title": "consent-verification negative scenario 24",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-4",
+        "FR-8",
+        "IR-3",
+        "IR-6",
+        "NFR-9"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
+    },
+    {
+      "use_case_id": "UC-CONSENT-0025",
+      "scenario_title": "consent-verification negative scenario 25",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-1",
+        "NFR-1",
+        "NFR-6",
+        "SPR-6",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2297.000000005937
+    },
+    {
+      "use_case_id": "UC-ED-0001",
+      "scenario_title": "ed-triage positive scenario 1",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "FR-6",
+        "FR-7",
+        "NFR-10",
+        "SPR-1"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2297.000000005937
+    },
+    {
+      "use_case_id": "UC-ED-0002",
+      "scenario_title": "ed-triage positive scenario 2",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-2",
+        "FR-4",
+        "IR-4",
+        "NFR-1",
+        "NFR-3"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
+    },
+    {
+      "use_case_id": "UC-ED-0004",
+      "scenario_title": "ed-triage positive scenario 4",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "FR-6",
+        "FR-7",
+        "NFR-2",
+        "SPR-3"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
+    },
+    {
+      "use_case_id": "UC-ED-0007",
+      "scenario_title": "ed-triage positive scenario 7",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "CR-5",
+        "SPR-2",
+        "SPR-6",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
+    },
+    {
+      "use_case_id": "UC-ED-0008",
+      "scenario_title": "ed-triage positive scenario 8",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "FR-6",
+        "NFR-4",
+        "NFR-9",
+        "SPR-6"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.999999994645
+    },
+    {
+      "use_case_id": "UC-ED-0009",
+      "scenario_title": "ed-triage positive scenario 9",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-2",
+        "FR-5",
+        "IR-7",
+        "IR-8",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
+    },
+    {
+      "use_case_id": "UC-ED-0010",
+      "scenario_title": "ed-triage positive scenario 10",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-4",
+        "FR-1",
+        "FR-6",
+        "IR-5",
+        "IR-6"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.999999994645
+    },
+    {
+      "use_case_id": "UC-ED-0011",
+      "scenario_title": "ed-triage positive scenario 11",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-4",
+        "IR-1",
+        "NFR-7",
+        "SPR-6",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2297.000000005937
+    },
+    {
+      "use_case_id": "UC-ED-0013",
+      "scenario_title": "ed-triage positive scenario 13",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-2",
+        "IR-5",
+        "NFR-5",
+        "NFR-9",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2328.0000000086147
+    },
+    {
+      "use_case_id": "UC-ED-0016",
+      "scenario_title": "ed-triage positive scenario 16",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-2",
+        "FR-3",
+        "IR-3",
+        "NFR-9",
+        "SPR-5"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.999999994645
+    },
+    {
+      "use_case_id": "UC-ED-0003",
+      "scenario_title": "ed-triage negative scenario 3",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-5",
+        "FR-1",
+        "FR-6",
+        "IR-7",
+        "SPR-2"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.999999994645
+    },
+    {
+      "use_case_id": "UC-ED-0005",
+      "scenario_title": "ed-triage negative scenario 5",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "IR-1",
+        "NFR-9",
+        "SPR-2",
+        "SPR-5"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
+    },
+    {
+      "use_case_id": "UC-ED-0006",
+      "scenario_title": "ed-triage negative scenario 6",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-5",
+        "IR-4",
+        "NFR-6",
+        "SPR-5",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2297.000000005937
+    },
+    {
+      "use_case_id": "UC-ED-0015",
+      "scenario_title": "ed-triage negative scenario 15",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-1",
+        "FR-1",
+        "FR-5",
+        "IR-7",
+        "SPR-2"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2311.999999990803
+    },
+    {
+      "use_case_id": "UC-ED-0018",
+      "scenario_title": "ed-triage negative scenario 18",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-1",
+        "FR-4",
+        "IR-2",
+        "IR-7",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
+    },
+    {
+      "use_case_id": "UC-ED-0030",
+      "scenario_title": "ed-triage negative scenario 30",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-3",
+        "IR-5",
+        "IR-6",
+        "SPR-1",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2327.999999994063
+    },
+    {
+      "use_case_id": "UC-ED-0031",
+      "scenario_title": "ed-triage negative scenario 31",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "IR-7",
+        "NFR-4",
+        "NFR-5",
+        "SPR-1"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.999999994645
+    },
+    {
+      "use_case_id": "UC-ED-0044",
+      "scenario_title": "ed-triage negative scenario 44",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "FR-8",
+        "IR-8",
+        "SPR-1",
+        "SPR-3"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.999999994645
+    },
+    {
+      "use_case_id": "UC-ED-0045",
+      "scenario_title": "ed-triage negative scenario 45",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-5",
+        "NFR-1",
+        "NFR-2",
+        "SPR-6",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2313.000000009197
+    },
+    {
+      "use_case_id": "UC-ED-0048",
+      "scenario_title": "ed-triage negative scenario 48",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-8",
+        "IR-1",
+        "IR-2",
+        "IR-3",
+        "NFR-6"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.999999994645
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0001",
+      "scenario_title": "protocol-core core positive scenario 1",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-2",
+        "IR-3",
+        "NFR-1",
+        "NFR-2",
+        "SPR-5"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2375.0
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0002",
+      "scenario_title": "protocol-core core positive scenario 2",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-6",
+        "FR-7",
+        "IR-8",
+        "NFR-3",
+        "NFR-9"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2328.0000000086147
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0003",
+      "scenario_title": "protocol-core core positive scenario 3",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "FR-5",
+        "FR-8",
+        "IR-4",
+        "NFR-2",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
       "duration_ms": 2328.9999999979045
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0004",
+      "scenario_title": "protocol-core core positive scenario 4",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-4",
+        "IR-3",
+        "IR-8",
+        "NFR-8",
+        "SPR-4",
+        "SPR-5"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0005",
+      "scenario_title": "protocol-core core positive scenario 5",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "IR-3",
+        "NFR-8",
+        "SPR-1",
+        "SPR-6",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2311.999999990803
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0007",
+      "scenario_title": "protocol-core core positive scenario 7",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-2",
+        "FR-3",
+        "IR-7",
+        "NFR-6",
+        "SPR-6",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2328.0000000086147
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0008",
+      "scenario_title": "protocol-core core positive scenario 8",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "IR-1",
+        "IR-3",
+        "NFR-1",
+        "NFR-8",
+        "SPR-4",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0009",
+      "scenario_title": "protocol-core core positive scenario 9",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-4",
+        "FR-2",
+        "IR-5",
+        "NFR-3",
+        "SPR-2",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0010",
+      "scenario_title": "protocol-core core positive scenario 10",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-3",
+        "FR-5",
+        "FR-8",
+        "IR-6",
+        "NFR-3",
+        "NFR-6"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0011",
+      "scenario_title": "protocol-core core positive scenario 11",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-1",
+        "FR-7",
+        "FR-8",
+        "IR-8",
+        "SPR-1"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0013",
+      "scenario_title": "protocol-core core negative scenario 13",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-3",
+        "FR-8",
+        "NFR-3",
+        "NFR-6",
+        "NFR-9",
+        "SPR-3"
+      ],
+      "status": "skip",
+      "message": "Non-RPC negative scenario",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0028",
+      "scenario_title": "protocol-core core negative scenario 28",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "FR-5",
+        "FR-8",
+        "NFR-1",
+        "SPR-5",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0029",
+      "scenario_title": "protocol-core core negative scenario 29",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-2",
+        "IR-2",
+        "NFR-2",
+        "NFR-9",
+        "SPR-1",
+        "SPR-3"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0030",
+      "scenario_title": "protocol-core core negative scenario 30",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "FR-7",
+        "FR-8",
+        "IR-7",
+        "NFR-2",
+        "SPR-3"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0031",
+      "scenario_title": "protocol-core core negative scenario 31",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-1",
+        "CR-5",
+        "FR-5",
+        "IR-7",
+        "NFR-10",
+        "SPR-3"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0032",
+      "scenario_title": "protocol-core core negative scenario 32",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-1",
+        "IR-3",
+        "NFR-3",
+        "SPR-1",
+        "SPR-3",
+        "SPR-5"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2313.000000009197
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0036",
+      "scenario_title": "protocol-core core negative scenario 36",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-3",
+        "IR-2",
+        "NFR-4",
+        "NFR-8",
+        "SPR-3",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2297.000000005937
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0043",
+      "scenario_title": "protocol-core core negative scenario 43",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-8",
+        "NFR-3",
+        "SPR-2",
+        "SPR-5",
+        "SPR-6",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.0000000020955
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0050",
+      "scenario_title": "protocol-core core negative scenario 50",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "FR-5",
+        "SPR-2",
+        "SPR-3",
+        "SPR-4",
+        "SPR-6"
+      ],
+      "status": "skip",
+      "message": "Non-RPC negative scenario",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0053",
+      "scenario_title": "protocol-core core negative scenario 53",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "IR-2",
+        "NFR-2",
+        "NFR-3",
+        "NFR-9",
+        "SPR-2"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.999999994645
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0001",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 1",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-6",
+        "FR-7",
+        "IR-7",
+        "NFR-8",
+        "SPR-2"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0003",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 3",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-2",
+        "FR-5",
+        "FR-6",
+        "IR-5",
+        "NFR-3",
+        "NFR-9"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0006",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 6",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "IR-6",
+        "NFR-1",
+        "NFR-2",
+        "NFR-3",
+        "NFR-7",
+        "SPR-3"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
     }
   ]
 }
