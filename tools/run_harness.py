@@ -9,7 +9,7 @@ VENV_PYTHON = os.path.join(ROOT, ".venv", "Scripts", "python.exe")
 
 env = os.environ.copy()
 env["PYTHONPATH"] = ROOT
-env["NEXUS_JWT_SECRET"] = "super-secret-test-key-change-me"
+env["NEXUS_JWT_SECRET"] = "dev-secret-change-me"
 
 cmd = [
     VENV_PYTHON, "-m", "pytest",

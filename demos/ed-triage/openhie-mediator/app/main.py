@@ -12,6 +12,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 
 from shared.nexus_common.auth import AuthError, verify_jwt
 from shared.nexus_common.did import did_verify_enabled, verify_did_signature
+from shared.nexus_common.health import HealthMonitor
 from shared.nexus_common.jsonrpc import JsonRpcError, parse_request, response_error, response_result
 from shared.nexus_common.sse import TaskEventBus
 
@@ -19,7 +20,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname
 logger = logging.getLogger("nexus.openhie-mediator")
 
 app = FastAPI(title="openhie-mediator")
-bus = TaskEventBus()
+bus = TaskEventBus(agent_name="openhie-mediator")
+health_monitor = HealthMonitor("openhie-mediator")
 
 JWT_SECRET = os.getenv("NEXUS_JWT_SECRET", "dev-secret-change-me")
 REQUIRED_SCOPE = os.getenv("NEXUS_REQUIRED_SCOPE", "nexus:invoke")
@@ -44,6 +46,12 @@ async def agent_card():
     path = os.path.join(os.path.dirname(__file__), "agent_card.json")
     with open(path, encoding="utf-8") as f:
         return JSONResponse(content=json.load(f))
+
+
+@app.get("/health")
+async def health():
+    """Health check endpoint with metrics."""
+    return JSONResponse(content=health_monitor.get_health())
 
 
 @app.get("/events/{task_id}")
@@ -72,21 +80,34 @@ METHODS: dict = {}
 
 
 async def _fhir_get(params: dict, token: str) -> dict:
-    base = os.getenv("FHIR_BASE_URL", "http://hapi-fhir:8080/fhir")
-    patient_ref = params.get("patient_ref", "Patient/unknown")
-    pid = patient_ref.split("/")[-1]
-    headers = {"Accept": "application/fhir+json"}
-
+    import asyncio
+    health_monitor.metrics.record_accepted()
+    start_time = asyncio.get_event_loop().time()
+    
     try:
-        async with httpx.AsyncClient(timeout=20) as client:
-            p = await client.get(f"{base}/Patient/{pid}", headers=headers)
-            p.raise_for_status()
-            a = await client.get(f"{base}/AllergyIntolerance?patient={pid}", headers=headers)
-            a.raise_for_status()
-        return {"patient": p.json(), "allergies": a.json()}
+        base = os.getenv("FHIR_BASE_URL", "http://hapi-fhir:8080/fhir")
+        patient_ref = params.get("patient_ref", "Patient/unknown")
+        pid = patient_ref.split("/")[-1]
+        headers = {"Accept": "application/fhir+json"}
+
+        try:
+            async with httpx.AsyncClient(timeout=20) as client:
+                p = await client.get(f"{base}/Patient/{pid}", headers=headers)
+                p.raise_for_status()
+                a = await client.get(f"{base}/AllergyIntolerance?patient={pid}", headers=headers)
+                a.raise_for_status()
+            duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
+            health_monitor.metrics.record_completed(duration_ms)
+            return {"patient": p.json(), "allergies": a.json()}
+        except Exception as exc:
+            logger.warning("FHIR request failed: %s — returning empty context", exc)
+            duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
+            health_monitor.metrics.record_error(duration_ms)
+            return {"patient": {}, "allergies": {}}
     except Exception as exc:
-        logger.warning("FHIR request failed: %s — returning empty context", exc)
-        return {"patient": {}, "allergies": {}}
+        duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
+        health_monitor.metrics.record_error(duration_ms)
+        raise
 
 
 METHODS["fhir/get"] = _fhir_get

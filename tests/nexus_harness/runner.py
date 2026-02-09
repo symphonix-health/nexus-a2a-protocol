@@ -61,6 +61,9 @@ DEMO_URLS: dict[str, dict[str, str]] = {
         "osint-agent":            os.environ.get("SURV_OSINT_URL",       "http://localhost:8052"),
         "central-surveillance":   os.environ.get("SURV_CENTRAL_URL",     "http://localhost:8053"),
     },
+    "command-centre": {
+        "dashboard":          os.environ.get("COMMAND_CENTRE_URL", "http://localhost:8099"),
+    },
 }
 
 

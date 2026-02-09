@@ -44,7 +44,7 @@ PID_FILE = os.path.join(ROOT, ".agent_pids.json")
 def start_all():
     env = os.environ.copy()
     env["PYTHONPATH"] = ROOT
-    env.setdefault("NEXUS_JWT_SECRET", "super-secret-test-key-change-me")
+    env.setdefault("NEXUS_JWT_SECRET", "dev-secret-change-me")
     env.setdefault("DID_VERIFY", "false")
     # Use provided test key if no specific key is set in environment
     env.setdefault("OPENAI_API_KEY", "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")

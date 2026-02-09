@@ -1,4 +1,8 @@
 services:
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
   transcriber-agent:
     build:
       context: ../../
@@ -9,9 +13,10 @@ services:
       - NEXUS_REQUIRED_SCOPE=nexus:invoke
       - SUMMARY_RPC=http://summariser-agent:8032/rpc
       - EHR_RPC=http://ehr-writer-agent:8033/rpc
+      - REDIS_URL=redis://redis:6379
       - DID_VERIFY=${DID_VERIFY}
     ports: ["8031:8031"]
-    depends_on: [summariser-agent, ehr-writer-agent]
+    depends_on: [summariser-agent, ehr-writer-agent, redis]
 
   summariser-agent:
     build:
@@ -23,8 +28,10 @@ services:
       - NEXUS_REQUIRED_SCOPE=nexus:invoke
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_MODEL=${OPENAI_MODEL}
+      - REDIS_URL=redis://redis:6379
       - DID_VERIFY=${DID_VERIFY}
     ports: ["8032:8032"]
+    depends_on: [redis]
 
   ehr-writer-agent:
     build:
@@ -35,9 +42,22 @@ services:
       - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
       - NEXUS_REQUIRED_SCOPE=nexus:invoke
       - EHR_DB=/data/ehr.sqlite
+      - REDIS_URL=redis://redis:6379
       - DID_VERIFY=${DID_VERIFY}
     volumes: ["ehr_data:/data"]
     ports: ["8033:8033"]
+    depends_on: [redis]
+
+  command-centre:
+    build:
+      context: ../../
+      dockerfile: shared/command-centre/Dockerfile
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - AGENT_URLS=http://transcriber-agent:8031,http://summariser-agent:8032,http://ehr-writer-agent:8033
+      - UPDATE_INTERVAL_MS=2000
+    ports: ["8099:8099"]
+    depends_on: [redis, transcriber-agent, summariser-agent, ehr-writer-agent]
 
 volumes:
   ehr_data:

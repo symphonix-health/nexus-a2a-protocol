@@ -20,9 +20,10 @@ services:
       - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
       - NEXUS_REQUIRED_SCOPE=nexus:invoke
       - FHIR_BASE_URL=${FHIR_BASE_URL}
+      - REDIS_URL=redis://redis:6379
       - DID_VERIFY=${DID_VERIFY}
     ports: ["8023:8023"]
-    depends_on: [hapi-fhir]
+    depends_on: [hapi-fhir, redis]
 
   diagnosis-agent:
     build:
@@ -33,11 +34,12 @@ services:
       - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
       - NEXUS_REQUIRED_SCOPE=nexus:invoke
       - NEXUS_OPENHIE_RPC=http://openhie-mediator:8023/rpc
+      - REDIS_URL=redis://redis:6379
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_MODEL=${OPENAI_MODEL}
       - DID_VERIFY=${DID_VERIFY}
     ports: ["8022:8022"]
-    depends_on: [openhie-mediator]
+    depends_on: [openhie-mediator, redis]
 
   triage-agent:
     build:
@@ -48,6 +50,18 @@ services:
       - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
       - NEXUS_REQUIRED_SCOPE=nexus:invoke
       - NEXUS_DIAGNOSIS_RPC=http://diagnosis-agent:8022/rpc
+      - REDIS_URL=redis://redis:6379
       - DID_VERIFY=${DID_VERIFY}
     ports: ["8021:8021"]
-    depends_on: [diagnosis-agent]
+    depends_on: [diagnosis-agent, redis]
+
+  command-centre:
+    build:
+      context: ../../
+      dockerfile: shared/command-centre/Dockerfile
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - AGENT_URLS=http://triage-agent:8021,http://diagnosis-agent:8022,http://openhie-mediator:8023
+      - UPDATE_INTERVAL_MS=2000
+    ports: ["8099:8099"]
+    depends_on: [redis, triage-agent, diagnosis-agent, openhie-mediator]

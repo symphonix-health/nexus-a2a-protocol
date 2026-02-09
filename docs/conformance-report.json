@@ -1,9 +1,318 @@
 {
-  "generated_at": "2026-02-08T23:06:55.970030+00:00",
-  "total": 0,
-  "passed": 0,
+  "generated_at": "2026-02-09T00:29:40.635201+00:00",
+  "total": 24,
+  "passed": 5,
   "failed": 0,
-  "skipped": 0,
-  "errors": 0,
-  "results": []
+  "skipped": 5,
+  "errors": 14,
+  "results": [
+    {
+      "use_case_id": "UC-CMD-0001",
+      "scenario_title": "Agent discovery successful",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-1",
+        "MON-2",
+        "NFR-1"
+      ],
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2375.0
+    },
+    {
+      "use_case_id": "UC-CMD-0002",
+      "scenario_title": "Health polling returns metrics",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-2",
+        "MON-4"
+      ],
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2343.0000000007567
+    },
+    {
+      "use_case_id": "UC-CMD-0003",
+      "scenario_title": "Topology renders all nodes",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-1",
+        "MON-5"
+      ],
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2421.0000000020955
+    },
+    {
+      "use_case_id": "UC-CMD-0004",
+      "scenario_title": "WebSocket connection established",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-3",
+        "NFR-1"
+      ],
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2311.999999998079
+    },
+    {
+      "use_case_id": "UC-CMD-0005",
+      "scenario_title": "Event streaming delivers task events",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-3",
+        "MON-4"
+      ],
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2358.9999999967404
+    },
+    {
+      "use_case_id": "UC-CMD-0006",
+      "scenario_title": "Heatmap updates on metric changes",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-4",
+        "MON-5"
+      ],
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2313.000000001921
+    },
+    {
+      "use_case_id": "UC-CMD-0007",
+      "scenario_title": "Frontend serves static files",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-1"
+      ],
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2328.000000001339
+    },
+    {
+      "use_case_id": "UC-CMD-0008",
+      "scenario_title": "Color palette loads correctly",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-5"
+      ],
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2360.000000000582
+    },
+    {
+      "use_case_id": "UC-CMD-0009",
+      "scenario_title": "Health endpoint responds",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-2"
+      ],
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2313.000000001921
+    },
+    {
+      "use_case_id": "UC-CMD-0010",
+      "scenario_title": "Multi-agent tracking concurrent tasks",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-3",
+        "MON-4"
+      ],
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2390.9999999959837
+    },
+    {
+      "use_case_id": "UC-CMD-0023",
+      "scenario_title": "Color contrast ratios meet WCAG AA",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-5",
+        "NFR-9"
+      ],
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2391.0000000032596
+    },
+    {
+      "use_case_id": "UC-CMD-0024",
+      "scenario_title": "CSS transitions smooth (300ms)",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-5"
+      ],
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2343.9999999973224
+    },
+    {
+      "use_case_id": "UC-CMD-0025",
+      "scenario_title": "API response time <200ms",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "NFR-10"
+      ],
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2311.999999998079
+    },
+    {
+      "use_case_id": "UC-CMD-0011",
+      "scenario_title": "Agent unreachable shows red status",
+      "poc_demo": "command-centre",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "MON-1",
+        "MON-2"
+      ],
+      "status": "pass",
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2312.000000005355
+    },
+    {
+      "use_case_id": "UC-CMD-0012",
+      "scenario_title": "Redis unavailable falls back gracefully",
+      "poc_demo": "command-centre",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "MON-3",
+        "NFR-8"
+      ],
+      "status": "pass",
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2344.0000000045984
+    },
+    {
+      "use_case_id": "UC-CMD-0013",
+      "scenario_title": "Invalid agent URL handled",
+      "poc_demo": "command-centre",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "MON-1",
+        "NFR-8"
+      ],
+      "status": "pass",
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2344.0000000045984
+    },
+    {
+      "use_case_id": "UC-CMD-0014",
+      "scenario_title": "Malformed event data skipped",
+      "poc_demo": "command-centre",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "MON-3",
+        "NFR-8"
+      ],
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2406.0000000026776
+    },
+    {
+      "use_case_id": "UC-CMD-0015",
+      "scenario_title": "High latency agent shows degraded in heatmap",
+      "poc_demo": "command-centre",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "MON-4",
+        "MON-5"
+      ],
+      "status": "pass",
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2328.000000001339
+    },
+    {
+      "use_case_id": "UC-CMD-0016",
+      "scenario_title": "Error rate >10% shows unhealthy",
+      "poc_demo": "command-centre",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "MON-2",
+        "MON-4"
+      ],
+      "status": "pass",
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2328.9999999979045
+    },
+    {
+      "use_case_id": "UC-CMD-0017",
+      "scenario_title": "Agent restart mid-task tracked",
+      "poc_demo": "command-centre",
+      "scenario_type": "edge",
+      "requirement_ids": [
+        "MON-1",
+        "MON-3"
+      ],
+      "status": "skip",
+      "message": "Command centre not running",
+      "duration_ms": 2328.000000001339
+    },
+    {
+      "use_case_id": "UC-CMD-0018",
+      "scenario_title": "Redis connection loss and recovery",
+      "poc_demo": "command-centre",
+      "scenario_type": "edge",
+      "requirement_ids": [
+        "MON-3",
+        "NFR-8"
+      ],
+      "status": "skip",
+      "message": "Command centre not running",
+      "duration_ms": 2375.0
+    },
+    {
+      "use_case_id": "UC-CMD-0019",
+      "scenario_title": "Concurrent task burst (50+ tasks)",
+      "poc_demo": "command-centre",
+      "scenario_type": "edge",
+      "requirement_ids": [
+        "MON-3",
+        "MON-4",
+        "NFR-10"
+      ],
+      "status": "skip",
+      "message": "Requires running agent infrastructure",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-CMD-0020",
+      "scenario_title": "Slow agent response >5s timeout",
+      "poc_demo": "command-centre",
+      "scenario_type": "edge",
+      "requirement_ids": [
+        "MON-2",
+        "NFR-10"
+      ],
+      "status": "skip",
+      "message": "Command centre not running",
+      "duration_ms": 2359.0000000040163
+    },
+    {
+      "use_case_id": "UC-CMD-0021",
+      "scenario_title": "WebSocket reconnection after disconnect",
+      "poc_demo": "command-centre",
+      "scenario_type": "edge",
+      "requirement_ids": [
+        "MON-3"
+      ],
+      "status": "skip",
+      "message": "Command centre not running",
+      "duration_ms": 2328.9999999979045
+    }
+  ]
 }

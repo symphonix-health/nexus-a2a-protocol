@@ -1,4 +1,8 @@
 services:
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
   insurer-agent:
     build:
       context: ../../
@@ -10,9 +14,10 @@ services:
       - PROVIDER_RPC=http://provider-agent:8042/rpc
       - HITL_REQUIRED=${HITL_REQUIRED}
       - HITL_RPC=http://hitl-ui:8044/rpc
+      - REDIS_URL=redis://redis:6379
       - DID_VERIFY=${DID_VERIFY}
     ports: ["8041:8041"]
-    depends_on: [provider-agent, hitl-ui]
+    depends_on: [provider-agent, hitl-ui, redis]
 
   provider-agent:
     build:
@@ -23,8 +28,10 @@ services:
       - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
       - NEXUS_REQUIRED_SCOPE=nexus:invoke
       - CONSENT_RPC=http://consent-analyser:8043/rpc
+      - REDIS_URL=redis://redis:6379
       - DID_VERIFY=${DID_VERIFY}
     ports: ["8042:8042"]
+    depends_on: [redis]
 
   consent-analyser:
     build:
@@ -36,8 +43,10 @@ services:
       - NEXUS_REQUIRED_SCOPE=nexus:invoke
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_MODEL=${OPENAI_MODEL}
+      - REDIS_URL=redis://redis:6379
       - DID_VERIFY=${DID_VERIFY}
     ports: ["8043:8043"]
+    depends_on: [redis]
 
   hitl-ui:
     build:
@@ -47,4 +56,17 @@ services:
       - PORT=8044
       - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
       - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - REDIS_URL=redis://redis:6379
     ports: ["8044:8044"]
+    depends_on: [redis]
+
+  command-centre:
+    build:
+      context: ../../
+      dockerfile: shared/command-centre/Dockerfile
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - AGENT_URLS=http://insurer-agent:8041,http://provider-agent:8042,http://consent-analyser:8043,http://hitl-ui:8044
+      - UPDATE_INTERVAL_MS=2000
+    ports: ["8099:8099"]
+    depends_on: [redis, insurer-agent, provider-agent, consent-analyser, hitl-ui]
