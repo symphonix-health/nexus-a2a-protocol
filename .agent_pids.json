@@ -2,66 +2,66 @@
   {
     "dir": "demos/ed-triage/openhie-mediator",
     "port": 8023,
-    "pid": 7324
+    "pid": 29348
   },
   {
     "dir": "demos/ed-triage/diagnosis-agent",
     "port": 8022,
-    "pid": 19716
+    "pid": 33260
   },
   {
     "dir": "demos/ed-triage/triage-agent",
     "port": 8021,
-    "pid": 5184
+    "pid": 4056
   },
   {
     "dir": "demos/telemed-scribe/ehr-writer-agent",
     "port": 8033,
-    "pid": 29692
+    "pid": 17632
   },
   {
     "dir": "demos/telemed-scribe/summariser-agent",
     "port": 8032,
-    "pid": 36012
+    "pid": 10956
   },
   {
     "dir": "demos/telemed-scribe/transcriber-agent",
     "port": 8031,
-    "pid": 20908
+    "pid": 26608
   },
   {
     "dir": "demos/consent-verification/consent-analyser",
     "port": 8043,
-    "pid": 17960
+    "pid": 36524
   },
   {
     "dir": "demos/consent-verification/hitl-ui",
     "port": 8044,
-    "pid": 20968
+    "pid": 13768
   },
   {
     "dir": "demos/consent-verification/provider-agent",
     "port": 8042,
-    "pid": 8128
+    "pid": 17476
   },
   {
     "dir": "demos/consent-verification/insurer-agent",
     "port": 8041,
-    "pid": 23756
+    "pid": 20644
   },
   {
     "dir": "demos/public-health-surveillance/hospital-reporter",
     "port": 8051,
-    "pid": 31600
+    "pid": 34764
   },
   {
     "dir": "demos/public-health-surveillance/osint-agent",
     "port": 8052,
-    "pid": 7416
+    "pid": 10060
   },
   {
     "dir": "demos/public-health-surveillance/central-surveillance",
     "port": 8053,
-    "pid": 2228
+    "pid": 2412
   }
 ]

@@ -1,0 +1,561 @@
+# HelixCare AI Hospital – Docker Compose Configuration
+# Complete autonomous hospital deployment with all 13 agents + supporting infrastructure
+
+version: '3.8'
+
+services:
+  # ═══════════════════════════════════════════════════════════════════
+  # Supporting Infrastructure
+  # ═══════════════════════════════════════════════════════════════════
+  
+  redis:
+    image: redis:7-alpine
+    container_name: helixcare-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    networks:
+      - helixcare-network
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: helixcare-mosquitto
+    ports:
+      - "1883:1883"  # MQTT
+      - "9001:9001"  # MQTT over WebSocket
+    volumes:
+      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/#' -C 1 -W 3 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    networks:
+      - helixcare-network
+
+  hapi-fhir:
+    image: hapiproject/hapi:latest
+    container_name: helixcare-fhir
+    ports:
+      - "8080:8080"
+    environment:
+      - hapi.fhir.default_encoding=json
+      - hapi.fhir.enforce_referential_integrity_on_write=false
+      - hapi.fhir.enforce_referential_integrity_on_delete=false
+    volumes:
+      - fhir-data:/data/hapi
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/fhir/metadata"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - helixcare-network
+
+  # Optional: Keycloak for OIDC (enterprise identity management)
+  # Uncomment for production deployment with RS256 JWT
+  # keycloak:
+  #   image: quay.io/keycloak/keycloak:24.0
+  #   container_name: helixcare-keycloak
+  #   environment:
+  #     - KEYCLOAK_ADMIN=admin
+  #     - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD:-admin}
+  #     - KC_DB=postgres
+  #     - KC_DB_URL=jdbc:postgresql://keycloak-db:5432/keycloak
+  #     - KC_DB_USERNAME=keycloak
+  #     - KC_DB_PASSWORD=${KC_DB_PASSWORD:-keycloak}
+  #   command: start-dev
+  #   ports:
+  #     - "8081:8080"
+  #   depends_on:
+  #     - keycloak-db
+  #   networks:
+  #     - helixcare-network
+
+  # keycloak-db:
+  #   image: postgres:16-alpine
+  #   container_name: helixcare-keycloak-db
+  #   environment:
+  #     - POSTGRES_DB=keycloak
+  #     - POSTGRES_USER=keycloak
+  #     - POSTGRES_PASSWORD=${KC_DB_PASSWORD:-keycloak}
+  #   volumes:
+  #     - keycloak-db-data:/var/lib/postgresql/data
+  #   networks:
+  #     - helixcare-network
+
+  # ═══════════════════════════════════════════════════════════════════
+  # ED Triage Department Agents
+  # ═══════════════════════════════════════════════════════════════════
+
+  openhie-mediator:
+    build:
+      context: .
+      dockerfile: demos/ed-triage/openhie-mediator/Dockerfile
+    container_name: helixcare-openhie-mediator
+    environment:
+      - PORT=8023
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - FHIR_BASE_URL=http://hapi-fhir:8080/fhir
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=openhie-mediator
+    ports:
+      - "8023:8023"
+    depends_on:
+      hapi-fhir:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8023/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  diagnosis-agent:
+    build:
+      context: .
+      dockerfile: demos/ed-triage/diagnosis-agent/Dockerfile
+    container_name: helixcare-diagnosis-agent
+    environment:
+      - PORT=8022
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - NEXUS_OPENHIE_RPC=http://openhie-mediator:8023/rpc
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=diagnosis-agent
+    ports:
+      - "8022:8022"
+    depends_on:
+      openhie-mediator:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8022/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  triage-agent:
+    build:
+      context: .
+      dockerfile: demos/ed-triage/triage-agent/Dockerfile
+    container_name: helixcare-triage-agent
+    environment:
+      - PORT=8021
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - NEXUS_DIAGNOSIS_RPC=http://diagnosis-agent:8022/rpc
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=triage-agent
+    ports:
+      - "8021:8021"
+    depends_on:
+      diagnosis-agent:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8021/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════════
+  # Telemedicine Documentation Agents
+  # ═══════════════════════════════════════════════════════════════════
+
+  ehr-writer-agent:
+    build:
+      context: .
+      dockerfile: demos/telemed-scribe/ehr-writer-agent/Dockerfile
+    container_name: helixcare-ehr-writer
+    environment:
+      - PORT=8033
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - EHR_DB=/data/ehr.sqlite
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=ehr-writer-agent
+    ports:
+      - "8033:8033"
+    volumes:
+      - ehr-data:/data
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8033/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  summariser-agent:
+    build:
+      context: .
+      dockerfile: demos/telemed-scribe/summariser-agent/Dockerfile
+    container_name: helixcare-summariser
+    environment:
+      - PORT=8032
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=summariser-agent
+    ports:
+      - "8032:8032"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8032/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  transcriber-agent:
+    build:
+      context: .
+      dockerfile: demos/telemed-scribe/transcriber-agent/Dockerfile
+    container_name: helixcare-transcriber
+    environment:
+      - PORT=8031
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - SUMMARY_RPC=http://summariser-agent:8032/rpc
+      - EHR_RPC=http://ehr-writer-agent:8033/rpc
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=transcriber-agent
+    ports:
+      - "8031:8031"
+    depends_on:
+      summariser-agent:
+        condition: service_healthy
+      ehr-writer-agent:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8031/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════════
+  # Consent Verification Agents
+  # ═══════════════════════════════════════════════════════════════════
+
+  consent-analyser:
+    build:
+      context: .
+      dockerfile: demos/consent-verification/consent-analyser/Dockerfile
+    container_name: helixcare-consent-analyser
+    environment:
+      - PORT=8043
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=consent-analyser
+    ports:
+      - "8043:8043"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8043/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  hitl-ui:
+    build:
+      context: .
+      dockerfile: demos/consent-verification/hitl-ui/Dockerfile
+    container_name: helixcare-hitl-ui
+    environment:
+      - PORT=8044
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=hitl-ui
+    ports:
+      - "8044:8044"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8044/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  provider-agent:
+    build:
+      context: .
+      dockerfile: demos/consent-verification/provider-agent/Dockerfile
+    container_name: helixcare-provider
+    environment:
+      - PORT=8042
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - CONSENT_RPC=http://consent-analyser:8043/rpc
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=provider-agent
+    ports:
+      - "8042:8042"
+    depends_on:
+      consent-analyser:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8042/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  insurer-agent:
+    build:
+      context: .
+      dockerfile: demos/consent-verification/insurer-agent/Dockerfile
+    container_name: helixcare-insurer
+    environment:
+      - PORT=8041
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - PROVIDER_RPC=http://provider-agent:8042/rpc
+      - HITL_RPC=http://hitl-ui:8044/rpc
+      - HITL_REQUIRED=${HITL_REQUIRED:-true}
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=insurer-agent
+    ports:
+      - "8041:8041"
+    depends_on:
+      provider-agent:
+        condition: service_healthy
+      hitl-ui:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8041/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════════
+  # Public Health Surveillance Agents
+  # ═══════════════════════════════════════════════════════════════════
+
+  hospital-reporter:
+    build:
+      context: .
+      dockerfile: demos/public-health-surveillance/hospital-reporter/Dockerfile
+    container_name: helixcare-hospital-reporter
+    environment:
+      - PORT=8051
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - MQTT_BROKER=mosquitto
+      - MQTT_PORT=1883
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=hospital-reporter
+    ports:
+      - "8051:8051"
+    depends_on:
+      redis:
+        condition: service_healthy
+      mosquitto:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8051/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  osint-agent:
+    build:
+      context: .
+      dockerfile: demos/public-health-surveillance/osint-agent/Dockerfile
+    container_name: helixcare-osint
+    environment:
+      - PORT=8052
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - MQTT_BROKER=mosquitto
+      - MQTT_PORT=1883
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=osint-agent
+    ports:
+      - "8052:8052"
+    depends_on:
+      redis:
+        condition: service_healthy
+      mosquitto:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8052/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  central-surveillance:
+    build:
+      context: .
+      dockerfile: demos/public-health-surveillance/central-surveillance/Dockerfile
+    container_name: helixcare-central-surveillance
+    environment:
+      - PORT=8053
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - HOSPITAL_REPORTER_URL=http://hospital-reporter:8051
+      - OSINT_AGENT_URL=http://osint-agent:8052
+      - MQTT_BROKER=mosquitto
+      - MQTT_PORT=1883
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=central-surveillance
+    ports:
+      - "8053:8053"
+    depends_on:
+      hospital-reporter:
+        condition: service_healthy
+      osint-agent:
+        condition: service_healthy
+      mosquitto:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8053/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════════
+  # Monitoring & Observability
+  # ═══════════════════════════════════════════════════════════════════
+
+  command-centre:
+    build:
+      context: .
+      dockerfile: shared/command-centre/Dockerfile
+    container_name: helixcare-command-centre
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - AGENT_URLS=http://triage-agent:8021,http://diagnosis-agent:8022,http://openhie-mediator:8023,http://transcriber-agent:8031,http://summariser-agent:8032,http://ehr-writer-agent:8033,http://insurer-agent:8041,http://provider-agent:8042,http://consent-analyser:8043,http://hitl-ui:8044,http://hospital-reporter:8051,http://osint-agent:8052,http://central-surveillance:8053
+      - UPDATE_INTERVAL_MS=2000
+    ports:
+      - "8099:8099"
+    depends_on:
+      - redis
+      - triage-agent
+      - diagnosis-agent
+      - openhie-mediator
+      - transcriber-agent
+      - summariser-agent
+      - ehr-writer-agent
+      - insurer-agent
+      - provider-agent
+      - consent-analyser
+      - hitl-ui
+      - hospital-reporter
+      - osint-agent
+      - central-surveillance
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  # Optional: Jaeger for distributed tracing
+  # jaeger:
+  #   image: jaegertracing/all-in-one:1.55
+  #   container_name: helixcare-jaeger
+  #   ports:
+  #     - "16686:16686"  # Jaeger UI
+  #     - "4318:4318"    # OTLP HTTP receiver
+  #   environment:
+  #     - COLLECTOR_OTLP_ENABLED=true
+  #   networks:
+  #     - helixcare-network
+
+networks:
+  helixcare-network:
+    driver: bridge
+    name: helixcare
+
+volumes:
+  redis-data:
+    name: helixcare-redis-data
+  fhir-data:
+    name: helixcare-fhir-data
+  ehr-data:
+    name: helixcare-ehr-data
+  keycloak-db-data:
+    name: helixcare-keycloak-db

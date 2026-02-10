@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-02-09T20:16:41.522237+00:00",
-  "total": 87,
-  "passed": 5,
-  "failed": 58,
-  "skipped": 10,
-  "errors": 14,
+  "generated_at": "2026-02-09T22:02:23.007688+00:00",
+  "total": 96,
+  "passed": 50,
+  "failed": 33,
+  "skipped": 13,
+  "errors": 0,
   "results": [
     {
       "use_case_id": "UC-CMD-0001",
@@ -16,9 +16,9 @@
         "MON-2",
         "NFR-1"
       ],
-      "status": "error",
-      "message": "All connection attempts failed",
-      "duration_ms": 2327.999999994063
+      "status": "fail",
+      "message": "Expected >= 3 agents\nassert 0 >= 3\n +  where 0 = len([])",
+      "duration_ms": 546.9999999913853
     },
     {
       "use_case_id": "UC-CMD-0002",
@@ -29,9 +29,9 @@
         "MON-2",
         "MON-4"
       ],
-      "status": "error",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "status": "pass",
+      "message": "",
+      "duration_ms": 375.0
     },
     {
       "use_case_id": "UC-CMD-0003",
@@ -42,9 +42,9 @@
         "MON-1",
         "MON-5"
       ],
-      "status": "error",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "status": "fail",
+      "message": "Expected >= 3 nodes\nassert 0 >= 3\n +  where 0 = len([])",
+      "duration_ms": 687.0000000053551
     },
     {
       "use_case_id": "UC-CMD-0004",
@@ -55,9 +55,9 @@
         "MON-3",
         "NFR-1"
       ],
-      "status": "error",
-      "message": "All connection attempts failed",
-      "duration_ms": 2328.0000000086147
+      "status": "fail",
+      "message": "Expected 101, got 404\nassert 404 == 101\n +  where 404 = <Response [404 Not Found]>.status_code",
+      "duration_ms": 328.00000000861473
     },
     {
       "use_case_id": "UC-CMD-0005",
@@ -68,9 +68,9 @@
         "MON-3",
         "MON-4"
       ],
-      "status": "error",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000005937
+      "status": "pass",
+      "message": "",
+      "duration_ms": 327.9999999940628
     },
     {
       "use_case_id": "UC-CMD-0006",
@@ -81,9 +81,9 @@
         "MON-4",
         "MON-5"
       ],
-      "status": "error",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000005937
+      "status": "pass",
+      "message": "",
+      "duration_ms": 264.9999999994179
     },
     {
       "use_case_id": "UC-CMD-0007",
@@ -93,9 +93,9 @@
       "requirement_ids": [
         "MON-1"
       ],
-      "status": "error",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "status": "pass",
+      "message": "",
+      "duration_ms": 296.99999999138527
     },
     {
       "use_case_id": "UC-CMD-0008",
@@ -105,9 +105,9 @@
       "requirement_ids": [
         "MON-5"
       ],
-      "status": "error",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "status": "fail",
+      "message": "Expected application/javascript in text/javascript; charset=utf-8\nassert 'application/javascript' in 'text/javascript; charset=utf-8'",
+      "duration_ms": 391.00000000325963
     },
     {
       "use_case_id": "UC-CMD-0009",
@@ -117,9 +117,9 @@
       "requirement_ids": [
         "MON-2"
       ],
-      "status": "error",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000005937
+      "status": "pass",
+      "message": "",
+      "duration_ms": 531.0000000026776
     },
     {
       "use_case_id": "UC-CMD-0010",
@@ -130,9 +130,9 @@
         "MON-3",
         "MON-4"
       ],
-      "status": "error",
-      "message": "All connection attempts failed",
-      "duration_ms": 2327.999999994063
+      "status": "pass",
+      "message": "",
+      "duration_ms": 264.9999999994179
     },
     {
       "use_case_id": "UC-CMD-0023",
@@ -143,9 +143,9 @@
         "MON-5",
         "NFR-9"
       ],
-      "status": "error",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "status": "pass",
+      "message": "",
+      "duration_ms": 328.00000000861473
     },
     {
       "use_case_id": "UC-CMD-0024",
@@ -155,9 +155,9 @@
       "requirement_ids": [
         "MON-5"
       ],
-      "status": "error",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000005937
+      "status": "pass",
+      "message": "",
+      "duration_ms": 297.0000000059372
     },
     {
       "use_case_id": "UC-CMD-0025",
@@ -167,9 +167,9 @@
       "requirement_ids": [
         "NFR-10"
       ],
-      "status": "error",
-      "message": "All connection attempts failed",
-      "duration_ms": 2311.999999990803
+      "status": "pass",
+      "message": "",
+      "duration_ms": 282.00000000651926
     },
     {
       "use_case_id": "UC-CMD-0011",
@@ -181,8 +181,8 @@
         "MON-2"
       ],
       "status": "pass",
-      "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "message": "Expected failure: Expected status 'unhealthy' in []\nassert 'unhealthy' in []",
+      "duration_ms": 281.00000000267755
     },
     {
       "use_case_id": "UC-CMD-0012",
@@ -194,8 +194,8 @@
         "NFR-8"
       ],
       "status": "pass",
-      "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "message": "",
+      "duration_ms": 281.00000000267755
     },
     {
       "use_case_id": "UC-CMD-0013",
@@ -207,8 +207,8 @@
         "NFR-8"
       ],
       "status": "pass",
-      "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2313.000000009197
+      "message": "Expected failure: Should still show other agents\nassert 0 > 0\n +  where 0 = len([])",
+      "duration_ms": 264.9999999994179
     },
     {
       "use_case_id": "UC-CMD-0014",
@@ -219,9 +219,9 @@
         "MON-3",
         "NFR-8"
       ],
-      "status": "error",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000005937
+      "status": "pass",
+      "message": "",
+      "duration_ms": 296.99999999138527
     },
     {
       "use_case_id": "UC-CMD-0015",
@@ -233,8 +233,8 @@
         "MON-5"
       ],
       "status": "pass",
-      "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2297.000000005937
+      "message": "Expected failure: Expected status 'degraded' in []\nassert 'degraded' in []",
+      "duration_ms": 312.9999999946449
     },
     {
       "use_case_id": "UC-CMD-0016",
@@ -246,8 +246,8 @@
         "MON-4"
       ],
       "status": "pass",
-      "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "message": "Expected failure: Expected status 'unhealthy' in []\nassert 'unhealthy' in []",
+      "duration_ms": 281.00000000267755
     },
     {
       "use_case_id": "UC-CMD-0017",
@@ -258,9 +258,9 @@
         "MON-1",
         "MON-3"
       ],
-      "status": "skip",
-      "message": "Command centre not running",
-      "duration_ms": 2297.000000005937
+      "status": "pass",
+      "message": "",
+      "duration_ms": 422.0000000059372
     },
     {
       "use_case_id": "UC-CMD-0018",
@@ -271,9 +271,9 @@
         "MON-3",
         "NFR-8"
       ],
-      "status": "skip",
-      "message": "Command centre not running",
-      "duration_ms": 2312.000000005355
+      "status": "pass",
+      "message": "",
+      "duration_ms": 343.99999999732245
     },
     {
       "use_case_id": "UC-CMD-0019",
@@ -298,9 +298,9 @@
         "MON-2",
         "NFR-10"
       ],
-      "status": "skip",
-      "message": "Command centre not running",
-      "duration_ms": 2296.9999999913853
+      "status": "pass",
+      "message": "",
+      "duration_ms": 264.9999999994179
     },
     {
       "use_case_id": "UC-CMD-0021",
@@ -310,9 +310,9 @@
       "requirement_ids": [
         "MON-3"
       ],
-      "status": "skip",
-      "message": "Command centre not running",
-      "duration_ms": 2312.999999994645
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
     },
     {
       "use_case_id": "UC-CONSENT-0001",
@@ -327,8 +327,8 @@
         "SPR-8"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2609.0000000112923
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804DF4C0C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804DF4C0C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 391.00000000325963
     },
     {
       "use_case_id": "UC-CONSENT-0006",
@@ -343,8 +343,8 @@
         "SPR-8"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FBEE380>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FBEE380> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 280.99999998812564
     },
     {
       "use_case_id": "UC-CONSENT-0007",
@@ -359,8 +359,8 @@
         "SPR-2"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000005937
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FBEE940>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FBEE940> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 266.00000000325963
     },
     {
       "use_case_id": "UC-CONSENT-0011",
@@ -375,8 +375,8 @@
         "NFR-8"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FBF8080>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FBF8080> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 281.00000000267755
     },
     {
       "use_case_id": "UC-CONSENT-0012",
@@ -391,8 +391,8 @@
         "SPR-8"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2311.999999990803
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FBF8640>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FBF8640> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 296.99999999138527
     },
     {
       "use_case_id": "UC-CONSENT-0013",
@@ -407,8 +407,8 @@
         "SPR-5"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FBF8C00>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FBF8C00> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 264.9999999994179
     },
     {
       "use_case_id": "UC-CONSENT-0014",
@@ -423,8 +423,8 @@
         "NFR-7"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000005937
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FBF91C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FBF91C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 577.9999999940628
     },
     {
       "use_case_id": "UC-CONSENT-0015",
@@ -439,8 +439,8 @@
         "NFR-7"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FBF9780>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FBF9780> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 406.00000000267755
     },
     {
       "use_case_id": "UC-CONSENT-0016",
@@ -455,8 +455,8 @@
         "NFR-8"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FBF9D40>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FBF9D40> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 530.9999999881256
     },
     {
       "use_case_id": "UC-CONSENT-0017",
@@ -471,8 +471,8 @@
         "IR-8"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000005937
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FBFA300>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FBFA300> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 265.9999999887077
     },
     {
       "use_case_id": "UC-CONSENT-0002",
@@ -486,9 +486,9 @@
         "SPR-1",
         "SPR-2"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "status": "pass",
+      "message": "",
+      "duration_ms": 297.0000000059372
     },
     {
       "use_case_id": "UC-CONSENT-0003",
@@ -502,9 +502,9 @@
         "IR-5",
         "NFR-3"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000005937
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
     },
     {
       "use_case_id": "UC-CONSENT-0005",
@@ -518,9 +518,9 @@
         "IR-5",
         "SPR-1"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.0000000020955
+      "status": "pass",
+      "message": "",
+      "duration_ms": 264.9999999994179
     },
     {
       "use_case_id": "UC-CONSENT-0008",
@@ -534,9 +534,9 @@
         "NFR-5",
         "SPR-4"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "status": "pass",
+      "message": "",
+      "duration_ms": 343.00000000803266
     },
     {
       "use_case_id": "UC-CONSENT-0009",
@@ -550,9 +550,9 @@
         "IR-7",
         "NFR-8"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2313.000000009197
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
     },
     {
       "use_case_id": "UC-CONSENT-0018",
@@ -566,9 +566,9 @@
         "NFR-5",
         "SPR-8"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "status": "pass",
+      "message": "",
+      "duration_ms": 264.9999999994179
     },
     {
       "use_case_id": "UC-CONSENT-0021",
@@ -582,9 +582,9 @@
         "IR-4",
         "SPR-3"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000005937
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000000267755
     },
     {
       "use_case_id": "UC-CONSENT-0023",
@@ -598,9 +598,9 @@
         "NFR-10",
         "SPR-4"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000000267755
     },
     {
       "use_case_id": "UC-CONSENT-0024",
@@ -614,9 +614,9 @@
         "IR-6",
         "NFR-9"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "status": "pass",
+      "message": "",
+      "duration_ms": 264.9999999994179
     },
     {
       "use_case_id": "UC-CONSENT-0025",
@@ -630,9 +630,9 @@
         "SPR-6",
         "SPR-8"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000005937
+      "status": "pass",
+      "message": "",
+      "duration_ms": 296.99999999138527
     },
     {
       "use_case_id": "UC-ED-0001",
@@ -647,8 +647,8 @@
         "SPR-1"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000005937
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x00000180500DEF00>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x00000180500DEF00> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 437.9999999946449
     },
     {
       "use_case_id": "UC-ED-0002",
@@ -663,8 +663,8 @@
         "NFR-3"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FC44500>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FC44500> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 266.00000000325963
     },
     {
       "use_case_id": "UC-ED-0004",
@@ -679,8 +679,8 @@
         "SPR-3"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FC4E800>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FC4E800> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 296.99999999138527
     },
     {
       "use_case_id": "UC-ED-0007",
@@ -695,8 +695,8 @@
         "SPR-7"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FC550C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FC550C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 281.99999999196734
     },
     {
       "use_case_id": "UC-ED-0008",
@@ -711,8 +711,8 @@
         "SPR-6"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FC5A640>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FC5A640> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 296.99999999138527
     },
     {
       "use_case_id": "UC-ED-0009",
@@ -727,8 +727,8 @@
         "SPR-4"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FC5A2C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FC5A2C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 422.0000000059372
     },
     {
       "use_case_id": "UC-ED-0010",
@@ -743,8 +743,8 @@
         "IR-6"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FC54440>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FC54440> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 609.0000000112923
     },
     {
       "use_case_id": "UC-ED-0011",
@@ -759,8 +759,8 @@
         "SPR-7"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000005937
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FC66E40>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FC66E40> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 327.9999999940628
     },
     {
       "use_case_id": "UC-ED-0013",
@@ -775,8 +775,8 @@
         "SPR-4"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2328.0000000086147
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FC6CBC0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FC6CBC0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 280.99999998812564
     },
     {
       "use_case_id": "UC-ED-0016",
@@ -791,8 +791,8 @@
         "SPR-5"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FC6E200>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FC6E200> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 406.00000000267755
     },
     {
       "use_case_id": "UC-ED-0003",
@@ -806,9 +806,9 @@
         "IR-7",
         "SPR-2"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "status": "pass",
+      "message": "",
+      "duration_ms": 625.0
     },
     {
       "use_case_id": "UC-ED-0005",
@@ -822,9 +822,9 @@
         "SPR-2",
         "SPR-5"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "status": "pass",
+      "message": "",
+      "duration_ms": 531.0000000026776
     },
     {
       "use_case_id": "UC-ED-0006",
@@ -838,9 +838,9 @@
         "SPR-5",
         "SPR-8"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000005937
+      "status": "pass",
+      "message": "",
+      "duration_ms": 297.0000000059372
     },
     {
       "use_case_id": "UC-ED-0015",
@@ -854,9 +854,9 @@
         "IR-7",
         "SPR-2"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2311.999999990803
+      "status": "pass",
+      "message": "",
+      "duration_ms": 343.99999999732245
     },
     {
       "use_case_id": "UC-ED-0018",
@@ -870,9 +870,9 @@
         "IR-7",
         "SPR-8"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000000267755
     },
     {
       "use_case_id": "UC-ED-0030",
@@ -886,9 +886,9 @@
         "SPR-1",
         "SPR-4"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2327.999999994063
+      "status": "pass",
+      "message": "",
+      "duration_ms": 421.99999999138527
     },
     {
       "use_case_id": "UC-ED-0031",
@@ -902,9 +902,9 @@
         "NFR-5",
         "SPR-1"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "status": "pass",
+      "message": "",
+      "duration_ms": 296.0000000020955
     },
     {
       "use_case_id": "UC-ED-0044",
@@ -918,9 +918,9 @@
         "SPR-1",
         "SPR-3"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "status": "pass",
+      "message": "",
+      "duration_ms": 296.99999999138527
     },
     {
       "use_case_id": "UC-ED-0045",
@@ -934,9 +934,9 @@
         "SPR-6",
         "SPR-8"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2313.000000009197
+      "status": "pass",
+      "message": "",
+      "duration_ms": 313.0000000091968
     },
     {
       "use_case_id": "UC-ED-0048",
@@ -950,9 +950,9 @@
         "IR-3",
         "NFR-6"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "status": "pass",
+      "message": "",
+      "duration_ms": 375.0
     },
     {
       "use_case_id": "UC-PROT-CORE-0001",
@@ -968,8 +968,8 @@
         "SPR-5"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2375.0
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x00000180503C1940>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x00000180503C1940> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 500.0
     },
     {
       "use_case_id": "UC-PROT-CORE-0002",
@@ -984,9 +984,9 @@
         "NFR-3",
         "NFR-9"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2328.0000000086147
+      "status": "pass",
+      "message": "",
+      "duration_ms": 1125.0
     },
     {
       "use_case_id": "UC-PROT-CORE-0003",
@@ -1001,9 +1001,9 @@
         "NFR-2",
         "SPR-8"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2328.9999999979045
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000000267755
     },
     {
       "use_case_id": "UC-PROT-CORE-0004",
@@ -1019,8 +1019,8 @@
         "SPR-5"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FD18340>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FD18340> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 297.0000000059372
     },
     {
       "use_case_id": "UC-PROT-CORE-0005",
@@ -1035,9 +1035,9 @@
         "SPR-6",
         "SPR-7"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2311.999999990803
+      "status": "pass",
+      "message": "",
+      "duration_ms": 483.99999999674037
     },
     {
       "use_case_id": "UC-PROT-CORE-0007",
@@ -1053,8 +1053,8 @@
         "SPR-8"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2328.0000000086147
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FD25200>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FD25200> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 281.99999999196734
     },
     {
       "use_case_id": "UC-PROT-CORE-0008",
@@ -1070,8 +1070,8 @@
         "SPR-8"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FD243C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FD243C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 781.0000000026776
     },
     {
       "use_case_id": "UC-PROT-CORE-0009",
@@ -1087,8 +1087,8 @@
         "SPR-8"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FD2F880>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FD2F880> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 546.9999999913853
     },
     {
       "use_case_id": "UC-PROT-CORE-0010",
@@ -1104,8 +1104,8 @@
         "NFR-6"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FD24E40>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FD24E40> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 358.99999999674037
     },
     {
       "use_case_id": "UC-PROT-CORE-0011",
@@ -1121,8 +1121,8 @@
         "SPR-1"
       ],
       "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FD354C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FD354C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 266.00000000325963
     },
     {
       "use_case_id": "UC-PROT-CORE-0013",
@@ -1154,9 +1154,9 @@
         "SPR-5",
         "SPR-7"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000000267755
     },
     {
       "use_case_id": "UC-PROT-CORE-0029",
@@ -1171,9 +1171,9 @@
         "SPR-1",
         "SPR-3"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
     },
     {
       "use_case_id": "UC-PROT-CORE-0030",
@@ -1188,9 +1188,9 @@
         "NFR-2",
         "SPR-3"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "status": "pass",
+      "message": "",
+      "duration_ms": 282.00000000651926
     },
     {
       "use_case_id": "UC-PROT-CORE-0031",
@@ -1205,9 +1205,9 @@
         "NFR-10",
         "SPR-3"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000000267755
     },
     {
       "use_case_id": "UC-PROT-CORE-0032",
@@ -1222,9 +1222,9 @@
         "SPR-3",
         "SPR-5"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2313.000000009197
+      "status": "pass",
+      "message": "",
+      "duration_ms": 639.9999999994179
     },
     {
       "use_case_id": "UC-PROT-CORE-0036",
@@ -1239,9 +1239,9 @@
         "SPR-3",
         "SPR-7"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000005937
+      "status": "pass",
+      "message": "",
+      "duration_ms": 421.99999999138527
     },
     {
       "use_case_id": "UC-PROT-CORE-0043",
@@ -1256,9 +1256,9 @@
         "SPR-6",
         "SPR-7"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.0000000020955
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000000267755
     },
     {
       "use_case_id": "UC-PROT-CORE-0050",
@@ -1290,9 +1290,9 @@
         "NFR-9",
         "SPR-2"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "status": "pass",
+      "message": "",
+      "duration_ms": 296.0000000020955
     },
     {
       "use_case_id": "UC-PROT-MULTI-0001",
@@ -1343,6 +1343,159 @@
       ],
       "status": "skip",
       "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0007",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 7",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-2",
+        "FR-5",
+        "IR-2",
+        "IR-3",
+        "NFR-1"
+      ],
+      "status": "fail",
+      "message": "assert 500 == 200\n +  where 500 = <Response [500 Internal Server Error]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FFA2A40>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FFA2A40> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 687.9999999946449
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0008",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 8",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-4",
+        "IR-6",
+        "NFR-3",
+        "NFR-7",
+        "SPR-1",
+        "SPR-2"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0011",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 11",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-3",
+        "IR-5",
+        "SPR-1",
+        "SPR-5",
+        "SPR-6"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 16.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0012",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 12",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "FR-6",
+        "IR-6",
+        "NFR-3",
+        "NFR-4",
+        "NFR-5"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0013",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 13",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-6",
+        "FR-7",
+        "IR-3",
+        "NFR-5",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "assert 500 == 200\n +  where 500 = <Response [500 Internal Server Error]>.status_code\n +  and   200 = <built-in method get of dict object at 0x0000018050015500>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x0000018050015500> = {'auth_mode': 'jwt+did(optional)', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 406.00000000267755
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0017",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 17",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-3",
+        "FR-2",
+        "FR-7",
+        "IR-3",
+        "NFR-8",
+        "SPR-5"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0018",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 18",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-2",
+        "FR-5",
+        "IR-2",
+        "IR-5",
+        "SPR-5",
+        "SPR-8"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0002",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 2",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-4",
+        "FR-2",
+        "NFR-5",
+        "NFR-9",
+        "SPR-1",
+        "SPR-6"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 46.999999991385266
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0004",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 4",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-4",
+        "FR-3",
+        "NFR-1",
+        "NFR-2",
+        "NFR-7",
+        "SPR-8"
+      ],
+      "status": "skip",
+      "message": "",
       "duration_ms": 0.0
     }
   ]
