@@ -500,6 +500,187 @@ services:
     restart: unless-stopped
 
   # ═══════════════════════════════════════════════════════════════════
+  # HelixCare Hospital Agents
+  # ═══════════════════════════════════════════════════════════════════
+
+  imaging-agent:
+    build:
+      context: .
+      dockerfile: demos/helixcare/imaging-agent/Dockerfile
+    container_name: helixcare-imaging-agent
+    environment:
+      - PORT=8024
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=imaging-agent
+    ports:
+      - "8024:8024"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8024/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  pharmacy-agent:
+    build:
+      context: .
+      dockerfile: demos/helixcare/pharmacy-agent/Dockerfile
+    container_name: helixcare-pharmacy-agent
+    environment:
+      - PORT=8025
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=pharmacy-agent
+    ports:
+      - "8025:8025"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8025/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  bed-manager-agent:
+    build:
+      context: .
+      dockerfile: demos/helixcare/bed-manager-agent/Dockerfile
+    container_name: helixcare-bed-manager
+    environment:
+      - PORT=8026
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=bed-manager-agent
+    ports:
+      - "8026:8026"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8026/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  discharge-agent:
+    build:
+      context: .
+      dockerfile: demos/helixcare/discharge-agent/Dockerfile
+    container_name: helixcare-discharge-agent
+    environment:
+      - PORT=8027
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=discharge-agent
+    ports:
+      - "8027:8027"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8027/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  followup-scheduler:
+    build:
+      context: .
+      dockerfile: demos/helixcare/followup-scheduler/Dockerfile
+    container_name: helixcare-followup-scheduler
+    environment:
+      - PORT=8028
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=followup-scheduler
+    ports:
+      - "8028:8028"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8028/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  care-coordinator:
+    build:
+      context: .
+      dockerfile: demos/helixcare/care-coordinator/Dockerfile
+    container_name: helixcare-care-coordinator
+    environment:
+      - PORT=8029
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - NEXUS_TRIAGE_RPC=http://triage-agent:8021/rpc
+      - NEXUS_DIAGNOSIS_RPC=http://diagnosis-agent:8022/rpc
+      - NEXUS_IMAGING_RPC=http://imaging-agent:8024/rpc
+      - NEXUS_PHARMACY_RPC=http://pharmacy-agent:8025/rpc
+      - NEXUS_BED_RPC=http://bed-manager-agent:8026/rpc
+      - NEXUS_DISCHARGE_RPC=http://discharge-agent:8027/rpc
+      - NEXUS_FOLLOWUP_RPC=http://followup-scheduler:8028/rpc
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=care-coordinator
+    ports:
+      - "8029:8029"
+    depends_on:
+      triage-agent:
+        condition: service_healthy
+      diagnosis-agent:
+        condition: service_healthy
+      imaging-agent:
+        condition: service_healthy
+      pharmacy-agent:
+        condition: service_healthy
+      bed-manager-agent:
+        condition: service_healthy
+      discharge-agent:
+        condition: service_healthy
+      followup-scheduler:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8029/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════════
   # Monitoring & Observability
   # ═══════════════════════════════════════════════════════════════════
 
@@ -510,7 +691,7 @@ services:
     container_name: helixcare-command-centre
     environment:
       - REDIS_URL=redis://redis:6379
-      - AGENT_URLS=http://triage-agent:8021,http://diagnosis-agent:8022,http://openhie-mediator:8023,http://transcriber-agent:8031,http://summariser-agent:8032,http://ehr-writer-agent:8033,http://insurer-agent:8041,http://provider-agent:8042,http://consent-analyser:8043,http://hitl-ui:8044,http://hospital-reporter:8051,http://osint-agent:8052,http://central-surveillance:8053
+      - AGENT_URLS=http://triage-agent:8021,http://diagnosis-agent:8022,http://openhie-mediator:8023,http://imaging-agent:8024,http://pharmacy-agent:8025,http://bed-manager-agent:8026,http://discharge-agent:8027,http://followup-scheduler:8028,http://care-coordinator:8029,http://transcriber-agent:8031,http://summariser-agent:8032,http://ehr-writer-agent:8033,http://insurer-agent:8041,http://provider-agent:8042,http://consent-analyser:8043,http://hitl-ui:8044,http://hospital-reporter:8051,http://osint-agent:8052,http://central-surveillance:8053
       - UPDATE_INTERVAL_MS=2000
     ports:
       - "8099:8099"
@@ -519,6 +700,12 @@ services:
       - triage-agent
       - diagnosis-agent
       - openhie-mediator
+      - imaging-agent
+      - pharmacy-agent
+      - bed-manager-agent
+      - discharge-agent
+      - followup-scheduler
+      - care-coordinator
       - transcriber-agent
       - summariser-agent
       - ehr-writer-agent

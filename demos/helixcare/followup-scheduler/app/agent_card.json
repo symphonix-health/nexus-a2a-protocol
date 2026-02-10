@@ -1,0 +1,29 @@
+{
+  "name": "FollowupScheduler",
+  "description": "Post-discharge follow-up appointment scheduling",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://followup-scheduler:8028",
+  "capabilities": {
+    "streaming": true,
+    "websocket": true,
+    "pushNotifications": false
+  },
+  "methods": [
+    "tasks/send",
+    "tasks/sendSubscribe",
+    "followup/schedule"
+  ],
+  "authentication": {
+    "schemes": [
+      "bearer"
+    ]
+  },
+  "skills": [
+    {
+      "id": "followup",
+      "name": "Follow-up Scheduling",
+      "description": "Schedule post-discharge follow-up appointments"
+    }
+  ]
+}

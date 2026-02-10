@@ -1,0 +1,30 @@
+{
+  "name": "DischargeAgent",
+  "description": "Discharge planning \u2014 summary generation, follow-up scheduling",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://discharge-agent:8027",
+  "capabilities": {
+    "streaming": true,
+    "websocket": true,
+    "pushNotifications": false
+  },
+  "methods": [
+    "tasks/send",
+    "tasks/sendSubscribe",
+    "discharge/initiate",
+    "discharge/create_summary"
+  ],
+  "authentication": {
+    "schemes": [
+      "bearer"
+    ]
+  },
+  "skills": [
+    {
+      "id": "discharge",
+      "name": "Discharge Planning",
+      "description": "Discharge summary generation and follow-up scheduling"
+    }
+  ]
+}

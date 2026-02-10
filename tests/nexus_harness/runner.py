@@ -120,3 +120,54 @@ _report = ConformanceReport()
 
 def get_report() -> ConformanceReport:
     return _report
+
+
+# ── HelixCare matrix support (auto-generated) ──────────────────
+HELIXCARE_MATRICES_DIR = pathlib.Path(__file__).resolve().parents[2] / "HelixCare"
+
+
+def load_helixcare_matrix(filename: str) -> list[dict]:
+    path = HELIXCARE_MATRICES_DIR / filename
+    if not path.exists():
+        raise FileNotFoundError(f"HelixCare matrix not found: {path}")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def scenarios_for_helixcare(
+    filename: str,
+    *,
+    tags: list[str] | None = None,
+    scenario_type: str | None = None,
+) -> list[dict]:
+    rows = load_helixcare_matrix(filename)
+    if scenario_type:
+        rows = [r for r in rows if r.get("scenario_type") == scenario_type]
+    if tags:
+        tag_set = set(tags)
+        rows = [r for r in rows if tag_set.intersection(r.get("test_tags", []))]
+    return rows
+
+
+HELIXCARE_URLS: dict[str, str] = {
+    # Existing agents
+    "triage-agent":        os.environ.get("HC_TRIAGE_URL",     "http://localhost:8021"),
+    "diagnosis-agent":     os.environ.get("HC_DIAGNOSIS_URL",  "http://localhost:8022"),
+    "openhie-mediator":    os.environ.get("HC_MEDIATOR_URL",   "http://localhost:8023"),
+    "transcriber-agent":   os.environ.get("HC_TRANSCRIBER_URL","http://localhost:8031"),
+    "summariser-agent":    os.environ.get("HC_SUMMARISER_URL", "http://localhost:8032"),
+    "ehr-writer-agent":    os.environ.get("HC_EHR_URL",        "http://localhost:8033"),
+    "insurer-agent":       os.environ.get("HC_INSURER_URL",    "http://localhost:8041"),
+    "provider-agent":      os.environ.get("HC_PROVIDER_URL",   "http://localhost:8042"),
+    "consent-analyser":    os.environ.get("HC_CONSENT_URL",    "http://localhost:8043"),
+    "hitl-ui":             os.environ.get("HC_HITL_URL",       "http://localhost:8044"),
+    "hospital-reporter":   os.environ.get("HC_HOSPITAL_URL",   "http://localhost:8051"),
+    "osint-agent":         os.environ.get("HC_OSINT_URL",      "http://localhost:8052"),
+    "central-surveillance":os.environ.get("HC_CENTRAL_URL",    "http://localhost:8053"),
+    # HelixCare agents
+    "imaging-agent":       os.environ.get("HC_IMAGING_URL",    "http://localhost:8024"),
+    "pharmacy-agent":      os.environ.get("HC_PHARMACY_URL",   "http://localhost:8025"),
+    "bed-manager-agent":   os.environ.get("HC_BED_URL",        "http://localhost:8026"),
+    "discharge-agent":     os.environ.get("HC_DISCHARGE_URL",  "http://localhost:8027"),
+    "followup-scheduler":  os.environ.get("HC_FOLLOWUP_URL",   "http://localhost:8028"),
+    "care-coordinator":    os.environ.get("HC_COORDINATOR_URL","http://localhost:8029"),
+}

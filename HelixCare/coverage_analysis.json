@@ -1,0 +1,690 @@
+{
+  "matrix_stats": {
+    "helixcare_admission_treatment_matrix": {
+      "total": 1000,
+      "positive": 650,
+      "negative": 250
+    },
+    "helixcare_diagnosis_imaging_matrix": {
+      "total": 1000,
+      "positive": 650,
+      "negative": 250
+    },
+    "helixcare_discharge_matrix": {
+      "total": 1000,
+      "positive": 650,
+      "negative": 250
+    },
+    "helixcare_ed_intake_triage_matrix": {
+      "total": 1000,
+      "positive": 650,
+      "negative": 250
+    },
+    "helixcare_protocol_discovery_matrix": {
+      "total": 1000,
+      "positive": 650,
+      "negative": 250
+    },
+    "helixcare_protocol_security_matrix": {
+      "total": 1000,
+      "positive": 650,
+      "negative": 250
+    },
+    "helixcare_public_health_surveillance_matrix": {
+      "total": 1000,
+      "positive": 650,
+      "negative": 250
+    }
+  },
+  "total_scenarios": 7000,
+  "unique_requirements": 43,
+  "requirement_ids": [
+    "CR-1",
+    "CR-2",
+    "CR-3",
+    "CR-4",
+    "CR-5",
+    "FR-1",
+    "FR-10",
+    "FR-11",
+    "FR-12",
+    "FR-2",
+    "FR-3",
+    "FR-4",
+    "FR-5",
+    "FR-6",
+    "FR-7",
+    "FR-8",
+    "FR-9",
+    "IR-1",
+    "IR-2",
+    "IR-3",
+    "IR-4",
+    "IR-5",
+    "IR-6",
+    "IR-7",
+    "IR-8",
+    "NFR-1",
+    "NFR-10",
+    "NFR-2",
+    "NFR-3",
+    "NFR-4",
+    "NFR-5",
+    "NFR-6",
+    "NFR-7",
+    "NFR-8",
+    "NFR-9",
+    "SPR-1",
+    "SPR-2",
+    "SPR-3",
+    "SPR-4",
+    "SPR-5",
+    "SPR-6",
+    "SPR-7",
+    "SPR-8"
+  ],
+  "requirement_coverage": {
+    "CR-1": {
+      "total_scenarios": 956,
+      "positive_count": 639,
+      "negative_count": 317,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "CR-2": {
+      "total_scenarios": 948,
+      "positive_count": 621,
+      "negative_count": 327,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "CR-3": {
+      "total_scenarios": 968,
+      "positive_count": 631,
+      "negative_count": 337,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "CR-4": {
+      "total_scenarios": 966,
+      "positive_count": 633,
+      "negative_count": 333,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "CR-5": {
+      "total_scenarios": 972,
+      "positive_count": 618,
+      "negative_count": 354,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "FR-1": {
+      "total_scenarios": 961,
+      "positive_count": 626,
+      "negative_count": 335,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "FR-10": {
+      "total_scenarios": 963,
+      "positive_count": 637,
+      "negative_count": 326,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "FR-11": {
+      "total_scenarios": 977,
+      "positive_count": 641,
+      "negative_count": 336,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "FR-12": {
+      "total_scenarios": 951,
+      "positive_count": 607,
+      "negative_count": 344,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "FR-2": {
+      "total_scenarios": 965,
+      "positive_count": 616,
+      "negative_count": 349,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "FR-3": {
+      "total_scenarios": 991,
+      "positive_count": 644,
+      "negative_count": 347,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "FR-4": {
+      "total_scenarios": 925,
+      "positive_count": 624,
+      "negative_count": 301,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "FR-5": {
+      "total_scenarios": 986,
+      "positive_count": 636,
+      "negative_count": 350,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "FR-6": {
+      "total_scenarios": 1016,
+      "positive_count": 672,
+      "negative_count": 344,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "FR-7": {
+      "total_scenarios": 897,
+      "positive_count": 569,
+      "negative_count": 328,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "FR-8": {
+      "total_scenarios": 1004,
+      "positive_count": 677,
+      "negative_count": 327,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "FR-9": {
+      "total_scenarios": 1033,
+      "positive_count": 649,
+      "negative_count": 384,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "IR-1": {
+      "total_scenarios": 987,
+      "positive_count": 624,
+      "negative_count": 363,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "IR-2": {
+      "total_scenarios": 993,
+      "positive_count": 654,
+      "negative_count": 339,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "IR-3": {
+      "total_scenarios": 967,
+      "positive_count": 665,
+      "negative_count": 302,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "IR-4": {
+      "total_scenarios": 988,
+      "positive_count": 650,
+      "negative_count": 338,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "IR-5": {
+      "total_scenarios": 972,
+      "positive_count": 628,
+      "negative_count": 344,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "IR-6": {
+      "total_scenarios": 961,
+      "positive_count": 612,
+      "negative_count": 349,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "IR-7": {
+      "total_scenarios": 975,
+      "positive_count": 636,
+      "negative_count": 339,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "IR-8": {
+      "total_scenarios": 972,
+      "positive_count": 636,
+      "negative_count": 336,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "NFR-1": {
+      "total_scenarios": 1022,
+      "positive_count": 653,
+      "negative_count": 369,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "NFR-10": {
+      "total_scenarios": 978,
+      "positive_count": 626,
+      "negative_count": 352,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "NFR-2": {
+      "total_scenarios": 952,
+      "positive_count": 592,
+      "negative_count": 360,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "NFR-3": {
+      "total_scenarios": 943,
+      "positive_count": 607,
+      "negative_count": 336,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "NFR-4": {
+      "total_scenarios": 956,
+      "positive_count": 621,
+      "negative_count": 335,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "NFR-5": {
+      "total_scenarios": 956,
+      "positive_count": 632,
+      "negative_count": 324,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "NFR-6": {
+      "total_scenarios": 970,
+      "positive_count": 647,
+      "negative_count": 323,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "NFR-7": {
+      "total_scenarios": 961,
+      "positive_count": 638,
+      "negative_count": 323,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "NFR-8": {
+      "total_scenarios": 1046,
+      "positive_count": 691,
+      "negative_count": 355,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "NFR-9": {
+      "total_scenarios": 1021,
+      "positive_count": 677,
+      "negative_count": 344,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "SPR-1": {
+      "total_scenarios": 1031,
+      "positive_count": 681,
+      "negative_count": 350,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "SPR-2": {
+      "total_scenarios": 952,
+      "positive_count": 617,
+      "negative_count": 335,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "SPR-3": {
+      "total_scenarios": 978,
+      "positive_count": 623,
+      "negative_count": 355,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "SPR-4": {
+      "total_scenarios": 988,
+      "positive_count": 616,
+      "negative_count": 372,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "SPR-5": {
+      "total_scenarios": 977,
+      "positive_count": 633,
+      "negative_count": 344,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "SPR-6": {
+      "total_scenarios": 945,
+      "positive_count": 602,
+      "negative_count": 343,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "SPR-7": {
+      "total_scenarios": 983,
+      "positive_count": 631,
+      "negative_count": 352,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    },
+    "SPR-8": {
+      "total_scenarios": 1047,
+      "positive_count": 668,
+      "negative_count": 379,
+      "matrices": [
+        "helixcare_admission_treatment_matrix",
+        "helixcare_diagnosis_imaging_matrix",
+        "helixcare_discharge_matrix",
+        "helixcare_ed_intake_triage_matrix",
+        "helixcare_protocol_discovery_matrix",
+        "helixcare_protocol_security_matrix",
+        "helixcare_public_health_surveillance_matrix"
+      ]
+    }
+  }
+}

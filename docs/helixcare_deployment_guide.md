@@ -90,6 +90,7 @@ sequenceDiagramparticipant Client
     Triage->>Events: Publish "accepted" event
     Triage->>Diag: POST /rpc (diagnosis/assess)
     Diag->>FHIR: POST /rpc (fhir/get)
+    Diag->>FHIR: POST /rpc (fhir/write)   %% new: create/update FHIR resources
     FHIR-->>Diag: Patient FHIR data
     Diag-->>Triage: {"triage_priority": "URGENT", ...}
     Triage->>Events: Publish "final" event with result
@@ -374,6 +375,21 @@ python tools/generate_conformance_report.py
 - Security tests: 100%
 - Performance: <500ms P95 latency
 
+### Latency Benchmarks
+
+Use the built-in benchmark to measure agent latencies.
+
+```bash
+# Benchmark /health across all agents from AGENT_URLS
+export AGENT_URLS="http://localhost:8021,http://localhost:8022,http://localhost:8023,http://localhost:8024"
+python tools/bench_latency.py --runs 50 --concurrency 20
+
+# Optionally, test a JSON-RPC method as well
+python tools/bench_latency.py --urls http://localhost:8021 --rpc tasks/sendSubscribe --runs 20 --concurrency 5
+
+# Results written to bench_latency.json
+```
+
 ### Manual Workflow Tests
 
 #### Test ED Triage Workflow
@@ -481,8 +497,18 @@ docker-compose -f docker-compose-helixcare.yml up keycloak keycloak-db -d
 # - Create client: "helixcare-agents" (service account)
 # - Add scope: "nexus:invoke"
 
-# 4. Update agent config to use RS256
-# (Requires code modification - see helixcare_protocol_analysis.md)
+# 4. Switch agents to RS256 (no code changes needed)
+#    Set these env vars for all agents (Compose or local):
+#    AUTH_MODE=rs256
+#    OIDC_DISCOVERY_URL=https://<keycloak-host>/realms/<realm>/.well-known/openid-configuration
+#    # Optional depending on your IdP setup:
+#    OIDC_AUDIENCE=<client-id>
+#    OIDC_ISSUER=https://<keycloak-host>/realms/<realm>
+#
+#    Example (local launcher):
+#    $Env:AUTH_MODE = "rs256"
+#    $Env:OIDC_DISCOVERY_URL = "http://localhost:8081/realms/helixcare/.well-known/openid-configuration"
+#    python tools/launch_all_agents.py
 ```
 
 ### Phase 3: mTLS (⚠️ Recommended for Production)
@@ -510,7 +536,33 @@ openssl x509 -req -in triage-agent-req.pem \
 # 4. Repeat for all 13 agents
 ```
 
-**Configure Nginx reverse proxy with mTLS:**
+**Option A: Built-in TLS/mTLS via Uvicorn (quick start)**
+
+Set for local launcher (applies to all agents started by tools/launch_all_agents.py):
+
+```bash
+# Linux/macOS
+export NEXUS_SSL_CERTFILE=/path/agent-cert.pem
+export NEXUS_SSL_KEYFILE=/path/agent-key.pem
+export NEXUS_SSL_CA_CERTS=/path/ca-cert.pem    # for mTLS
+export NEXUS_SSL_CERT_REQS=required            # none|optional|required
+export UVICORN_WORKERS=2                       # optional horizontal scaling
+python tools/launch_all_agents.py
+```
+
+```powershell
+# Windows PowerShell
+$Env:NEXUS_SSL_CERTFILE = "C:\\certs\\agent-cert.pem"
+$Env:NEXUS_SSL_KEYFILE  = "C:\\certs\\agent-key.pem"
+$Env:NEXUS_SSL_CA_CERTS = "C:\\certs\\ca-cert.pem"
+$Env:NEXUS_SSL_CERT_REQS = "required"
+$Env:UVICORN_WORKERS = "2"
+python tools/launch_all_agents.py
+```
+
+This enables HTTPS for all agents and, when CA certs + CERT_REQS are set, requires client certificates (mTLS).
+
+**Option B: Nginx reverse proxy with mTLS:**
 ```nginx
 server {
     listen 8021 ssl;

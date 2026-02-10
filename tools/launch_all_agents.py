@@ -36,6 +36,15 @@ AGENTS = [
     ("demos/public-health-surveillance/hospital-reporter",    8051),
     ("demos/public-health-surveillance/osint-agent",          8052),
     ("demos/public-health-surveillance/central-surveillance", 8053),
+    # HelixCare agents
+    ("demos/helixcare/imaging-agent",       8024),
+    ("demos/helixcare/pharmacy-agent",      8025),
+    ("demos/helixcare/bed-manager-agent",   8026),
+    ("demos/helixcare/discharge-agent",     8027),
+    ("demos/helixcare/followup-scheduler",  8028),
+    ("demos/helixcare/care-coordinator",    8029),
+    # Command Centre
+    ("shared/command-centre",               8099),
 ]
 
 PID_FILE = os.path.join(ROOT, ".agent_pids.json")
@@ -56,6 +65,18 @@ def start_all():
     env["MQTT_BROKER"] = "localhost"
     env["MQTT_PORT"] = "1883"
     env["FHIR_BASE_URL"] = "http://localhost:8080/fhir"
+    # HelixCare inter-agent URLs
+    env["NEXUS_IMAGING_RPC"] = "http://localhost:8024/rpc"
+    env["NEXUS_PHARMACY_RPC"] = "http://localhost:8025/rpc"
+    env["NEXUS_BED_RPC"] = "http://localhost:8026/rpc"
+    env["NEXUS_DISCHARGE_RPC"] = "http://localhost:8027/rpc"
+    env["NEXUS_FOLLOWUP_RPC"] = "http://localhost:8028/rpc"
+    env["NEXUS_COORDINATOR_RPC"] = "http://localhost:8029/rpc"
+    env["NEXUS_TRIAGE_RPC"] = "http://localhost:8021/rpc"
+
+    # Command Centre agent URLs for monitoring
+    env["AGENT_URLS"] = "http://localhost:8021,http://localhost:8022,http://localhost:8023,http://localhost:8024,http://localhost:8025,http://localhost:8026,http://localhost:8027,http://localhost:8028,http://localhost:8029,http://localhost:8031,http://localhost:8032,http://localhost:8033,http://localhost:8041,http://localhost:8042,http://localhost:8043,http://localhost:8044,http://localhost:8051,http://localhost:8052,http://localhost:8053"
+
 
     pids = []
 
@@ -82,6 +103,26 @@ def start_all():
             "--port", str(port),
             "--app-dir", ".",
         ]
+        # Optional: scale with multiple workers
+        workers = int(os.getenv("UVICORN_WORKERS", "1"))
+        if workers and workers > 1:
+            cmd += ["--workers", str(workers)]
+        # Optional: TLS/mTLS
+        certfile = os.getenv("NEXUS_SSL_CERTFILE")
+        keyfile = os.getenv("NEXUS_SSL_KEYFILE")
+        ca_certs = os.getenv("NEXUS_SSL_CA_CERTS")
+        cert_reqs_env = (os.getenv("NEXUS_SSL_CERT_REQS", "none").lower())
+        if certfile and keyfile:
+            cmd += ["--ssl-certfile", certfile, "--ssl-keyfile", keyfile]
+            if ca_certs:
+                cmd += ["--ssl-ca-certs", ca_certs]
+            # Map common strings to ssl.CERT_* values used by uvicorn CLI
+            if cert_reqs_env in ("required", "2"):
+                cmd += ["--ssl-cert-reqs", "2"]
+            elif cert_reqs_env in ("optional", "1"):
+                cmd += ["--ssl-cert-reqs", "1"]
+            elif cert_reqs_env in ("none", "0"):
+                cmd += ["--ssl-cert-reqs", "0"]
         print(f"  Starting {os.path.basename(rel_dir):30s}  :{port} ...", end=" ", flush=True)
         proc = subprocess.Popen(
             cmd,
