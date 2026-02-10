@@ -1,0 +1,51 @@
+{
+  "total": 350,
+  "passed": 350,
+  "failed": 0,
+  "errors": 0,
+  "pct": 100.0,
+  "suites": {
+    "ed_intake": {
+      "passed": 50,
+      "failed": 0,
+      "errors": 0,
+      "time": 154.1879186630249
+    },
+    "dx_imaging": {
+      "passed": 50,
+      "failed": 0,
+      "errors": 0,
+      "time": 156.45561289787292
+    },
+    "admission": {
+      "passed": 50,
+      "failed": 0,
+      "errors": 0,
+      "time": 169.4921293258667
+    },
+    "discharge": {
+      "passed": 50,
+      "failed": 0,
+      "errors": 0,
+      "time": 176.45543098449707
+    },
+    "surveillance": {
+      "passed": 50,
+      "failed": 0,
+      "errors": 0,
+      "time": 124.13609671592712
+    },
+    "discovery": {
+      "passed": 50,
+      "failed": 0,
+      "errors": 0,
+      "time": 131.64798617362976
+    },
+    "security": {
+      "passed": 50,
+      "failed": 0,
+      "errors": 0,
+      "time": 166.54341840744019
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "BedManagerAgent",
+  "description": "Admission management \u2014 bed assignment and department notifications",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://bed-manager-agent:8026",
+  "capabilities": {
+    "streaming": true,
+    "websocket": true,
+    "pushNotifications": false
+  },
+  "methods": [
+    "tasks/send",
+    "tasks/sendSubscribe",
+    "admission/assign_bed",
+    "admission/check_availability"
+  ],
+  "authentication": {
+    "schemes": [
+      "bearer"
+    ]
+  },
+  "skills": [
+    {
+      "id": "admission",
+      "name": "Admission Management",
+      "description": "Bed assignment and department coordination"
+    }
+  ]
+}

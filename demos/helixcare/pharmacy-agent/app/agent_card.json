@@ -1,0 +1,30 @@
+{
+  "name": "PharmacyAgent",
+  "description": "Medication recommendation with allergy/interaction checking",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://pharmacy-agent:8025",
+  "capabilities": {
+    "streaming": true,
+    "websocket": true,
+    "pushNotifications": false
+  },
+  "methods": [
+    "tasks/send",
+    "tasks/sendSubscribe",
+    "pharmacy/recommend",
+    "pharmacy/check_interactions"
+  ],
+  "authentication": {
+    "schemes": [
+      "bearer"
+    ]
+  },
+  "skills": [
+    {
+      "id": "pharmacy",
+      "name": "Pharmacy Recommendations",
+      "description": "Drug recommendations with allergy/interaction checking"
+    }
+  ]
+}

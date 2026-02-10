@@ -1,0 +1,30 @@
+{
+  "name": "ImagingAgent",
+  "description": "Imaging coordination and AI-assisted analysis",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://imaging-agent:8024",
+  "capabilities": {
+    "streaming": true,
+    "websocket": true,
+    "pushNotifications": false
+  },
+  "methods": [
+    "tasks/send",
+    "tasks/sendSubscribe",
+    "imaging/request",
+    "imaging/analyze"
+  ],
+  "authentication": {
+    "schemes": [
+      "bearer"
+    ]
+  },
+  "skills": [
+    {
+      "id": "imaging",
+      "name": "Imaging Coordination",
+      "description": "Request and analyze imaging studies"
+    }
+  ]
+}

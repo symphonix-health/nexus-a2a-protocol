@@ -1,0 +1,28 @@
+{
+  "name": "CareCoordinator",
+  "description": "End-to-end patient journey orchestrator across all departments",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://care-coordinator:8029",
+  "capabilities": {
+    "streaming": true,
+    "websocket": true,
+    "pushNotifications": false
+  },
+  "methods": [
+    "tasks/send",
+    "tasks/sendSubscribe"
+  ],
+  "authentication": {
+    "schemes": [
+      "bearer"
+    ]
+  },
+  "skills": [
+    {
+      "id": "care-coordination",
+      "name": "Care Coordination",
+      "description": "Orchestrate full patient journey across intake, diagnosis, admission, treatment, and discharge"
+    }
+  ]
+}

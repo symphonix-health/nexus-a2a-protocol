@@ -1,27 +1,30 @@
-"""OpenHIE Mediator Agent — FHIR gateway for ED Triage demo."""
-
+"""Follow-up Scheduler -- post-discharge appointment scheduling."""
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import os
 
-import httpx
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse, StreamingResponse
 
 from shared.nexus_common.auth import AuthError, OidcError, verify_jwt, verify_jwt_rs256
 from shared.nexus_common.did import did_verify_enabled, verify_did_signature
 from shared.nexus_common.health import HealthMonitor
-from shared.nexus_common.jsonrpc import JsonRpcError, parse_request, response_error, response_result
+from shared.nexus_common.http_client import jsonrpc_call
+from shared.nexus_common.ids import make_task_id, make_trace_id
+from shared.nexus_common.jsonrpc import (
+    JsonRpcError, parse_request, response_error, response_result,
+)
 from shared.nexus_common.sse import TaskEventBus
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
-logger = logging.getLogger("nexus.openhie-mediator")
+logger = logging.getLogger("nexus.followup-scheduler")
 
-app = FastAPI(title="openhie-mediator")
-bus = TaskEventBus(agent_name="openhie-mediator")
-health_monitor = HealthMonitor("openhie-mediator")
+app = FastAPI(title="followup-scheduler")
+bus = TaskEventBus(agent_name="followup-scheduler")
+health_monitor = HealthMonitor("followup-scheduler")
 
 JWT_SECRET = os.getenv("NEXUS_JWT_SECRET", "dev-secret-change-me")
 REQUIRED_SCOPE = os.getenv("NEXUS_REQUIRED_SCOPE", "nexus:invoke")
@@ -78,14 +81,16 @@ async def agent_card():
 
 @app.get("/health")
 async def health():
-    """Health check endpoint with metrics."""
     return JSONResponse(content=health_monitor.get_health())
 
 
 @app.get("/events/{task_id}")
 async def events(task_id: str, request: Request):
     _require_auth(request)
-    return StreamingResponse(bus.stream(task_id), media_type="text/event-stream")
+    async def gen():
+        async for chunk in bus.stream(task_id):
+            yield chunk
+    return StreamingResponse(gen(), media_type="text/event-stream")
 
 
 @app.websocket("/ws/{task_id}")
@@ -113,84 +118,58 @@ async def ws_stream(websocket: WebSocket, task_id: str):
             await websocket.send_json(evt)
     except WebSocketDisconnect:
         pass
+    finally:
+        bus.cleanup(task_id)
 
 
 METHODS: dict = {}
 
 
-async def _fhir_get(params: dict, token: str) -> dict:
-    import asyncio
+async def _schedule_followup(params: dict, token: str) -> dict:
     health_monitor.metrics.record_accepted()
-    start_time = asyncio.get_event_loop().time()
-    
+    t = asyncio.get_event_loop().time()
     try:
-        base = os.getenv("FHIR_BASE_URL", "http://hapi-fhir:8080/fhir")
-        patient_ref = params.get("patient_ref", "Patient/unknown")
-        pid = patient_ref.split("/")[-1]
-        headers = {"Accept": "application/fhir+json"}
+        cid = params.get("case_id", params.get("task", {}).get("case_id", "C-0000"))
+        urgency = params.get("urgency", "routine")
+        days = {"urgent": 3, "routine": 7, "elective": 14}.get(urgency, 7)
+        d = (asyncio.get_event_loop().time() - t) * 1000
+        health_monitor.metrics.record_completed(d)
+        return {"case_id": cid, "appointment_type": "Follow-up",
+                "recommended_date": f"2026-02-{10+days}", "provider": "Primary Care",
+                "urgency": urgency, "status": "scheduled"}
+    except Exception:
+        health_monitor.metrics.record_error((asyncio.get_event_loop().time() - t) * 1000)
+        raise
 
+METHODS["followup/schedule"] = _schedule_followup
+
+
+async def _send_subscribe(params: dict, token: str) -> dict:
+    task_id = make_task_id()
+    trace_id = make_trace_id()
+    health_monitor.metrics.record_accepted()
+    t0 = asyncio.get_event_loop().time()
+    await bus.publish(task_id, "nexus.task.status",
+                      json.dumps({"task_id": task_id, "state": "accepted", "trace_id": trace_id}))
+
+    async def run():
         try:
-            async with httpx.AsyncClient(timeout=20) as client:
-                p = await client.get(f"{base}/Patient/{pid}", headers=headers)
-                p.raise_for_status()
-                a = await client.get(f"{base}/AllergyIntolerance?patient={pid}", headers=headers)
-                a.raise_for_status()
-            duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
-            health_monitor.metrics.record_completed(duration_ms)
-            return {"patient": p.json(), "allergies": a.json()}
+            task = params.get("task", params)
+            result = await _schedule_followup(task, token)
+            d = (asyncio.get_event_loop().time() - t0) * 1000
+            health_monitor.metrics.record_completed(d)
+            await bus.publish(task_id, "nexus.task.final",
+                              json.dumps({"task_id": task_id, **result}), d)
         except Exception as exc:
-            logger.warning("FHIR request failed: %s — returning empty context", exc)
-            duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
-            health_monitor.metrics.record_error(duration_ms)
-            return {"patient": {}, "allergies": {}}
-    except Exception as exc:
-        duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
-        health_monitor.metrics.record_error(duration_ms)
-        raise
+            d = (asyncio.get_event_loop().time() - t0) * 1000
+            health_monitor.metrics.record_error(d)
+            await bus.publish(task_id, "nexus.task.error",
+                              json.dumps({"task_id": task_id, "error": str(exc)}), d)
 
+    asyncio.create_task(run())
+    return {"task_id": task_id, "trace_id": trace_id}
 
-METHODS["fhir/get"] = _fhir_get
-
-
-async def _fhir_write(params: dict, token: str) -> dict:
-    """Write a FHIR resource (POST or PUT) to the configured FHIR server.
-
-    params:
-      - resourceType: e.g., "Observation", "Patient" (required)
-      - body: JSON dict of the resource (required for POST/PUT)
-      - method: "POST" (default) or "PUT"
-      - id: resource id for PUT (required if method == PUT)
-    """
-    import asyncio
-    health_monitor.metrics.record_accepted()
-    start_time = asyncio.get_event_loop().time()
-    try:
-        base = os.getenv("FHIR_BASE_URL", "http://hapi-fhir:8080/fhir")
-        rtype = params.get("resourceType") or (params.get("body") or {}).get("resourceType")
-        if not rtype:
-            raise HTTPException(status_code=400, detail="resourceType is required")
-        method = str(params.get("method", "POST")).upper()
-        rid = params.get("id")
-        body = params.get("body", {})
-        headers = {"Content-Type": "application/fhir+json", "Accept": "application/fhir+json"}
-        async with httpx.AsyncClient(timeout=20) as client:
-            if method == "PUT":
-                if not rid:
-                    raise HTTPException(status_code=400, detail="id is required for PUT")
-                resp = await client.put(f"{base}/{rtype}/{rid}", headers=headers, json=body)
-            else:
-                resp = await client.post(f"{base}/{rtype}", headers=headers, json=body)
-        resp.raise_for_status()
-        duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
-        health_monitor.metrics.record_completed(duration_ms)
-        return {"status": "ok", "resource": resp.json()}
-    except Exception as exc:
-        duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
-        health_monitor.metrics.record_error(duration_ms)
-        raise
-
-
-METHODS["fhir/write"] = _fhir_write
+METHODS["tasks/sendSubscribe"] = _send_subscribe
 
 
 @app.post("/rpc")

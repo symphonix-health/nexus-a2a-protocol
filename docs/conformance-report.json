@@ -1,1502 +1,860 @@
 {
-  "generated_at": "2026-02-09T22:02:23.007688+00:00",
-  "total": 96,
-  "passed": 50,
-  "failed": 33,
-  "skipped": 13,
+  "generated_at": "2026-02-10T20:26:46.332033+00:00",
+  "total": 50,
+  "passed": 15,
+  "failed": 35,
+  "skipped": 0,
   "errors": 0,
   "results": [
     {
-      "use_case_id": "UC-CMD-0001",
-      "scenario_title": "Agent discovery successful",
-      "poc_demo": "command-centre",
+      "use_case_id": "HC-SEC-00001",
+      "scenario_title": "HelixCare protocol-security positive scenario 1",
+      "poc_demo": "helixcare-protocol-security",
       "scenario_type": "positive",
       "requirement_ids": [
-        "MON-1",
-        "MON-2",
-        "NFR-1"
+        "FR-8",
+        "IR-6",
+        "IR-8",
+        "NFR-4",
+        "NFR-7",
+        "SPR-3"
       ],
       "status": "fail",
-      "message": "Expected >= 3 agents\nassert 0 >= 3\n +  where 0 = len([])",
-      "duration_ms": 546.9999999913853
+      "message": "All connection attempts failed",
+      "duration_ms": 2328.0000000086147
     },
     {
-      "use_case_id": "UC-CMD-0002",
-      "scenario_title": "Health polling returns metrics",
-      "poc_demo": "command-centre",
+      "use_case_id": "HC-SEC-00002",
+      "scenario_title": "HelixCare protocol-security positive scenario 2",
+      "poc_demo": "helixcare-protocol-security",
       "scenario_type": "positive",
       "requirement_ids": [
-        "MON-2",
-        "MON-4"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 375.0
-    },
-    {
-      "use_case_id": "UC-CMD-0003",
-      "scenario_title": "Topology renders all nodes",
-      "poc_demo": "command-centre",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "MON-1",
-        "MON-5"
+        "FR-10",
+        "IR-5",
+        "NFR-2",
+        "SPR-1",
+        "SPR-2",
+        "SPR-5"
       ],
       "status": "fail",
-      "message": "Expected >= 3 nodes\nassert 0 >= 3\n +  where 0 = len([])",
-      "duration_ms": 687.0000000053551
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
     },
     {
-      "use_case_id": "UC-CMD-0004",
-      "scenario_title": "WebSocket connection established",
-      "poc_demo": "command-centre",
+      "use_case_id": "HC-SEC-00003",
+      "scenario_title": "HelixCare protocol-security positive scenario 3",
+      "poc_demo": "helixcare-protocol-security",
       "scenario_type": "positive",
       "requirement_ids": [
-        "MON-3",
-        "NFR-1"
-      ],
-      "status": "fail",
-      "message": "Expected 101, got 404\nassert 404 == 101\n +  where 404 = <Response [404 Not Found]>.status_code",
-      "duration_ms": 328.00000000861473
-    },
-    {
-      "use_case_id": "UC-CMD-0005",
-      "scenario_title": "Event streaming delivers task events",
-      "poc_demo": "command-centre",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "MON-3",
-        "MON-4"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 327.9999999940628
-    },
-    {
-      "use_case_id": "UC-CMD-0006",
-      "scenario_title": "Heatmap updates on metric changes",
-      "poc_demo": "command-centre",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "MON-4",
-        "MON-5"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 264.9999999994179
-    },
-    {
-      "use_case_id": "UC-CMD-0007",
-      "scenario_title": "Frontend serves static files",
-      "poc_demo": "command-centre",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "MON-1"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 296.99999999138527
-    },
-    {
-      "use_case_id": "UC-CMD-0008",
-      "scenario_title": "Color palette loads correctly",
-      "poc_demo": "command-centre",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "MON-5"
-      ],
-      "status": "fail",
-      "message": "Expected application/javascript in text/javascript; charset=utf-8\nassert 'application/javascript' in 'text/javascript; charset=utf-8'",
-      "duration_ms": 391.00000000325963
-    },
-    {
-      "use_case_id": "UC-CMD-0009",
-      "scenario_title": "Health endpoint responds",
-      "poc_demo": "command-centre",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "MON-2"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 531.0000000026776
-    },
-    {
-      "use_case_id": "UC-CMD-0010",
-      "scenario_title": "Multi-agent tracking concurrent tasks",
-      "poc_demo": "command-centre",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "MON-3",
-        "MON-4"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 264.9999999994179
-    },
-    {
-      "use_case_id": "UC-CMD-0023",
-      "scenario_title": "Color contrast ratios meet WCAG AA",
-      "poc_demo": "command-centre",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "MON-5",
+        "CR-2",
+        "CR-5",
+        "FR-7",
+        "FR-9",
+        "IR-7",
         "NFR-9"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 328.00000000861473
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
     },
     {
-      "use_case_id": "UC-CMD-0024",
-      "scenario_title": "CSS transitions smooth (300ms)",
-      "poc_demo": "command-centre",
+      "use_case_id": "HC-SEC-00004",
+      "scenario_title": "HelixCare protocol-security positive scenario 4",
+      "poc_demo": "helixcare-protocol-security",
       "scenario_type": "positive",
       "requirement_ids": [
-        "MON-5"
+        "FR-1",
+        "FR-11",
+        "IR-1",
+        "IR-8",
+        "NFR-3",
+        "NFR-9"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 297.0000000059372
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
     },
     {
-      "use_case_id": "UC-CMD-0025",
-      "scenario_title": "API response time <200ms",
-      "poc_demo": "command-centre",
+      "use_case_id": "HC-SEC-00005",
+      "scenario_title": "HelixCare protocol-security positive scenario 5",
+      "poc_demo": "helixcare-protocol-security",
       "scenario_type": "positive",
       "requirement_ids": [
-        "NFR-10"
+        "FR-7",
+        "IR-4",
+        "IR-8",
+        "NFR-2",
+        "NFR-7",
+        "SPR-8"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 282.00000000651926
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
     },
     {
-      "use_case_id": "UC-CMD-0011",
-      "scenario_title": "Agent unreachable shows red status",
-      "poc_demo": "command-centre",
-      "scenario_type": "negative",
+      "use_case_id": "HC-SEC-00006",
+      "scenario_title": "HelixCare protocol-security positive scenario 6",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
       "requirement_ids": [
-        "MON-1",
-        "MON-2"
+        "CR-4",
+        "CR-5",
+        "FR-5",
+        "NFR-2",
+        "SPR-3",
+        "SPR-6"
       ],
-      "status": "pass",
-      "message": "Expected failure: Expected status 'unhealthy' in []\nassert 'unhealthy' in []",
-      "duration_ms": 281.00000000267755
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
     },
     {
-      "use_case_id": "UC-CMD-0012",
-      "scenario_title": "Redis unavailable falls back gracefully",
-      "poc_demo": "command-centre",
-      "scenario_type": "negative",
+      "use_case_id": "HC-SEC-00007",
+      "scenario_title": "HelixCare protocol-security positive scenario 7",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
       "requirement_ids": [
-        "MON-3",
-        "NFR-8"
+        "CR-4",
+        "FR-1",
+        "FR-2",
+        "NFR-3",
+        "NFR-5",
+        "SPR-4"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000000267755
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
     },
     {
-      "use_case_id": "UC-CMD-0013",
-      "scenario_title": "Invalid agent URL handled",
-      "poc_demo": "command-centre",
-      "scenario_type": "negative",
+      "use_case_id": "HC-SEC-00009",
+      "scenario_title": "HelixCare protocol-security positive scenario 9",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
       "requirement_ids": [
-        "MON-1",
-        "NFR-8"
+        "FR-3",
+        "FR-5",
+        "IR-2",
+        "IR-3",
+        "SPR-3",
+        "SPR-5"
       ],
-      "status": "pass",
-      "message": "Expected failure: Should still show other agents\nassert 0 > 0\n +  where 0 = len([])",
-      "duration_ms": 264.9999999994179
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
     },
     {
-      "use_case_id": "UC-CMD-0014",
-      "scenario_title": "Malformed event data skipped",
-      "poc_demo": "command-centre",
-      "scenario_type": "negative",
+      "use_case_id": "HC-SEC-00012",
+      "scenario_title": "HelixCare protocol-security positive scenario 12",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
       "requirement_ids": [
-        "MON-3",
-        "NFR-8"
+        "CR-3",
+        "FR-11",
+        "IR-2",
+        "SPR-1",
+        "SPR-4",
+        "SPR-6"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 296.99999999138527
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.999999994645
     },
     {
-      "use_case_id": "UC-CMD-0015",
-      "scenario_title": "High latency agent shows degraded in heatmap",
-      "poc_demo": "command-centre",
-      "scenario_type": "negative",
+      "use_case_id": "HC-SEC-00013",
+      "scenario_title": "HelixCare protocol-security positive scenario 13",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
       "requirement_ids": [
-        "MON-4",
-        "MON-5"
+        "FR-1",
+        "FR-3",
+        "FR-5",
+        "IR-3",
+        "NFR-3",
+        "SPR-7"
       ],
-      "status": "pass",
-      "message": "Expected failure: Expected status 'degraded' in []\nassert 'degraded' in []",
-      "duration_ms": 312.9999999946449
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2280.9999999881256
     },
     {
-      "use_case_id": "UC-CMD-0016",
-      "scenario_title": "Error rate >10% shows unhealthy",
-      "poc_demo": "command-centre",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "MON-2",
-        "MON-4"
-      ],
-      "status": "pass",
-      "message": "Expected failure: Expected status 'unhealthy' in []\nassert 'unhealthy' in []",
-      "duration_ms": 281.00000000267755
-    },
-    {
-      "use_case_id": "UC-CMD-0017",
-      "scenario_title": "Agent restart mid-task tracked",
-      "poc_demo": "command-centre",
-      "scenario_type": "edge",
-      "requirement_ids": [
-        "MON-1",
-        "MON-3"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 422.0000000059372
-    },
-    {
-      "use_case_id": "UC-CMD-0018",
-      "scenario_title": "Redis connection loss and recovery",
-      "poc_demo": "command-centre",
-      "scenario_type": "edge",
-      "requirement_ids": [
-        "MON-3",
-        "NFR-8"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 343.99999999732245
-    },
-    {
-      "use_case_id": "UC-CMD-0019",
-      "scenario_title": "Concurrent task burst (50+ tasks)",
-      "poc_demo": "command-centre",
-      "scenario_type": "edge",
-      "requirement_ids": [
-        "MON-3",
-        "MON-4",
-        "NFR-10"
-      ],
-      "status": "skip",
-      "message": "Requires running agent infrastructure",
-      "duration_ms": 0.0
-    },
-    {
-      "use_case_id": "UC-CMD-0020",
-      "scenario_title": "Slow agent response >5s timeout",
-      "poc_demo": "command-centre",
-      "scenario_type": "edge",
-      "requirement_ids": [
-        "MON-2",
-        "NFR-10"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 264.9999999994179
-    },
-    {
-      "use_case_id": "UC-CMD-0021",
-      "scenario_title": "WebSocket reconnection after disconnect",
-      "poc_demo": "command-centre",
-      "scenario_type": "edge",
-      "requirement_ids": [
-        "MON-3"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 266.00000000325963
-    },
-    {
-      "use_case_id": "UC-CONSENT-0001",
-      "scenario_title": "consent-verification positive scenario 1",
-      "poc_demo": "consent-verification",
+      "use_case_id": "HC-SEC-00014",
+      "scenario_title": "HelixCare protocol-security positive scenario 14",
+      "poc_demo": "helixcare-protocol-security",
       "scenario_type": "positive",
       "requirement_ids": [
         "CR-3",
         "FR-2",
-        "IR-8",
-        "SPR-5",
+        "NFR-2",
+        "NFR-3",
+        "SPR-4",
         "SPR-8"
       ],
       "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804DF4C0C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804DF4C0C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 391.00000000325963
+      "message": "All connection attempts failed",
+      "duration_ms": 2281.0000000172295
     },
     {
-      "use_case_id": "UC-CONSENT-0006",
-      "scenario_title": "consent-verification positive scenario 6",
-      "poc_demo": "consent-verification",
+      "use_case_id": "HC-SEC-00015",
+      "scenario_title": "HelixCare protocol-security positive scenario 15",
+      "poc_demo": "helixcare-protocol-security",
       "scenario_type": "positive",
       "requirement_ids": [
-        "NFR-1",
-        "NFR-6",
-        "SPR-2",
-        "SPR-3",
-        "SPR-8"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FBEE380>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FBEE380> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 280.99999998812564
-    },
-    {
-      "use_case_id": "UC-CONSENT-0007",
-      "scenario_title": "consent-verification positive scenario 7",
-      "poc_demo": "consent-verification",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-6",
+        "CR-1",
+        "CR-3",
+        "FR-12",
+        "FR-2",
         "FR-8",
-        "IR-2",
-        "NFR-1",
-        "SPR-2"
+        "SPR-7"
       ],
       "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FBEE940>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FBEE940> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 266.00000000325963
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.0000000020955
     },
     {
-      "use_case_id": "UC-CONSENT-0011",
-      "scenario_title": "consent-verification positive scenario 11",
-      "poc_demo": "consent-verification",
+      "use_case_id": "HC-SEC-00017",
+      "scenario_title": "HelixCare protocol-security positive scenario 17",
+      "poc_demo": "helixcare-protocol-security",
       "scenario_type": "positive",
       "requirement_ids": [
-        "FR-4",
-        "IR-3",
-        "IR-8",
-        "NFR-5",
-        "NFR-8"
+        "CR-5",
+        "FR-3",
+        "IR-1",
+        "IR-6",
+        "NFR-10",
+        "NFR-4"
       ],
       "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FBF8080>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FBF8080> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 281.00000000267755
+      "message": "All connection attempts failed",
+      "duration_ms": 2280.9999999881256
     },
     {
-      "use_case_id": "UC-CONSENT-0012",
-      "scenario_title": "consent-verification positive scenario 12",
-      "poc_demo": "consent-verification",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "IR-2",
-        "IR-5",
-        "NFR-7",
-        "SPR-5",
-        "SPR-8"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FBF8640>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FBF8640> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 296.99999999138527
-    },
-    {
-      "use_case_id": "UC-CONSENT-0013",
-      "scenario_title": "consent-verification positive scenario 13",
-      "poc_demo": "consent-verification",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-1",
-        "IR-7",
-        "NFR-9",
-        "SPR-1",
-        "SPR-5"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FBF8C00>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FBF8C00> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 264.9999999994179
-    },
-    {
-      "use_case_id": "UC-CONSENT-0014",
-      "scenario_title": "consent-verification positive scenario 14",
-      "poc_demo": "consent-verification",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-7",
-        "IR-5",
-        "IR-7",
-        "NFR-1",
-        "NFR-7"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FBF91C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FBF91C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 577.9999999940628
-    },
-    {
-      "use_case_id": "UC-CONSENT-0015",
-      "scenario_title": "consent-verification positive scenario 15",
-      "poc_demo": "consent-verification",
+      "use_case_id": "HC-SEC-00020",
+      "scenario_title": "HelixCare protocol-security positive scenario 20",
+      "poc_demo": "helixcare-protocol-security",
       "scenario_type": "positive",
       "requirement_ids": [
         "CR-4",
+        "CR-5",
+        "IR-5",
+        "NFR-8",
+        "SPR-4",
+        "SPR-5"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
+    },
+    {
+      "use_case_id": "HC-SEC-00021",
+      "scenario_title": "HelixCare protocol-security positive scenario 21",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-11",
+        "IR-1",
+        "NFR-7",
+        "NFR-9",
+        "SPR-1",
+        "SPR-2"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2280.9999999881256
+    },
+    {
+      "use_case_id": "HC-SEC-00022",
+      "scenario_title": "HelixCare protocol-security positive scenario 22",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-10",
         "FR-3",
         "FR-6",
-        "NFR-6",
+        "FR-9",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2280.9999999881256
+    },
+    {
+      "use_case_id": "HC-SEC-00023",
+      "scenario_title": "HelixCare protocol-security positive scenario 23",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-11",
+        "FR-12",
+        "IR-1",
+        "NFR-1",
+        "NFR-6"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2297.000000020489
+    },
+    {
+      "use_case_id": "HC-SEC-00024",
+      "scenario_title": "HelixCare protocol-security positive scenario 24",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-3",
+        "FR-3",
+        "FR-8",
+        "IR-3",
+        "NFR-2",
         "NFR-7"
       ],
       "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FBF9780>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FBF9780> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 406.00000000267755
+      "message": "All connection attempts failed",
+      "duration_ms": 2280.9999999881256
     },
     {
-      "use_case_id": "UC-CONSENT-0016",
-      "scenario_title": "consent-verification positive scenario 16",
-      "poc_demo": "consent-verification",
+      "use_case_id": "HC-SEC-00026",
+      "scenario_title": "HelixCare protocol-security positive scenario 26",
+      "poc_demo": "helixcare-protocol-security",
       "scenario_type": "positive",
       "requirement_ids": [
+        "FR-6",
+        "IR-1",
         "IR-2",
         "IR-5",
-        "NFR-10",
+        "NFR-1",
+        "NFR-6"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2297.000000020489
+    },
+    {
+      "use_case_id": "HC-SEC-00027",
+      "scenario_title": "HelixCare protocol-security positive scenario 27",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-4",
+        "FR-12",
+        "IR-4",
+        "NFR-2",
         "NFR-4",
         "NFR-8"
       ],
       "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FBF9D40>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FBF9D40> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 530.9999999881256
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
     },
     {
-      "use_case_id": "UC-CONSENT-0017",
-      "scenario_title": "consent-verification positive scenario 17",
-      "poc_demo": "consent-verification",
+      "use_case_id": "HC-SEC-00028",
+      "scenario_title": "HelixCare protocol-security positive scenario 28",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-2",
+        "FR-8",
+        "IR-6",
+        "NFR-7",
+        "SPR-2"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2342.9999999934807
+    },
+    {
+      "use_case_id": "HC-SEC-00030",
+      "scenario_title": "HelixCare protocol-security positive scenario 30",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-7",
+        "IR-2",
+        "IR-3",
+        "NFR-6",
+        "SPR-1"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.0000000020955
+    },
+    {
+      "use_case_id": "HC-SEC-00031",
+      "scenario_title": "HelixCare protocol-security positive scenario 31",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-4",
+        "CR-5",
+        "FR-10",
+        "FR-7",
+        "NFR-8",
+        "SPR-2"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2264.999999984866
+    },
+    {
+      "use_case_id": "HC-SEC-00034",
+      "scenario_title": "HelixCare protocol-security positive scenario 34",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-10",
+        "FR-12",
+        "FR-3",
+        "FR-5",
+        "FR-6",
+        "IR-1"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2280.9999999881256
+    },
+    {
+      "use_case_id": "HC-SEC-00035",
+      "scenario_title": "HelixCare protocol-security positive scenario 35",
+      "poc_demo": "helixcare-protocol-security",
       "scenario_type": "positive",
       "requirement_ids": [
         "FR-2",
-        "FR-4",
-        "IR-1",
-        "IR-4",
-        "IR-8"
+        "FR-3",
+        "FR-7",
+        "IR-2",
+        "IR-6",
+        "SPR-8"
       ],
       "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FBFA300>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FBFA300> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 265.9999999887077
+      "message": "All connection attempts failed",
+      "duration_ms": 2280.9999999881256
     },
     {
-      "use_case_id": "UC-CONSENT-0002",
-      "scenario_title": "consent-verification negative scenario 2",
-      "poc_demo": "consent-verification",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "NFR-10",
-        "NFR-2",
-        "NFR-9",
-        "SPR-1",
-        "SPR-2"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 297.0000000059372
-    },
-    {
-      "use_case_id": "UC-CONSENT-0003",
-      "scenario_title": "consent-verification negative scenario 3",
-      "poc_demo": "consent-verification",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "FR-5",
-        "IR-2",
-        "IR-4",
-        "IR-5",
-        "NFR-3"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 266.00000000325963
-    },
-    {
-      "use_case_id": "UC-CONSENT-0005",
-      "scenario_title": "consent-verification negative scenario 5",
-      "poc_demo": "consent-verification",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "FR-3",
-        "FR-8",
-        "IR-3",
-        "IR-5",
-        "SPR-1"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 264.9999999994179
-    },
-    {
-      "use_case_id": "UC-CONSENT-0008",
-      "scenario_title": "consent-verification negative scenario 8",
-      "poc_demo": "consent-verification",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "FR-4",
-        "FR-7",
-        "IR-4",
-        "NFR-5",
-        "SPR-4"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 343.00000000803266
-    },
-    {
-      "use_case_id": "UC-CONSENT-0009",
-      "scenario_title": "consent-verification negative scenario 9",
-      "poc_demo": "consent-verification",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "FR-1",
-        "FR-3",
-        "IR-4",
-        "IR-7",
-        "NFR-8"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 266.00000000325963
-    },
-    {
-      "use_case_id": "UC-CONSENT-0018",
-      "scenario_title": "consent-verification negative scenario 18",
-      "poc_demo": "consent-verification",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "CR-3",
-        "FR-7",
-        "FR-8",
-        "NFR-5",
-        "SPR-8"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 264.9999999994179
-    },
-    {
-      "use_case_id": "UC-CONSENT-0021",
-      "scenario_title": "consent-verification negative scenario 21",
-      "poc_demo": "consent-verification",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "FR-1",
-        "IR-2",
-        "IR-3",
-        "IR-4",
-        "SPR-3"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000000267755
-    },
-    {
-      "use_case_id": "UC-CONSENT-0023",
-      "scenario_title": "consent-verification negative scenario 23",
-      "poc_demo": "consent-verification",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "CR-3",
-        "IR-1",
-        "IR-7",
-        "NFR-10",
-        "SPR-4"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000000267755
-    },
-    {
-      "use_case_id": "UC-CONSENT-0024",
-      "scenario_title": "consent-verification negative scenario 24",
-      "poc_demo": "consent-verification",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "CR-4",
-        "FR-8",
-        "IR-3",
-        "IR-6",
-        "NFR-9"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 264.9999999994179
-    },
-    {
-      "use_case_id": "UC-CONSENT-0025",
-      "scenario_title": "consent-verification negative scenario 25",
-      "poc_demo": "consent-verification",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "IR-1",
-        "NFR-1",
-        "NFR-6",
-        "SPR-6",
-        "SPR-8"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 296.99999999138527
-    },
-    {
-      "use_case_id": "UC-ED-0001",
-      "scenario_title": "ed-triage positive scenario 1",
-      "poc_demo": "ed-triage",
+      "use_case_id": "HC-SEC-00037",
+      "scenario_title": "HelixCare protocol-security positive scenario 37",
+      "poc_demo": "helixcare-protocol-security",
       "scenario_type": "positive",
       "requirement_ids": [
-        "FR-3",
-        "FR-6",
-        "FR-7",
-        "NFR-10",
-        "SPR-1"
+        "FR-1",
+        "FR-11",
+        "FR-2",
+        "FR-8",
+        "NFR-6",
+        "NFR-8"
       ],
       "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x00000180500DEF00>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x00000180500DEF00> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 437.9999999946449
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
     },
     {
-      "use_case_id": "UC-ED-0002",
-      "scenario_title": "ed-triage positive scenario 2",
-      "poc_demo": "ed-triage",
+      "use_case_id": "HC-SEC-00038",
+      "scenario_title": "HelixCare protocol-security positive scenario 38",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-3",
+        "CR-4",
+        "IR-4",
+        "IR-8",
+        "NFR-3",
+        "SPR-3"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
+    },
+    {
+      "use_case_id": "HC-SEC-00039",
+      "scenario_title": "HelixCare protocol-security positive scenario 39",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-3",
+        "CR-4",
+        "FR-9",
+        "IR-3",
+        "NFR-10",
+        "SPR-6"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
+    },
+    {
+      "use_case_id": "HC-SEC-00040",
+      "scenario_title": "HelixCare protocol-security positive scenario 40",
+      "poc_demo": "helixcare-protocol-security",
       "scenario_type": "positive",
       "requirement_ids": [
         "CR-2",
+        "FR-1",
         "FR-4",
-        "IR-4",
+        "IR-6",
+        "NFR-3",
+        "SPR-1"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2264.999999984866
+    },
+    {
+      "use_case_id": "HC-SEC-00041",
+      "scenario_title": "HelixCare protocol-security positive scenario 41",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "IR-3",
+        "NFR-4",
+        "NFR-6",
+        "SPR-1",
+        "SPR-2",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2280.9999999881256
+    },
+    {
+      "use_case_id": "HC-SEC-00045",
+      "scenario_title": "HelixCare protocol-security positive scenario 45",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-2",
+        "FR-1",
+        "FR-12",
+        "FR-3",
+        "NFR-10",
+        "SPR-5"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.999999994645
+    },
+    {
+      "use_case_id": "HC-SEC-00046",
+      "scenario_title": "HelixCare protocol-security positive scenario 46",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "CR-2",
+        "FR-3",
+        "NFR-3",
+        "NFR-9",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2297.000000020489
+    },
+    {
+      "use_case_id": "HC-SEC-00047",
+      "scenario_title": "HelixCare protocol-security positive scenario 47",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "CR-4",
+        "NFR-3",
+        "NFR-5",
+        "NFR-9",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2297.000000020489
+    },
+    {
+      "use_case_id": "HC-SEC-00048",
+      "scenario_title": "HelixCare protocol-security positive scenario 48",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "CR-4",
+        "FR-3",
+        "IR-1",
+        "NFR-10",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
+    },
+    {
+      "use_case_id": "HC-SEC-00049",
+      "scenario_title": "HelixCare protocol-security positive scenario 49",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-4",
+        "FR-11",
+        "FR-8",
+        "IR-2",
         "NFR-1",
         "NFR-3"
       ],
       "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FC44500>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FC44500> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 266.00000000325963
+      "message": "All connection attempts failed",
+      "duration_ms": 2281.0000000172295
     },
     {
-      "use_case_id": "UC-ED-0004",
-      "scenario_title": "ed-triage positive scenario 4",
-      "poc_demo": "ed-triage",
-      "scenario_type": "positive",
+      "use_case_id": "HC-SEC-00011",
+      "scenario_title": "HelixCare protocol-security negative scenario 11",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "negative",
       "requirement_ids": [
-        "FR-3",
-        "FR-6",
-        "FR-7",
-        "NFR-2",
-        "SPR-3"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FC4E800>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FC4E800> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 296.99999999138527
-    },
-    {
-      "use_case_id": "UC-ED-0007",
-      "scenario_title": "ed-triage positive scenario 7",
-      "poc_demo": "ed-triage",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-1",
-        "CR-5",
-        "SPR-2",
-        "SPR-6",
-        "SPR-7"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FC550C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FC550C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 281.99999999196734
-    },
-    {
-      "use_case_id": "UC-ED-0008",
-      "scenario_title": "ed-triage positive scenario 8",
-      "poc_demo": "ed-triage",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-3",
-        "FR-6",
-        "NFR-4",
-        "NFR-9",
-        "SPR-6"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FC5A640>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FC5A640> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 296.99999999138527
-    },
-    {
-      "use_case_id": "UC-ED-0009",
-      "scenario_title": "ed-triage positive scenario 9",
-      "poc_demo": "ed-triage",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-2",
-        "FR-5",
-        "IR-7",
-        "IR-8",
-        "SPR-4"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FC5A2C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FC5A2C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 422.0000000059372
-    },
-    {
-      "use_case_id": "UC-ED-0010",
-      "scenario_title": "ed-triage positive scenario 10",
-      "poc_demo": "ed-triage",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-4",
-        "FR-1",
-        "FR-6",
-        "IR-5",
-        "IR-6"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FC54440>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FC54440> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 609.0000000112923
-    },
-    {
-      "use_case_id": "UC-ED-0011",
-      "scenario_title": "ed-triage positive scenario 11",
-      "poc_demo": "ed-triage",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-4",
+        "FR-8",
         "IR-1",
-        "NFR-7",
-        "SPR-6",
-        "SPR-7"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FC66E40>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FC66E40> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 327.9999999940628
-    },
-    {
-      "use_case_id": "UC-ED-0013",
-      "scenario_title": "ed-triage positive scenario 13",
-      "poc_demo": "ed-triage",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-2",
-        "IR-5",
-        "NFR-5",
-        "NFR-9",
-        "SPR-4"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FC6CBC0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FC6CBC0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 280.99999998812564
-    },
-    {
-      "use_case_id": "UC-ED-0016",
-      "scenario_title": "ed-triage positive scenario 16",
-      "poc_demo": "ed-triage",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-2",
-        "FR-3",
-        "IR-3",
-        "NFR-9",
-        "SPR-5"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FC6E200>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FC6E200> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 406.00000000267755
-    },
-    {
-      "use_case_id": "UC-ED-0003",
-      "scenario_title": "ed-triage negative scenario 3",
-      "poc_demo": "ed-triage",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "CR-5",
-        "FR-1",
-        "FR-6",
-        "IR-7",
-        "SPR-2"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 625.0
-    },
-    {
-      "use_case_id": "UC-ED-0005",
-      "scenario_title": "ed-triage negative scenario 5",
-      "poc_demo": "ed-triage",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "CR-3",
-        "IR-1",
-        "NFR-9",
-        "SPR-2",
-        "SPR-5"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 531.0000000026776
-    },
-    {
-      "use_case_id": "UC-ED-0006",
-      "scenario_title": "ed-triage negative scenario 6",
-      "poc_demo": "ed-triage",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "CR-5",
         "IR-4",
-        "NFR-6",
-        "SPR-5",
-        "SPR-8"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 297.0000000059372
-    },
-    {
-      "use_case_id": "UC-ED-0015",
-      "scenario_title": "ed-triage negative scenario 15",
-      "poc_demo": "ed-triage",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "CR-1",
-        "FR-1",
-        "FR-5",
-        "IR-7",
-        "SPR-2"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 343.99999999732245
-    },
-    {
-      "use_case_id": "UC-ED-0018",
-      "scenario_title": "ed-triage negative scenario 18",
-      "poc_demo": "ed-triage",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "CR-1",
-        "FR-4",
-        "IR-2",
-        "IR-7",
-        "SPR-8"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000000267755
-    },
-    {
-      "use_case_id": "UC-ED-0030",
-      "scenario_title": "ed-triage negative scenario 30",
-      "poc_demo": "ed-triage",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "IR-3",
-        "IR-5",
-        "IR-6",
-        "SPR-1",
+        "NFR-2",
+        "NFR-3",
         "SPR-4"
       ],
       "status": "pass",
-      "message": "",
-      "duration_ms": 421.99999999138527
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2281.0000000172295
     },
     {
-      "use_case_id": "UC-ED-0031",
-      "scenario_title": "ed-triage negative scenario 31",
-      "poc_demo": "ed-triage",
+      "use_case_id": "HC-SEC-00018",
+      "scenario_title": "HelixCare protocol-security negative scenario 18",
+      "poc_demo": "helixcare-protocol-security",
       "scenario_type": "negative",
       "requirement_ids": [
-        "FR-4",
-        "IR-7",
-        "NFR-4",
-        "NFR-5",
-        "SPR-1"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 296.0000000020955
-    },
-    {
-      "use_case_id": "UC-ED-0044",
-      "scenario_title": "ed-triage negative scenario 44",
-      "poc_demo": "ed-triage",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "FR-4",
-        "FR-8",
-        "IR-8",
-        "SPR-1",
-        "SPR-3"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 296.99999999138527
-    },
-    {
-      "use_case_id": "UC-ED-0045",
-      "scenario_title": "ed-triage negative scenario 45",
-      "poc_demo": "ed-triage",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "IR-5",
-        "NFR-1",
-        "NFR-2",
-        "SPR-6",
-        "SPR-8"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 313.0000000091968
-    },
-    {
-      "use_case_id": "UC-ED-0048",
-      "scenario_title": "ed-triage negative scenario 48",
-      "poc_demo": "ed-triage",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "FR-8",
-        "IR-1",
+        "FR-3",
         "IR-2",
-        "IR-3",
-        "NFR-6"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 375.0
-    },
-    {
-      "use_case_id": "UC-PROT-CORE-0001",
-      "scenario_title": "protocol-core core positive scenario 1",
-      "poc_demo": "protocol-core",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-1",
-        "FR-2",
-        "IR-3",
+        "IR-7",
         "NFR-1",
-        "NFR-2",
-        "SPR-5"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x00000180503C1940>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x00000180503C1940> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 500.0
-    },
-    {
-      "use_case_id": "UC-PROT-CORE-0002",
-      "scenario_title": "protocol-core core positive scenario 2",
-      "poc_demo": "protocol-core",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-1",
-        "FR-6",
-        "FR-7",
-        "IR-8",
-        "NFR-3",
+        "NFR-8",
         "NFR-9"
       ],
       "status": "pass",
-      "message": "",
-      "duration_ms": 1125.0
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2296.9999999913853
     },
     {
-      "use_case_id": "UC-PROT-CORE-0003",
-      "scenario_title": "protocol-core core positive scenario 3",
-      "poc_demo": "protocol-core",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-3",
-        "FR-5",
-        "FR-8",
-        "IR-4",
-        "NFR-2",
-        "SPR-8"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000000267755
-    },
-    {
-      "use_case_id": "UC-PROT-CORE-0004",
-      "scenario_title": "protocol-core core positive scenario 4",
-      "poc_demo": "protocol-core",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-4",
-        "IR-3",
-        "IR-8",
-        "NFR-8",
-        "SPR-4",
-        "SPR-5"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FD18340>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FD18340> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 297.0000000059372
-    },
-    {
-      "use_case_id": "UC-PROT-CORE-0005",
-      "scenario_title": "protocol-core core positive scenario 5",
-      "poc_demo": "protocol-core",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-3",
-        "IR-3",
-        "NFR-8",
-        "SPR-1",
-        "SPR-6",
-        "SPR-7"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 483.99999999674037
-    },
-    {
-      "use_case_id": "UC-PROT-CORE-0007",
-      "scenario_title": "protocol-core core positive scenario 7",
-      "poc_demo": "protocol-core",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-2",
-        "FR-3",
-        "IR-7",
-        "NFR-6",
-        "SPR-6",
-        "SPR-8"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FD25200>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FD25200> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 281.99999999196734
-    },
-    {
-      "use_case_id": "UC-PROT-CORE-0008",
-      "scenario_title": "protocol-core core positive scenario 8",
-      "poc_demo": "protocol-core",
-      "scenario_type": "positive",
+      "use_case_id": "HC-SEC-00019",
+      "scenario_title": "HelixCare protocol-security negative scenario 19",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "negative",
       "requirement_ids": [
         "IR-1",
-        "IR-3",
-        "NFR-1",
-        "NFR-8",
-        "SPR-4",
-        "SPR-8"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FD243C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FD243C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 781.0000000026776
-    },
-    {
-      "use_case_id": "UC-PROT-CORE-0009",
-      "scenario_title": "protocol-core core positive scenario 9",
-      "poc_demo": "protocol-core",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-4",
-        "FR-2",
-        "IR-5",
-        "NFR-3",
-        "SPR-2",
-        "SPR-8"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FD2F880>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FD2F880> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 546.9999999913853
-    },
-    {
-      "use_case_id": "UC-PROT-CORE-0010",
-      "scenario_title": "protocol-core core positive scenario 10",
-      "poc_demo": "protocol-core",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-3",
-        "FR-5",
-        "FR-8",
-        "IR-6",
-        "NFR-3",
-        "NFR-6"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FD24E40>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FD24E40> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 358.99999999674037
-    },
-    {
-      "use_case_id": "UC-PROT-CORE-0011",
-      "scenario_title": "protocol-core core positive scenario 11",
-      "poc_demo": "protocol-core",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-5",
-        "FR-1",
-        "FR-7",
-        "FR-8",
-        "IR-8",
-        "SPR-1"
-      ],
-      "status": "fail",
-      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FD354C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FD354C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 266.00000000325963
-    },
-    {
-      "use_case_id": "UC-PROT-CORE-0013",
-      "scenario_title": "protocol-core core negative scenario 13",
-      "poc_demo": "protocol-core",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "FR-3",
-        "FR-8",
-        "NFR-3",
-        "NFR-6",
-        "NFR-9",
-        "SPR-3"
-      ],
-      "status": "skip",
-      "message": "Non-RPC negative scenario",
-      "duration_ms": 0.0
-    },
-    {
-      "use_case_id": "UC-PROT-CORE-0028",
-      "scenario_title": "protocol-core core negative scenario 28",
-      "poc_demo": "protocol-core",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "FR-1",
-        "FR-5",
-        "FR-8",
-        "NFR-1",
-        "SPR-5",
-        "SPR-7"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000000267755
-    },
-    {
-      "use_case_id": "UC-PROT-CORE-0029",
-      "scenario_title": "protocol-core core negative scenario 29",
-      "poc_demo": "protocol-core",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "FR-2",
-        "IR-2",
-        "NFR-2",
-        "NFR-9",
-        "SPR-1",
-        "SPR-3"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 266.00000000325963
-    },
-    {
-      "use_case_id": "UC-PROT-CORE-0030",
-      "scenario_title": "protocol-core core negative scenario 30",
-      "poc_demo": "protocol-core",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "FR-1",
-        "FR-7",
-        "FR-8",
-        "IR-7",
-        "NFR-2",
-        "SPR-3"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 282.00000000651926
-    },
-    {
-      "use_case_id": "UC-PROT-CORE-0031",
-      "scenario_title": "protocol-core core negative scenario 31",
-      "poc_demo": "protocol-core",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "CR-1",
-        "CR-5",
-        "FR-5",
-        "IR-7",
         "NFR-10",
-        "SPR-3"
+        "NFR-5",
+        "NFR-9",
+        "SPR-6",
+        "SPR-8"
       ],
       "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000000267755
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2344.0000000118744
     },
     {
-      "use_case_id": "UC-PROT-CORE-0032",
-      "scenario_title": "protocol-core core negative scenario 32",
-      "poc_demo": "protocol-core",
+      "use_case_id": "HC-SEC-00025",
+      "scenario_title": "HelixCare protocol-security negative scenario 25",
+      "poc_demo": "helixcare-protocol-security",
       "scenario_type": "negative",
       "requirement_ids": [
-        "IR-1",
-        "IR-3",
-        "NFR-3",
-        "SPR-1",
-        "SPR-3",
-        "SPR-5"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 639.9999999994179
-    },
-    {
-      "use_case_id": "UC-PROT-CORE-0036",
-      "scenario_title": "protocol-core core negative scenario 36",
-      "poc_demo": "protocol-core",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "FR-3",
-        "IR-2",
+        "CR-4",
+        "IR-6",
         "NFR-4",
-        "NFR-8",
-        "SPR-3",
-        "SPR-7"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 421.99999999138527
-    },
-    {
-      "use_case_id": "UC-PROT-CORE-0043",
-      "scenario_title": "protocol-core core negative scenario 43",
-      "poc_demo": "protocol-core",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "IR-8",
-        "NFR-3",
-        "SPR-2",
-        "SPR-5",
+        "NFR-6",
         "SPR-6",
         "SPR-7"
       ],
       "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000000267755
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2328.0000000086147
     },
     {
-      "use_case_id": "UC-PROT-CORE-0050",
-      "scenario_title": "protocol-core core negative scenario 50",
-      "poc_demo": "protocol-core",
+      "use_case_id": "HC-SEC-00033",
+      "scenario_title": "HelixCare protocol-security negative scenario 33",
+      "poc_demo": "helixcare-protocol-security",
       "scenario_type": "negative",
       "requirement_ids": [
-        "FR-4",
-        "FR-5",
-        "SPR-2",
-        "SPR-3",
-        "SPR-4",
-        "SPR-6"
-      ],
-      "status": "skip",
-      "message": "Non-RPC negative scenario",
-      "duration_ms": 0.0
-    },
-    {
-      "use_case_id": "UC-PROT-CORE-0053",
-      "scenario_title": "protocol-core core negative scenario 53",
-      "poc_demo": "protocol-core",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "FR-1",
-        "IR-2",
-        "NFR-2",
-        "NFR-3",
+        "CR-1",
+        "CR-3",
+        "FR-11",
+        "NFR-7",
         "NFR-9",
-        "SPR-2"
+        "SPR-8"
       ],
       "status": "pass",
       "message": "",
-      "duration_ms": 296.0000000020955
+      "duration_ms": 0.0
     },
     {
-      "use_case_id": "UC-PROT-MULTI-0001",
-      "scenario_title": "protocol-multitransport multitransport positive scenario 1",
-      "poc_demo": "protocol-multitransport",
-      "scenario_type": "positive",
+      "use_case_id": "HC-SEC-00043",
+      "scenario_title": "HelixCare protocol-security negative scenario 43",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "negative",
       "requirement_ids": [
-        "CR-1",
-        "FR-6",
+        "CR-3",
         "FR-7",
-        "IR-7",
+        "FR-9",
         "NFR-8",
-        "SPR-2"
-      ],
-      "status": "skip",
-      "message": "Unrecognised payload",
-      "duration_ms": 0.0
-    },
-    {
-      "use_case_id": "UC-PROT-MULTI-0003",
-      "scenario_title": "protocol-multitransport multitransport positive scenario 3",
-      "poc_demo": "protocol-multitransport",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-2",
-        "FR-5",
-        "FR-6",
-        "IR-5",
-        "NFR-3",
-        "NFR-9"
-      ],
-      "status": "skip",
-      "message": "Unrecognised payload",
-      "duration_ms": 0.0
-    },
-    {
-      "use_case_id": "UC-PROT-MULTI-0006",
-      "scenario_title": "protocol-multitransport multitransport positive scenario 6",
-      "poc_demo": "protocol-multitransport",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "IR-6",
-        "NFR-1",
-        "NFR-2",
-        "NFR-3",
-        "NFR-7",
-        "SPR-3"
-      ],
-      "status": "skip",
-      "message": "Unrecognised payload",
-      "duration_ms": 0.0
-    },
-    {
-      "use_case_id": "UC-PROT-MULTI-0007",
-      "scenario_title": "protocol-multitransport multitransport positive scenario 7",
-      "poc_demo": "protocol-multitransport",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-5",
-        "FR-2",
-        "FR-5",
-        "IR-2",
-        "IR-3",
-        "NFR-1"
-      ],
-      "status": "fail",
-      "message": "assert 500 == 200\n +  where 500 = <Response [500 Internal Server Error]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001804FFA2A40>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001804FFA2A40> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 687.9999999946449
-    },
-    {
-      "use_case_id": "UC-PROT-MULTI-0008",
-      "scenario_title": "protocol-multitransport multitransport positive scenario 8",
-      "poc_demo": "protocol-multitransport",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-4",
-        "IR-6",
-        "NFR-3",
-        "NFR-7",
-        "SPR-1",
-        "SPR-2"
-      ],
-      "status": "skip",
-      "message": "Unrecognised payload",
-      "duration_ms": 0.0
-    },
-    {
-      "use_case_id": "UC-PROT-MULTI-0011",
-      "scenario_title": "protocol-multitransport multitransport positive scenario 11",
-      "poc_demo": "protocol-multitransport",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-5",
-        "FR-3",
-        "IR-5",
-        "SPR-1",
-        "SPR-5",
+        "SPR-3",
         "SPR-6"
       ],
-      "status": "skip",
-      "message": "Unrecognised payload",
-      "duration_ms": 16.00000000325963
+      "status": "pass",
+      "message": "",
+      "duration_ms": 0.0
     },
     {
-      "use_case_id": "UC-PROT-MULTI-0012",
-      "scenario_title": "protocol-multitransport multitransport positive scenario 12",
-      "poc_demo": "protocol-multitransport",
-      "scenario_type": "positive",
+      "use_case_id": "HC-SEC-00044",
+      "scenario_title": "HelixCare protocol-security negative scenario 44",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "negative",
       "requirement_ids": [
-        "FR-3",
+        "FR-2",
+        "IR-6",
+        "NFR-10",
+        "NFR-7",
+        "NFR-8",
+        "SPR-4"
+      ],
+      "status": "pass",
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2296.9999999913853
+    },
+    {
+      "use_case_id": "HC-SEC-00050",
+      "scenario_title": "HelixCare protocol-security negative scenario 50",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-2",
+        "IR-5",
+        "NFR-1",
+        "NFR-8",
+        "NFR-9",
+        "SPR-6"
+      ],
+      "status": "pass",
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2296.9999999913853
+    },
+    {
+      "use_case_id": "HC-SEC-00008",
+      "scenario_title": "HelixCare protocol-security edge scenario 8",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "edge",
+      "requirement_ids": [
+        "FR-6",
+        "FR-8",
+        "IR-8",
+        "NFR-5",
+        "SPR-3",
+        "SPR-6"
+      ],
+      "status": "pass",
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2280.9999999881256
+    },
+    {
+      "use_case_id": "HC-SEC-00010",
+      "scenario_title": "HelixCare protocol-security edge scenario 10",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "edge",
+      "requirement_ids": [
+        "CR-3",
+        "FR-11",
         "FR-6",
         "IR-6",
+        "NFR-9",
+        "SPR-4"
+      ],
+      "status": "pass",
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2296.9999999913853
+    },
+    {
+      "use_case_id": "HC-SEC-00016",
+      "scenario_title": "HelixCare protocol-security edge scenario 16",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "edge",
+      "requirement_ids": [
+        "FR-6",
+        "FR-7",
+        "NFR-7",
+        "SPR-3",
+        "SPR-6",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2296.9999999913853
+    },
+    {
+      "use_case_id": "HC-SEC-00029",
+      "scenario_title": "HelixCare protocol-security edge scenario 29",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "edge",
+      "requirement_ids": [
+        "CR-5",
+        "FR-4",
+        "NFR-2",
+        "NFR-6",
+        "NFR-7",
+        "SPR-4"
+      ],
+      "status": "pass",
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2296.9999999913853
+    },
+    {
+      "use_case_id": "HC-SEC-00032",
+      "scenario_title": "HelixCare protocol-security edge scenario 32",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "edge",
+      "requirement_ids": [
+        "FR-8",
+        "IR-5",
+        "NFR-1",
+        "NFR-10",
         "NFR-3",
+        "SPR-4"
+      ],
+      "status": "pass",
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2282.0000000065193
+    },
+    {
+      "use_case_id": "HC-SEC-00036",
+      "scenario_title": "HelixCare protocol-security edge scenario 36",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "edge",
+      "requirement_ids": [
+        "CR-3",
+        "FR-6",
         "NFR-4",
+        "NFR-6",
+        "SPR-2",
+        "SPR-4"
+      ],
+      "status": "pass",
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2296.9999999913853
+    },
+    {
+      "use_case_id": "HC-SEC-00042",
+      "scenario_title": "HelixCare protocol-security edge scenario 42",
+      "poc_demo": "helixcare-protocol-security",
+      "scenario_type": "edge",
+      "requirement_ids": [
+        "CR-1",
+        "FR-1",
+        "FR-8",
+        "IR-8",
+        "NFR-10",
         "NFR-5"
       ],
-      "status": "skip",
-      "message": "Unrecognised payload",
-      "duration_ms": 0.0
-    },
-    {
-      "use_case_id": "UC-PROT-MULTI-0013",
-      "scenario_title": "protocol-multitransport multitransport positive scenario 13",
-      "poc_demo": "protocol-multitransport",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-1",
-        "FR-6",
-        "FR-7",
-        "IR-3",
-        "NFR-5",
-        "SPR-7"
-      ],
-      "status": "fail",
-      "message": "assert 500 == 200\n +  where 500 = <Response [500 Internal Server Error]>.status_code\n +  and   200 = <built-in method get of dict object at 0x0000018050015500>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x0000018050015500> = {'auth_mode': 'jwt+did(optional)', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
-      "duration_ms": 406.00000000267755
-    },
-    {
-      "use_case_id": "UC-PROT-MULTI-0017",
-      "scenario_title": "protocol-multitransport multitransport positive scenario 17",
-      "poc_demo": "protocol-multitransport",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-3",
-        "FR-2",
-        "FR-7",
-        "IR-3",
-        "NFR-8",
-        "SPR-5"
-      ],
-      "status": "skip",
-      "message": "Unrecognised payload",
-      "duration_ms": 0.0
-    },
-    {
-      "use_case_id": "UC-PROT-MULTI-0018",
-      "scenario_title": "protocol-multitransport multitransport positive scenario 18",
-      "poc_demo": "protocol-multitransport",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-2",
-        "FR-5",
-        "IR-2",
-        "IR-5",
-        "SPR-5",
-        "SPR-8"
-      ],
-      "status": "skip",
-      "message": "Unrecognised payload",
-      "duration_ms": 0.0
-    },
-    {
-      "use_case_id": "UC-PROT-MULTI-0002",
-      "scenario_title": "protocol-multitransport multitransport negative scenario 2",
-      "poc_demo": "protocol-multitransport",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "CR-4",
-        "FR-2",
-        "NFR-5",
-        "NFR-9",
-        "SPR-1",
-        "SPR-6"
-      ],
-      "status": "skip",
-      "message": "",
-      "duration_ms": 46.999999991385266
-    },
-    {
-      "use_case_id": "UC-PROT-MULTI-0004",
-      "scenario_title": "protocol-multitransport multitransport negative scenario 4",
-      "poc_demo": "protocol-multitransport",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "CR-4",
-        "FR-3",
-        "NFR-1",
-        "NFR-2",
-        "NFR-7",
-        "SPR-8"
-      ],
-      "status": "skip",
-      "message": "",
-      "duration_ms": 0.0
+      "status": "pass",
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2296.9999999913853
     }
   ]
 }
