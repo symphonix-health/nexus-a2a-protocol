@@ -9,43 +9,43 @@
       "passed": 50,
       "failed": 0,
       "errors": 0,
-      "time": 154.1879186630249
+      "time": 98.01241993904114
     },
     "dx_imaging": {
       "passed": 50,
       "failed": 0,
       "errors": 0,
-      "time": 156.45561289787292
+      "time": 53.75281286239624
     },
     "admission": {
       "passed": 50,
       "failed": 0,
       "errors": 0,
-      "time": 169.4921293258667
+      "time": 63.75263285636902
     },
     "discharge": {
       "passed": 50,
       "failed": 0,
       "errors": 0,
-      "time": 176.45543098449707
+      "time": 61.69995069503784
     },
     "surveillance": {
       "passed": 50,
       "failed": 0,
       "errors": 0,
-      "time": 124.13609671592712
+      "time": 48.600391149520874
     },
     "discovery": {
       "passed": 50,
       "failed": 0,
       "errors": 0,
-      "time": 131.64798617362976
+      "time": 45.152934074401855
     },
     "security": {
       "passed": 50,
       "failed": 0,
       "errors": 0,
-      "time": 166.54341840744019
+      "time": 87.53020763397217
     }
   }
 }
