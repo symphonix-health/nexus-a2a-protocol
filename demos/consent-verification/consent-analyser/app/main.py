@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import os
@@ -75,7 +76,7 @@ async def _check(params: dict, token: str) -> dict:
     consent_text = params.get("consent_text", "")
     system = "You are a consent checker. Reply ALLOW or DENY with a short reason."
     user = f"Consent: {consent_text}"
-    ans = llm_chat(system, user)
+    ans = await asyncio.to_thread(llm_chat, system, user)
     allowed = "deny" not in ans.lower()
     return {"allowed": allowed, "reason": ans}
 

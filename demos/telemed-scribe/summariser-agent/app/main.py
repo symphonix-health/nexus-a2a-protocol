@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import os
@@ -75,7 +76,7 @@ async def _summarise(params: dict, token: str) -> dict:
     task = params.get("task", {})
     transcript = (task.get("inputs") or {}).get("transcript", "")
     system = "You are a telemedicine scribe. Produce a concise SOAP note in markdown."
-    note = llm_chat(system, transcript)
+    note = await asyncio.to_thread(llm_chat, system, transcript)
     return {"note_markdown": note}
 
 
