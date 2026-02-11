@@ -1,4 +1,60 @@
 {
+    // Editor
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll": "explicit",
+        "source.organizeImports": "explicit"
+    },
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
+    // Python
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+        }
+    },
+    // Python Testing
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestArgs": [
+        "tests",
+        "-v"
+    ],
+    // Ruff (Linting & Formatting)
+    "ruff.enable": true,
+    "ruff.lint.enable": true,
+    "ruff.format.args": [],
+    "ruff.importStrategy": "fromEnvironment",
+    "ruff.path": [
+        "${workspaceFolder}/.venv/Scripts/ruff.exe"
+    ],
+    // File Watching & Search
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "**/.venv/**": true,
+        "**/__pycache__/**": true,
+        "**/.pytest_cache/**": true,
+        "**/.ruff_cache/**": true
+    },
+    "search.exclude": {
+        "**/.venv": true,
+        "**/__pycache__": true,
+        "**/.pytest_cache": true,
+        "**/.ruff_cache": true,
+        "**/variants": true
+    },
+    // Git
+    "git.ignoreLimitWarning": true,
+    "git.autofetch": true,
+    // Docker
+    "docker.showStartPage": false,
+    // Chat
     "chat.openFile.editorAssociations": {
         "*.md": "vscode.markdown.preview.editor"
     },
@@ -27,6 +83,14 @@
         },
         "prod": {
             "baseUrl": "https://nexus.example.com"
+        }
+    },
+    "terminal.integrated.shellIntegration.enabled": true,
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "terminal.integrated.profiles.windows": {
+        "PowerShell": {
+            "source": "PowerShell",
+            "icon": "terminal-powershell"
         }
     }
 }
