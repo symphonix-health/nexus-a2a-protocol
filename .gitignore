@@ -4,3 +4,27 @@ __pycache__/
 variants/
 .pytest_cache/
 nexus-a2a/
+
+# Generated logs and local test outputs
+compliance_results.log
+docker_log.txt
+env_rebuild.log
+harness_out.txt
+harness_output.txt
+harness_results.txt
+harness_results.xml
+helixcare_full_results.txt
+helixcare_test1.txt
+test_result.txt
+_compliance.txt
+_dl.txt
+_editable.txt
+_editable2.txt
+_editable3.txt
+_ensurepip.txt
+_env_check.txt
+_fulltest.txt
+_getpip.txt
+_pip_list.txt
+_pip_ver.txt
+_pytest_ver.txt

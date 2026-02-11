@@ -1,0 +1,182 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Test: Run All",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "-m",
+        "pytest",
+        "tests/",
+        "-v"
+      ],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: Current File",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "-m",
+        "pytest",
+        "${file}",
+        "-v"
+      ],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Lint: Check All",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "-m",
+        "ruff",
+        "check",
+        "src",
+        "tests"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Format: Check All",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src",
+        "tests"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Format: Fix All",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "-m",
+        "ruff",
+        "format",
+        "src",
+        "tests"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "HelixCare: Launch All Agents",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "tools/launch_all_agents.py"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "HelixCare: Run All Scenarios",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "tools/run_helixcare_scenarios.py"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "HelixCare: Run Validation Suite",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "tools/run_hc_validation.py"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Command Centre: Start",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "shared/command-centre/app/main.py"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: Start HelixCare Stack",
+      "type": "shell",
+      "command": "docker-compose",
+      "args": [
+        "-f",
+        "docker-compose-helixcare.yml",
+        "up",
+        "-d"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: Stop HelixCare Stack",
+      "type": "shell",
+      "command": "docker-compose",
+      "args": [
+        "-f",
+        "docker-compose-helixcare.yml",
+        "down"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
