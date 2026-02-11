@@ -1,3 +1,0 @@
-Obtaining file:///C:/nexus-a2a-protocol
-  Installing build dependencies: started
-  Installing build dependencies: finished with status 'canceled'
