@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-02-10T20:26:46.332033+00:00",
+  "generated_at": "2026-02-11T13:15:14.502615+00:00",
   "total": 50,
-  "passed": 15,
-  "failed": 35,
+  "passed": 50,
+  "failed": 0,
   "skipped": 0,
   "errors": 0,
   "results": [
@@ -19,9 +19,9 @@
         "NFR-7",
         "SPR-3"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2328.0000000086147
+      "status": "pass",
+      "message": "",
+      "duration_ms": 282.00000000651926
     },
     {
       "use_case_id": "HC-SEC-00002",
@@ -36,9 +36,9 @@
         "SPR-2",
         "SPR-5"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
     },
     {
       "use_case_id": "HC-SEC-00003",
@@ -53,9 +53,9 @@
         "IR-7",
         "NFR-9"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
     },
     {
       "use_case_id": "HC-SEC-00004",
@@ -70,9 +70,9 @@
         "NFR-3",
         "NFR-9"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "status": "pass",
+      "message": "",
+      "duration_ms": 280.99999998812564
     },
     {
       "use_case_id": "HC-SEC-00005",
@@ -87,9 +87,9 @@
         "NFR-7",
         "SPR-8"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
     },
     {
       "use_case_id": "HC-SEC-00006",
@@ -104,9 +104,9 @@
         "SPR-3",
         "SPR-6"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
     },
     {
       "use_case_id": "HC-SEC-00007",
@@ -121,9 +121,9 @@
         "NFR-5",
         "SPR-4"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
     },
     {
       "use_case_id": "HC-SEC-00009",
@@ -138,9 +138,9 @@
         "SPR-3",
         "SPR-5"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "status": "pass",
+      "message": "",
+      "duration_ms": 280.99999998812564
     },
     {
       "use_case_id": "HC-SEC-00012",
@@ -155,9 +155,9 @@
         "SPR-4",
         "SPR-6"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
     },
     {
       "use_case_id": "HC-SEC-00013",
@@ -172,9 +172,9 @@
         "NFR-3",
         "SPR-7"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2280.9999999881256
+      "status": "pass",
+      "message": "",
+      "duration_ms": 312.0000000053551
     },
     {
       "use_case_id": "HC-SEC-00014",
@@ -189,9 +189,9 @@
         "SPR-4",
         "SPR-8"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2281.0000000172295
+      "status": "pass",
+      "message": "",
+      "duration_ms": 296.99999999138527
     },
     {
       "use_case_id": "HC-SEC-00015",
@@ -206,9 +206,9 @@
         "FR-8",
         "SPR-7"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.0000000020955
+      "status": "pass",
+      "message": "",
+      "duration_ms": 264.999999984866
     },
     {
       "use_case_id": "HC-SEC-00017",
@@ -223,9 +223,9 @@
         "NFR-10",
         "NFR-4"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2280.9999999881256
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
     },
     {
       "use_case_id": "HC-SEC-00020",
@@ -240,9 +240,9 @@
         "SPR-4",
         "SPR-5"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
     },
     {
       "use_case_id": "HC-SEC-00021",
@@ -257,9 +257,9 @@
         "SPR-1",
         "SPR-2"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2280.9999999881256
+      "status": "pass",
+      "message": "",
+      "duration_ms": 282.00000000651926
     },
     {
       "use_case_id": "HC-SEC-00022",
@@ -274,9 +274,9 @@
         "FR-9",
         "SPR-8"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2280.9999999881256
+      "status": "pass",
+      "message": "",
+      "duration_ms": 265.9999999741558
     },
     {
       "use_case_id": "HC-SEC-00023",
@@ -291,9 +291,9 @@
         "NFR-1",
         "NFR-6"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000020489
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
     },
     {
       "use_case_id": "HC-SEC-00024",
@@ -308,9 +308,9 @@
         "NFR-2",
         "NFR-7"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2280.9999999881256
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
     },
     {
       "use_case_id": "HC-SEC-00026",
@@ -325,9 +325,9 @@
         "NFR-1",
         "NFR-6"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000020489
+      "status": "pass",
+      "message": "",
+      "duration_ms": 250.0
     },
     {
       "use_case_id": "HC-SEC-00027",
@@ -342,9 +342,9 @@
         "NFR-4",
         "NFR-8"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "status": "pass",
+      "message": "",
+      "duration_ms": 282.00000000651926
     },
     {
       "use_case_id": "HC-SEC-00028",
@@ -359,9 +359,9 @@
         "NFR-7",
         "SPR-2"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2342.9999999934807
+      "status": "pass",
+      "message": "",
+      "duration_ms": 265.9999999741558
     },
     {
       "use_case_id": "HC-SEC-00030",
@@ -376,9 +376,9 @@
         "NFR-6",
         "SPR-1"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.0000000020955
+      "status": "pass",
+      "message": "",
+      "duration_ms": 280.99999998812564
     },
     {
       "use_case_id": "HC-SEC-00031",
@@ -393,9 +393,9 @@
         "NFR-8",
         "SPR-2"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2264.999999984866
+      "status": "pass",
+      "message": "",
+      "duration_ms": 328.00000000861473
     },
     {
       "use_case_id": "HC-SEC-00034",
@@ -410,9 +410,9 @@
         "FR-6",
         "IR-1"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2280.9999999881256
+      "status": "pass",
+      "message": "",
+      "duration_ms": 280.99999998812564
     },
     {
       "use_case_id": "HC-SEC-00035",
@@ -427,9 +427,9 @@
         "IR-6",
         "SPR-8"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2280.9999999881256
+      "status": "pass",
+      "message": "",
+      "duration_ms": 280.99999998812564
     },
     {
       "use_case_id": "HC-SEC-00037",
@@ -444,9 +444,9 @@
         "NFR-6",
         "NFR-8"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "status": "pass",
+      "message": "",
+      "duration_ms": 282.00000000651926
     },
     {
       "use_case_id": "HC-SEC-00038",
@@ -461,9 +461,9 @@
         "NFR-3",
         "SPR-3"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "status": "pass",
+      "message": "",
+      "duration_ms": 297.0000000204891
     },
     {
       "use_case_id": "HC-SEC-00039",
@@ -478,9 +478,9 @@
         "NFR-10",
         "SPR-6"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.000000005355
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
     },
     {
       "use_case_id": "HC-SEC-00040",
@@ -495,9 +495,9 @@
         "NFR-3",
         "SPR-1"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2264.999999984866
+      "status": "pass",
+      "message": "",
+      "duration_ms": 280.99999998812564
     },
     {
       "use_case_id": "HC-SEC-00041",
@@ -512,9 +512,9 @@
         "SPR-2",
         "SPR-4"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2280.9999999881256
+      "status": "pass",
+      "message": "",
+      "duration_ms": 265.00000001396984
     },
     {
       "use_case_id": "HC-SEC-00045",
@@ -529,9 +529,9 @@
         "NFR-10",
         "SPR-5"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2312.999999994645
+      "status": "pass",
+      "message": "",
+      "duration_ms": 280.99999998812564
     },
     {
       "use_case_id": "HC-SEC-00046",
@@ -546,9 +546,9 @@
         "NFR-9",
         "SPR-4"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000020489
+      "status": "pass",
+      "message": "",
+      "duration_ms": 265.00000001396984
     },
     {
       "use_case_id": "HC-SEC-00047",
@@ -563,9 +563,9 @@
         "NFR-9",
         "SPR-4"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2297.000000020489
+      "status": "pass",
+      "message": "",
+      "duration_ms": 280.99999998812564
     },
     {
       "use_case_id": "HC-SEC-00048",
@@ -580,9 +580,9 @@
         "NFR-10",
         "SPR-4"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "status": "pass",
+      "message": "",
+      "duration_ms": 265.00000001396984
     },
     {
       "use_case_id": "HC-SEC-00049",
@@ -597,9 +597,9 @@
         "NFR-1",
         "NFR-3"
       ],
-      "status": "fail",
-      "message": "All connection attempts failed",
-      "duration_ms": 2281.0000000172295
+      "status": "pass",
+      "message": "",
+      "duration_ms": 264.999999984866
     },
     {
       "use_case_id": "HC-SEC-00011",
@@ -615,8 +615,8 @@
         "SPR-4"
       ],
       "status": "pass",
-      "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2281.0000000172295
+      "message": "",
+      "duration_ms": 280.99999998812564
     },
     {
       "use_case_id": "HC-SEC-00018",
@@ -632,8 +632,8 @@
         "NFR-9"
       ],
       "status": "pass",
-      "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "message": "",
+      "duration_ms": 266.00000000325963
     },
     {
       "use_case_id": "HC-SEC-00019",
@@ -649,8 +649,8 @@
         "SPR-8"
       ],
       "status": "pass",
-      "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2344.0000000118744
+      "message": "",
+      "duration_ms": 280.99999998812564
     },
     {
       "use_case_id": "HC-SEC-00025",
@@ -666,8 +666,8 @@
         "SPR-7"
       ],
       "status": "pass",
-      "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2328.0000000086147
+      "message": "",
+      "duration_ms": 280.99999998812564
     },
     {
       "use_case_id": "HC-SEC-00033",
@@ -717,8 +717,8 @@
         "SPR-4"
       ],
       "status": "pass",
-      "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "message": "",
+      "duration_ms": 265.00000001396984
     },
     {
       "use_case_id": "HC-SEC-00050",
@@ -734,8 +734,8 @@
         "SPR-6"
       ],
       "status": "pass",
-      "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "message": "",
+      "duration_ms": 250.0
     },
     {
       "use_case_id": "HC-SEC-00008",
@@ -751,8 +751,8 @@
         "SPR-6"
       ],
       "status": "pass",
-      "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2280.9999999881256
+      "message": "",
+      "duration_ms": 265.00000001396984
     },
     {
       "use_case_id": "HC-SEC-00010",
@@ -768,8 +768,8 @@
         "SPR-4"
       ],
       "status": "pass",
-      "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "message": "",
+      "duration_ms": 265.9999999741558
     },
     {
       "use_case_id": "HC-SEC-00016",
@@ -785,8 +785,8 @@
         "SPR-7"
       ],
       "status": "pass",
-      "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "message": "",
+      "duration_ms": 264.999999984866
     },
     {
       "use_case_id": "HC-SEC-00029",
@@ -802,8 +802,8 @@
         "SPR-4"
       ],
       "status": "pass",
-      "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "message": "",
+      "duration_ms": 296.99999999138527
     },
     {
       "use_case_id": "HC-SEC-00032",
@@ -819,8 +819,8 @@
         "SPR-4"
       ],
       "status": "pass",
-      "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2282.0000000065193
+      "message": "",
+      "duration_ms": 280.99999998812564
     },
     {
       "use_case_id": "HC-SEC-00036",
@@ -836,8 +836,8 @@
         "SPR-4"
       ],
       "status": "pass",
-      "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "message": "",
+      "duration_ms": 282.00000000651926
     },
     {
       "use_case_id": "HC-SEC-00042",
@@ -853,8 +853,8 @@
         "NFR-5"
       ],
       "status": "pass",
-      "message": "Expected failure: All connection attempts failed",
-      "duration_ms": 2296.9999999913853
+      "message": "",
+      "duration_ms": 280.99999998812564
     }
   ]
 }

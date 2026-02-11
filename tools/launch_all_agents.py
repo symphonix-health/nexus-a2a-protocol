@@ -65,6 +65,8 @@ def start_all():
     env["MQTT_BROKER"] = "localhost"
     env["MQTT_PORT"] = "1883"
     env["FHIR_BASE_URL"] = "http://localhost:8080/fhir"
+    # Redis for Command Centre real-time event streaming
+    env["REDIS_URL"] = "redis://localhost:6379"
     # HelixCare inter-agent URLs
     env["NEXUS_IMAGING_RPC"] = "http://localhost:8024/rpc"
     env["NEXUS_PHARMACY_RPC"] = "http://localhost:8025/rpc"

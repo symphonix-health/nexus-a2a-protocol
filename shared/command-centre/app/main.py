@@ -237,7 +237,12 @@ async def websocket_events(websocket: WebSocket):
 
 # ── Static Files ──────────────────────────────────────────────────────
 # Mount static files last (fallback route)
-app.mount("/", StaticFiles(directory="app/static", html=True), name="static")
+# Use __file__-relative path so it works regardless of CWD
+_static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+if os.path.isdir(_static_dir):
+    app.mount("/", StaticFiles(directory=_static_dir, html=True), name="static")
+else:
+    logger.warning(f"Static files directory not found at {_static_dir} — dashboard UI disabled")
 
 
 if __name__ == "__main__":

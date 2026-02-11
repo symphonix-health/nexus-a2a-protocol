@@ -145,7 +145,7 @@ ADDITIONAL_SCENARIOS = [
                 "delay": 3
             }
         ],
-        expected_duration: 16
+        expected_duration=16
     ),
 
     PatientScenario(
@@ -249,7 +249,7 @@ ADDITIONAL_SCENARIOS = [
                 "delay": 2
             }
         ],
-        expected_duration: 25
+        expected_duration=25
     ),
 
     PatientScenario(
@@ -334,7 +334,7 @@ ADDITIONAL_SCENARIOS = [
                 "delay": 3
             }
         ],
-        expected_duration: 18
+        expected_duration=18
     ),
 
     PatientScenario(
@@ -418,7 +418,7 @@ ADDITIONAL_SCENARIOS = [
                 "delay": 3
             }
         ],
-        expected_duration: 20
+        expected_duration=20
     ),
 
     PatientScenario(
@@ -523,7 +523,7 @@ ADDITIONAL_SCENARIOS = [
                 "delay": 2
             }
         ],
-        expected_duration: 22
+        expected_duration=22
     )
 ]
 
