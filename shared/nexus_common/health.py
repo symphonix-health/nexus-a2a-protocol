@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import time
 from collections import deque
+import os
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from typing import Deque
@@ -112,6 +113,12 @@ class HealthMonitor:
         self.agent_name = agent_name
         self.metrics = TaskMetrics()
         self._start_time = time.time()
+        # Thresholds (configurable via env; sensible defaults preserved)
+        # Error-rate thresholds
+        self._err_unhealthy = float(os.getenv("NEXUS_HEALTH_ERROR_UNHEALTHY", "0.10"))
+        self._err_degraded = float(os.getenv("NEXUS_HEALTH_ERROR_DEGRADED", "0.05"))
+        # Latency threshold (ms) for degraded state
+        self._latency_degraded_ms = float(os.getenv("NEXUS_HEALTH_LATENCY_DEGRADED_MS", "5000"))
     
     def get_health(self) -> dict:
         """Get current health status with metrics."""
@@ -120,9 +127,9 @@ class HealthMonitor:
         error_rate = self.metrics.tasks_errored / total if total > 0 else 0.0
         
         # Status logic
-        if error_rate > 0.1:  # >10% errors
+        if error_rate > self._err_unhealthy:
             status = "unhealthy"
-        elif error_rate > 0.05 or self.metrics.avg_latency_ms > 5000:  # >5% errors or >5s latency
+        elif error_rate > self._err_degraded or self.metrics.avg_latency_ms > self._latency_degraded_ms:
             status = "degraded"
         else:
             status = "healthy"
