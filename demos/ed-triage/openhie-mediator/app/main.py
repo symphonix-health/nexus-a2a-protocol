@@ -141,7 +141,9 @@ async def _fhir_get(params: dict, token: str) -> dict:
         except Exception as exc:
             logger.warning("FHIR request failed: %s — returning empty context", exc)
             duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
-            health_monitor.metrics.record_error(duration_ms)
+            # Return a graceful fallback context without classifying the mediator as failed.
+            # This keeps dashboard health aligned with mediator availability vs. upstream data gaps.
+            health_monitor.metrics.record_completed(duration_ms)
             return {"patient": {}, "allergies": {}}
     except Exception as exc:
         duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000

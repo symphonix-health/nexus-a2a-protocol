@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEXUS-A2A Command Centre</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
+
 <body>
     <div class="dashboard">
         <!-- Header -->
@@ -88,22 +90,22 @@
                 Performance Charts
                 <button id="toggle-performance" class="toggle-btn">▼</button>
             </h2>
-            <div id="performance-charts" class="charts-container">
-                <div class="chart-box">
+            <div id="performance-charts" class="charts-grid">
+                <div class="chart-card">
                     <h3>System Throughput</h3>
-                    <canvas id="throughput-chart" width="400" height="200"></canvas>
+                    <canvas id="throughput-chart"></canvas>
                 </div>
-                <div class="chart-box">
+                <div class="chart-card">
                     <h3>Latency Distribution</h3>
-                    <canvas id="latency-chart" width="400" height="200"></canvas>
+                    <canvas id="latency-chart"></canvas>
                 </div>
-                <div class="chart-box">
+                <div class="chart-card">
                     <h3>Agent Load Balance</h3>
-                    <canvas id="load-chart" width="400" height="200"></canvas>
+                    <canvas id="load-chart"></canvas>
                 </div>
-                <div class="chart-box">
+                <div class="chart-card">
                     <h3>Error Budget</h3>
-                    <canvas id="error-gauge" width="200" height="200"></canvas>
+                    <canvas id="error-gauge"></canvas>
                 </div>
             </div>
         </section>
@@ -113,7 +115,9 @@
     <div id="toast-container"></div>
 
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="/colors.js"></script>
     <script src="/dashboard.js"></script>
 </body>
+
 </html>

@@ -9,12 +9,11 @@ import random
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from shared.nexus_common.auth import verify_jwt, AuthError
+from shared.nexus_common.auth import AuthError, verify_jwt
 from shared.nexus_common.ids import make_task_id
-from shared.nexus_common.jsonrpc import (
-    parse_request, response_result, response_error,
-    INVALID_PARAMS, METHOD_NOT_FOUND,
-)
+from shared.nexus_common.jsonrpc import (INVALID_PARAMS, METHOD_NOT_FOUND,
+                                         parse_request, response_error,
+                                         response_result)
 from shared.nexus_common.sse import TaskEventBus
 
 app = FastAPI(title="hospital-reporter")
@@ -37,6 +36,11 @@ def _require_auth(request: Request) -> dict:
 @app.get("/.well-known/agent-card.json")
 async def agent_card():
     return JSONResponse(AGENT_CARD)
+
+
+@app.get("/health")
+async def health():
+    return JSONResponse({"status": "healthy", "name": "hospital-reporter"})
 
 # ── SSE stream ──────────────────────────────────────────────────────
 @app.get("/events/{task_id}")

@@ -1,0 +1,161 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "NEXUS-A2A Agent Port Registry",
+    "description": "Centralized configuration for all agents to prevent port conflicts",
+    "version": "1.0.0",
+    "backend": {
+        "command_centre": {
+            "port": 8099,
+            "path": "shared/command-centre",
+            "description": "Command Centre monitoring dashboard backend",
+            "type": "backend",
+            "endpoints": [
+                "/api/agents",
+                "/api/events",
+                "/ws"
+            ]
+        }
+    },
+    "llm_profiles": {
+        "openai_cloud": {
+            "description": "OpenAI-hosted inference (uses default API base URL unless OPENAI_BASE_URL is set).",
+            "env": {
+                "OPENAI_MODEL": "gpt-4o-mini"
+            }
+        },
+        "local_docker_smollm2": {
+            "description": "Local OpenAI-compatible llama.cpp server running smollm2 on port 18080.",
+            "env": {
+                "OPENAI_API_KEY": "local-test",
+                "OPENAI_BASE_URL": "http://127.0.0.1:18080/v1",
+                "OPENAI_MODEL": "model.gguf",
+                "NEXUS_DIAGNOSIS_RPC_TIMEOUT_SECONDS": "600",
+                "NEXUS_HEALTH_LATENCY_DEGRADED_MS": "180000"
+            }
+        }
+    },
+    "agents": {
+        "ed_triage": {
+            "openhie_mediator": {
+                "port": 8023,
+                "path": "demos/ed-triage/openhie-mediator",
+                "description": "OpenHIE mediator for ED triage",
+                "rpc_env": "NEXUS_OPENHIE_RPC"
+            },
+            "diagnosis_agent": {
+                "port": 8022,
+                "path": "demos/ed-triage/diagnosis-agent",
+                "description": "AI-powered diagnosis agent",
+                "rpc_env": "NEXUS_DIAGNOSIS_RPC"
+            },
+            "triage_agent": {
+                "port": 8021,
+                "path": "demos/ed-triage/triage-agent",
+                "description": "Patient triage agent",
+                "rpc_env": "NEXUS_TRIAGE_RPC"
+            }
+        },
+        "telemed_scribe": {
+            "ehr_writer_agent": {
+                "port": 8033,
+                "path": "demos/telemed-scribe/ehr-writer-agent",
+                "description": "EHR writing agent"
+            },
+            "summariser_agent": {
+                "port": 8032,
+                "path": "demos/telemed-scribe/summariser-agent",
+                "description": "Medical note summarizer"
+            },
+            "transcriber_agent": {
+                "port": 8031,
+                "path": "demos/telemed-scribe/transcriber-agent",
+                "description": "Voice transcription agent"
+            }
+        },
+        "consent_verification": {
+            "consent_analyser": {
+                "port": 8043,
+                "path": "demos/consent-verification/consent-analyser",
+                "description": "Consent policy analyzer"
+            },
+            "hitl_ui": {
+                "port": 8044,
+                "path": "demos/consent-verification/hitl-ui",
+                "description": "Human-in-the-loop UI"
+            },
+            "provider_agent": {
+                "port": 8042,
+                "path": "demos/consent-verification/provider-agent",
+                "description": "Healthcare provider agent"
+            },
+            "insurer_agent": {
+                "port": 8041,
+                "path": "demos/consent-verification/insurer-agent",
+                "description": "Insurance provider agent"
+            }
+        },
+        "public_health_surveillance": {
+            "hospital_reporter": {
+                "port": 8051,
+                "path": "demos/public-health-surveillance/hospital-reporter",
+                "description": "Hospital data reporter",
+                "env": "HOSPITAL_REPORTER_URL"
+            },
+            "osint_agent": {
+                "port": 8052,
+                "path": "demos/public-health-surveillance/osint-agent",
+                "description": "Open-source intelligence agent",
+                "env": "OSINT_AGENT_URL"
+            },
+            "central_surveillance": {
+                "port": 8053,
+                "path": "demos/public-health-surveillance/central-surveillance",
+                "description": "Central surveillance coordinator"
+            }
+        },
+        "helixcare": {
+            "imaging_agent": {
+                "port": 8024,
+                "path": "demos/helixcare/imaging-agent",
+                "description": "Medical imaging agent",
+                "rpc_env": "NEXUS_IMAGING_RPC"
+            },
+            "pharmacy_agent": {
+                "port": 8025,
+                "path": "demos/helixcare/pharmacy-agent",
+                "description": "Pharmacy management agent",
+                "rpc_env": "NEXUS_PHARMACY_RPC"
+            },
+            "bed_manager_agent": {
+                "port": 8026,
+                "path": "demos/helixcare/bed-manager-agent",
+                "description": "Bed allocation manager",
+                "rpc_env": "NEXUS_BED_RPC"
+            },
+            "discharge_agent": {
+                "port": 8027,
+                "path": "demos/helixcare/discharge-agent",
+                "description": "Patient discharge coordinator",
+                "rpc_env": "NEXUS_DISCHARGE_RPC"
+            },
+            "followup_scheduler": {
+                "port": 8028,
+                "path": "demos/helixcare/followup-scheduler",
+                "description": "Follow-up appointment scheduler",
+                "rpc_env": "NEXUS_FOLLOWUP_RPC"
+            },
+            "care_coordinator": {
+                "port": 8029,
+                "path": "demos/helixcare/care-coordinator",
+                "description": "Care coordination orchestrator",
+                "rpc_env": "NEXUS_COORDINATOR_RPC"
+            }
+        }
+    },
+    "reserved_ports": {
+        "8080": "Mock FHIR Server",
+        "8090": "Compliance HITL Agent",
+        "1883": "MQTT Broker",
+        "6379": "Redis"
+    }
+}

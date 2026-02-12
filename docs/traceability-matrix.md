@@ -44,6 +44,7 @@ This document maps **requirement IDs** (from the scenario matrices) to the
 | Protocol Core | `nexus_protocol_core_matrix.json` | CR-1, CR-2, FR-1, FR-2, NFR-1-3, SPR-5 |
 | Protocol Streaming | `nexus_protocol_streaming_matrix.json` | FR-7, NFR-1-3 |
 | Protocol Multitransport | `nexus_protocol_multitransport_matrix.json` | IR-2, NFR-1-3 |
+| Local LLM Profile | `nexus_local_llm_profile_matrix.json` | CFG-LLM-1..7, E2E-LLM-1..4 |
 
 ---
 

@@ -108,6 +108,21 @@
       "problemMatcher": []
     },
     {
+      "label": "HelixCare: Launch Agents + Command Centre",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "tools/launch_all_agents.py",
+        "--with-backend"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "HelixCare: Run All Scenarios",
       "type": "shell",
       "command": "python",

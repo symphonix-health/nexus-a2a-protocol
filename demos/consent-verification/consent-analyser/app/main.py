@@ -47,6 +47,11 @@ async def agent_card():
         return JSONResponse(content=json.load(f))
 
 
+@app.get("/health")
+async def health():
+    return JSONResponse(content={"status": "healthy", "name": "consent-analyser"})
+
+
 @app.get("/events/{task_id}")
 async def events(task_id: str, request: Request):
     _require_auth(request)

@@ -37,7 +37,14 @@ python tools/nexus_mint_jwt.py
 # Copy the generated token to NEXUS_JWT_TOKEN in your .env file
 ```
 
-> **Note**: Set `OPENAI_API_KEY` for real LLM responses. Without it, all LLM calls return deterministic mock responses.
+> **Note**: Set `OPENAI_API_KEY` for real LLM responses.  
+> Optional: set `OPENAI_BASE_URL` + `OPENAI_MODEL` to use a local OpenAI-compatible endpoint.
+
+Example local run profile:
+
+```bash
+python tools/launch_all_agents.py --llm-profile local_docker_smollm2
+```
 
 ### 2. Run Your First Demo
 
@@ -255,6 +262,17 @@ pytest tests/nexus_harness/test_ed_triage.py -v
 
 # Generate conformance report
 pytest tests/nexus_harness/ --json-report
+```
+
+#### Local LLM Profile Matrix (Repeatable)
+
+```bash
+# Regenerate the local profile matrix
+python tools/generate_local_llm_profile_matrix.py
+
+# Run only the local LLM profile harness scenarios
+NEXUS_JWT_SECRET=dev-secret-change-me \
+  pytest tests/nexus_harness/test_local_llm_profile.py -v --tb=short
 ```
 
 ## System Architecture

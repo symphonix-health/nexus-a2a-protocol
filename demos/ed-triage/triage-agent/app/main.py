@@ -113,12 +113,14 @@ async def _send_subscribe(params: dict, token: str) -> dict:
         try:
             await bus.publish(task_id, "nexus.task.status", json.dumps({"task_id": task_id, "state": "working", "step": "calling_diagnosis"}))
             diag_rpc = os.getenv("NEXUS_DIAGNOSIS_RPC", "http://diagnosis-agent:8022/rpc")
+            diag_timeout_s = float(os.getenv("NEXUS_DIAGNOSIS_RPC_TIMEOUT_SECONDS", "600"))
             resp = await jsonrpc_call(
                 diag_rpc,
                 token,
                 "diagnosis/assess",
                 {"task": params.get("task", {}), "task_id": task_id},
                 f"{task_id}-diag",
+                timeout=diag_timeout_s,
             )
             
             duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000

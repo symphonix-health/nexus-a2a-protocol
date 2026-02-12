@@ -27,7 +27,6 @@
     // Ruff (Linting & Formatting)
     "ruff.enable": true,
     "ruff.lint.enable": true,
-    "ruff.format.args": [],
     "ruff.importStrategy": "fromEnvironment",
     "ruff.path": [
         "${workspaceFolder}/.venv/Scripts/ruff.exe"

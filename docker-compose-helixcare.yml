@@ -134,7 +134,9 @@ services:
       - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
       - NEXUS_REQUIRED_SCOPE=nexus:invoke
       - NEXUS_OPENHIE_RPC=http://openhie-mediator:8023/rpc
+      - NEXUS_HEALTH_LATENCY_DEGRADED_MS=${NEXUS_HEALTH_LATENCY_DEGRADED_MS:-180000}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
       - REDIS_URL=redis://redis:6379
       - DID_VERIFY=${DID_VERIFY:-false}
@@ -165,6 +167,8 @@ services:
       - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
       - NEXUS_REQUIRED_SCOPE=nexus:invoke
       - NEXUS_DIAGNOSIS_RPC=http://diagnosis-agent:8022/rpc
+      - NEXUS_DIAGNOSIS_RPC_TIMEOUT_SECONDS=${NEXUS_DIAGNOSIS_RPC_TIMEOUT_SECONDS:-600}
+      - NEXUS_HEALTH_LATENCY_DEGRADED_MS=${NEXUS_HEALTH_LATENCY_DEGRADED_MS:-180000}
       - REDIS_URL=redis://redis:6379
       - DID_VERIFY=${DID_VERIFY:-false}
       - AGENT_NAME=triage-agent
@@ -227,6 +231,7 @@ services:
       - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
       - NEXUS_REQUIRED_SCOPE=nexus:invoke
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
       - REDIS_URL=redis://redis:6379
       - DID_VERIFY=${DID_VERIFY:-false}
@@ -291,6 +296,7 @@ services:
       - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
       - NEXUS_REQUIRED_SCOPE=nexus:invoke
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
       - REDIS_URL=redis://redis:6379
       - DID_VERIFY=${DID_VERIFY:-false}
@@ -475,6 +481,7 @@ services:
       - MQTT_BROKER=mosquitto
       - MQTT_PORT=1883
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
       - REDIS_URL=redis://redis:6379
       - DID_VERIFY=${DID_VERIFY:-false}
