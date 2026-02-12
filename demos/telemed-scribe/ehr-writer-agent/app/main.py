@@ -8,12 +8,14 @@ import logging
 import os
 import sqlite3
 
-from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi import (FastAPI, HTTPException, Request, WebSocket,
+                     WebSocketDisconnect)
 from fastapi.responses import JSONResponse, StreamingResponse
 
 from shared.nexus_common.auth import AuthError, verify_jwt
 from shared.nexus_common.did import did_verify_enabled, verify_did_signature
-from shared.nexus_common.jsonrpc import JsonRpcError, parse_request, response_error, response_result
+from shared.nexus_common.jsonrpc import (JsonRpcError, parse_request,
+                                         response_error, response_result)
 from shared.nexus_common.sse import TaskEventBus
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
@@ -56,6 +58,11 @@ async def agent_card():
     path = os.path.join(os.path.dirname(__file__), "agent_card.json")
     with open(path, encoding="utf-8") as f:
         return JSONResponse(content=json.load(f))
+
+
+@app.get("/health")
+async def health():
+    return JSONResponse(content={"status": "healthy", "name": "ehr-writer-agent"})
 
 
 @app.get("/events/{task_id}")

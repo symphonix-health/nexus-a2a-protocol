@@ -12,16 +12,16 @@ import pathlib
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from shared.nexus_common.auth import verify_jwt, AuthError
-from shared.nexus_common.ids import make_task_id
-from shared.nexus_common.jsonrpc import (
-    parse_request, response_result, response_error,
-    INVALID_PARAMS, METHOD_NOT_FOUND,
-)
-from shared.nexus_common.sse import TaskEventBus, SseEvent
+from shared.nexus_common.auth import AuthError, verify_jwt
 from shared.nexus_common.http_client import jsonrpc_call
-from shared.nexus_common.mqtt_client import mqtt_publish, mqtt_subscribe, mqtt_available
-from shared.nexus_common.openai_helper import llm_chat, llm_available
+from shared.nexus_common.ids import make_task_id
+from shared.nexus_common.jsonrpc import (INVALID_PARAMS, METHOD_NOT_FOUND,
+                                         parse_request, response_error,
+                                         response_result)
+from shared.nexus_common.mqtt_client import (mqtt_available, mqtt_publish,
+                                             mqtt_subscribe)
+from shared.nexus_common.openai_helper import llm_available, llm_chat
+from shared.nexus_common.sse import SseEvent, TaskEventBus
 
 app = FastAPI(title="central-surveillance")
 bus = TaskEventBus()
@@ -51,6 +51,11 @@ def _make_token() -> str:
 @app.get("/.well-known/agent-card.json")
 async def agent_card():
     return JSONResponse(AGENT_CARD)
+
+
+@app.get("/health")
+async def health():
+    return JSONResponse({"status": "healthy", "name": "central-surveillance"})
 
 # ── SSE stream ──────────────────────────────────────────────────────
 @app.get("/events/{task_id}")

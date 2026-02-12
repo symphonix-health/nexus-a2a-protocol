@@ -17,7 +17,7 @@
     --text-primary: #f1f5f9;
     --text-muted: #94a3b8;
     --accent: #3b82f6;
-    
+
     --status-healthy: #10b981;
     --status-degraded: #f59e0b;
     --status-unhealthy: #ef4444;
@@ -75,8 +75,15 @@ body {
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
 }
 
 /* Main Content Grid */
@@ -156,8 +163,13 @@ body {
 }
 
 @keyframes flow {
-    0% { offset-distance: 0%; }
-    100% { offset-distance: 100%; }
+    0% {
+        offset-distance: 0%;
+    }
+
+    100% {
+        offset-distance: 100%;
+    }
 }
 
 /* Heatmap Panel */
@@ -265,6 +277,7 @@ body {
         opacity: 0;
         transform: translateX(20px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -312,7 +325,7 @@ body {
     transition: all 0.3s ease;
 }
 
-.performance-panel.collapsed .charts-container {
+.performance-panel.collapsed .charts-grid {
     display: none;
 }
 
@@ -329,23 +342,48 @@ body {
     transform: rotate(-90deg);
 }
 
-.charts-container {
+.charts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
     margin-top: 1rem;
+    max-height: 500px;
 }
 
-.chart-box {
+.chart-card {
     background: var(--bg-primary);
     padding: 1rem;
-    border-radius: 4px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    height: 240px;
+    display: flex;
+    flex-direction: column;
 }
 
-.chart-box h3 {
+.chart-card h3 {
     font-size: 0.875rem;
+    font-weight: 600;
     color: var(--text-muted);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.chart-card canvas {
+    flex: 1;
+    width: 100% !important;
+    height: auto !important;
+}
+
+@media (max-width: 1024px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+        max-height: none;
+    }
+
+    .chart-card {
+        height: 280px;
+    }
 }
 
 /* Toast Notifications */
@@ -374,6 +412,7 @@ body {
         opacity: 0;
         transform: translateX(100%);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -417,7 +456,7 @@ body {
         grid-template-columns: 1fr;
         grid-template-rows: auto auto auto;
     }
-    
+
     .timeline-panel {
         grid-column: 1;
         grid-row: 3;

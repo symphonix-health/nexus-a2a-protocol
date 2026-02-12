@@ -119,6 +119,8 @@ class HealthMonitor:
         self._err_degraded = float(os.getenv("NEXUS_HEALTH_ERROR_DEGRADED", "0.05"))
         # Latency threshold (ms) for degraded state
         self._latency_degraded_ms = float(os.getenv("NEXUS_HEALTH_LATENCY_DEGRADED_MS", "5000"))
+        # Require multiple samples before latency alone marks an agent degraded.
+        self._latency_min_samples = int(os.getenv("NEXUS_HEALTH_LATENCY_MIN_SAMPLES", "3"))
     
     def get_health(self) -> dict:
         """Get current health status with metrics."""
@@ -126,10 +128,17 @@ class HealthMonitor:
         total = self.metrics.tasks_completed + self.metrics.tasks_errored
         error_rate = self.metrics.tasks_errored / total if total > 0 else 0.0
         
+        # Apply latency degradation only after a minimum sample count to avoid
+        # one-off cold starts permanently affecting perceived health.
+        latency_degraded = (
+            len(self.metrics._latencies) >= self._latency_min_samples
+            and self.metrics.avg_latency_ms > self._latency_degraded_ms
+        )
+
         # Status logic
         if error_rate > self._err_unhealthy:
             status = "unhealthy"
-        elif error_rate > self._err_degraded or self.metrics.avg_latency_ms > self._latency_degraded_ms:
+        elif error_rate > self._err_degraded or latency_degraded:
             status = "degraded"
         else:
             status = "healthy"

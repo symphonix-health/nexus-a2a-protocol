@@ -1,860 +1,100 @@
 {
-  "generated_at": "2026-02-11T13:15:14.502615+00:00",
-  "total": 50,
-  "passed": 50,
+  "generated_at": "2026-02-12T12:10:40.190491+00:00",
+  "total": 7,
+  "passed": 7,
   "failed": 0,
   "skipped": 0,
   "errors": 0,
   "results": [
     {
-      "use_case_id": "HC-SEC-00001",
-      "scenario_title": "HelixCare protocol-security positive scenario 1",
-      "poc_demo": "helixcare-protocol-security",
+      "use_case_id": "UC-LLM-LOCAL-0001",
+      "scenario_title": "Launch script lists configured LLM profiles",
+      "poc_demo": "local-llm-profile",
       "scenario_type": "positive",
       "requirement_ids": [
-        "FR-8",
-        "IR-6",
-        "IR-8",
-        "NFR-4",
-        "NFR-7",
-        "SPR-3"
+        "CFG-LLM-1",
+        "CFG-LLM-2"
       ],
       "status": "pass",
       "message": "",
-      "duration_ms": 282.00000000651926
+      "duration_ms": 1577.999999979511
     },
     {
-      "use_case_id": "HC-SEC-00002",
-      "scenario_title": "HelixCare protocol-security positive scenario 2",
-      "poc_demo": "helixcare-protocol-security",
+      "use_case_id": "UC-LLM-LOCAL-0002",
+      "scenario_title": "Profile startup output advertises local model and base URL",
+      "poc_demo": "local-llm-profile",
       "scenario_type": "positive",
       "requirement_ids": [
-        "FR-10",
-        "IR-5",
-        "NFR-2",
-        "SPR-1",
-        "SPR-2",
-        "SPR-5"
+        "CFG-LLM-3",
+        "CFG-LLM-4"
       ],
       "status": "pass",
       "message": "",
-      "duration_ms": 281.00000001722947
+      "duration_ms": 93.99999998277053
     },
     {
-      "use_case_id": "HC-SEC-00003",
-      "scenario_title": "HelixCare protocol-security positive scenario 3",
-      "poc_demo": "helixcare-protocol-security",
+      "use_case_id": "UC-LLM-LOCAL-0003",
+      "scenario_title": "Consent analyser performs authenticated RPC without mock fallback (allow path)",
+      "poc_demo": "local-llm-profile",
       "scenario_type": "positive",
       "requirement_ids": [
-        "CR-2",
-        "CR-5",
-        "FR-7",
-        "FR-9",
-        "IR-7",
-        "NFR-9"
+        "CFG-LLM-5",
+        "E2E-LLM-1"
       ],
       "status": "pass",
       "message": "",
-      "duration_ms": 281.00000001722947
+      "duration_ms": 265140.00000001397
     },
     {
-      "use_case_id": "HC-SEC-00004",
-      "scenario_title": "HelixCare protocol-security positive scenario 4",
-      "poc_demo": "helixcare-protocol-security",
+      "use_case_id": "UC-LLM-LOCAL-0004",
+      "scenario_title": "Consent analyser performs authenticated RPC without mock fallback (deny path)",
+      "poc_demo": "local-llm-profile",
       "scenario_type": "positive",
       "requirement_ids": [
-        "FR-1",
-        "FR-11",
-        "IR-1",
-        "IR-8",
-        "NFR-3",
-        "NFR-9"
+        "CFG-LLM-5",
+        "E2E-LLM-2"
       ],
       "status": "pass",
       "message": "",
-      "duration_ms": 280.99999998812564
+      "duration_ms": 8422.00000002049
     },
     {
-      "use_case_id": "HC-SEC-00005",
-      "scenario_title": "HelixCare protocol-security positive scenario 5",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-7",
-        "IR-4",
-        "IR-8",
-        "NFR-2",
-        "NFR-7",
-        "SPR-8"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 266.00000000325963
-    },
-    {
-      "use_case_id": "HC-SEC-00006",
-      "scenario_title": "HelixCare protocol-security positive scenario 6",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-4",
-        "CR-5",
-        "FR-5",
-        "NFR-2",
-        "SPR-3",
-        "SPR-6"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000001722947
-    },
-    {
-      "use_case_id": "HC-SEC-00007",
-      "scenario_title": "HelixCare protocol-security positive scenario 7",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-4",
-        "FR-1",
-        "FR-2",
-        "NFR-3",
-        "NFR-5",
-        "SPR-4"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 266.00000000325963
-    },
-    {
-      "use_case_id": "HC-SEC-00009",
-      "scenario_title": "HelixCare protocol-security positive scenario 9",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-3",
-        "FR-5",
-        "IR-2",
-        "IR-3",
-        "SPR-3",
-        "SPR-5"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 280.99999998812564
-    },
-    {
-      "use_case_id": "HC-SEC-00012",
-      "scenario_title": "HelixCare protocol-security positive scenario 12",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-3",
-        "FR-11",
-        "IR-2",
-        "SPR-1",
-        "SPR-4",
-        "SPR-6"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 266.00000000325963
-    },
-    {
-      "use_case_id": "HC-SEC-00013",
-      "scenario_title": "HelixCare protocol-security positive scenario 13",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-1",
-        "FR-3",
-        "FR-5",
-        "IR-3",
-        "NFR-3",
-        "SPR-7"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 312.0000000053551
-    },
-    {
-      "use_case_id": "HC-SEC-00014",
-      "scenario_title": "HelixCare protocol-security positive scenario 14",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-3",
-        "FR-2",
-        "NFR-2",
-        "NFR-3",
-        "SPR-4",
-        "SPR-8"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 296.99999999138527
-    },
-    {
-      "use_case_id": "HC-SEC-00015",
-      "scenario_title": "HelixCare protocol-security positive scenario 15",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-1",
-        "CR-3",
-        "FR-12",
-        "FR-2",
-        "FR-8",
-        "SPR-7"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 264.999999984866
-    },
-    {
-      "use_case_id": "HC-SEC-00017",
-      "scenario_title": "HelixCare protocol-security positive scenario 17",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-5",
-        "FR-3",
-        "IR-1",
-        "IR-6",
-        "NFR-10",
-        "NFR-4"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000001722947
-    },
-    {
-      "use_case_id": "HC-SEC-00020",
-      "scenario_title": "HelixCare protocol-security positive scenario 20",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-4",
-        "CR-5",
-        "IR-5",
-        "NFR-8",
-        "SPR-4",
-        "SPR-5"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000001722947
-    },
-    {
-      "use_case_id": "HC-SEC-00021",
-      "scenario_title": "HelixCare protocol-security positive scenario 21",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-11",
-        "IR-1",
-        "NFR-7",
-        "NFR-9",
-        "SPR-1",
-        "SPR-2"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 282.00000000651926
-    },
-    {
-      "use_case_id": "HC-SEC-00022",
-      "scenario_title": "HelixCare protocol-security positive scenario 22",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-5",
-        "FR-10",
-        "FR-3",
-        "FR-6",
-        "FR-9",
-        "SPR-8"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 265.9999999741558
-    },
-    {
-      "use_case_id": "HC-SEC-00023",
-      "scenario_title": "HelixCare protocol-security positive scenario 23",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-5",
-        "FR-11",
-        "FR-12",
-        "IR-1",
-        "NFR-1",
-        "NFR-6"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000001722947
-    },
-    {
-      "use_case_id": "HC-SEC-00024",
-      "scenario_title": "HelixCare protocol-security positive scenario 24",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-3",
-        "FR-3",
-        "FR-8",
-        "IR-3",
-        "NFR-2",
-        "NFR-7"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000001722947
-    },
-    {
-      "use_case_id": "HC-SEC-00026",
-      "scenario_title": "HelixCare protocol-security positive scenario 26",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-6",
-        "IR-1",
-        "IR-2",
-        "IR-5",
-        "NFR-1",
-        "NFR-6"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 250.0
-    },
-    {
-      "use_case_id": "HC-SEC-00027",
-      "scenario_title": "HelixCare protocol-security positive scenario 27",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-4",
-        "FR-12",
-        "IR-4",
-        "NFR-2",
-        "NFR-4",
-        "NFR-8"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 282.00000000651926
-    },
-    {
-      "use_case_id": "HC-SEC-00028",
-      "scenario_title": "HelixCare protocol-security positive scenario 28",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-1",
-        "FR-2",
-        "FR-8",
-        "IR-6",
-        "NFR-7",
-        "SPR-2"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 265.9999999741558
-    },
-    {
-      "use_case_id": "HC-SEC-00030",
-      "scenario_title": "HelixCare protocol-security positive scenario 30",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-1",
-        "FR-7",
-        "IR-2",
-        "IR-3",
-        "NFR-6",
-        "SPR-1"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 280.99999998812564
-    },
-    {
-      "use_case_id": "HC-SEC-00031",
-      "scenario_title": "HelixCare protocol-security positive scenario 31",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-4",
-        "CR-5",
-        "FR-10",
-        "FR-7",
-        "NFR-8",
-        "SPR-2"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 328.00000000861473
-    },
-    {
-      "use_case_id": "HC-SEC-00034",
-      "scenario_title": "HelixCare protocol-security positive scenario 34",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-10",
-        "FR-12",
-        "FR-3",
-        "FR-5",
-        "FR-6",
-        "IR-1"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 280.99999998812564
-    },
-    {
-      "use_case_id": "HC-SEC-00035",
-      "scenario_title": "HelixCare protocol-security positive scenario 35",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-2",
-        "FR-3",
-        "FR-7",
-        "IR-2",
-        "IR-6",
-        "SPR-8"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 280.99999998812564
-    },
-    {
-      "use_case_id": "HC-SEC-00037",
-      "scenario_title": "HelixCare protocol-security positive scenario 37",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-1",
-        "FR-11",
-        "FR-2",
-        "FR-8",
-        "NFR-6",
-        "NFR-8"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 282.00000000651926
-    },
-    {
-      "use_case_id": "HC-SEC-00038",
-      "scenario_title": "HelixCare protocol-security positive scenario 38",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-3",
-        "CR-4",
-        "IR-4",
-        "IR-8",
-        "NFR-3",
-        "SPR-3"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 297.0000000204891
-    },
-    {
-      "use_case_id": "HC-SEC-00039",
-      "scenario_title": "HelixCare protocol-security positive scenario 39",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-3",
-        "CR-4",
-        "FR-9",
-        "IR-3",
-        "NFR-10",
-        "SPR-6"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000001722947
-    },
-    {
-      "use_case_id": "HC-SEC-00040",
-      "scenario_title": "HelixCare protocol-security positive scenario 40",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-2",
-        "FR-1",
-        "FR-4",
-        "IR-6",
-        "NFR-3",
-        "SPR-1"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 280.99999998812564
-    },
-    {
-      "use_case_id": "HC-SEC-00041",
-      "scenario_title": "HelixCare protocol-security positive scenario 41",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "IR-3",
-        "NFR-4",
-        "NFR-6",
-        "SPR-1",
-        "SPR-2",
-        "SPR-4"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 265.00000001396984
-    },
-    {
-      "use_case_id": "HC-SEC-00045",
-      "scenario_title": "HelixCare protocol-security positive scenario 45",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-2",
-        "FR-1",
-        "FR-12",
-        "FR-3",
-        "NFR-10",
-        "SPR-5"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 280.99999998812564
-    },
-    {
-      "use_case_id": "HC-SEC-00046",
-      "scenario_title": "HelixCare protocol-security positive scenario 46",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-1",
-        "CR-2",
-        "FR-3",
-        "NFR-3",
-        "NFR-9",
-        "SPR-4"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 265.00000001396984
-    },
-    {
-      "use_case_id": "HC-SEC-00047",
-      "scenario_title": "HelixCare protocol-security positive scenario 47",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-1",
-        "CR-4",
-        "NFR-3",
-        "NFR-5",
-        "NFR-9",
-        "SPR-4"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 280.99999998812564
-    },
-    {
-      "use_case_id": "HC-SEC-00048",
-      "scenario_title": "HelixCare protocol-security positive scenario 48",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-1",
-        "CR-4",
-        "FR-3",
-        "IR-1",
-        "NFR-10",
-        "SPR-4"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 265.00000001396984
-    },
-    {
-      "use_case_id": "HC-SEC-00049",
-      "scenario_title": "HelixCare protocol-security positive scenario 49",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CR-4",
-        "FR-11",
-        "FR-8",
-        "IR-2",
-        "NFR-1",
-        "NFR-3"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 264.999999984866
-    },
-    {
-      "use_case_id": "HC-SEC-00011",
-      "scenario_title": "HelixCare protocol-security negative scenario 11",
-      "poc_demo": "helixcare-protocol-security",
+      "use_case_id": "UC-LLM-LOCAL-0005",
+      "scenario_title": "Unknown LLM profile fails fast with clear error",
+      "poc_demo": "local-llm-profile",
       "scenario_type": "negative",
       "requirement_ids": [
-        "FR-8",
-        "IR-1",
-        "IR-4",
-        "NFR-2",
-        "NFR-3",
-        "SPR-4"
+        "CFG-LLM-6"
       ],
       "status": "pass",
       "message": "",
-      "duration_ms": 280.99999998812564
+      "duration_ms": 3219.000000040978
     },
     {
-      "use_case_id": "HC-SEC-00018",
-      "scenario_title": "HelixCare protocol-security negative scenario 18",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "FR-3",
-        "IR-2",
-        "IR-7",
-        "NFR-1",
-        "NFR-8",
-        "NFR-9"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 266.00000000325963
-    },
-    {
-      "use_case_id": "HC-SEC-00019",
-      "scenario_title": "HelixCare protocol-security negative scenario 19",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "IR-1",
-        "NFR-10",
-        "NFR-5",
-        "NFR-9",
-        "SPR-6",
-        "SPR-8"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 280.99999998812564
-    },
-    {
-      "use_case_id": "HC-SEC-00025",
-      "scenario_title": "HelixCare protocol-security negative scenario 25",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "CR-4",
-        "IR-6",
-        "NFR-4",
-        "NFR-6",
-        "SPR-6",
-        "SPR-7"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 280.99999998812564
-    },
-    {
-      "use_case_id": "HC-SEC-00033",
-      "scenario_title": "HelixCare protocol-security negative scenario 33",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "CR-1",
-        "CR-3",
-        "FR-11",
-        "NFR-7",
-        "NFR-9",
-        "SPR-8"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 0.0
-    },
-    {
-      "use_case_id": "HC-SEC-00043",
-      "scenario_title": "HelixCare protocol-security negative scenario 43",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "CR-3",
-        "FR-7",
-        "FR-9",
-        "NFR-8",
-        "SPR-3",
-        "SPR-6"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 0.0
-    },
-    {
-      "use_case_id": "HC-SEC-00044",
-      "scenario_title": "HelixCare protocol-security negative scenario 44",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "FR-2",
-        "IR-6",
-        "NFR-10",
-        "NFR-7",
-        "NFR-8",
-        "SPR-4"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 265.00000001396984
-    },
-    {
-      "use_case_id": "HC-SEC-00050",
-      "scenario_title": "HelixCare protocol-security negative scenario 50",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "CR-2",
-        "IR-5",
-        "NFR-1",
-        "NFR-8",
-        "NFR-9",
-        "SPR-6"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 250.0
-    },
-    {
-      "use_case_id": "HC-SEC-00008",
-      "scenario_title": "HelixCare protocol-security edge scenario 8",
-      "poc_demo": "helixcare-protocol-security",
+      "use_case_id": "UC-LLM-LOCAL-0006",
+      "scenario_title": "Local OpenAI-compatible model endpoint exposes model.gguf",
+      "poc_demo": "local-llm-profile",
       "scenario_type": "edge",
       "requirement_ids": [
-        "FR-6",
-        "FR-8",
-        "IR-8",
-        "NFR-5",
-        "SPR-3",
-        "SPR-6"
+        "CFG-LLM-7",
+        "E2E-LLM-3"
       ],
       "status": "pass",
       "message": "",
-      "duration_ms": 265.00000001396984
+      "duration_ms": 545.9999999729916
     },
     {
-      "use_case_id": "HC-SEC-00010",
-      "scenario_title": "HelixCare protocol-security edge scenario 10",
-      "poc_demo": "helixcare-protocol-security",
+      "use_case_id": "UC-LLM-LOCAL-0007",
+      "scenario_title": "Local OpenAI-compatible chat completion endpoint responds on model.gguf",
+      "poc_demo": "local-llm-profile",
       "scenario_type": "edge",
       "requirement_ids": [
-        "CR-3",
-        "FR-11",
-        "FR-6",
-        "IR-6",
-        "NFR-9",
-        "SPR-4"
+        "CFG-LLM-7",
+        "E2E-LLM-4"
       ],
       "status": "pass",
       "message": "",
-      "duration_ms": 265.9999999741558
-    },
-    {
-      "use_case_id": "HC-SEC-00016",
-      "scenario_title": "HelixCare protocol-security edge scenario 16",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "edge",
-      "requirement_ids": [
-        "FR-6",
-        "FR-7",
-        "NFR-7",
-        "SPR-3",
-        "SPR-6",
-        "SPR-7"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 264.999999984866
-    },
-    {
-      "use_case_id": "HC-SEC-00029",
-      "scenario_title": "HelixCare protocol-security edge scenario 29",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "edge",
-      "requirement_ids": [
-        "CR-5",
-        "FR-4",
-        "NFR-2",
-        "NFR-6",
-        "NFR-7",
-        "SPR-4"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 296.99999999138527
-    },
-    {
-      "use_case_id": "HC-SEC-00032",
-      "scenario_title": "HelixCare protocol-security edge scenario 32",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "edge",
-      "requirement_ids": [
-        "FR-8",
-        "IR-5",
-        "NFR-1",
-        "NFR-10",
-        "NFR-3",
-        "SPR-4"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 280.99999998812564
-    },
-    {
-      "use_case_id": "HC-SEC-00036",
-      "scenario_title": "HelixCare protocol-security edge scenario 36",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "edge",
-      "requirement_ids": [
-        "CR-3",
-        "FR-6",
-        "NFR-4",
-        "NFR-6",
-        "SPR-2",
-        "SPR-4"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 282.00000000651926
-    },
-    {
-      "use_case_id": "HC-SEC-00042",
-      "scenario_title": "HelixCare protocol-security edge scenario 42",
-      "poc_demo": "helixcare-protocol-security",
-      "scenario_type": "edge",
-      "requirement_ids": [
-        "CR-1",
-        "FR-1",
-        "FR-8",
-        "IR-8",
-        "NFR-10",
-        "NFR-5"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 280.99999998812564
+      "duration_ms": 13672.00000002049
     }
   ]
 }

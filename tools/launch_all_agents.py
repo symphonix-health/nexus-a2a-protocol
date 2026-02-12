@@ -1,102 +1,157 @@
 """Launch all NEXUS-A2A demo agents locally for testing.
 
 Usage:
-    python tools/launch_all_agents.py          # start all
-    python tools/launch_all_agents.py --stop   # kill all
+    python tools/launch_all_agents.py                    # start all agents
+    python tools/launch_all_agents.py --with-backend     # start agents + backend
+    python tools/launch_all_agents.py --llm-profile local_docker_smollm2
+                                                        # start with a configured LLM profile
+    python tools/launch_all_agents.py --list-llm-profiles
+                                                        # show configured LLM profiles
+    python tools/launch_all_agents.py --stop             # kill all
 """
 from __future__ import annotations
 
-import os
-import sys
-import signal
-import subprocess
-import time
 import argparse
 import json
+import os
+import signal
+import subprocess
+import sys
+import time
 
 PYTHON = sys.executable
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# agent_dir (relative to ROOT), port
-AGENTS = [
-    # ED Triage
-    ("demos/ed-triage/openhie-mediator",        8023),
-    ("demos/ed-triage/diagnosis-agent",         8022),
-    ("demos/ed-triage/triage-agent",            8021),
-    # Telemed Scribe
-    ("demos/telemed-scribe/ehr-writer-agent",   8033),
-    ("demos/telemed-scribe/summariser-agent",   8032),
-    ("demos/telemed-scribe/transcriber-agent",  8031),
-    # Consent Verification
-    ("demos/consent-verification/consent-analyser", 8043),
-    ("demos/consent-verification/hitl-ui",          8044),
-    ("demos/consent-verification/provider-agent",   8042),
-    ("demos/consent-verification/insurer-agent",    8041),
-    # Public Health Surveillance
-    ("demos/public-health-surveillance/hospital-reporter",    8051),
-    ("demos/public-health-surveillance/osint-agent",          8052),
-    ("demos/public-health-surveillance/central-surveillance", 8053),
-    # HelixCare agents
-    ("demos/helixcare/imaging-agent",       8024),
-    ("demos/helixcare/pharmacy-agent",      8025),
-    ("demos/helixcare/bed-manager-agent",   8026),
-    ("demos/helixcare/discharge-agent",     8027),
-    ("demos/helixcare/followup-scheduler",  8028),
-    ("demos/helixcare/care-coordinator",    8029),
-    # Command Centre
-    ("shared/command-centre",               8099),
-]
-
+CONFIG_FILE = os.path.join(ROOT, "config", "agents.json")
 PID_FILE = os.path.join(ROOT, ".agent_pids.json")
 
 
-def start_all():
+def load_agent_config():
+    """Load agent configuration from centralized config file."""
+    with open(CONFIG_FILE) as f:
+        config = json.load(f)
+
+    agents = []
+
+    # Flatten agent hierarchy into (path, port, name, rpc_env) tuples
+    for category, category_agents in config.get("agents", {}).items():
+        for agent_name, agent_info in category_agents.items():
+            agents.append((
+                agent_info["path"],
+                agent_info["port"],
+                agent_name,
+                agent_info.get("rpc_env"),
+                agent_info.get("env")
+            ))
+
+    # Backend services (Command Centre)
+    backend = []
+    for service_name, service_info in config.get("backend", {}).items():
+        backend.append((
+            service_info["path"],
+            service_info["port"],
+            service_name
+        ))
+
+    llm_profiles = config.get("llm_profiles", {})
+
+    return agents, backend, llm_profiles
+
+
+def apply_llm_profile(
+    env: dict[str, str],
+    llm_profiles: dict[str, dict],
+    profile_name: str | None,
+) -> str | None:
+    """Apply a named LLM profile from config/agents.json into process env."""
+    selected = profile_name or os.getenv("NEXUS_LLM_PROFILE")
+    if not selected:
+        return None
+
+    profile = llm_profiles.get(selected)
+    if not isinstance(profile, dict):
+        available = ", ".join(sorted(llm_profiles.keys())) or "none"
+        raise ValueError(f"Unknown LLM profile '{selected}'. Available: {available}")
+
+    profile_env = profile.get("env", {})
+    if not isinstance(profile_env, dict):
+        raise ValueError(f"LLM profile '{selected}' has invalid 'env' configuration")
+
+    for key, value in profile_env.items():
+        env.setdefault(str(key), str(value))
+
+    return selected
+
+
+def print_llm_profiles(llm_profiles: dict[str, dict]) -> None:
+    """Print configured LLM profiles."""
+    if not llm_profiles:
+        print("No llm_profiles configured in config/agents.json")
+        return
+
+    print("Configured LLM profiles:")
+    for name, profile in llm_profiles.items():
+        desc = ""
+        if isinstance(profile, dict):
+            desc = str(profile.get("description", "")).strip()
+        print(f"  - {name}")
+        if desc:
+            print(f"    {desc}")
+
+
+def start_all(include_backend: bool = False, llm_profile: str | None = None):
+    """Start all agents and optionally the backend Command Centre."""
+    agents, backend, llm_profiles = load_agent_config()
+
     env = os.environ.copy()
     env["PYTHONPATH"] = ROOT
     env.setdefault("NEXUS_JWT_SECRET", "dev-secret-change-me")
     env.setdefault("DID_VERIFY", "false")
-    # Use provided test key if no specific key is set in environment
+
+    selected_profile = apply_llm_profile(env, llm_profiles, llm_profile)
+    # Use provided test key/model only when neither the shell env nor profile set them.
     env.setdefault("OPENAI_API_KEY", "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")
-    # Inter-agent URLs for orchestrators
-    env["NEXUS_DIAGNOSIS_RPC"] = "http://localhost:8022/rpc"
-    env["NEXUS_OPENHIE_RPC"] = "http://localhost:8023/rpc"
-    env["HOSPITAL_REPORTER_URL"] = "http://localhost:8051"
-    env["OSINT_AGENT_URL"] = "http://localhost:8052"
+    env.setdefault("OPENAI_MODEL", "gpt-4o-mini")
+    if selected_profile:
+        profile_meta = llm_profiles.get(selected_profile, {})
+        profile_desc = ""
+        if isinstance(profile_meta, dict):
+            profile_desc = str(profile_meta.get("description", "")).strip()
+        profile_note = f" ({profile_desc})" if profile_desc else ""
+        print(f"Using LLM profile: {selected_profile}{profile_note}")
+        print(f"  OPENAI_MODEL={env.get('OPENAI_MODEL', 'gpt-4o-mini')}")
+        if "OPENAI_BASE_URL" in env:
+            print(f"  OPENAI_BASE_URL={env['OPENAI_BASE_URL']}")
+        else:
+            print("  OPENAI_BASE_URL=https://api.openai.com/v1 (SDK default)")
+
+    # Build environment variables for inter-agent communication
+    for rel_dir, port, agent_name, rpc_env, env_name in agents:
+        if rpc_env:
+            env[rpc_env] = f"http://localhost:{port}/rpc"
+        if env_name:
+            env[env_name] = f"http://localhost:{port}"
+
+    # Infrastructure
     env["MQTT_BROKER"] = "localhost"
     env["MQTT_PORT"] = "1883"
     env["FHIR_BASE_URL"] = "http://localhost:8080/fhir"
-    # Redis for Command Centre real-time event streaming
     env["REDIS_URL"] = "redis://localhost:6379"
-    # HelixCare inter-agent URLs
-    env["NEXUS_IMAGING_RPC"] = "http://localhost:8024/rpc"
-    env["NEXUS_PHARMACY_RPC"] = "http://localhost:8025/rpc"
-    env["NEXUS_BED_RPC"] = "http://localhost:8026/rpc"
-    env["NEXUS_DISCHARGE_RPC"] = "http://localhost:8027/rpc"
-    env["NEXUS_FOLLOWUP_RPC"] = "http://localhost:8028/rpc"
-    env["NEXUS_COORDINATOR_RPC"] = "http://localhost:8029/rpc"
-    env["NEXUS_TRIAGE_RPC"] = "http://localhost:8021/rpc"
 
-    # Command Centre agent URLs for monitoring
-    env["AGENT_URLS"] = "http://localhost:8021,http://localhost:8022,http://localhost:8023,http://localhost:8024,http://localhost:8025,http://localhost:8026,http://localhost:8027,http://localhost:8028,http://localhost:8029,http://localhost:8031,http://localhost:8032,http://localhost:8033,http://localhost:8041,http://localhost:8042,http://localhost:8043,http://localhost:8044,http://localhost:8051,http://localhost:8052,http://localhost:8053"
-
+    # Build AGENT_URLS for Command Centre (only agents, not backend itself)
+    agent_urls = [f"http://localhost:{port}" for _, port, _, _, _ in agents]
+    env["AGENT_URLS"] = ",".join(agent_urls)
 
     pids = []
+    services_to_start = []
 
-    # Start Mock FHIR Server
-    # cmd_fhir = [PYTHON, "tools/mock_fhir.py"]
-    # print(f"  Starting Mock FHIR Server      :8080 ...", end=" ", flush=True)
-    # proc_fhir = subprocess.Popen(
-    #     cmd_fhir,
-    #     cwd=ROOT,
-    #     env=env,
-    #     stdout=subprocess.DEVNULL,
-    #     stderr=subprocess.PIPE,
-    # )
-    # print(f"OK  (pid {proc_fhir.pid})")
-    # pids.append({"dir": "tools/mock_fhir.py", "port": 8080, "pid": proc_fhir.pid})
-    # time.sleep(1)
+    # Always start agents
+    services_to_start.extend([(rel_dir, port, "agent") for rel_dir, port, _, _, _ in agents])
 
-    for rel_dir, port in AGENTS:
+    # Optionally start backend
+    if include_backend:
+        services_to_start.extend([(rel_dir, port, "backend") for rel_dir, port, _ in backend])
+
+    for rel_dir, port, service_type in services_to_start:
         agent_dir = os.path.join(ROOT, rel_dir)
         cmd = [
             PYTHON, "-m", "uvicorn",
@@ -125,7 +180,9 @@ def start_all():
                 cmd += ["--ssl-cert-reqs", "1"]
             elif cert_reqs_env in ("none", "0"):
                 cmd += ["--ssl-cert-reqs", "0"]
-        print(f"  Starting {os.path.basename(rel_dir):30s}  :{port} ...", end=" ", flush=True)
+
+        service_label = f"[{service_type.upper()}]" if service_type == "backend" else ""
+        print(f"  Starting {service_label} {os.path.basename(rel_dir):30s}  :{port} ...", end=" ", flush=True)
         proc = subprocess.Popen(
             cmd,
             cwd=agent_dir,
@@ -140,31 +197,52 @@ def start_all():
             print(f"    stderr: {err[:300]}")
         else:
             print(f"OK  (pid {proc.pid})")
-            pids.append({"dir": rel_dir, "port": port, "pid": proc.pid})
+            pids.append({"dir": rel_dir, "port": port, "pid": proc.pid, "type": service_type})
 
     with open(PID_FILE, "w") as f:
         json.dump(pids, f, indent=2)
-    print(f"\n{len(pids)}/{len(AGENTS)} agents started.  PIDs saved to {PID_FILE}")
+
+    agent_count = sum(1 for p in pids if p.get("type") == "agent")
+    backend_count = sum(1 for p in pids if p.get("type") == "backend")
+    total = len(services_to_start)
+
+    print(f"\n{len(pids)}/{total} services started ({agent_count} agents, {backend_count} backend).  PIDs saved to {PID_FILE}")
 
     # Give agents a moment to bind
     print("Waiting 3s for agents to settle...")
     time.sleep(3)
 
-    # Quick health check
+    # Quick health check - ONLY for agents, not backend
     import urllib.request
     ok = 0
-    for entry in pids:
+    agent_pids = [p for p in pids if p.get("type") == "agent"]
+
+    for entry in agent_pids:
         url = f"http://localhost:{entry['port']}/.well-known/agent-card.json"
         try:
             resp = urllib.request.urlopen(url, timeout=3)
             if resp.status == 200:
                 ok += 1
-                print(f"  ✓ :{entry['port']} healthy")
+                print(f"  [ok] :{entry['port']} healthy")
             else:
-                print(f"  ✗ :{entry['port']} status={resp.status}")
+                print(f"  [fail] :{entry['port']} status={resp.status}")
         except Exception as e:
-            print(f"  ✗ :{entry['port']} {e}")
-    print(f"\nHealth: {ok}/{len(pids)} agents responding")
+            print(f"  [fail] :{entry['port']} {e}")
+
+    print(f"\nAgent Health: {ok}/{len(agent_pids)} agents responding")
+
+    # Check backend separately
+    backend_pids = [p for p in pids if p.get("type") == "backend"]
+    if backend_pids:
+        print("\nBackend Services:")
+        for entry in backend_pids:
+            url = f"http://localhost:{entry['port']}/api/agents"
+            try:
+                resp = urllib.request.urlopen(url, timeout=3)
+                print(f"  [ok] Command Centre :{entry['port']} running")
+            except Exception as e:
+                print(f"  [fail] Command Centre :{entry['port']} {e}")
+
 
 
 def stop_all():
@@ -185,9 +263,20 @@ def stop_all():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--stop", action="store_true")
+    parser.add_argument("--stop", action="store_true", help="Stop all running services")
+    parser.add_argument("--with-backend", action="store_true", help="Include Command Centre backend (port 8099)")
+    parser.add_argument("--llm-profile", help="Name of LLM profile from config/agents.json")
+    parser.add_argument("--list-llm-profiles", action="store_true", help="List available LLM profiles")
     args = parser.parse_args()
     if args.stop:
         stop_all()
+    elif args.list_llm_profiles:
+        _, _, profiles = load_agent_config()
+        print_llm_profiles(profiles)
     else:
-        start_all()
+        try:
+            start_all(include_backend=args.with_backend, llm_profile=args.llm_profile)
+        except ValueError as exc:
+            print(f"Error: {exc}")
+            sys.exit(2)
+
