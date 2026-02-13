@@ -1,0 +1,28 @@
+{
+  "name": "PrimaryCareAgent",
+  "description": "Primary care outpatient workflow orchestration",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://primary-care-agent:8034",
+  "capabilities": {
+    "streaming": true,
+    "websocket": true,
+    "pushNotifications": false
+  },
+  "methods": [
+    "tasks/sendSubscribe",
+    "primary_care/manage_visit"
+  ],
+  "authentication": {
+    "schemes": [
+      "bearer"
+    ]
+  },
+  "skills": [
+    {
+      "id": "primary-care",
+      "name": "Primary Care",
+      "description": "In-person and longitudinal primary-care workflow support"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "CCMAgent",
+  "description": "Chronic care management monthly coordination",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://ccm-agent:8038",
+  "capabilities": {"streaming": true, "websocket": true, "pushNotifications": false},
+  "methods": ["tasks/sendSubscribe", "ccm/monthly_review"],
+  "authentication": {"schemes": ["bearer"]},
+  "skills": [{"id": "ccm", "name": "Chronic Care Management", "description": "Monthly care-plan and coordination workflow support"}]
+}

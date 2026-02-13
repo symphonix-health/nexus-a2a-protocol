@@ -7,7 +7,7 @@ services:
   # ═══════════════════════════════════════════════════════════════════
   # Supporting Infrastructure
   # ═══════════════════════════════════════════════════════════════════
-  
+
   redis:
     image: redis:7-alpine
     container_name: helixcare-redis
@@ -687,6 +687,136 @@ services:
       - helixcare-network
     restart: unless-stopped
 
+  primary-care-agent:
+    build:
+      context: .
+      dockerfile: demos/helixcare/primary-care-agent/Dockerfile
+    container_name: helixcare-primary-care-agent
+    environment:
+      - PORT=8034
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=primary-care-agent
+    ports:
+      - "8034:8034"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8034/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  specialty-care-agent:
+    build:
+      context: .
+      dockerfile: demos/helixcare/specialty-care-agent/Dockerfile
+    container_name: helixcare-specialty-care-agent
+    environment:
+      - PORT=8035
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=specialty-care-agent
+    ports:
+      - "8035:8035"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8035/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  telehealth-agent:
+    build:
+      context: .
+      dockerfile: demos/helixcare/telehealth-agent/Dockerfile
+    container_name: helixcare-telehealth-agent
+    environment:
+      - PORT=8036
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=telehealth-agent
+    ports:
+      - "8036:8036"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8036/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  home-visit-agent:
+    build:
+      context: .
+      dockerfile: demos/helixcare/home-visit-agent/Dockerfile
+    container_name: helixcare-home-visit-agent
+    environment:
+      - PORT=8037
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=home-visit-agent
+    ports:
+      - "8037:8037"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8037/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
+  ccm-agent:
+    build:
+      context: .
+      dockerfile: demos/helixcare/ccm-agent/Dockerfile
+    container_name: helixcare-ccm-agent
+    environment:
+      - PORT=8038
+      - NEXUS_JWT_SECRET=${NEXUS_JWT_SECRET}
+      - NEXUS_REQUIRED_SCOPE=nexus:invoke
+      - REDIS_URL=redis://redis:6379
+      - DID_VERIFY=${DID_VERIFY:-false}
+      - AGENT_NAME=ccm-agent
+    ports:
+      - "8038:8038"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8038/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - helixcare-network
+    restart: unless-stopped
+
   # ═══════════════════════════════════════════════════════════════════
   # Monitoring & Observability
   # ═══════════════════════════════════════════════════════════════════
@@ -698,7 +828,7 @@ services:
     container_name: helixcare-command-centre
     environment:
       - REDIS_URL=redis://redis:6379
-      - AGENT_URLS=http://triage-agent:8021,http://diagnosis-agent:8022,http://openhie-mediator:8023,http://imaging-agent:8024,http://pharmacy-agent:8025,http://bed-manager-agent:8026,http://discharge-agent:8027,http://followup-scheduler:8028,http://care-coordinator:8029,http://transcriber-agent:8031,http://summariser-agent:8032,http://ehr-writer-agent:8033,http://insurer-agent:8041,http://provider-agent:8042,http://consent-analyser:8043,http://hitl-ui:8044,http://hospital-reporter:8051,http://osint-agent:8052,http://central-surveillance:8053
+      - AGENT_URLS=http://triage-agent:8021,http://diagnosis-agent:8022,http://openhie-mediator:8023,http://imaging-agent:8024,http://pharmacy-agent:8025,http://bed-manager-agent:8026,http://discharge-agent:8027,http://followup-scheduler:8028,http://care-coordinator:8029,http://transcriber-agent:8031,http://summariser-agent:8032,http://ehr-writer-agent:8033,http://primary-care-agent:8034,http://specialty-care-agent:8035,http://telehealth-agent:8036,http://home-visit-agent:8037,http://ccm-agent:8038,http://insurer-agent:8041,http://provider-agent:8042,http://consent-analyser:8043,http://hitl-ui:8044,http://hospital-reporter:8051,http://osint-agent:8052,http://central-surveillance:8053
       - UPDATE_INTERVAL_MS=2000
     ports:
       - "8099:8099"
@@ -716,6 +846,11 @@ services:
       - transcriber-agent
       - summariser-agent
       - ehr-writer-agent
+      - primary-care-agent
+      - specialty-care-agent
+      - telehealth-agent
+      - home-visit-agent
+      - ccm-agent
       - insurer-agent
       - provider-agent
       - consent-analyser

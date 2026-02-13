@@ -1,0 +1,11 @@
+{
+  "name": "SpecialtyCareAgent",
+  "description": "Specialty referral triage and clinic workflow support",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://specialty-care-agent:8035",
+  "capabilities": {"streaming": true, "websocket": true, "pushNotifications": false},
+  "methods": ["tasks/sendSubscribe", "specialty_care/manage_referral"],
+  "authentication": {"schemes": ["bearer"]},
+  "skills": [{"id": "specialty-care", "name": "Specialty Care", "description": "Specialty clinic and referral workflow support"}]
+}
