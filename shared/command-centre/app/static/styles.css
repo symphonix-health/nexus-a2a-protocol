@@ -91,16 +91,16 @@ body {
     display: grid;
     grid-template-columns: 1fr 350px;
     grid-template-rows: auto auto auto;
-    gap: 1rem;
+    gap: 0.75rem;
     padding: 1rem;
-    flex: 1;
+    align-items: start;
 }
 
 .panel {
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    padding: 1.5rem;
+    padding: 1rem;
     overflow: hidden;
 }
 
@@ -119,10 +119,50 @@ body {
     grid-row: 1;
 }
 
+.topology-hint {
+    margin: -0.4rem 0 0.6rem;
+    padding: 0.35rem 0.55rem;
+    border-radius: 6px;
+    border: 1px dashed rgba(148, 163, 184, 0.35);
+    background: rgba(15, 23, 42, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    opacity: 0.92;
+    letter-spacing: 0.1px;
+}
+
+.topology-hint.is-hidden {
+    display: none;
+}
+
+.topology-hint button {
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: 999px;
+    padding: 0.08rem 0.5rem;
+    font-size: 0.7rem;
+    cursor: pointer;
+}
+
+.topology-hint button:hover {
+    color: var(--text-primary);
+    border-color: rgba(148, 163, 184, 0.75);
+}
+
+.topology-hint button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
 #topology-container {
     position: relative;
     width: 100%;
-    height: 400px;
+    min-height: 380px;
     background: var(--bg-primary);
     border-radius: 4px;
     overflow: hidden;
@@ -130,7 +170,13 @@ body {
 
 #topology-svg {
     width: 100%;
-    height: 100%;
+    display: block;
+    cursor: grab;
+    touch-action: none;
+}
+
+#topology-svg.is-panning {
+    cursor: grabbing;
 }
 
 /* SVG Node Styles */
@@ -146,8 +192,12 @@ body {
 
 .node-text {
     fill: var(--text-primary);
-    font-size: 12px;
-    text-anchor: middle;
+    font-size: 11px;
+    font-weight: 600;
+    paint-order: stroke;
+    stroke: var(--bg-primary);
+    stroke-width: 3px;
+    stroke-linejoin: round;
     pointer-events: none;
 }
 
@@ -235,9 +285,11 @@ body {
 /* Timeline Panel */
 .timeline-panel {
     grid-column: 2;
-    grid-row: 1 / 4;
+    grid-row: 1;
     display: flex;
     flex-direction: column;
+    min-height: 420px;
+    max-height: calc(100vh - 180px);
 }
 
 .scenario-flow-panel {
@@ -440,6 +492,7 @@ body {
 
 .timeline-events {
     flex: 1;
+    min-height: 260px;
     overflow-y: auto;
     display: flex;
     flex-direction: column-reverse;
@@ -505,6 +558,7 @@ body {
 /* Performance Panel */
 .performance-panel {
     grid-column: 1 / 3;
+    margin: 0 1rem 1rem;
     transition: all 0.3s ease;
 }
 

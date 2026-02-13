@@ -1,0 +1,11 @@
+{
+  "name": "HomeVisitAgent",
+  "description": "Home-based care workflow support",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://home-visit-agent:8037",
+  "capabilities": {"streaming": true, "websocket": true, "pushNotifications": false},
+  "methods": ["tasks/sendSubscribe", "home_visit/dispatch"],
+  "authentication": {"schemes": ["bearer"]},
+  "skills": [{"id": "home-visit", "name": "Home Visit", "description": "Home visit dispatch and environmental risk checks"}]
+}

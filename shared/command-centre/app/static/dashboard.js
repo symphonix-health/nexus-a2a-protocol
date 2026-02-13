@@ -32,9 +32,23 @@ const state = {
 const FLOW_STALE_MS = 30000;
 const FLOW_EXPIRE_MS = 10 * 60 * 1000;
 const FLOW_SYNTHETIC_DELAY_MS = 8000;
+const TOPOLOGY_HINT_DISMISSED_KEY = 'command-centre.topology-hint-dismissed';
+
+const topologyView = {
+    scale: 1,
+    minScale: 0.65,
+    maxScale: 2.8,
+    panX: 0,
+    panY: 0,
+    dragging: false,
+    lastPointer: null,
+    initialized: false,
+};
 
 // Initialize on load
 document.addEventListener('DOMContentLoaded', () => {
+    initializeTopologyHint();
+    initializeTopologyInteractions();
     initializeWebSocket();
     loadScenarioCatalog();
     initializeScenarioFlowBoard();
@@ -47,6 +61,41 @@ const popoverState = {
     element: null,
     activeTarget: null,
 };
+
+function initializeTopologyHint() {
+    const hint = document.getElementById('topology-hint');
+    const dismissBtn = document.getElementById('dismiss-topology-hint');
+    if (!hint || !dismissBtn) return;
+
+    if (isTopologyHintDismissed()) {
+        hint.classList.add('is-hidden');
+    }
+
+    dismissBtn.addEventListener('click', () => {
+        hint.classList.add('is-hidden');
+        setTopologyHintDismissed(true);
+    });
+}
+
+function isTopologyHintDismissed() {
+    try {
+        return window.localStorage.getItem(TOPOLOGY_HINT_DISMISSED_KEY) === 'true';
+    } catch (error) {
+        return false;
+    }
+}
+
+function setTopologyHintDismissed(value) {
+    try {
+        if (value) {
+            window.localStorage.setItem(TOPOLOGY_HINT_DISMISSED_KEY, 'true');
+        } else {
+            window.localStorage.removeItem(TOPOLOGY_HINT_DISMISSED_KEY);
+        }
+    } catch (error) {
+        // Ignore storage failures (e.g., restricted mode)
+    }
+}
 
 // ── WebSocket Connection ──────────────────────────────────────────────
 function initializeWebSocket() {
@@ -123,11 +172,21 @@ function renderTopology() {
 
     if (state.agents.length === 0) return;
 
-    const width = svg.clientWidth;
-    const height = 400;
+    const width = svg.clientWidth || svg.parentElement?.clientWidth || 900;
+    const dynamicHeight = Math.max(380, Math.min(620, 340 + Math.max(0, state.agents.length - 6) * 26));
+    const height = dynamicHeight;
+    svg.setAttribute('height', String(height));
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
     const centerX = width / 2;
     const centerY = height / 2;
-    const radius = Math.min(width, height) / 3;
+    const labelPadding = 90;
+    const radius = Math.max(70, Math.min(width, height) / 2 - labelPadding);
+    const denseMode = state.agents.length > 15;
+
+    const viewport = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    viewport.setAttribute('id', 'topology-viewport');
+    svg.appendChild(viewport);
 
     // Calculate positions in a circle
     const angleStep = (2 * Math.PI) / state.agents.length;
@@ -143,15 +202,104 @@ function renderTopology() {
         agent.dependencies.forEach((depName) => {
             const targetPos = positions.find(p => p.agent.name === depName);
             if (sourcePos && targetPos) {
-                drawEdge(svg, sourcePos.x, sourcePos.y, targetPos.x, targetPos.y);
+                drawEdge(viewport, sourcePos.x, sourcePos.y, targetPos.x, targetPos.y);
             }
         });
     });
 
     // Draw nodes
+    const placedLabels = [];
     positions.forEach(({ agent, x, y }) => {
-        drawNode(svg, agent, x, y);
+        drawNode(viewport, agent, x, y, centerX, centerY, {
+            denseMode,
+            placedLabels,
+        });
     });
+
+    applyTopologyTransform();
+}
+
+function initializeTopologyInteractions() {
+    const svg = document.getElementById('topology-svg');
+    if (!svg || topologyView.initialized) return;
+
+    topologyView.initialized = true;
+
+    svg.addEventListener('wheel', (event) => {
+        event.preventDefault();
+
+        const point = getSvgPoint(svg, event.clientX, event.clientY);
+        if (!point) return;
+
+        const zoomFactor = event.deltaY > 0 ? 0.92 : 1.08;
+        const nextScale = clamp(topologyView.scale * zoomFactor, topologyView.minScale, topologyView.maxScale);
+
+        if (nextScale === topologyView.scale) return;
+
+        const worldX = (point.x - topologyView.panX) / topologyView.scale;
+        const worldY = (point.y - topologyView.panY) / topologyView.scale;
+
+        topologyView.scale = nextScale;
+        topologyView.panX = point.x - worldX * nextScale;
+        topologyView.panY = point.y - worldY * nextScale;
+
+        applyTopologyTransform();
+    }, { passive: false });
+
+    svg.addEventListener('pointerdown', (event) => {
+        topologyView.dragging = true;
+        topologyView.lastPointer = getSvgPoint(svg, event.clientX, event.clientY);
+        svg.classList.add('is-panning');
+    });
+
+    window.addEventListener('pointermove', (event) => {
+        if (!topologyView.dragging) return;
+
+        const point = getSvgPoint(svg, event.clientX, event.clientY);
+        if (!point || !topologyView.lastPointer) return;
+
+        topologyView.panX += point.x - topologyView.lastPointer.x;
+        topologyView.panY += point.y - topologyView.lastPointer.y;
+        topologyView.lastPointer = point;
+
+        applyTopologyTransform();
+    });
+
+    window.addEventListener('pointerup', () => {
+        topologyView.dragging = false;
+        topologyView.lastPointer = null;
+        svg.classList.remove('is-panning');
+    });
+
+    svg.addEventListener('dblclick', () => {
+        topologyView.scale = 1;
+        topologyView.panX = 0;
+        topologyView.panY = 0;
+        applyTopologyTransform();
+    });
+}
+
+function applyTopologyTransform() {
+    const viewport = document.getElementById('topology-viewport');
+    if (!viewport) return;
+
+    viewport.setAttribute(
+        'transform',
+        `translate(${topologyView.panX.toFixed(2)} ${topologyView.panY.toFixed(2)}) scale(${topologyView.scale.toFixed(3)})`
+    );
+}
+
+function getSvgPoint(svg, clientX, clientY) {
+    if (!svg.getScreenCTM()) return null;
+
+    const point = svg.createSVGPoint();
+    point.x = clientX;
+    point.y = clientY;
+    return point.matrixTransform(svg.getScreenCTM().inverse());
+}
+
+function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
 }
 
 function drawEdge(svg, x1, y1, x2, y2) {
@@ -164,7 +312,7 @@ function drawEdge(svg, x1, y1, x2, y2) {
     svg.appendChild(line);
 }
 
-function drawNode(svg, agent, x, y) {
+function drawNode(svg, agent, x, y, centerX, centerY, options = {}) {
     // Node circle with status color
     const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     circle.setAttribute('cx', x);
@@ -172,7 +320,7 @@ function drawNode(svg, agent, x, y) {
 
     // Size based on throughput
     const tasks = agent.metrics?.tasks_completed || 0;
-    const nodeRadius = Math.max(15, Math.min(30, 15 + tasks / 10));
+    const nodeRadius = Math.max(12, Math.min(22, 12 + tasks / 20));
     circle.setAttribute('r', nodeRadius);
 
     // Color based on status
@@ -188,12 +336,107 @@ function drawNode(svg, agent, x, y) {
     svg.appendChild(circle);
 
     // Label
+    const dx = x - centerX;
+    const dy = y - centerY;
+    const magnitude = Math.hypot(dx, dy) || 1;
+    const ux = dx / magnitude;
+    const uy = dy / magnitude;
+    const labelOffset = nodeRadius + 16;
+
     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    text.setAttribute('x', x);
-    text.setAttribute('y', y + nodeRadius + 15);
-    text.textContent = agent.name;
+    let labelX = x + ux * labelOffset;
+    let labelY = y + uy * labelOffset;
+    const label = truncateTopologyLabel(agent.name, 22);
+    const denseMode = Boolean(options.denseMode);
+
+    let anchor = 'middle';
+    if (ux > 0.3) {
+        anchor = 'start';
+    } else if (ux < -0.3) {
+        anchor = 'end';
+    }
+
+    if (denseMode) {
+        const resolved = resolveLabelPositionWithJitter(label, labelX, labelY, anchor, options.placedLabels || []);
+        labelX = resolved.x;
+        labelY = resolved.y;
+        anchor = resolved.anchor;
+        options.placedLabels?.push(getLabelBounds(label, labelX, labelY, anchor));
+    }
+
+    text.setAttribute('x', String(labelX));
+    text.setAttribute('y', String(labelY));
+    text.setAttribute('text-anchor', anchor);
+    text.setAttribute('dominant-baseline', 'middle');
+    text.textContent = label;
     text.classList.add('node-text');
     svg.appendChild(text);
+}
+
+function truncateTopologyLabel(value, maxLen = 22) {
+    const label = String(value || 'unknown-agent');
+    if (label.length <= maxLen) return label;
+    return `${label.slice(0, maxLen - 1)}…`;
+}
+
+function resolveLabelPositionWithJitter(label, x, y, anchor, placedLabels) {
+    const offsets = [
+        [0, 0],
+        [10, 0],
+        [-10, 0],
+        [0, 10],
+        [0, -10],
+        [14, 10],
+        [-14, 10],
+        [14, -10],
+        [-14, -10],
+        [20, 0],
+        [-20, 0],
+        [0, 18],
+        [0, -18],
+    ];
+
+    for (const [dx, dy] of offsets) {
+        const candidate = getLabelBounds(label, x + dx, y + dy, anchor);
+        const collides = placedLabels.some((existing) => boundsOverlap(candidate, existing, 3));
+        if (!collides) {
+            return { x: x + dx, y: y + dy, anchor };
+        }
+    }
+
+    return { x, y, anchor };
+}
+
+function getLabelBounds(label, x, y, anchor) {
+    const width = Math.max(32, label.length * 6.8);
+    const halfHeight = 7;
+
+    let left = x - width / 2;
+    let right = x + width / 2;
+
+    if (anchor === 'start') {
+        left = x;
+        right = x + width;
+    } else if (anchor === 'end') {
+        left = x - width;
+        right = x;
+    }
+
+    return {
+        left,
+        right,
+        top: y - halfHeight,
+        bottom: y + halfHeight,
+    };
+}
+
+function boundsOverlap(a, b, padding = 0) {
+    return !(
+        a.right + padding < b.left ||
+        a.left - padding > b.right ||
+        a.bottom + padding < b.top ||
+        a.top - padding > b.bottom
+    );
 }
 
 // ── Heatmap Rendering ─────────────────────────────────────────────────

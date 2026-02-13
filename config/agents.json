@@ -149,6 +149,36 @@
                 "path": "demos/helixcare/care-coordinator",
                 "description": "Care coordination orchestrator",
                 "rpc_env": "NEXUS_COORDINATOR_RPC"
+            },
+            "primary_care_agent": {
+                "port": 8034,
+                "path": "demos/helixcare/primary-care-agent",
+                "description": "Primary care workflow agent",
+                "rpc_env": "NEXUS_PRIMARY_CARE_RPC"
+            },
+            "specialty_care_agent": {
+                "port": 8035,
+                "path": "demos/helixcare/specialty-care-agent",
+                "description": "Specialty clinic workflow agent",
+                "rpc_env": "NEXUS_SPECIALTY_CARE_RPC"
+            },
+            "telehealth_agent": {
+                "port": 8036,
+                "path": "demos/helixcare/telehealth-agent",
+                "description": "Telehealth consult workflow agent",
+                "rpc_env": "NEXUS_TELEHEALTH_RPC"
+            },
+            "home_visit_agent": {
+                "port": 8037,
+                "path": "demos/helixcare/home-visit-agent",
+                "description": "Home visit workflow agent",
+                "rpc_env": "NEXUS_HOME_VISIT_RPC"
+            },
+            "ccm_agent": {
+                "port": 8038,
+                "path": "demos/helixcare/ccm-agent",
+                "description": "Chronic care management workflow agent",
+                "rpc_env": "NEXUS_CCM_RPC"
             }
         }
     },

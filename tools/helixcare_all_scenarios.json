@@ -1,187 +1,20 @@
 [
   {
-    "name": "chest_pain_cardiac",
-    "description": "Adult male with chest pain - suspected cardiac event",
+    "name": "primary_care_outpatient_in_person",
+    "description": "In-person primary care visit with assessment, treatment, and checkout.",
     "patient_profile": {
-      "age": 55,
-      "gender": "male",
-      "chief_complaint": "Severe chest pain, shortness of breath",
-      "urgency": "high"
-    },
-    "journey_steps": [
-      {
-        "agent": "triage",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "symptoms": "Severe chest pain, shortness of breath, nausea",
-          "vital_signs": {
-            "blood_pressure": "160/95",
-            "heart_rate": 110,
-            "temperature": 98.6,
-            "oxygen_saturation": 95,
-            "respiratory_rate": 22
-          },
-          "chief_complaint": "Chest pain for 2 hours",
-          "arrival_time": "2026-02-13T14:11:49.009110"
-        },
-        "delay": 2
-      },
-      {
-        "agent": "diagnosis",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "symptoms": "Severe chest pain, shortness of breath, nausea",
-          "vital_signs": {
-            "blood_pressure": "160/95",
-            "heart_rate": 110,
-            "temperature": 98.6,
-            "oxygen_saturation": 95,
-            "respiratory_rate": 22
-          },
-          "differential_diagnosis": [
-            "Acute Coronary Syndrome",
-            "Pulmonary Embolism",
-            "Pneumothorax"
-          ]
-        },
-        "delay": 3
-      },
-      {
-        "agent": "imaging",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "orders": [
-            {
-              "type": "chest_xray",
-              "priority": "urgent",
-              "indication": "Rule out pneumothorax, pulmonary edema"
-            },
-            {
-              "type": "ecg",
-              "priority": "urgent",
-              "indication": "Evaluate for ST changes, arrhythmias"
-            }
-          ]
-        },
-        "delay": 4
-      },
-      {
-        "agent": "pharmacy",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "medication_orders": [
-            {
-              "drug": "Aspirin",
-              "dose": "325mg",
-              "route": "oral",
-              "frequency": "once",
-              "indication": "Antiplatelet therapy"
-            },
-            {
-              "drug": "Nitroglycerin",
-              "dose": "0.4mg",
-              "route": "sublingual",
-              "frequency": "as needed",
-              "indication": "Chest pain relief"
-            }
-          ],
-          "allergies": [
-            "Penicillin"
-          ],
-          "renal_function": "Normal"
-        },
-        "delay": 2
-      },
-      {
-        "agent": "bed_manager",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "admission_type": "emergency",
-          "required_monitoring": "telemetry",
-          "estimated_los": "2-3 days",
-          "special_requirements": [
-            "Cardiac monitoring",
-            "Frequent vital signs"
-          ]
-        },
-        "delay": 2
-      },
-      {
-        "agent": "coordinator",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "journey_type": "cardiac_chest_pain",
-          "current_phase": "diagnostic_workup",
-          "coordination_tasks": [
-            "Monitor cardiac enzymes",
-            "Consult cardiology",
-            "Schedule stress test"
-          ],
-          "risk_level": "high"
-        },
-        "delay": 3
-      },
-      {
-        "agent": "discharge",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "discharge_diagnosis": "Unstable Angina",
-          "discharge_disposition": "home",
-          "followup_instructions": [
-            "Follow up with cardiology in 1 week",
-            "Continue aspirin 325mg daily"
-          ]
-        },
-        "delay": 2
-      },
-      {
-        "agent": "followup",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "followup_schedule": [
-            {
-              "type": "cardiology_clinic",
-              "when": "2026-02-20T14:11:49.009110",
-              "purpose": "Follow-up after unstable angina"
-            },
-            {
-              "type": "stress_test",
-              "when": "2026-02-27T14:11:49.009110",
-              "purpose": "Risk stratification"
-            }
-          ]
-        },
-        "delay": 2
-      }
-    ],
-    "expected_duration": 25,
-    "created_at": "2026-02-13T14:11:49.012094",
-    "version": "1.0"
-  },
-  {
-    "name": "pediatric_fever_sepsis",
-    "description": "Child with high fever - suspected sepsis workup",
-    "patient_profile": {
-      "age": 3,
+      "age": 47,
       "gender": "female",
-      "chief_complaint": "High fever, lethargy, poor feeding",
-      "urgency": "high"
+      "chief_complaint": "Fatigue and elevated blood pressure follow-up",
+      "urgency": "medium"
     },
     "journey_steps": [
       {
-        "agent": "triage",
-        "method": "tasks/sendSubscribe",
+        "agent": "primary_care",
+        "method": "primary_care/manage_visit",
         "params": {
-          "symptoms": "High fever, lethargy, poor feeding, irritability",
-          "vital_signs": {
-            "blood_pressure": "85/50",
-            "heart_rate": 160,
-            "temperature": 103.5,
-            "oxygen_saturation": 97,
-            "respiratory_rate": 35
-          },
-          "chief_complaint": "Fever for 3 days, worsening lethargy",
-          "arrival_time": "2026-02-13T14:11:49.009110"
+          "visit_mode": "in_person",
+          "complaint": "fatigue and hypertension follow-up"
         },
         "delay": 1
       },
@@ -189,19 +22,400 @@
         "agent": "diagnosis",
         "method": "tasks/sendSubscribe",
         "params": {
-          "symptoms": "High fever, lethargy, poor feeding, irritability",
-          "vital_signs": {
-            "blood_pressure": "85/50",
-            "heart_rate": 160,
-            "temperature": 103.5,
-            "oxygen_saturation": 97,
-            "respiratory_rate": 35
-          },
+          "symptoms": "fatigue, headaches",
           "differential_diagnosis": [
-            "Sepsis",
-            "Viral infection",
-            "Urinary tract infection",
-            "Pneumonia"
+            "Hypertension",
+            "Anemia",
+            "Thyroid dysfunction"
+          ]
+        },
+        "delay": 2
+      },
+      {
+        "agent": "pharmacy",
+        "method": "pharmacy/recommend",
+        "params": {
+          "task": {
+            "med_plan": [
+              "Lisinopril"
+            ],
+            "allergies": [],
+            "current_medications": [
+              "Metformin"
+            ]
+          }
+        },
+        "delay": 1
+      },
+      {
+        "agent": "followup",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "followup_schedule": [
+            {
+              "type": "primary_care",
+              "when": "2026-03-15T20:52:29.829018",
+              "purpose": "BP and lab review"
+            }
+          ]
+        },
+        "delay": 1
+      }
+    ],
+    "expected_duration": 12,
+    "created_at": "2026-02-13T20:52:29.832015",
+    "version": "1.0"
+  },
+  {
+    "name": "specialty_outpatient_clinic",
+    "description": "Specialty clinic workflow with referral triage and diagnostics.",
+    "patient_profile": {
+      "age": 61,
+      "gender": "male",
+      "chief_complaint": "Progressive exertional chest discomfort",
+      "urgency": "high"
+    },
+    "journey_steps": [
+      {
+        "agent": "specialty_care",
+        "method": "specialty_care/manage_referral",
+        "params": {
+          "specialty": "cardiology",
+          "reason": "exertional angina assessment"
+        },
+        "delay": 1
+      },
+      {
+        "agent": "diagnosis",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "symptoms": "exertional chest discomfort",
+          "differential_diagnosis": [
+            "Stable angina",
+            "GERD",
+            "Aortic stenosis"
+          ]
+        },
+        "delay": 2
+      },
+      {
+        "agent": "imaging",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "orders": [
+            {
+              "type": "ecg",
+              "priority": "urgent",
+              "indication": "cardiac rhythm"
+            },
+            {
+              "type": "stress_echo",
+              "priority": "routine",
+              "indication": "ischemia workup"
+            }
+          ]
+        },
+        "delay": 2
+      },
+      {
+        "agent": "coordinator",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "journey_type": "specialty_outpatient",
+            "coordination_tasks": [
+              "Prior authorization",
+              "Procedure scheduling",
+              "PCP communication"
+            ]
+          }
+        },
+        "delay": 2
+      }
+    ],
+    "expected_duration": 14,
+    "created_at": "2026-02-13T20:52:29.832015",
+    "version": "1.0"
+  },
+  {
+    "name": "telehealth_video_consult",
+    "description": "Video telehealth consult with identity/location verification and remote plan.",
+    "patient_profile": {
+      "age": 35,
+      "gender": "female",
+      "chief_complaint": "Migraine follow-up",
+      "urgency": "low"
+    },
+    "journey_steps": [
+      {
+        "agent": "telehealth",
+        "method": "telehealth/consult",
+        "params": {
+          "modality": "video",
+          "location_verified": true,
+          "consent_documented": true
+        },
+        "delay": 1
+      },
+      {
+        "agent": "diagnosis",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "symptoms": "recurrent migraines, photophobia",
+          "differential_diagnosis": [
+            "Migraine",
+            "Medication overuse headache"
+          ]
+        },
+        "delay": 2
+      },
+      {
+        "agent": "pharmacy",
+        "method": "pharmacy/recommend",
+        "params": {
+          "task": {
+            "med_plan": [
+              "Ibuprofen"
+            ],
+            "allergies": [],
+            "current_medications": []
+          }
+        },
+        "delay": 1
+      },
+      {
+        "agent": "followup",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "followup_schedule": [
+            {
+              "type": "telehealth",
+              "when": "2026-02-27T20:52:29.829018",
+              "purpose": "response to treatment"
+            }
+          ]
+        },
+        "delay": 1
+      }
+    ],
+    "expected_duration": 10,
+    "created_at": "2026-02-13T20:52:29.832015",
+    "version": "1.0"
+  },
+  {
+    "name": "telehealth_audio_only_followup",
+    "description": "Audio-only telehealth follow-up with escalation guardrails.",
+    "patient_profile": {
+      "age": 73,
+      "gender": "male",
+      "chief_complaint": "Medication side-effect review",
+      "urgency": "low"
+    },
+    "journey_steps": [
+      {
+        "agent": "telehealth",
+        "method": "telehealth/consult",
+        "params": {
+          "modality": "audio_only",
+          "location_verified": true,
+          "consent_documented": true
+        },
+        "delay": 1
+      },
+      {
+        "agent": "primary_care",
+        "method": "primary_care/manage_visit",
+        "params": {
+          "visit_mode": "audio_only",
+          "complaint": "dizziness after medication change"
+        },
+        "delay": 1
+      },
+      {
+        "agent": "pharmacy",
+        "method": "pharmacy/check_interactions",
+        "params": {
+          "drugs": [
+            "Lisinopril",
+            "Ibuprofen"
+          ]
+        },
+        "delay": 1
+      },
+      {
+        "agent": "followup",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "followup_schedule": [
+            {
+              "type": "in_person_primary_care",
+              "when": "2026-02-20T20:52:29.829018",
+              "purpose": "orthostatic vitals and exam"
+            }
+          ]
+        },
+        "delay": 1
+      }
+    ],
+    "expected_duration": 9,
+    "created_at": "2026-02-13T20:52:29.833014",
+    "version": "1.0"
+  },
+  {
+    "name": "home_visit_house_call",
+    "description": "Home-based primary care visit including environment and safety assessment.",
+    "patient_profile": {
+      "age": 84,
+      "gender": "female",
+      "chief_complaint": "Frailty and recurrent falls",
+      "urgency": "medium"
+    },
+    "journey_steps": [
+      {
+        "agent": "home_visit",
+        "method": "home_visit/dispatch",
+        "params": {
+          "home_safety_screen": true,
+          "caregiver_present": true
+        },
+        "delay": 1
+      },
+      {
+        "agent": "primary_care",
+        "method": "primary_care/manage_visit",
+        "params": {
+          "visit_mode": "home",
+          "complaint": "falls and mobility decline"
+        },
+        "delay": 2
+      },
+      {
+        "agent": "pharmacy",
+        "method": "pharmacy/recommend",
+        "params": {
+          "task": {
+            "med_plan": [
+              "Acetaminophen"
+            ],
+            "allergies": [],
+            "current_medications": [
+              "Warfarin"
+            ]
+          }
+        },
+        "delay": 1
+      },
+      {
+        "agent": "coordinator",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "journey_type": "home_visit",
+            "coordination_tasks": [
+              "Home health referral",
+              "DME order",
+              "Falls prevention education"
+            ]
+          }
+        },
+        "delay": 2
+      }
+    ],
+    "expected_duration": 15,
+    "created_at": "2026-02-13T20:52:29.833014",
+    "version": "1.0"
+  },
+  {
+    "name": "chronic_care_management_monthly",
+    "description": "Longitudinal CCM monthly cycle with care-plan update and coordination.",
+    "patient_profile": {
+      "age": 69,
+      "gender": "male",
+      "chief_complaint": "CCM monthly review for diabetes and CHF",
+      "urgency": "low"
+    },
+    "journey_steps": [
+      {
+        "agent": "ccm",
+        "method": "ccm/monthly_review",
+        "params": {
+          "conditions": [
+            "Diabetes",
+            "CHF"
+          ],
+          "monthly_minutes": 25
+        },
+        "delay": 1
+      },
+      {
+        "agent": "primary_care",
+        "method": "primary_care/manage_visit",
+        "params": {
+          "visit_mode": "care_management",
+          "complaint": "goal and plan review"
+        },
+        "delay": 1
+      },
+      {
+        "agent": "followup",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "followup_schedule": [
+            {
+              "type": "ccm_touchpoint",
+              "when": "2026-03-15T20:52:29.829018",
+              "purpose": "next monthly review"
+            }
+          ]
+        },
+        "delay": 1
+      },
+      {
+        "agent": "pharmacy",
+        "method": "pharmacy/check_interactions",
+        "params": {
+          "drugs": [
+            "Metformin",
+            "Lisinopril",
+            "Aspirin"
+          ]
+        },
+        "delay": 1
+      }
+    ],
+    "expected_duration": 11,
+    "created_at": "2026-02-13T20:52:29.833014",
+    "version": "1.0"
+  },
+  {
+    "name": "emergency_department_treat_and_release",
+    "description": "ED flow resulting in treatment and safe discharge.",
+    "patient_profile": {
+      "age": 29,
+      "gender": "male",
+      "chief_complaint": "Acute asthma exacerbation",
+      "urgency": "high"
+    },
+    "journey_steps": [
+      {
+        "agent": "triage",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "symptoms": "wheezing and dyspnea",
+          "chief_complaint": "asthma flare",
+          "arrival_time": "2026-02-13T20:52:29.829018"
+        },
+        "delay": 1
+      },
+      {
+        "agent": "diagnosis",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "symptoms": "wheezing and dyspnea",
+          "differential_diagnosis": [
+            "Asthma exacerbation",
+            "Pneumonia",
+            "Pneumothorax"
           ]
         },
         "delay": 2
@@ -214,40 +428,105 @@
             {
               "type": "chest_xray",
               "priority": "urgent",
-              "indication": "Rule out pneumonia"
-            },
-            {
-              "type": "abdominal_ultrasound",
-              "priority": "urgent",
-              "indication": "Evaluate for UTI, appendicitis"
+              "indication": "rule out alternative pathology"
             }
           ]
         },
-        "delay": 3
+        "delay": 2
       },
       {
         "agent": "pharmacy",
         "method": "tasks/sendSubscribe",
         "params": {
-          "medication_orders": [
+          "task": {
+            "med_plan": [
+              "Albuterol",
+              "Prednisone"
+            ],
+            "allergies": []
+          }
+        },
+        "delay": 1
+      },
+      {
+        "agent": "discharge",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "discharge_diagnosis": "Asthma exacerbation",
+            "discharge_disposition": "home"
+          }
+        },
+        "delay": 1
+      },
+      {
+        "agent": "followup",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "followup_schedule": [
             {
-              "drug": "Ceftriaxone",
-              "dose": "50mg/kg",
-              "route": "IV",
-              "frequency": "once",
-              "indication": "Empiric antibiotic therapy"
+              "type": "primary_care",
+              "when": "2026-02-16T20:52:29.829018",
+              "purpose": "post-ED check"
+            }
+          ]
+        },
+        "delay": 1
+      }
+    ],
+    "expected_duration": 16,
+    "created_at": "2026-02-13T20:52:29.833014",
+    "version": "1.0"
+  },
+  {
+    "name": "emergency_department_to_inpatient_admission",
+    "description": "ED flow that escalates to inpatient admission.",
+    "patient_profile": {
+      "age": 57,
+      "gender": "female",
+      "chief_complaint": "Chest pain and diaphoresis",
+      "urgency": "critical"
+    },
+    "journey_steps": [
+      {
+        "agent": "triage",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "symptoms": "severe chest pain",
+          "chief_complaint": "possible ACS",
+          "arrival_time": "2026-02-13T20:52:29.829018"
+        },
+        "delay": 1
+      },
+      {
+        "agent": "diagnosis",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "symptoms": "chest pain and dyspnea",
+          "differential_diagnosis": [
+            "Acute coronary syndrome",
+            "PE",
+            "Aortic dissection"
+          ]
+        },
+        "delay": 2
+      },
+      {
+        "agent": "imaging",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "orders": [
+            {
+              "type": "ecg",
+              "priority": "emergent",
+              "indication": "ST changes"
             },
             {
-              "drug": "Acetaminophen",
-              "dose": "15mg/kg",
-              "route": "rectal",
-              "frequency": "q4-6h PRN",
-              "indication": "Fever control"
+              "type": "chest_xray",
+              "priority": "urgent",
+              "indication": "alternate diagnosis"
             }
-          ],
-          "allergies": [],
-          "renal_function": "Normal",
-          "weight_kg": 15
+          ]
         },
         "delay": 2
       },
@@ -255,41 +534,338 @@
         "agent": "bed_manager",
         "method": "tasks/sendSubscribe",
         "params": {
-          "admission_type": "emergency",
-          "required_monitoring": "continuous",
-          "estimated_los": "3-5 days",
-          "special_requirements": [
-            "Pediatric monitoring",
-            "Isolation precautions",
-            "Frequent vital signs"
-          ]
+          "task": {
+            "admission_type": "emergency",
+            "required_monitoring": "telemetry",
+            "estimated_los": "2-4 days"
+          }
         },
-        "delay": 2
+        "delay": 1
       },
       {
         "agent": "coordinator",
         "method": "tasks/sendSubscribe",
         "params": {
-          "journey_type": "pediatric_sepsis",
-          "current_phase": "sepsis_workup",
-          "coordination_tasks": [
-            "Blood cultures",
-            "Lumbar puncture",
-            "Pediatric ICU consult",
-            "Fluid resuscitation"
-          ],
-          "risk_level": "critical"
+          "task": {
+            "journey_type": "ed_to_inpatient",
+            "coordination_tasks": [
+              "Cardiology consult",
+              "Inpatient handoff"
+            ]
+          }
         },
-        "delay": 3
+        "delay": 1
+      }
+    ],
+    "expected_duration": 14,
+    "created_at": "2026-02-13T20:52:29.833014",
+    "version": "1.0"
+  },
+  {
+    "name": "inpatient_admission_and_daily_rounds",
+    "description": "Inpatient episode focusing on admission, medication safety, and daily review.",
+    "patient_profile": {
+      "age": 72,
+      "gender": "male",
+      "chief_complaint": "Community acquired pneumonia with hypoxia",
+      "urgency": "high"
+    },
+    "journey_steps": [
+      {
+        "agent": "bed_manager",
+        "method": "admission/assign_bed",
+        "params": {
+          "task": {
+            "unit_pref": "Ward",
+            "decision": "admit"
+          }
+        },
+        "delay": 1
+      },
+      {
+        "agent": "pharmacy",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "med_plan": [
+              "Amoxicillin",
+              "Oxygen"
+            ],
+            "allergies": []
+          }
+        },
+        "delay": 1
+      },
+      {
+        "agent": "coordinator",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "journey_type": "inpatient_stay",
+            "coordination_tasks": [
+              "Daily rounds",
+              "Consult sync",
+              "Care-plan update"
+            ]
+          }
+        },
+        "delay": 2
+      },
+      {
+        "agent": "ccm",
+        "method": "ccm/monthly_review",
+        "params": {
+          "conditions": [
+            "COPD"
+          ],
+          "monthly_minutes": 20
+        },
+        "delay": 1
+      }
+    ],
+    "expected_duration": 12,
+    "created_at": "2026-02-13T20:52:29.833014",
+    "version": "1.0"
+  },
+  {
+    "name": "inpatient_discharge_transition",
+    "description": "Discharge and transition-of-care workflow to outpatient follow-up.",
+    "patient_profile": {
+      "age": 66,
+      "gender": "female",
+      "chief_complaint": "Discharge readiness after CHF admission",
+      "urgency": "medium"
+    },
+    "journey_steps": [
+      {
+        "agent": "discharge",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "discharge_diagnosis": "Heart failure exacerbation",
+            "discharge_disposition": "home",
+            "followup_instructions": [
+              "Daily weights",
+              "Low sodium diet"
+            ]
+          }
+        },
+        "delay": 1
+      },
+      {
+        "agent": "pharmacy",
+        "method": "pharmacy/recommend",
+        "params": {
+          "task": {
+            "med_plan": [
+              "Lisinopril",
+              "Aspirin"
+            ],
+            "allergies": [],
+            "current_medications": [
+              "Ibuprofen"
+            ]
+          }
+        },
+        "delay": 1
+      },
+      {
+        "agent": "followup",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "followup_schedule": [
+            {
+              "type": "cardiology",
+              "when": "2026-02-20T20:52:29.829018",
+              "purpose": "post-discharge visit"
+            },
+            {
+              "type": "primary_care",
+              "when": "2026-02-27T20:52:29.829018",
+              "purpose": "transition of care"
+            }
+          ]
+        },
+        "delay": 1
+      },
+      {
+        "agent": "ccm",
+        "method": "ccm/monthly_review",
+        "params": {
+          "conditions": [
+            "CHF"
+          ],
+          "monthly_minutes": 22
+        },
+        "delay": 1
+      }
+    ],
+    "expected_duration": 11,
+    "created_at": "2026-02-13T20:52:29.833014",
+    "version": "1.0"
+  },
+  {
+    "name": "chest_pain_cardiac",
+    "description": "Adult with severe chest pain and suspected acute coronary syndrome.",
+    "patient_profile": {
+      "age": 55,
+      "gender": "male",
+      "chief_complaint": "Severe chest pain with dyspnea",
+      "urgency": "high"
+    },
+    "journey_steps": [
+      {
+        "agent": "triage",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "symptoms": "severe chest pain, nausea, shortness of breath",
+          "vital_signs": {
+            "blood_pressure": "160/95",
+            "heart_rate": 110,
+            "oxygen_saturation": 95
+          },
+          "chief_complaint": "chest pain for 2 hours"
+        },
+        "delay": 2
+      },
+      {
+        "agent": "diagnosis",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "symptoms": "severe chest pain, dyspnea",
+          "differential_diagnosis": [
+            "Acute coronary syndrome",
+            "Pulmonary embolism",
+            "Aortic dissection"
+          ]
+        },
+        "delay": 2
+      },
+      {
+        "agent": "imaging",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "orders": [
+            {
+              "type": "ecg",
+              "priority": "emergent",
+              "indication": "ST changes"
+            },
+            {
+              "type": "chest_xray",
+              "priority": "urgent",
+              "indication": "alternate thoracic causes"
+            }
+          ]
+        },
+        "delay": 2
+      },
+      {
+        "agent": "pharmacy",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "med_plan": [
+              "Aspirin",
+              "Nitroglycerin"
+            ],
+            "allergies": [
+              "Penicillin"
+            ]
+          }
+        },
+        "delay": 1
+      },
+      {
+        "agent": "bed_manager",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "admission_type": "emergency",
+            "required_monitoring": "telemetry",
+            "estimated_los": "2-3 days"
+          }
+        },
+        "delay": 1
       }
     ],
     "expected_duration": 18,
-    "created_at": "2026-02-13T14:11:49.012094",
+    "created_at": "2026-02-13T20:52:29.833014",
+    "version": "1.0"
+  },
+  {
+    "name": "pediatric_fever_sepsis",
+    "description": "Child with high fever and lethargy requiring sepsis workup.",
+    "patient_profile": {
+      "age": 3,
+      "gender": "female",
+      "chief_complaint": "High fever and poor feeding",
+      "urgency": "high"
+    },
+    "journey_steps": [
+      {
+        "agent": "triage",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "symptoms": "high fever, lethargy, irritability",
+          "vital_signs": {
+            "blood_pressure": "85/50",
+            "heart_rate": 160,
+            "temperature": 103.5
+          },
+          "chief_complaint": "worsening fever for 3 days"
+        },
+        "delay": 1
+      },
+      {
+        "agent": "diagnosis",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "symptoms": "high fever, lethargy",
+          "differential_diagnosis": [
+            "Sepsis",
+            "Pneumonia",
+            "UTI"
+          ]
+        },
+        "delay": 2
+      },
+      {
+        "agent": "pharmacy",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "med_plan": [
+              "Ceftriaxone",
+              "Acetaminophen"
+            ],
+            "allergies": []
+          }
+        },
+        "delay": 1
+      },
+      {
+        "agent": "bed_manager",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "admission_type": "emergency",
+            "required_monitoring": "continuous",
+            "special_requirements": [
+              "Pediatric monitoring"
+            ]
+          }
+        },
+        "delay": 1
+      }
+    ],
+    "expected_duration": 14,
+    "created_at": "2026-02-13T20:52:29.833014",
     "version": "1.0"
   },
   {
     "name": "orthopedic_fracture",
-    "description": "Adult with extremity fracture - orthopedic evaluation",
+    "description": "Extremity fracture workflow with imaging, pain control, and follow-up.",
     "patient_profile": {
       "age": 28,
       "gender": "male",
@@ -301,16 +877,8 @@
         "agent": "triage",
         "method": "tasks/sendSubscribe",
         "params": {
-          "symptoms": "Severe left leg pain, deformity, inability to bear weight",
-          "vital_signs": {
-            "blood_pressure": "130/80",
-            "heart_rate": 85,
-            "temperature": 98.2,
-            "oxygen_saturation": 99,
-            "respiratory_rate": 16
-          },
-          "chief_complaint": "Fell from ladder, left leg injury",
-          "arrival_time": "2026-02-13T14:11:49.009110"
+          "symptoms": "severe leg pain, deformity",
+          "chief_complaint": "fall from ladder"
         },
         "delay": 1
       },
@@ -318,21 +886,13 @@
         "agent": "diagnosis",
         "method": "tasks/sendSubscribe",
         "params": {
-          "symptoms": "Severe left leg pain, deformity, inability to bear weight",
-          "vital_signs": {
-            "blood_pressure": "130/80",
-            "heart_rate": 85,
-            "temperature": 98.2,
-            "oxygen_saturation": 99,
-            "respiratory_rate": 16
-          },
+          "symptoms": "leg pain and inability to bear weight",
           "differential_diagnosis": [
-            "Tibia/fibula fracture",
-            "Ankle fracture",
-            "Soft tissue injury"
+            "Tibia fracture",
+            "Ankle fracture"
           ]
         },
-        "delay": 2
+        "delay": 1
       },
       {
         "agent": "imaging",
@@ -342,86 +902,22 @@
             {
               "type": "xray_left_leg",
               "priority": "urgent",
-              "indication": "Evaluate for fracture"
-            },
-            {
-              "type": "xray_left_ankle",
-              "priority": "urgent",
-              "indication": "Complete extremity evaluation"
+              "indication": "fracture"
             }
           ]
         },
-        "delay": 3
-      },
-      {
-        "agent": "pharmacy",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "medication_orders": [
-            {
-              "drug": "Oxycodone",
-              "dose": "5-10mg",
-              "route": "oral",
-              "frequency": "q4-6h PRN",
-              "indication": "Pain control"
-            },
-            {
-              "drug": "Ibuprofen",
-              "dose": "600mg",
-              "route": "oral",
-              "frequency": "q8h",
-              "indication": "Inflammation reduction"
-            }
-          ],
-          "allergies": [
-            "Codeine"
-          ],
-          "renal_function": "Normal"
-        },
-        "delay": 2
-      },
-      {
-        "agent": "bed_manager",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "admission_type": "elective",
-          "required_monitoring": "standard",
-          "estimated_los": "1-2 days",
-          "special_requirements": [
-            "Orthopedic precautions",
-            "Crutches training"
-          ]
-        },
-        "delay": 2
-      },
-      {
-        "agent": "coordinator",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "journey_type": "orthopedic_fracture",
-          "current_phase": "post_operative",
-          "coordination_tasks": [
-            "Orthopedic consult",
-            "Physical therapy evaluation",
-            "Pain management"
-          ],
-          "risk_level": "medium"
-        },
-        "delay": 2
+        "delay": 1
       },
       {
         "agent": "discharge",
         "method": "tasks/sendSubscribe",
         "params": {
-          "discharge_diagnosis": "Closed tibia fracture",
-          "discharge_disposition": "home",
-          "followup_instructions": [
-            "Orthopedic clinic in 1 week",
-            "Non-weight bearing for 3 weeks",
-            "DVT prophylaxis"
-          ]
+          "task": {
+            "discharge_diagnosis": "Closed tibial fracture",
+            "discharge_disposition": "home"
+          }
         },
-        "delay": 2
+        "delay": 1
       },
       {
         "agent": "followup",
@@ -430,26 +926,21 @@
           "followup_schedule": [
             {
               "type": "orthopedic_clinic",
-              "when": "2026-02-20T14:11:49.009110",
-              "purpose": "Cast check and wound care"
-            },
-            {
-              "type": "physical_therapy",
-              "when": "2026-02-27T14:11:49.009110",
-              "purpose": "Mobility assessment"
+              "when": "2026-02-20T20:52:29.832015",
+              "purpose": "fracture follow-up"
             }
           ]
         },
-        "delay": 2
+        "delay": 1
       }
     ],
-    "expected_duration": 20,
-    "created_at": "2026-02-13T14:11:49.012094",
+    "expected_duration": 12,
+    "created_at": "2026-02-13T20:52:29.833014",
     "version": "1.0"
   },
   {
     "name": "geriatric_confusion",
-    "description": "Elderly patient with acute confusion - delirium workup",
+    "description": "Elderly patient with acute confusion and delirium-focused pathway.",
     "patient_profile": {
       "age": 78,
       "gender": "female",
@@ -461,16 +952,8 @@
         "agent": "triage",
         "method": "tasks/sendSubscribe",
         "params": {
-          "symptoms": "Acute confusion, agitation, disorientation, hallucinations",
-          "vital_signs": {
-            "blood_pressure": "145/85",
-            "heart_rate": 95,
-            "temperature": 99.1,
-            "oxygen_saturation": 94,
-            "respiratory_rate": 20
-          },
-          "chief_complaint": "Sudden change in mental status",
-          "arrival_time": "2026-02-13T14:11:49.009110"
+          "symptoms": "acute confusion, agitation",
+          "chief_complaint": "mental status change"
         },
         "delay": 1
       },
@@ -478,22 +961,14 @@
         "agent": "diagnosis",
         "method": "tasks/sendSubscribe",
         "params": {
-          "symptoms": "Acute confusion, agitation, disorientation, hallucinations",
-          "vital_signs": {
-            "blood_pressure": "145/85",
-            "heart_rate": 95,
-            "temperature": 99.1,
-            "oxygen_saturation": 94,
-            "respiratory_rate": 20
-          },
+          "symptoms": "delirium and disorientation",
           "differential_diagnosis": [
-            "Urinary tract infection",
+            "UTI",
             "Medication toxicity",
-            "Metabolic disturbance",
             "Stroke"
           ]
         },
-        "delay": 3
+        "delay": 2
       },
       {
         "agent": "imaging",
@@ -503,92 +978,35 @@
             {
               "type": "ct_head",
               "priority": "urgent",
-              "indication": "Rule out stroke, mass lesion"
-            },
-            {
-              "type": "chest_xray",
-              "priority": "routine",
-              "indication": "Rule out pneumonia"
+              "indication": "rule out stroke"
             }
           ]
         },
-        "delay": 4
-      },
-      {
-        "agent": "pharmacy",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "medication_orders": [
-            {
-              "drug": "Haloperidol",
-              "dose": "0.5-1mg",
-              "route": "IV",
-              "frequency": "q2-4h PRN",
-              "indication": "Agitation control"
-            },
-            {
-              "drug": "Lorazepam",
-              "dose": "0.5mg",
-              "route": "IV",
-              "frequency": "q4-6h PRN",
-              "indication": "Anxiety reduction"
-            }
-          ],
-          "allergies": [
-            "Aspirin"
-          ],
-          "renal_function": "Mild impairment",
-          "current_medications": [
-            "Warfarin",
-            "Metoprolol",
-            "Lisinopril",
-            "Simvastatin"
-          ]
-        },
-        "delay": 2
+        "delay": 1
       },
       {
         "agent": "bed_manager",
         "method": "tasks/sendSubscribe",
         "params": {
-          "admission_type": "emergency",
-          "required_monitoring": "continuous",
-          "estimated_los": "3-7 days",
-          "special_requirements": [
-            "Fall precautions",
-            "1:1 sitter",
-            "Delirium protocol"
-          ]
+          "task": {
+            "admission_type": "emergency",
+            "required_monitoring": "continuous"
+          }
         },
-        "delay": 2
-      },
-      {
-        "agent": "coordinator",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "journey_type": "geriatric_delirium",
-          "current_phase": "diagnostic_workup",
-          "coordination_tasks": [
-            "Comprehensive geriatric assessment",
-            "Family meeting",
-            "Discharge planning"
-          ],
-          "risk_level": "high"
-        },
-        "delay": 3
+        "delay": 1
       }
     ],
-    "expected_duration": 22,
-    "created_at": "2026-02-13T14:11:49.012094",
+    "expected_duration": 13,
+    "created_at": "2026-02-13T20:52:29.833014",
     "version": "1.0"
   },
   {
     "name": "obstetric_emergency",
-    "description": "Pregnant patient with vaginal bleeding - obstetric emergency",
+    "description": "Pregnancy bleeding emergency with urgent maternal/fetal coordination.",
     "patient_profile": {
       "age": 32,
       "gender": "female",
-      "chief_complaint": "Vaginal bleeding in pregnancy",
+      "chief_complaint": "Bleeding at 28 weeks gestation",
       "urgency": "critical"
     },
     "journey_steps": [
@@ -596,16 +1014,8 @@
         "agent": "triage",
         "method": "tasks/sendSubscribe",
         "params": {
-          "symptoms": "Heavy vaginal bleeding, abdominal pain, lightheadedness",
-          "vital_signs": {
-            "blood_pressure": "95/60",
-            "heart_rate": 115,
-            "temperature": 98.0,
-            "oxygen_saturation": 98,
-            "respiratory_rate": 24
-          },
-          "chief_complaint": "Bleeding at 28 weeks gestation",
-          "arrival_time": "2026-02-13T14:11:49.009110"
+          "symptoms": "heavy vaginal bleeding, abdominal pain",
+          "chief_complaint": "obstetric emergency"
         },
         "delay": 1
       },
@@ -613,22 +1023,13 @@
         "agent": "diagnosis",
         "method": "tasks/sendSubscribe",
         "params": {
-          "symptoms": "Heavy vaginal bleeding, abdominal pain, lightheadedness",
-          "vital_signs": {
-            "blood_pressure": "95/60",
-            "heart_rate": 115,
-            "temperature": 98.0,
-            "oxygen_saturation": 98,
-            "respiratory_rate": 24
-          },
+          "symptoms": "bleeding in 3rd trimester",
           "differential_diagnosis": [
             "Placental abruption",
-            "Placenta previa",
-            "Vasa previa",
-            "Uterine rupture"
+            "Placenta previa"
           ]
         },
-        "delay": 2
+        "delay": 1
       },
       {
         "agent": "imaging",
@@ -638,85 +1039,39 @@
             {
               "type": "obstetric_ultrasound",
               "priority": "emergent",
-              "indication": "Evaluate placental position, fetal well-being"
-            },
-            {
-              "type": "fetal_monitoring",
-              "priority": "emergent",
-              "indication": "Continuous fetal heart rate monitoring"
+              "indication": "placental and fetal assessment"
             }
           ]
         },
-        "delay": 3
-      },
-      {
-        "agent": "pharmacy",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "medication_orders": [
-            {
-              "drug": "Betamethasone",
-              "dose": "12mg",
-              "route": "IM",
-              "frequency": "twice 24h apart",
-              "indication": "Fetal lung maturity"
-            },
-            {
-              "drug": "Magnesium sulfate",
-              "dose": "4g IV load",
-              "route": "IV",
-              "frequency": "once",
-              "indication": "Neuroprotection"
-            }
-          ],
-          "allergies": [],
-          "renal_function": "Normal",
-          "pregnancy_status": "28 weeks gestation"
-        },
-        "delay": 2
+        "delay": 1
       },
       {
         "agent": "bed_manager",
         "method": "tasks/sendSubscribe",
         "params": {
-          "admission_type": "emergency",
-          "required_monitoring": "intensive",
-          "estimated_los": "variable",
-          "special_requirements": [
-            "Labor and delivery",
-            "Fetal monitoring",
-            "OB emergency team"
-          ]
+          "task": {
+            "admission_type": "emergency",
+            "required_monitoring": "intensive",
+            "special_requirements": [
+              "Labor and delivery",
+              "fetal monitoring"
+            ]
+          }
         },
-        "delay": 2
-      },
-      {
-        "agent": "coordinator",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "journey_type": "obstetric_emergency",
-          "current_phase": "acute_management",
-          "coordination_tasks": [
-            "Maternal-fetal medicine consult",
-            "Neonatal team notification",
-            "Blood bank preparation"
-          ],
-          "risk_level": "critical"
-        },
-        "delay": 3
+        "delay": 1
       }
     ],
-    "expected_duration": 18,
-    "created_at": "2026-02-13T14:11:49.012094",
+    "expected_duration": 12,
+    "created_at": "2026-02-13T20:52:29.833014",
     "version": "1.0"
   },
   {
     "name": "mental_health_crisis",
-    "description": "Adult with acute mental health crisis - suicidal ideation",
+    "description": "Acute psychiatric crisis with safety and inpatient behavioral health planning.",
     "patient_profile": {
       "age": 35,
       "gender": "male",
-      "chief_complaint": "Suicidal thoughts, severe depression",
+      "chief_complaint": "Suicidal thoughts",
       "urgency": "critical"
     },
     "journey_steps": [
@@ -724,16 +1079,7 @@
         "agent": "triage",
         "method": "tasks/sendSubscribe",
         "params": {
-          "symptoms": "Suicidal ideation, hopelessness, insomnia, weight loss",
-          "vital_signs": {
-            "blood_pressure": "120/80",
-            "heart_rate": 88,
-            "temperature": 98.4,
-            "oxygen_saturation": 98,
-            "respiratory_rate": 18
-          },
-          "chief_complaint": "Threatening suicide, needs immediate help",
-          "arrival_time": "2026-02-13T14:11:49.012094",
+          "symptoms": "suicidal ideation, severe depression",
           "safety_concern": "high"
         },
         "delay": 1
@@ -742,46 +1088,11 @@
         "agent": "diagnosis",
         "method": "tasks/sendSubscribe",
         "params": {
-          "symptoms": "Suicidal ideation, hopelessness, insomnia, weight loss",
-          "vital_signs": {
-            "blood_pressure": "120/80",
-            "heart_rate": 88,
-            "temperature": 98.4,
-            "oxygen_saturation": 98,
-            "respiratory_rate": 18
-          },
+          "symptoms": "hopelessness, insomnia",
           "differential_diagnosis": [
-            "Major Depressive Disorder",
-            "Bipolar Disorder",
-            "Substance-induced mood disorder"
-          ],
-          "psychiatric_history": "Previous suicide attempt 2 years ago"
-        },
-        "delay": 3
-      },
-      {
-        "agent": "pharmacy",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "medication_orders": [
-            {
-              "drug": "Sertraline",
-              "dose": "50mg",
-              "route": "oral",
-              "frequency": "daily",
-              "indication": "Antidepressant therapy"
-            },
-            {
-              "drug": "Lorazepam",
-              "dose": "0.5mg",
-              "route": "oral",
-              "frequency": "q8h PRN",
-              "indication": "Anxiety reduction"
-            }
-          ],
-          "allergies": [],
-          "renal_function": "Normal",
-          "psychotropic_history": "Previous SSRI use"
+            "Major depressive disorder",
+            "Bipolar disorder"
+          ]
         },
         "delay": 2
       },
@@ -789,90 +1100,43 @@
         "agent": "bed_manager",
         "method": "tasks/sendSubscribe",
         "params": {
-          "admission_type": "involuntary",
-          "required_monitoring": "continuous",
-          "estimated_los": "5-10 days",
-          "special_requirements": [
-            "Psychiatric unit",
-            "1:1 observation",
-            "Suicide precautions",
-            "No sharps"
-          ]
+          "task": {
+            "admission_type": "involuntary",
+            "required_monitoring": "continuous",
+            "special_requirements": [
+              "Psych unit",
+              "suicide precautions"
+            ]
+          }
         },
-        "delay": 2
-      },
-      {
-        "agent": "coordinator",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "journey_type": "mental_health_crisis",
-          "current_phase": "crisis_stabilization",
-          "coordination_tasks": [
-            "Psychiatry consult",
-            "Social work evaluation",
-            "Safety plan development",
-            "Family meeting"
-          ],
-          "risk_level": "critical"
-        },
-        "delay": 3
+        "delay": 1
       }
     ],
-    "expected_duration": 16,
-    "created_at": "2026-02-13T14:11:49.012094",
+    "expected_duration": 10,
+    "created_at": "2026-02-13T20:52:29.833014",
     "version": "1.0"
   },
   {
     "name": "chronic_diabetes_complication",
-    "description": "Diabetic patient with foot ulcer - chronic disease complication",
+    "description": "Diabetic foot complication needing multidisciplinary inpatient planning.",
     "patient_profile": {
       "age": 62,
       "gender": "female",
-      "chief_complaint": "Diabetic foot ulcer, increasing pain",
+      "chief_complaint": "Foot ulcer with infection",
       "urgency": "medium"
     },
     "journey_steps": [
       {
-        "agent": "triage",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "symptoms": "Foot ulcer with drainage, increasing pain, redness",
-          "vital_signs": {
-            "blood_pressure": "145/85",
-            "heart_rate": 82,
-            "temperature": 99.2,
-            "oxygen_saturation": 96,
-            "respiratory_rate": 16
-          },
-          "chief_complaint": "Diabetic foot ulcer worsening",
-          "arrival_time": "2026-02-13T14:11:49.012094"
-        },
-        "delay": 1
-      },
-      {
         "agent": "diagnosis",
         "method": "tasks/sendSubscribe",
         "params": {
-          "symptoms": "Foot ulcer with drainage, increasing pain, redness",
-          "vital_signs": {
-            "blood_pressure": "145/85",
-            "heart_rate": 82,
-            "temperature": 99.2,
-            "oxygen_saturation": 96,
-            "respiratory_rate": 16
-          },
+          "symptoms": "foot ulcer, drainage, redness",
           "differential_diagnosis": [
             "Diabetic foot infection",
-            "Charcot foot",
-            "Peripheral vascular disease"
-          ],
-          "chronic_conditions": [
-            "Type 2 Diabetes (15 years)",
-            "Hypertension",
-            "Diabetic retinopathy"
+            "Osteomyelitis"
           ]
         },
-        "delay": 3
+        "delay": 2
       },
       {
         "agent": "imaging",
@@ -882,95 +1146,27 @@
             {
               "type": "foot_xray",
               "priority": "urgent",
-              "indication": "Evaluate for osteomyelitis"
-            },
-            {
-              "type": "doppler_ultrasound",
-              "priority": "urgent",
-              "indication": "Assess vascular status"
+              "indication": "evaluate bone involvement"
             }
           ]
         },
-        "delay": 4
+        "delay": 1
       },
       {
         "agent": "pharmacy",
         "method": "tasks/sendSubscribe",
         "params": {
-          "medication_orders": [
-            {
-              "drug": "Vancomycin",
-              "dose": "15mg/kg",
-              "route": "IV",
-              "frequency": "q8h",
-              "indication": "Empiric antibiotic for diabetic foot infection"
-            },
-            {
-              "drug": "Insulin glargine",
-              "dose": "30 units",
-              "route": "subcutaneous",
-              "frequency": "daily",
-              "indication": "Diabetes management"
-            }
-          ],
-          "allergies": [
-            "Penicillin"
-          ],
-          "renal_function": "Moderate impairment",
-          "current_medications": [
-            "Metformin",
-            "Lisinopril",
-            "Aspirin",
-            "Atorvastatin"
-          ]
+          "task": {
+            "med_plan": [
+              "Vancomycin",
+              "Insulin glargine"
+            ],
+            "allergies": [
+              "Penicillin"
+            ]
+          }
         },
-        "delay": 2
-      },
-      {
-        "agent": "bed_manager",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "admission_type": "urgent",
-          "required_monitoring": "standard",
-          "estimated_los": "7-14 days",
-          "special_requirements": [
-            "Wound care",
-            "Offloading",
-            "Diabetes management",
-            "Nutrition consult"
-          ]
-        },
-        "delay": 2
-      },
-      {
-        "agent": "coordinator",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "journey_type": "chronic_diabetes_complication",
-          "current_phase": "infection_control",
-          "coordination_tasks": [
-            "Podiatry consult",
-            "Wound care team",
-            "Diabetes education",
-            "Home health setup"
-          ],
-          "risk_level": "high"
-        },
-        "delay": 3
-      },
-      {
-        "agent": "discharge",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "discharge_diagnosis": "Diabetic foot ulcer with infection",
-          "discharge_disposition": "skilled_nursing_facility",
-          "followup_instructions": [
-            "Daily wound care",
-            "Blood glucose monitoring",
-            "Podiatry follow-up in 1 week"
-          ]
-        },
-        "delay": 2
+        "delay": 1
       },
       {
         "agent": "followup",
@@ -978,31 +1174,26 @@
         "params": {
           "followup_schedule": [
             {
-              "type": "podiatry_clinic",
-              "when": "2026-02-20T14:11:49.012094",
-              "purpose": "Wound reassessment"
-            },
-            {
-              "type": "endocrinology_clinic",
-              "when": "2026-02-27T14:11:49.012094",
-              "purpose": "Diabetes management review"
+              "type": "podiatry",
+              "when": "2026-02-20T20:52:29.832015",
+              "purpose": "wound reassessment"
             }
           ]
         },
-        "delay": 2
+        "delay": 1
       }
     ],
-    "expected_duration": 25,
-    "created_at": "2026-02-13T14:11:49.012094",
+    "expected_duration": 12,
+    "created_at": "2026-02-13T20:52:29.833014",
     "version": "1.0"
   },
   {
     "name": "trauma_motor_vehicle_accident",
-    "description": "Multiple trauma from motor vehicle accident - polytrauma",
+    "description": "Polytrauma workflow from high-speed MVC.",
     "patient_profile": {
       "age": 25,
       "gender": "male",
-      "chief_complaint": "Multiple injuries from MVC",
+      "chief_complaint": "Multiple traumatic injuries",
       "urgency": "critical"
     },
     "journey_steps": [
@@ -1010,16 +1201,7 @@
         "agent": "triage",
         "method": "tasks/sendSubscribe",
         "params": {
-          "symptoms": "Head injury, chest pain, abdominal pain, multiple fractures",
-          "vital_signs": {
-            "blood_pressure": "110/70",
-            "heart_rate": 110,
-            "temperature": 97.8,
-            "oxygen_saturation": 94,
-            "respiratory_rate": 24
-          },
-          "chief_complaint": "High-speed MVC, ejected from vehicle",
-          "arrival_time": "2026-02-13T14:11:49.012094",
+          "symptoms": "head, chest, abdominal pain",
           "trauma_activation": "level_1"
         },
         "delay": 1
@@ -1028,23 +1210,14 @@
         "agent": "diagnosis",
         "method": "tasks/sendSubscribe",
         "params": {
-          "symptoms": "Head injury, chest pain, abdominal pain, multiple fractures",
-          "vital_signs": {
-            "blood_pressure": "110/70",
-            "heart_rate": 110,
-            "temperature": 97.8,
-            "oxygen_saturation": 94,
-            "respiratory_rate": 24
-          },
+          "symptoms": "polytrauma",
           "differential_diagnosis": [
-            "Traumatic brain injury",
+            "TBI",
             "Hemothorax",
-            "Splenic rupture",
-            "Pelvic fracture"
-          ],
-          "injury_mechanism": "High-speed MVC with ejection"
+            "Splenic injury"
+          ]
         },
-        "delay": 2
+        "delay": 1
       },
       {
         "agent": "imaging",
@@ -1054,51 +1227,14 @@
             {
               "type": "ct_head",
               "priority": "emergent",
-              "indication": "Traumatic brain injury evaluation"
+              "indication": "TBI"
             },
             {
               "type": "ct_chest_abdomen_pelvis",
               "priority": "emergent",
-              "indication": "Multi-system trauma evaluation"
-            },
-            {
-              "type": "pelvis_xray",
-              "priority": "emergent",
-              "indication": "Pelvic fracture assessment"
+              "indication": "multi-system trauma"
             }
           ]
-        },
-        "delay": 3
-      },
-      {
-        "agent": "pharmacy",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "medication_orders": [
-            {
-              "drug": "Fentanyl",
-              "dose": "100mcg",
-              "route": "IV",
-              "frequency": "once",
-              "indication": "Pain control"
-            },
-            {
-              "drug": "Rocuronium",
-              "dose": "50mg",
-              "route": "IV",
-              "frequency": "once",
-              "indication": "Rapid sequence intubation"
-            },
-            {
-              "drug": "Tranexamic acid",
-              "dose": "1g",
-              "route": "IV",
-              "frequency": "once",
-              "indication": "Trauma hemorrhage control"
-            }
-          ],
-          "allergies": [],
-          "renal_function": "Normal"
         },
         "delay": 2
       },
@@ -1106,46 +1242,25 @@
         "agent": "bed_manager",
         "method": "tasks/sendSubscribe",
         "params": {
-          "admission_type": "trauma",
-          "required_monitoring": "intensive_care",
-          "estimated_los": "7-14 days",
-          "special_requirements": [
-            "Trauma ICU",
-            "Ventilator management",
-            "Multiple surgical teams",
-            "Family support"
-          ]
+          "task": {
+            "admission_type": "trauma",
+            "required_monitoring": "intensive_care"
+          }
         },
-        "delay": 2
-      },
-      {
-        "agent": "coordinator",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "journey_type": "polytrauma_mvc",
-          "current_phase": "acute_resuscitation",
-          "coordination_tasks": [
-            "Trauma surgery",
-            "Neurosurgery",
-            "Orthopedic surgery",
-            "Rehabilitation planning"
-          ],
-          "risk_level": "critical"
-        },
-        "delay": 3
+        "delay": 1
       }
     ],
-    "expected_duration": 18,
-    "created_at": "2026-02-13T14:11:49.012094",
+    "expected_duration": 13,
+    "created_at": "2026-02-13T20:52:29.833014",
     "version": "1.0"
   },
   {
     "name": "infectious_disease_outbreak",
-    "description": "Patient with suspected infectious disease during outbreak",
+    "description": "Respiratory outbreak case requiring isolation and public health escalation.",
     "patient_profile": {
       "age": 45,
       "gender": "female",
-      "chief_complaint": "Fever, cough, respiratory distress",
+      "chief_complaint": "Fever, cough, hypoxia",
       "urgency": "high"
     },
     "journey_steps": [
@@ -1153,16 +1268,7 @@
         "agent": "triage",
         "method": "tasks/sendSubscribe",
         "params": {
-          "symptoms": "High fever, productive cough, shortness of breath, myalgia",
-          "vital_signs": {
-            "blood_pressure": "125/75",
-            "heart_rate": 105,
-            "temperature": 102.8,
-            "oxygen_saturation": 88,
-            "respiratory_rate": 28
-          },
-          "chief_complaint": "Acute respiratory illness during outbreak",
-          "arrival_time": "2026-02-13T14:11:49.012094",
+          "symptoms": "fever, productive cough, dyspnea",
           "isolation_required": "airborne"
         },
         "delay": 1
@@ -1171,23 +1277,14 @@
         "agent": "diagnosis",
         "method": "tasks/sendSubscribe",
         "params": {
-          "symptoms": "High fever, productive cough, shortness of breath, myalgia",
-          "vital_signs": {
-            "blood_pressure": "125/75",
-            "heart_rate": 105,
-            "temperature": 102.8,
-            "oxygen_saturation": 88,
-            "respiratory_rate": 28
-          },
+          "symptoms": "acute respiratory illness",
           "differential_diagnosis": [
             "COVID-19",
             "Influenza",
-            "Bacterial pneumonia",
-            "Other respiratory viruses"
-          ],
-          "epidemiology": "Recent travel to outbreak area"
+            "Bacterial pneumonia"
+          ]
         },
-        "delay": 3
+        "delay": 2
       },
       {
         "agent": "imaging",
@@ -1197,93 +1294,39 @@
             {
               "type": "chest_xray",
               "priority": "urgent",
-              "indication": "Evaluate for pneumonia"
-            },
-            {
-              "type": "ct_chest",
-              "priority": "urgent",
-              "indication": "Detailed lung assessment"
+              "indication": "pneumonia assessment"
             }
           ]
         },
-        "delay": 4
-      },
-      {
-        "agent": "pharmacy",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "medication_orders": [
-            {
-              "drug": "Remdesivir",
-              "dose": "200mg",
-              "route": "IV",
-              "frequency": "once",
-              "indication": "Antiviral therapy"
-            },
-            {
-              "drug": "Dexamethasone",
-              "dose": "6mg",
-              "route": "IV",
-              "frequency": "daily",
-              "indication": "Anti-inflammatory therapy"
-            },
-            {
-              "drug": "Enoxaparin",
-              "dose": "40mg",
-              "route": "subcutaneous",
-              "frequency": "daily",
-              "indication": "DVT prophylaxis"
-            }
-          ],
-          "allergies": [],
-          "renal_function": "Normal"
-        },
-        "delay": 2
+        "delay": 1
       },
       {
         "agent": "bed_manager",
         "method": "tasks/sendSubscribe",
         "params": {
-          "admission_type": "emergency",
-          "required_monitoring": "continuous",
-          "estimated_los": "5-10 days",
-          "special_requirements": [
-            "Negative pressure room",
-            "Airborne isolation",
-            "PPE for all staff",
-            "Infection control protocols"
-          ]
+          "task": {
+            "admission_type": "emergency",
+            "required_monitoring": "continuous",
+            "special_requirements": [
+              "Negative pressure room",
+              "airborne PPE"
+            ]
+          }
         },
-        "delay": 2
-      },
-      {
-        "agent": "coordinator",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "journey_type": "infectious_disease_outbreak",
-          "current_phase": "isolation_management",
-          "coordination_tasks": [
-            "Infectious disease consult",
-            "Public health notification",
-            "Contact tracing",
-            "Resource allocation"
-          ],
-          "risk_level": "high"
-        },
-        "delay": 3
+        "delay": 1
       }
     ],
-    "expected_duration": 20,
-    "created_at": "2026-02-13T14:11:49.012094",
+    "expected_duration": 12,
+    "created_at": "2026-02-13T20:52:29.833014",
     "version": "1.0"
   },
   {
     "name": "pediatric_asthma_exacerbation",
-    "description": "Child with severe asthma exacerbation",
+    "description": "Severe pediatric asthma exacerbation with acute stabilization and follow-up.",
     "patient_profile": {
       "age": 8,
       "gender": "male",
-      "chief_complaint": "Severe shortness of breath, wheezing",
+      "chief_complaint": "Severe wheeze and shortness of breath",
       "urgency": "high"
     },
     "journey_steps": [
@@ -1291,16 +1334,11 @@
         "agent": "triage",
         "method": "tasks/sendSubscribe",
         "params": {
-          "symptoms": "Severe wheezing, shortness of breath, chest tightness, coughing",
+          "symptoms": "severe wheeze and dyspnea",
           "vital_signs": {
-            "blood_pressure": "110/70",
-            "heart_rate": 140,
-            "temperature": 98.6,
             "oxygen_saturation": 85,
             "respiratory_rate": 45
-          },
-          "chief_complaint": "Asthma attack not responding to home treatment",
-          "arrival_time": "2026-02-13T14:11:49.012094"
+          }
         },
         "delay": 1
       },
@@ -1308,120 +1346,27 @@
         "agent": "diagnosis",
         "method": "tasks/sendSubscribe",
         "params": {
-          "symptoms": "Severe wheezing, shortness of breath, chest tightness, coughing",
-          "vital_signs": {
-            "blood_pressure": "110/70",
-            "heart_rate": 140,
-            "temperature": 98.6,
-            "oxygen_saturation": 85,
-            "respiratory_rate": 45
-          },
+          "symptoms": "acute asthma symptoms",
           "differential_diagnosis": [
-            "Acute asthma exacerbation",
-            "Bronchiolitis",
-            "Foreign body aspiration",
+            "Asthma exacerbation",
             "Pneumonia"
-          ],
-          "asthma_history": "Moderate persistent asthma, multiple prior ED visits"
-        },
-        "delay": 2
-      },
-      {
-        "agent": "imaging",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "orders": [
-            {
-              "type": "chest_xray",
-              "priority": "urgent",
-              "indication": "Rule out pneumothorax, pneumonia"
-            }
           ]
         },
-        "delay": 3
+        "delay": 1
       },
       {
         "agent": "pharmacy",
         "method": "tasks/sendSubscribe",
         "params": {
-          "medication_orders": [
-            {
-              "drug": "Albuterol",
-              "dose": "2.5mg",
-              "route": "nebulized",
-              "frequency": "q20min x 3",
-              "indication": "Bronchodilation"
-            },
-            {
-              "drug": "Ipratropium",
-              "dose": "250mcg",
-              "route": "nebulized",
-              "frequency": "q20min x 3",
-              "indication": "Bronchodilation"
-            },
-            {
-              "drug": "Methylprednisolone",
-              "dose": "2mg/kg",
-              "route": "IV",
-              "frequency": "once",
-              "indication": "Anti-inflammatory therapy"
-            }
-          ],
-          "allergies": [],
-          "renal_function": "Normal",
-          "weight_kg": 28,
-          "asthma_medications": [
-            "Fluticasone",
-            "Albuterol PRN"
-          ]
+          "task": {
+            "med_plan": [
+              "Albuterol",
+              "Methylprednisolone"
+            ],
+            "allergies": []
+          }
         },
-        "delay": 2
-      },
-      {
-        "agent": "bed_manager",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "admission_type": "emergency",
-          "required_monitoring": "continuous",
-          "estimated_los": "1-3 days",
-          "special_requirements": [
-            "Pediatric unit",
-            "Continuous pulse oximetry",
-            "Asthma education",
-            "Peak flow monitoring"
-          ]
-        },
-        "delay": 2
-      },
-      {
-        "agent": "coordinator",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "journey_type": "pediatric_asthma",
-          "current_phase": "acute_management",
-          "coordination_tasks": [
-            "Pulmonology consult",
-            "Asthma education",
-            "Home nebulizer setup",
-            "School action plan"
-          ],
-          "risk_level": "high"
-        },
-        "delay": 3
-      },
-      {
-        "agent": "discharge",
-        "method": "tasks/sendSubscribe",
-        "params": {
-          "discharge_diagnosis": "Acute asthma exacerbation",
-          "discharge_disposition": "home",
-          "followup_instructions": [
-            "Continue albuterol as prescribed",
-            "Complete steroid course",
-            "Follow up with pulmonology in 1 week"
-          ]
-        },
-        "delay": 2
+        "delay": 1
       },
       {
         "agent": "followup",
@@ -1429,22 +1374,17 @@
         "params": {
           "followup_schedule": [
             {
-              "type": "pulmonology_clinic",
-              "when": "2026-02-20T14:11:49.012094",
-              "purpose": "Asthma control assessment"
-            },
-            {
-              "type": "primary_care",
-              "when": "2026-02-27T14:11:49.012094",
-              "purpose": "Routine follow-up"
+              "type": "pulmonology",
+              "when": "2026-02-20T20:52:29.832015",
+              "purpose": "asthma control review"
             }
           ]
         },
-        "delay": 2
+        "delay": 1
       }
     ],
-    "expected_duration": 22,
-    "created_at": "2026-02-13T14:11:49.012094",
+    "expected_duration": 11,
+    "created_at": "2026-02-13T20:52:29.833014",
     "version": "1.0"
   }
 ]
