@@ -1,6 +1,7 @@
 __pycache__/
 .venv/
 .env
+node_modules/
 variants/
 .pytest_cache/
 nexus-a2a/

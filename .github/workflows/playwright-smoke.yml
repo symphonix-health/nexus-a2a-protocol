@@ -1,0 +1,73 @@
+name: Playwright Smoke Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_external_example:
+        description: 'Run external example.com smoke test'
+        required: false
+        default: 'false'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/playwright-smoke.yml'
+      - 'playwright.config.js'
+      - 'playwright-tests/**'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    paths:
+      - '.github/workflows/playwright-smoke.yml'
+      - 'playwright.config.js'
+      - 'playwright-tests/**'
+      - 'package.json'
+      - 'package-lock.json'
+
+jobs:
+  playwright-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run local smoke test
+        run: npx playwright test playwright-tests/local-smoke.spec.js
+
+  playwright-smoke-external:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_external_example == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run external smoke test
+        run: npx playwright test playwright-tests/smoke.spec.js

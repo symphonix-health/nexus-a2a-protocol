@@ -14,14 +14,15 @@ import json
 import logging
 import os
 from datetime import datetime, timezone
-from typing import Dict, List, Any
+from pathlib import Path
+from typing import Any
 
 import httpx
 import redis.asyncio as aioredis
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 logger = logging.getLogger("nexus.command-centre")
@@ -44,12 +45,57 @@ AGENT_URLS = [url.strip() for url in AGENT_URLS if url.strip()]
 UPDATE_INTERVAL_MS = int(os.getenv("UPDATE_INTERVAL_MS", "2000"))
 
 # In-memory agent state
-agent_states: Dict[str, Dict[str, Any]] = {}
+agent_states: dict[str, dict[str, Any]] = {}
+scenario_catalog: list[dict[str, Any]] = []
 lock = asyncio.Lock()
 
 
+def _load_scenario_catalog() -> list[dict[str, Any]]:
+    """Load HelixCare scenario catalog for UI-friendly journey labels."""
+    try:
+        repo_root = Path(__file__).resolve().parents[3]
+        catalog_path = repo_root / "tools" / "helixcare_all_scenarios.json"
+        if not catalog_path.is_file():
+            return []
+
+        raw = json.loads(catalog_path.read_text(encoding="utf-8"))
+        catalog: list[dict[str, Any]] = []
+
+        for item in raw:
+            name = str(item.get("name", "")).strip()
+            if not name:
+                continue
+
+            display_name = name.replace("_", " ").title()
+            agents = [
+                str(step.get("agent", "")).strip()
+                for step in item.get("journey_steps", [])
+                if isinstance(step, dict) and step.get("agent")
+            ]
+
+            task_id_prefixes = [
+                name.lower(),
+                name.lower().replace("_", "-"),
+            ]
+
+            catalog.append(
+                {
+                    "name": name,
+                    "display_name": display_name,
+                    "description": item.get("description", ""),
+                    "agents": sorted(set(agents)),
+                    "task_id_prefixes": task_id_prefixes,
+                }
+            )
+
+        return catalog
+    except Exception as exc:
+        logger.warning(f"Failed to load scenario catalog: {exc}")
+        return []
+
+
 # ── Agent Discovery & Health Polling ──────────────────────────────────
-async def fetch_agent_card(url: str, client: httpx.AsyncClient) -> Dict[str, Any] | None:
+async def fetch_agent_card(url: str, client: httpx.AsyncClient) -> dict[str, Any] | None:
     """Fetch agent card from discovery endpoint."""
     try:
         resp = await client.get(f"{url}/.well-known/agent-card.json", timeout=10.0)
@@ -60,7 +106,7 @@ async def fetch_agent_card(url: str, client: httpx.AsyncClient) -> Dict[str, Any
     return None
 
 
-async def fetch_agent_health(url: str, client: httpx.AsyncClient) -> Dict[str, Any] | None:
+async def fetch_agent_health(url: str, client: httpx.AsyncClient) -> dict[str, Any] | None:
     """Fetch agent health status."""
     try:
         resp = await client.get(f"{url}/health", timeout=10.0)
@@ -77,40 +123,46 @@ async def poll_agents():
         while True:
             try:
                 timestamp = datetime.now(timezone.utc).isoformat()
-                
+
                 for url in AGENT_URLS:
                     card = await fetch_agent_card(url, client)
                     health = await fetch_agent_health(url, client)
-                    
+
                     async with lock:
                         if card or health:
-                            agent_name = (health or {}).get("name") or (card or {}).get("name") or url
-                            
+                            agent_name = (
+                                (health or {}).get("name") or (card or {}).get("name") or url
+                            )
+
                             # Infer dependencies from card
                             dependencies = []
                             if card and "methods" in card:
                                 # Placeholder: parse from card or env vars
                                 pass
-                            
+
                             # Calculate health score
                             status = "unknown"
                             health_score = 0.5
                             metrics = {}
-                            
+
                             if health:
                                 status = health.get("status", "unknown")
                                 metrics = health.get("metrics", {})
-                                
+
                                 # Health score calculation
                                 error_rate = 0.0
-                                total = metrics.get("tasks_completed", 0) + metrics.get("tasks_errored", 0)
+                                total = metrics.get("tasks_completed", 0) + metrics.get(
+                                    "tasks_errored", 0
+                                )
                                 if total > 0:
                                     error_rate = metrics.get("tasks_errored", 0) / total
-                                
-                                latency_factor = max(0, 1 - metrics.get("avg_latency_ms", 0) / 10000)
+
+                                latency_factor = max(
+                                    0, 1 - metrics.get("avg_latency_ms", 0) / 10000
+                                )
                                 success_rate = 1 - error_rate
-                                health_score = (latency_factor * 0.5 + success_rate * 0.5)
-                            
+                                health_score = latency_factor * 0.5 + success_rate * 0.5
+
                             agent_states[url] = {
                                 "name": agent_name,
                                 "url": url,
@@ -121,13 +173,13 @@ async def poll_agents():
                                 "card": card or {},
                                 "last_seen": timestamp,
                             }
-                        
+
                         # Mark unreachable agents
                         else:
                             if url in agent_states:
                                 agent_states[url]["status"] = "unhealthy"
                                 agent_states[url]["last_seen"] = timestamp
-                
+
                 await asyncio.sleep(UPDATE_INTERVAL_MS / 1000)
             except Exception as exc:
                 logger.error(f"Error in poll_agents: {exc}")
@@ -137,6 +189,8 @@ async def poll_agents():
 @app.on_event("startup")
 async def startup_event():
     """Start background polling on startup."""
+    global scenario_catalog
+    scenario_catalog = _load_scenario_catalog()
     asyncio.create_task(poll_agents())
     logger.info(f"Command Centre started. Monitoring {len(AGENT_URLS)} agents.")
 
@@ -166,24 +220,34 @@ async def get_topology():
     async with lock:
         nodes = []
         edges = []
-        
+
         for url, state in agent_states.items():
-            nodes.append({
-                "id": state["name"],
-                "url": url,
-                "status": state["status"],
-                "health_score": state["health_score"],
-                "metrics": state["metrics"],
-            })
-            
+            nodes.append(
+                {
+                    "id": state["name"],
+                    "url": url,
+                    "status": state["status"],
+                    "health_score": state["health_score"],
+                    "metrics": state["metrics"],
+                }
+            )
+
             # Build edges from dependencies (placeholder)
             for dep in state.get("dependencies", []):
-                edges.append({
-                    "source": state["name"],
-                    "target": dep,
-                })
-        
+                edges.append(
+                    {
+                        "source": state["name"],
+                        "target": dep,
+                    }
+                )
+
         return JSONResponse(content={"nodes": nodes, "edges": edges})
+
+
+@app.get("/api/scenario-catalog")
+async def get_scenario_catalog():
+    """Return scenario catalog metadata for dashboard journey labels."""
+    return JSONResponse(content=scenario_catalog)
 
 
 # ── WebSocket Event Streaming ─────────────────────────────────────────
@@ -192,37 +256,41 @@ async def websocket_events(websocket: WebSocket):
     """Stream real-time events from Redis pub/sub."""
     await websocket.accept()
     logger.info("WebSocket client connected")
-    
+
     try:
         # Connect to Redis
         redis_client = aioredis.from_url(REDIS_URL, decode_responses=True)
         pubsub = redis_client.pubsub()
         await pubsub.subscribe("nexus:events")
-        
+
         # Send initial agent state
         async with lock:
-            await websocket.send_json({
-                "type": "agents.snapshot",
-                "payload": list(agent_states.values()),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-            })
-        
+            await websocket.send_json(
+                {
+                    "type": "agents.snapshot",
+                    "payload": list(agent_states.values()),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+            )
+
         # Stream events
         async for message in pubsub.listen():
             if message["type"] == "message":
                 try:
                     event_data = json.loads(message["data"])
-                    await websocket.send_json({
-                        "type": "task.event",
-                        "payload": event_data,
-                        "timestamp": datetime.now(timezone.utc).isoformat(),
-                    })
+                    await websocket.send_json(
+                        {
+                            "type": "task.event",
+                            "payload": event_data,
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                        }
+                    )
                 except json.JSONDecodeError:
                     logger.warning(f"Invalid JSON in Redis message: {message['data']}")
-            
+
             # Periodically send agent updates
             await asyncio.sleep(0.1)
-    
+
     except WebSocketDisconnect:
         logger.info("WebSocket client disconnected")
     except Exception as exc:
@@ -247,4 +315,5 @@ else:
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8099)

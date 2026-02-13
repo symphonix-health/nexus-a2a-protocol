@@ -90,7 +90,7 @@ body {
 .dashboard-content {
     display: grid;
     grid-template-columns: 1fr 350px;
-    grid-template-rows: auto auto;
+    grid-template-rows: auto auto auto;
     gap: 1rem;
     padding: 1rem;
     flex: 1;
@@ -235,9 +235,192 @@ body {
 /* Timeline Panel */
 .timeline-panel {
     grid-column: 2;
-    grid-row: 1 / 3;
+    grid-row: 1 / 4;
     display: flex;
     flex-direction: column;
+}
+
+.scenario-flow-panel {
+    grid-column: 1;
+    grid-row: 3;
+}
+
+.flow-board-source {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    background: var(--bg-primary);
+}
+
+.flow-board-source.live {
+    color: #86efac;
+    border-color: rgba(16, 185, 129, 0.5);
+}
+
+.flow-board-source.synthetic {
+    color: #fcd34d;
+    border-color: rgba(245, 158, 11, 0.5);
+}
+
+.flow-board-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.flow-summary-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flow-summary-card .label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.flow-summary-card .value {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.scenario-flow-board {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.flow-lane {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+}
+
+.flow-lane h3 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.flow-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    overflow-y: auto;
+}
+
+.flow-empty {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    padding: 0.5rem;
+    border: 1px dashed var(--border-color);
+    border-radius: 6px;
+}
+
+.flow-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--accent);
+    border-radius: 6px;
+    padding: 0.6rem;
+    font-size: 0.78rem;
+}
+
+.flow-card.synthetic {
+    border-left-style: dashed;
+}
+
+.flow-card .scenario-id {
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+
+.flow-card .journey-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.2rem;
+    cursor: help;
+    text-decoration: underline dotted;
+    text-underline-offset: 2px;
+}
+
+.flow-card .journey-label:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.journey-popover {
+    position: absolute;
+    z-index: 1200;
+    max-width: 360px;
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-size: 0.78rem;
+    line-height: 1.4;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+    word-break: break-word;
+    pointer-events: none;
+}
+
+.journey-popover.hidden {
+    display: none;
+}
+
+.flow-card .meta {
+    margin-top: 0.25rem;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.flow-card .phase-badge {
+    display: inline-block;
+    margin-top: 0.4rem;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+}
+
+.flow-card .phase-accepted {
+    background: rgba(59, 130, 246, 0.2);
+    color: #93c5fd;
+}
+
+.flow-card .phase-working {
+    background: rgba(139, 92, 246, 0.2);
+    color: #c4b5fd;
+}
+
+.flow-card .phase-final {
+    background: rgba(16, 185, 129, 0.2);
+    color: #86efac;
+}
+
+.flow-card .phase-error {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
 }
 
 .timeline-filters {
@@ -454,12 +637,16 @@ body {
 @media (max-width: 1024px) {
     .dashboard-content {
         grid-template-columns: 1fr;
-        grid-template-rows: auto auto auto;
+        grid-template-rows: auto auto auto auto;
     }
 
     .timeline-panel {
         grid-column: 1;
-        grid-row: 3;
+        grid-row: 4;
         max-height: 400px;
+    }
+
+    .scenario-flow-board {
+        grid-template-columns: 1fr;
     }
 }

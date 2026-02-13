@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 JSONRPC_VERSION = "2.0"
 
@@ -20,6 +20,7 @@ NEXUS_AUTH_FAILED = -32001
 NEXUS_TASK_NOT_FOUND = -32002
 NEXUS_TASK_CANCELLED = -32003
 NEXUS_RATE_LIMITED = -32004
+FAILURE_DOMAINS = {"agent", "network", "validation"}
 
 
 @dataclass
@@ -28,16 +29,58 @@ class JsonRpcError(Exception):
 
     code: int
     message: str
-    data: Optional[Any] = None
+    data: Any | None = None
+    retryable: bool | None = None
+    retry_after_ms: int | None = None
+    failure_domain: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
-        err: Dict[str, Any] = {"code": self.code, "message": self.message}
-        if self.data is not None:
-            err["data"] = self.data
+    def to_dict(self) -> dict[str, Any]:
+        err: dict[str, Any] = {"code": self.code, "message": self.message}
+        data = make_error_data(
+            self.data,
+            retryable=self.retryable,
+            retry_after_ms=self.retry_after_ms,
+            failure_domain=self.failure_domain,
+        )
+        if data is not None:
+            err["data"] = data
         return err
 
 
-def parse_request(payload: Dict[str, Any]) -> Dict[str, Any]:
+def make_error_data(
+    data: Any | None,
+    *,
+    retryable: bool | None = None,
+    retry_after_ms: int | None = None,
+    failure_domain: str | None = None,
+) -> Any | None:
+    """Build standardized JSON-RPC error.data with NEXUS failure taxonomy."""
+    if retry_after_ms is not None and retry_after_ms < 0:
+        raise ValueError("retry_after_ms must be >= 0")
+    if failure_domain is not None and failure_domain not in FAILURE_DOMAINS:
+        raise ValueError(f"failure_domain must be one of {sorted(FAILURE_DOMAINS)}")
+
+    if data is None and retryable is None and retry_after_ms is None and failure_domain is None:
+        return None
+
+    if isinstance(data, dict):
+        payload: dict[str, Any] = dict(data)
+    elif data is None:
+        payload = {}
+    else:
+        payload = {"detail": data}
+
+    if retryable is not None:
+        payload["retryable"] = retryable
+    if retry_after_ms is not None:
+        payload["retry_after_ms"] = retry_after_ms
+    if failure_domain is not None:
+        payload["failure_domain"] = failure_domain
+
+    return payload
+
+
+def parse_request(payload: dict[str, Any]) -> dict[str, Any]:
     """Parse and validate an incoming JSON-RPC 2.0 request."""
     if not isinstance(payload, dict):
         raise JsonRpcError(INVALID_REQUEST, "Invalid Request", "Payload must be a JSON object")
@@ -55,11 +98,11 @@ def parse_request(payload: Dict[str, Any]) -> Dict[str, Any]:
     return {"id": payload["id"], "method": payload["method"], "params": params}
 
 
-def response_result(id_: Any, result: Any) -> Dict[str, Any]:
+def response_result(id_: Any, result: Any) -> dict[str, Any]:
     """Build a JSON-RPC 2.0 success response."""
     return {"jsonrpc": JSONRPC_VERSION, "id": id_, "result": result}
 
 
-def response_error(id_: Any, err: JsonRpcError) -> Dict[str, Any]:
+def response_error(id_: Any, err: JsonRpcError) -> dict[str, Any]:
     """Build a JSON-RPC 2.0 error response."""
     return {"jsonrpc": JSONRPC_VERSION, "id": id_, "error": err.to_dict()}
