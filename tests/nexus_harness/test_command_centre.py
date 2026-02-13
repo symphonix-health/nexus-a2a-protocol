@@ -1,6 +1,7 @@
 """Matrix-driven tests for the Command Centre monitoring dashboard."""
 from __future__ import annotations
 
+import asyncio
 import json
 import time
 import pytest
@@ -12,6 +13,7 @@ from tests.nexus_harness.runner import (
 
 MATRIX = "nexus_command_centre_matrix.json"
 URLS = DEMO_URLS.get("command-centre", {"dashboard": "http://localhost:8099"})
+ED_URLS = DEMO_URLS["ed-triage"]
 
 _positive = scenarios_for(MATRIX, scenario_type="positive")
 _negative = scenarios_for(MATRIX, scenario_type="negative")
@@ -222,3 +224,115 @@ async def test_command_centre_edge(scenario: dict, client: httpx.AsyncClient):
     finally:
         sr.duration_ms = (time.monotonic() - t0) * 1000
         get_report().add(sr)
+
+
+@pytest.mark.asyncio
+async def test_command_centre_ed_triage_statuses_after_task(
+    client: httpx.AsyncClient,
+    auth_headers: dict,
+):
+    """Regression guard: after one ED triage task, key ED agents remain healthy on dashboard."""
+    sr = ScenarioResult(
+        use_case_id="UC-CMD-HEALTH-TRIAGE-0001",
+        scenario_title="Command Centre reports healthy ED triage statuses after one task",
+        poc_demo="command-centre",
+        scenario_type="positive",
+        requirement_ids=["MON-1", "FR-3", "FR-4", "FR-5"],
+    )
+    t0 = time.monotonic()
+    dashboard_base = URLS.get("dashboard", "http://localhost:8099")
+    triage_base = ED_URLS["triage-agent"]
+    required_agents = ("openhie-mediator", "diagnosis-agent", "triage-agent")
+
+    try:
+        # Wait for command centre and triage agent to become reachable.
+        deadline_ready = time.monotonic() + 180.0
+        cc_ready = False
+        triage_ready = False
+        while time.monotonic() < deadline_ready:
+            try:
+                health = await client.get(f"{dashboard_base}/health", timeout=10.0)
+                cc_ready = health.status_code == 200
+            except Exception:
+                cc_ready = False
+            try:
+                triage_health = await client.get(f"{triage_base}/health", timeout=10.0)
+                triage_ready = triage_health.status_code == 200
+            except Exception:
+                triage_ready = False
+            if cc_ready and triage_ready:
+                break
+            await asyncio.sleep(2.0)
+
+        assert cc_ready, "Command Centre did not become ready within 180s"
+        assert triage_ready, "Triage agent did not become ready within 180s"
+
+        payload = {
+            "jsonrpc": "2.0",
+            "id": "harness-cmd-health-1",
+            "method": "tasks/sendSubscribe",
+            "params": {
+                "task": {
+                    "patient_ref": "Patient/123",
+                    "inputs": {
+                        "chief_complaint": "chest pain and shortness of breath",
+                        "age": 55,
+                    },
+                }
+            },
+        }
+        triage_resp = await client.post(
+            f"{triage_base}/rpc",
+            headers=auth_headers,
+            content=json.dumps(payload),
+            timeout=30.0,
+        )
+        assert triage_resp.status_code == 200, f"Triage RPC failed: {triage_resp.status_code}"
+        triage_body = triage_resp.json()
+        task_id = ((triage_body.get("result") or {}).get("task_id"))
+        assert task_id, "Triage RPC response missing task_id"
+
+        deadline = time.monotonic() + 660.0
+        snapshots: dict[str, dict] = {}
+
+        while time.monotonic() < deadline:
+            await asyncio.sleep(5.0)
+            agents_resp = await client.get(f"{dashboard_base}/api/agents", timeout=30.0)
+            assert agents_resp.status_code == 200, f"/api/agents failed: {agents_resp.status_code}"
+            rows = agents_resp.json()
+            by_name = {
+                a.get("name"): a for a in rows
+                if isinstance(a, dict) and a.get("name")
+            }
+            if all(name in by_name for name in required_agents):
+                snapshots = {name: by_name[name] for name in required_agents}
+                # Wait until each relevant agent has processed at least one task result.
+                done = True
+                for name in required_agents:
+                    metrics = snapshots[name].get("metrics", {})
+                    processed = int(metrics.get("tasks_completed", 0)) + int(metrics.get("tasks_errored", 0))
+                    if processed < 1:
+                        done = False
+                        break
+                if done:
+                    break
+
+        assert snapshots, "Dashboard never reported all required ED agents"
+        statuses = {name: snapshots[name].get("status", "unknown") for name in required_agents}
+        metrics_dump = {name: snapshots[name].get("metrics", {}) for name in required_agents}
+        non_healthy = {name: status for name, status in statuses.items() if status != "healthy"}
+        assert not non_healthy, (
+            f"Expected healthy statuses for {required_agents}, got {statuses}; "
+            f"metrics={metrics_dump}"
+        )
+        sr.status = "pass"
+    except AssertionError as exc:
+        sr.status = "fail"
+        sr.message = str(exc)
+    except Exception as exc:
+        sr.status = "error"
+        sr.message = str(exc)
+    finally:
+        sr.duration_ms = (time.monotonic() - t0) * 1000
+        get_report().add(sr)
+    assert sr.status == "pass", sr.message

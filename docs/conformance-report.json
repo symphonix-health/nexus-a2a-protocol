@@ -1,100 +1,25 @@
 {
-  "generated_at": "2026-02-12T12:10:40.190491+00:00",
-  "total": 7,
-  "passed": 7,
+  "generated_at": "2026-02-13T11:45:32.584330+00:00",
+  "total": 1,
+  "passed": 1,
   "failed": 0,
   "skipped": 0,
   "errors": 0,
   "results": [
     {
-      "use_case_id": "UC-LLM-LOCAL-0001",
-      "scenario_title": "Launch script lists configured LLM profiles",
-      "poc_demo": "local-llm-profile",
+      "use_case_id": "UC-CMD-HEALTH-TRIAGE-0001",
+      "scenario_title": "Command Centre reports healthy ED triage statuses after one task",
+      "poc_demo": "command-centre",
       "scenario_type": "positive",
       "requirement_ids": [
-        "CFG-LLM-1",
-        "CFG-LLM-2"
+        "MON-1",
+        "FR-3",
+        "FR-4",
+        "FR-5"
       ],
       "status": "pass",
       "message": "",
-      "duration_ms": 1577.999999979511
-    },
-    {
-      "use_case_id": "UC-LLM-LOCAL-0002",
-      "scenario_title": "Profile startup output advertises local model and base URL",
-      "poc_demo": "local-llm-profile",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CFG-LLM-3",
-        "CFG-LLM-4"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 93.99999998277053
-    },
-    {
-      "use_case_id": "UC-LLM-LOCAL-0003",
-      "scenario_title": "Consent analyser performs authenticated RPC without mock fallback (allow path)",
-      "poc_demo": "local-llm-profile",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CFG-LLM-5",
-        "E2E-LLM-1"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 265140.00000001397
-    },
-    {
-      "use_case_id": "UC-LLM-LOCAL-0004",
-      "scenario_title": "Consent analyser performs authenticated RPC without mock fallback (deny path)",
-      "poc_demo": "local-llm-profile",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "CFG-LLM-5",
-        "E2E-LLM-2"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 8422.00000002049
-    },
-    {
-      "use_case_id": "UC-LLM-LOCAL-0005",
-      "scenario_title": "Unknown LLM profile fails fast with clear error",
-      "poc_demo": "local-llm-profile",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "CFG-LLM-6"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 3219.000000040978
-    },
-    {
-      "use_case_id": "UC-LLM-LOCAL-0006",
-      "scenario_title": "Local OpenAI-compatible model endpoint exposes model.gguf",
-      "poc_demo": "local-llm-profile",
-      "scenario_type": "edge",
-      "requirement_ids": [
-        "CFG-LLM-7",
-        "E2E-LLM-3"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 545.9999999729916
-    },
-    {
-      "use_case_id": "UC-LLM-LOCAL-0007",
-      "scenario_title": "Local OpenAI-compatible chat completion endpoint responds on model.gguf",
-      "poc_demo": "local-llm-profile",
-      "scenario_type": "edge",
-      "requirement_ids": [
-        "CFG-LLM-7",
-        "E2E-LLM-4"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 13672.00000002049
+      "duration_ms": 5859.9999999999
     }
   ]
 }

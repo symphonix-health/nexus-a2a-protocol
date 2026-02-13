@@ -1,0 +1,15 @@
+{
+  "name": "nexus-a2a-protocol",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Node tooling for Playwright in this workspace",
+  "scripts": {
+    "pw:install": "playwright install",
+    "pw:test": "playwright test",
+    "pw:codegen": "playwright codegen"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "playwright": "^1.58.2"
+  }
+}

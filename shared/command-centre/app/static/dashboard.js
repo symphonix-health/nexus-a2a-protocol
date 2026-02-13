@@ -7,9 +7,20 @@
 const state = {
     agents: [],
     events: [],
+    scenarios: {},
+    scenarioCatalog: [],
     ws: null,
     connected: false,
     charts: null,
+    flowSource: 'idle',
+    lastRealFlowEventAt: 0,
+    syntheticFlowInterval: null,
+    syntheticCursor: 0,
+    syntheticScenarios: [
+        { id: 'VISIT-DEMO-1001', steps: ['triage', 'diagnosis', 'imaging', 'discharge'], index: 0 },
+        { id: 'VISIT-DEMO-1002', steps: ['triage', 'diagnosis', 'pharmacy', 'followup'], index: 0 },
+        { id: 'VISIT-DEMO-1003', steps: ['triage', 'diagnosis', 'bed', 'coordinator'], index: 0 },
+    ],
     filters: {
         accepted: true,
         working: true,
@@ -18,12 +29,24 @@ const state = {
     },
 };
 
+const FLOW_STALE_MS = 30000;
+const FLOW_EXPIRE_MS = 10 * 60 * 1000;
+const FLOW_SYNTHETIC_DELAY_MS = 8000;
+
 // Initialize on load
 document.addEventListener('DOMContentLoaded', () => {
     initializeWebSocket();
+    loadScenarioCatalog();
+    initializeScenarioFlowBoard();
+    initializeJourneyPopover();
     initializeFilters();
     initializeToggleButtons();
 });
+
+const popoverState = {
+    element: null,
+    activeTarget: null,
+};
 
 // ── WebSocket Connection ──────────────────────────────────────────────
 function initializeWebSocket() {
@@ -69,6 +92,7 @@ function handleWebSocketMessage(message) {
         case 'task.event':
             addEvent(message.payload);
             updateHeatmapMetrics(message.payload);
+            ingestScenarioEvent(message.payload, false);
             break;
 
         default:
@@ -267,6 +291,474 @@ function updateHeatmapMetrics(event) {
         // Update would happen here in real implementation
         // For now, metrics come from polling
     }
+}
+
+// ── Scenario Flow Board ───────────────────────────────────────────────
+function initializeScenarioFlowBoard() {
+    renderScenarioFlowBoard();
+
+    setInterval(() => {
+        pruneStaleScenarios();
+        maybeStartSyntheticFlow();
+        renderScenarioFlowBoard();
+    }, 5000);
+
+    setTimeout(() => {
+        maybeStartSyntheticFlow();
+    }, FLOW_SYNTHETIC_DELAY_MS);
+}
+
+async function loadScenarioCatalog() {
+    try {
+        const response = await fetch('/api/scenario-catalog');
+        if (!response.ok) {
+            return;
+        }
+
+        const payload = await response.json();
+        if (!Array.isArray(payload)) {
+            return;
+        }
+
+        state.scenarioCatalog = payload;
+        renderScenarioFlowBoard();
+    } catch (error) {
+        console.warn('Scenario catalog unavailable:', error);
+    }
+}
+
+function ingestScenarioEvent(event, isSynthetic = false) {
+    if (!event || !event.task_id || !event.event) return;
+
+    const phase = normalizeFlowPhase(event.event);
+    if (!phase) return;
+
+    if (!isSynthetic) {
+        state.lastRealFlowEventAt = Date.now();
+        if (state.flowSource !== 'live') {
+            state.flowSource = 'live';
+            stopSyntheticFlow();
+            removeSyntheticScenarios();
+        }
+    }
+
+    const scenarioId = deriveScenarioId(event.task_id);
+    const now = Date.now();
+    const current = state.scenarios[scenarioId] || {
+        id: scenarioId,
+        journeyLabel: resolveScenarioLabel(event.task_id, scenarioId),
+        journeyDescription: resolveScenarioDescription(event.task_id),
+        taskId: event.task_id,
+        step: deriveStepName(event.task_id, event.agent),
+        phase,
+        status: 'active',
+        agent: event.agent || 'unknown-agent',
+        firstSeenAt: now,
+        updatedAt: now,
+        completedAt: null,
+        isSynthetic,
+        totalDurationMs: 0,
+    };
+
+    current.taskId = event.task_id;
+    current.journeyLabel = resolveScenarioLabel(event.task_id, scenarioId);
+    current.journeyDescription = resolveScenarioDescription(event.task_id);
+    current.step = deriveStepName(event.task_id, event.agent);
+    current.phase = phase;
+    current.agent = event.agent || current.agent;
+    current.updatedAt = now;
+    current.isSynthetic = isSynthetic;
+    current.totalDurationMs += event.duration_ms || 0;
+
+    if (phase === 'final' || phase === 'error') {
+        current.status = 'completed';
+        current.completedAt = now;
+    } else {
+        current.status = 'active';
+    }
+
+    state.scenarios[scenarioId] = current;
+    renderScenarioFlowBoard();
+}
+
+function normalizeFlowPhase(eventName) {
+    if (typeof eventName !== 'string') return null;
+    const phase = eventName.split('.').pop();
+    if (['accepted', 'working', 'final', 'error'].includes(phase)) {
+        return phase;
+    }
+    return null;
+}
+
+function deriveScenarioId(taskId) {
+    if (!taskId || typeof taskId !== 'string') return 'unknown-scenario';
+    const parts = taskId.split('-').filter(Boolean);
+
+    if (parts.length >= 3 && parts[0].toUpperCase() === 'VISIT') {
+        return `${parts[0]}-${parts[1]}`;
+    }
+
+    if (parts.length >= 3 && parts[0].toUpperCase() === 'PAT') {
+        return `${parts[0]}-${parts[1]}`;
+    }
+
+    if (parts.length >= 2) {
+        return `${parts[0]}-${parts[1]}`;
+    }
+
+    return parts[0] || taskId;
+}
+
+function deriveStepName(taskId, agentName) {
+    if (taskId && taskId.includes('-')) {
+        return taskId.split('-').pop();
+    }
+    return agentName || 'unknown-step';
+}
+
+function resolveScenarioLabel(taskId, scenarioId) {
+    const match = findBestScenarioMatch(taskId);
+    if (match) {
+        return match.display_name || humanizeScenarioId(match.name || '');
+    }
+    return humanizeScenarioId(scenarioId);
+}
+
+function resolveScenarioDescription(taskId) {
+    const match = findBestScenarioMatch(taskId);
+    if (match && match.description) {
+        return String(match.description);
+    }
+    return 'Scenario description unavailable';
+}
+
+function findBestScenarioMatch(taskId) {
+    const normalizedTaskId = String(taskId || '').toLowerCase();
+
+    if (state.scenarioCatalog.length > 0 && normalizedTaskId) {
+        let bestMatch = null;
+
+        state.scenarioCatalog.forEach((entry) => {
+            const prefixes = Array.isArray(entry.task_id_prefixes) ? entry.task_id_prefixes : [];
+            prefixes.forEach((prefix) => {
+                const normalizedPrefix = String(prefix || '').toLowerCase().trim();
+                if (!normalizedPrefix) return;
+
+                if (matchesTaskIdPrefix(normalizedTaskId, normalizedPrefix)) {
+                    if (!bestMatch || normalizedPrefix.length > bestMatch.prefixLength) {
+                        bestMatch = {
+                            entry,
+                            prefixLength: normalizedPrefix.length,
+                        };
+                    }
+                }
+            });
+        });
+
+        if (bestMatch) {
+            return bestMatch.entry;
+        }
+    }
+
+    return null;
+}
+
+function matchesTaskIdPrefix(taskId, prefix) {
+    return taskId.includes(`-${prefix}-`) || taskId.endsWith(`-${prefix}`) || taskId.includes(prefix);
+}
+
+function humanizeScenarioId(value) {
+    if (!value) return 'Unknown Journey';
+    return String(value)
+        .replace(/^VISIT-[^-]+-?/i, '')
+        .replace(/_/g, ' ')
+        .replace(/-/g, ' ')
+        .replace(/\b\w/g, (char) => char.toUpperCase())
+        .trim() || value;
+}
+
+function getFlowLane(scenario, now = Date.now()) {
+    if (scenario.status === 'completed') {
+        return 'completed';
+    }
+
+    const ageMs = now - scenario.updatedAt;
+    if (ageMs > FLOW_STALE_MS || scenario.phase === 'error') {
+        return 'at-risk';
+    }
+
+    return 'now';
+}
+
+function renderScenarioFlowBoard() {
+    const laneNow = document.getElementById('flow-lane-now');
+    const laneAtRisk = document.getElementById('flow-lane-at-risk');
+    const laneCompleted = document.getElementById('flow-lane-completed');
+
+    if (!laneNow || !laneAtRisk || !laneCompleted) return;
+
+    const scenarios = Object.values(state.scenarios)
+        .sort((a, b) => b.updatedAt - a.updatedAt)
+        .slice(0, 18);
+
+    const lanes = {
+        now: [],
+        'at-risk': [],
+        completed: [],
+    };
+
+    scenarios.forEach((scenario) => {
+        lanes[getFlowLane(scenario)].push(scenario);
+    });
+
+    updateFlowSummaryCounts(lanes);
+    updateFlowSourceBadge();
+
+    renderFlowLane(laneNow, lanes.now, 'No active journeys right now');
+    renderFlowLane(laneAtRisk, lanes['at-risk'], 'No at-risk journeys');
+    renderFlowLane(laneCompleted, lanes.completed, 'No completed journeys yet');
+}
+
+function renderFlowLane(container, scenarios, emptyMessage) {
+    container.innerHTML = '';
+
+    if (scenarios.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'flow-empty';
+        empty.textContent = emptyMessage;
+        container.appendChild(empty);
+        return;
+    }
+
+    scenarios.forEach((scenario) => {
+        const card = document.createElement('article');
+        card.className = `flow-card ${scenario.isSynthetic ? 'synthetic' : ''}`;
+
+        const ageSeconds = Math.max(0, Math.floor((Date.now() - scenario.updatedAt) / 1000));
+        const durationSeconds = Math.max(0, Math.floor((scenario.updatedAt - scenario.firstSeenAt) / 1000));
+
+        const journeyLabel = escapeHtml(scenario.journeyLabel || 'Unknown Journey');
+        const journeyDescription = escapeHtmlAttribute(
+            scenario.journeyDescription || 'Scenario description unavailable'
+        );
+        const scenarioId = escapeHtml(scenario.id || 'unknown-scenario');
+        const agentName = escapeHtml(scenario.agent || 'unknown-agent');
+        const stepName = escapeHtml(scenario.step || 'unknown-step');
+        const phase = escapeHtml(scenario.phase || 'working');
+
+        card.innerHTML = `
+            <div class="journey-label" data-description="${journeyDescription}" tabindex="0" aria-describedby="journey-popover">${journeyLabel}</div>
+            <div class="scenario-id">${scenarioId}</div>
+            <div class="meta">
+                <span>${agentName}</span>
+                <span>${ageSeconds}s ago</span>
+            </div>
+            <span class="phase-badge phase-${phase}">${phase}</span>
+            <div class="meta">
+                <span>Step: ${stepName}</span>
+                <span>Elapsed: ${durationSeconds}s</span>
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+function initializeJourneyPopover() {
+    const popover = document.createElement('div');
+    popover.id = 'journey-popover';
+    popover.className = 'journey-popover hidden';
+    popover.setAttribute('role', 'tooltip');
+    document.body.appendChild(popover);
+    popoverState.element = popover;
+
+    document.addEventListener('mouseover', (event) => {
+        const target = event.target.closest('.journey-label[data-description]');
+        if (!target) return;
+        showJourneyPopover(target);
+    });
+
+    document.addEventListener('mouseout', (event) => {
+        if (!popoverState.activeTarget) return;
+
+        const leavingTarget = event.target.closest('.journey-label[data-description]');
+        const enteringTarget = event.relatedTarget && event.relatedTarget.closest
+            ? event.relatedTarget.closest('.journey-label[data-description]')
+            : null;
+
+        if (leavingTarget && leavingTarget === popoverState.activeTarget && !enteringTarget) {
+            hideJourneyPopover();
+        }
+    });
+
+    document.addEventListener('focusin', (event) => {
+        const target = event.target.closest('.journey-label[data-description]');
+        if (!target) return;
+        showJourneyPopover(target);
+    });
+
+    document.addEventListener('focusout', (event) => {
+        const target = event.target.closest('.journey-label[data-description]');
+        if (!target) return;
+        hideJourneyPopover();
+    });
+
+    document.addEventListener('scroll', () => {
+        if (popoverState.activeTarget) {
+            positionJourneyPopover(popoverState.activeTarget);
+        }
+    }, true);
+
+    window.addEventListener('resize', () => {
+        if (popoverState.activeTarget) {
+            positionJourneyPopover(popoverState.activeTarget);
+        }
+    });
+}
+
+function showJourneyPopover(target) {
+    if (!popoverState.element) return;
+
+    const description = target.dataset.description || 'Scenario description unavailable';
+    popoverState.element.textContent = description;
+    popoverState.element.classList.remove('hidden');
+    popoverState.activeTarget = target;
+    positionJourneyPopover(target);
+}
+
+function hideJourneyPopover() {
+    if (!popoverState.element) return;
+    popoverState.element.classList.add('hidden');
+    popoverState.activeTarget = null;
+}
+
+function positionJourneyPopover(target) {
+    if (!popoverState.element || !target) return;
+
+    const rect = target.getBoundingClientRect();
+    const popover = popoverState.element;
+    const margin = 10;
+
+    popover.style.left = '0px';
+    popover.style.top = '0px';
+
+    const popoverWidth = popover.offsetWidth;
+    const popoverHeight = popover.offsetHeight;
+
+    let left = rect.left + window.scrollX;
+    let top = rect.bottom + window.scrollY + margin;
+
+    const maxLeft = window.scrollX + window.innerWidth - popoverWidth - margin;
+    left = Math.max(window.scrollX + margin, Math.min(left, maxLeft));
+
+    const wouldOverflowBottom = top + popoverHeight > window.scrollY + window.innerHeight - margin;
+    if (wouldOverflowBottom) {
+        top = rect.top + window.scrollY - popoverHeight - margin;
+    }
+
+    popover.style.left = `${left}px`;
+    popover.style.top = `${Math.max(window.scrollY + margin, top)}px`;
+}
+
+function updateFlowSummaryCounts(lanes) {
+    document.getElementById('flow-now-count').textContent = lanes.now.length;
+    document.getElementById('flow-at-risk-count').textContent = lanes['at-risk'].length;
+    document.getElementById('flow-completed-count').textContent = lanes.completed.length;
+}
+
+function updateFlowSourceBadge() {
+    const badge = document.getElementById('flow-board-source');
+    if (!badge) return;
+
+    badge.classList.remove('idle', 'live', 'synthetic');
+    badge.classList.add(state.flowSource);
+
+    if (state.flowSource === 'live') {
+        badge.textContent = 'Live journey events';
+    } else if (state.flowSource === 'synthetic') {
+        badge.textContent = 'Demo mode (synthetic)';
+    } else {
+        badge.textContent = 'Waiting for events';
+    }
+}
+
+function maybeStartSyntheticFlow() {
+    const noLiveTraffic = Date.now() - state.lastRealFlowEventAt > FLOW_SYNTHETIC_DELAY_MS;
+    if (!noLiveTraffic || state.syntheticFlowInterval || state.flowSource === 'live') {
+        return;
+    }
+
+    state.flowSource = 'synthetic';
+    state.syntheticFlowInterval = setInterval(() => {
+        emitSyntheticFlowEvent();
+    }, 2500);
+
+    emitSyntheticFlowEvent();
+}
+
+function stopSyntheticFlow() {
+    if (state.syntheticFlowInterval) {
+        clearInterval(state.syntheticFlowInterval);
+        state.syntheticFlowInterval = null;
+    }
+}
+
+function removeSyntheticScenarios() {
+    Object.keys(state.scenarios).forEach((id) => {
+        if (state.scenarios[id].isSynthetic) {
+            delete state.scenarios[id];
+        }
+    });
+}
+
+function emitSyntheticFlowEvent() {
+    const index = state.syntheticCursor % state.syntheticScenarios.length;
+    const scenario = state.syntheticScenarios[index];
+    state.syntheticCursor += 1;
+
+    const stepName = scenario.steps[scenario.index];
+    let phase = 'working';
+    if (scenario.index === 0) phase = 'accepted';
+    if (scenario.index === scenario.steps.length - 1) phase = 'final';
+
+    const payload = {
+        agent: `${stepName}-agent`,
+        task_id: `${scenario.id}-${stepName}`,
+        event: `nexus.task.${phase}`,
+        timestamp: new Date().toISOString(),
+        duration_ms: Math.floor(Math.random() * 1200) + 300,
+    };
+
+    addEvent(payload);
+    ingestScenarioEvent(payload, true);
+
+    if (phase === 'final') {
+        scenario.index = 0;
+    } else {
+        scenario.index += 1;
+    }
+}
+
+function pruneStaleScenarios() {
+    const now = Date.now();
+    Object.keys(state.scenarios).forEach((id) => {
+        if (now - state.scenarios[id].updatedAt > FLOW_EXPIRE_MS) {
+            delete state.scenarios[id];
+        }
+    });
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function escapeHtmlAttribute(value) {
+    return escapeHtml(value).replace(/\n/g, ' ');
 }
 
 // ── Timeline Events ───────────────────────────────────────────────────

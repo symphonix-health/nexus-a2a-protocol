@@ -18,6 +18,16 @@ VALID_TASK_STATES = {
     "failed",
     "canceled",
 }
+VALID_PROGRESS_STATES = {"accepted", "working", "final", "error", "cancelled"}
+
+STATE_TO_PROGRESS = {
+    "submitted": "accepted",
+    "working": "working",
+    "input-required": "working",
+    "completed": "final",
+    "failed": "error",
+    "canceled": "cancelled",
+}
 
 
 def _new_id() -> str:
@@ -119,6 +129,9 @@ class TaskStatus:
     state: str
     timestamp: str = field(default_factory=_utc_now)
     message: Message | None = None
+    progress_state: str | None = None
+    percent: float | None = None
+    eta_ms: int | None = None
 
     def __post_init__(self) -> None:
         if self.state not in VALID_TASK_STATES:
@@ -127,9 +140,26 @@ class TaskStatus:
             )
         if self.message is not None and not isinstance(self.message, Message):
             raise ProtocolValidationError("TaskStatus.message must be a Message or None")
+        if self.progress_state is None:
+            self.progress_state = STATE_TO_PROGRESS.get(self.state, "working")
+        if self.progress_state == "canceled":
+            self.progress_state = "cancelled"
+        if self.progress_state not in VALID_PROGRESS_STATES:
+            raise ProtocolValidationError(
+                f"TaskStatus.progress_state must be one of {sorted(VALID_PROGRESS_STATES)}"
+            )
+        if self.percent is not None and not (0.0 <= self.percent <= 100.0):
+            raise ProtocolValidationError("TaskStatus.percent must be between 0 and 100")
+        if self.eta_ms is not None and self.eta_ms < 0:
+            raise ProtocolValidationError("TaskStatus.eta_ms must be >= 0")
 
     def to_dict(self) -> dict[str, Any]:
         payload: dict[str, Any] = {"state": self.state, "timestamp": self.timestamp}
+        payload["progress"] = {
+            "state": self.progress_state,
+            **({"percent": self.percent} if self.percent is not None else {}),
+            **({"eta_ms": self.eta_ms} if self.eta_ms is not None else {}),
+        }
         if self.message is not None:
             payload["message"] = self.message.to_dict()
         return payload
@@ -144,6 +174,9 @@ class Task:
     status: TaskStatus = field(default_factory=lambda: TaskStatus(state="submitted"))
     history: list[TaskStatus] = field(default_factory=list)
     artifacts: list[Message] = field(default_factory=list)
+    scenario_context: dict[str, Any] = field(default_factory=dict)
+    correlation: dict[str, Any] = field(default_factory=dict)
+    idempotency: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if not self.history:
@@ -162,6 +195,9 @@ class Task:
             "status": self.status.to_dict(),
             "history": [status.to_dict() for status in self.history],
             "artifacts": [artifact.to_dict() for artifact in self.artifacts],
+            "scenario_context": self.scenario_context,
+            "correlation": self.correlation,
+            "idempotency": self.idempotency,
         }
 
 

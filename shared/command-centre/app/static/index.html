@@ -61,6 +61,41 @@
                 </div>
             </section>
 
+            <section class="panel scenario-flow-panel">
+                <h2>
+                    Scenario Flow Board
+                    <span id="flow-board-source" class="flow-board-source idle">Waiting for events</span>
+                </h2>
+                <div class="flow-board-summary">
+                    <div class="flow-summary-card">
+                        <span class="label">Now</span>
+                        <span id="flow-now-count" class="value">0</span>
+                    </div>
+                    <div class="flow-summary-card">
+                        <span class="label">At Risk</span>
+                        <span id="flow-at-risk-count" class="value">0</span>
+                    </div>
+                    <div class="flow-summary-card">
+                        <span class="label">Completed</span>
+                        <span id="flow-completed-count" class="value">0</span>
+                    </div>
+                </div>
+                <div class="scenario-flow-board">
+                    <section class="flow-lane" aria-label="Now lane">
+                        <h3>Now</h3>
+                        <div id="flow-lane-now" class="flow-cards"></div>
+                    </section>
+                    <section class="flow-lane" aria-label="At risk lane">
+                        <h3>At Risk</h3>
+                        <div id="flow-lane-at-risk" class="flow-cards"></div>
+                    </section>
+                    <section class="flow-lane" aria-label="Completed lane">
+                        <h3>Completed</h3>
+                        <div id="flow-lane-completed" class="flow-cards"></div>
+                    </section>
+                </div>
+            </section>
+
             <!-- Timeline Panel (Right Sidebar) -->
             <aside class="panel timeline-panel">
                 <h2>Event Timeline</h2>
