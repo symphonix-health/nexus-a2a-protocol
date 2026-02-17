@@ -148,9 +148,46 @@
                 </div>
             </div>
         </section>
-    </div>
 
-    <!-- Toast Notifications  -->
+        <!-- Clinical Scenario Trace Panel -->
+        <section class="panel trace-panel">
+            <h2>
+                Patient Journey Trace
+                <span id="trace-count-badge" class="trace-count-badge">0 runs</span>
+            </h2>
+            <div class="trace-layout">
+                <!-- Run list (left rail) -->
+                <div class="trace-run-list">
+                    <h3>Patient Runs</h3>
+                    <div class="trace-run-list-header">
+                        <input id="trace-search" type="text" placeholder="Search by complaint, scenario, urgency…"
+                            class="trace-search">
+                    </div>
+                    <div id="trace-run-items" class="trace-run-items">
+                        <div class="trace-empty">No trace runs yet. Run a scenario to begin.</div>
+                    </div>
+                </div>
+                <!-- Step timeline (centre) -->
+                <div class="trace-step-timeline">
+                    <h3>Clinical Timeline</h3>
+                    <div id="trace-step-container" class="trace-step-container">
+                        <div class="trace-empty">Select a run to view step-by-step trace.</div>
+                    </div>
+                </div>
+                <!-- Patient context sidebar (right) -->
+                <aside class="trace-context-sidebar">
+                    <h3>Patient Context</h3>
+                    <div id="trace-patient-context">
+                        <div class="trace-empty">Patient context will appear here.</div>
+                    </div>
+                    <div class="trace-redaction-notice">
+                        <span class="redaction-badge">🔒 Redacted for display (policy v1)</span>
+                    </div>
+                    <button id="trace-export-btn" class="trace-export-btn" disabled>Export JSON</button>
+                </aside>
+            </div>
+        </section>
+    </div>
     <div id="toast-container"></div>
 
     <!-- Scripts -->
