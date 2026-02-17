@@ -1,5 +1,3 @@
-"""OpenHIE Mediator Agent — FHIR gateway for ED Triage demo."""
-
 from __future__ import annotations
 
 import json
@@ -52,6 +50,7 @@ def _require_auth(req: Request, required_roles: list[str] | None = None) -> str:
             payload = verify_jwt(token, JWT_SECRET, required_scope=REQUIRED_SCOPE)
     except (AuthError, OidcError) as exc:
         raise HTTPException(status_code=401, detail=str(exc)) from exc
+
     roles_claim = payload.get("roles") or payload.get("role") or payload.get("groups") or []
     if isinstance(roles_claim, str):
         user_roles = {r.strip() for r in roles_claim.split(",") if r.strip()}
@@ -60,10 +59,7 @@ def _require_auth(req: Request, required_roles: list[str] | None = None) -> str:
     needed = required_roles if required_roles is not None else _ENV_REQUIRED_ROLES
     if needed and not set(needed).issubset(user_roles):
         raise HTTPException(status_code=403, detail="Insufficient roles")
-    try:
-        req.state.jwt_payload = payload
-    except Exception:
-        pass
+
     if did_verify_enabled() and not verify_did_signature():
         raise HTTPException(status_code=401, detail="DID signature verification failed")
     return token
@@ -78,7 +74,6 @@ async def agent_card():
 
 @app.get("/health")
 async def health():
-    """Health check endpoint with metrics."""
     return JSONResponse(content=health_monitor.get_health())
 
 
@@ -113,6 +108,8 @@ async def ws_stream(websocket: WebSocket, task_id: str):
             await websocket.send_json(evt)
     except WebSocketDisconnect:
         pass
+    finally:
+        bus.cleanup(task_id)
 
 
 METHODS: dict = {}
@@ -120,79 +117,38 @@ METHODS: dict = {}
 
 async def _fhir_get(params: dict, token: str) -> dict:
     import asyncio
+
     health_monitor.metrics.record_accepted()
     start_time = asyncio.get_event_loop().time()
-    
     try:
         base = os.getenv("FHIR_BASE_URL", "http://hapi-fhir:8080/fhir")
-        patient_ref = params.get("patient_ref", "Patient/unknown")
-        pid = patient_ref.split("/")[-1]
+        patient_ref = str(params.get("patient_ref") or "Patient/unknown")
+        patient_id = patient_ref.split("/")[-1]
         headers = {"Accept": "application/fhir+json"}
 
         try:
             async with httpx.AsyncClient(timeout=20) as client:
-                p = await client.get(f"{base}/Patient/{pid}", headers=headers)
-                p.raise_for_status()
-                a = await client.get(f"{base}/AllergyIntolerance?patient={pid}", headers=headers)
-                a.raise_for_status()
+                patient_resp = await client.get(f"{base}/Patient/{patient_id}", headers=headers)
+                patient_resp.raise_for_status()
+                allergy_resp = await client.get(
+                    f"{base}/AllergyIntolerance?patient={patient_id}", headers=headers
+                )
+                allergy_resp.raise_for_status()
             duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
             health_monitor.metrics.record_completed(duration_ms)
-            return {"patient": p.json(), "allergies": a.json()}
+            return {"patient": patient_resp.json(), "allergies": allergy_resp.json()}
         except Exception as exc:
-            logger.warning("FHIR request failed: %s — returning empty context", exc)
+            logger.warning("FHIR request failed: %s -- returning fallback context", exc)
             duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
-            # Return a graceful fallback context without classifying the mediator as failed.
-            # This keeps dashboard health aligned with mediator availability vs. upstream data gaps.
             health_monitor.metrics.record_completed(duration_ms)
             return {"patient": {}, "allergies": {}}
-    except Exception as exc:
+    except Exception:
         duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
         health_monitor.metrics.record_error(duration_ms)
         raise
 
 
 METHODS["fhir/get"] = _fhir_get
-
-
-async def _fhir_write(params: dict, token: str) -> dict:
-    """Write a FHIR resource (POST or PUT) to the configured FHIR server.
-
-    params:
-      - resourceType: e.g., "Observation", "Patient" (required)
-      - body: JSON dict of the resource (required for POST/PUT)
-      - method: "POST" (default) or "PUT"
-      - id: resource id for PUT (required if method == PUT)
-    """
-    import asyncio
-    health_monitor.metrics.record_accepted()
-    start_time = asyncio.get_event_loop().time()
-    try:
-        base = os.getenv("FHIR_BASE_URL", "http://hapi-fhir:8080/fhir")
-        rtype = params.get("resourceType") or (params.get("body") or {}).get("resourceType")
-        if not rtype:
-            raise HTTPException(status_code=400, detail="resourceType is required")
-        method = str(params.get("method", "POST")).upper()
-        rid = params.get("id")
-        body = params.get("body", {})
-        headers = {"Content-Type": "application/fhir+json", "Accept": "application/fhir+json"}
-        async with httpx.AsyncClient(timeout=20) as client:
-            if method == "PUT":
-                if not rid:
-                    raise HTTPException(status_code=400, detail="id is required for PUT")
-                resp = await client.put(f"{base}/{rtype}/{rid}", headers=headers, json=body)
-            else:
-                resp = await client.post(f"{base}/{rtype}", headers=headers, json=body)
-        resp.raise_for_status()
-        duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
-        health_monitor.metrics.record_completed(duration_ms)
-        return {"status": "ok", "resource": resp.json()}
-    except Exception as exc:
-        duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
-        health_monitor.metrics.record_error(duration_ms)
-        raise
-
-
-METHODS["fhir/write"] = _fhir_write
 
 
 @app.post("/rpc")
@@ -205,9 +161,14 @@ async def rpc(request: Request):
         if method not in METHODS:
             raise JsonRpcError(-32601, "Method not found", method)
         result = await METHODS[method](params, token)
-        return JSONResponse(content=response_result(id_, result))
+        return JSONResponse(content=response_result(id_, result, method=method, params=params))
     except JsonRpcError as exc:
         return JSONResponse(content=response_error(payload.get("id"), exc), status_code=200)
     except Exception as exc:
         err = JsonRpcError(-32000, "Server error", str(exc))
         return JSONResponse(content=response_error(payload.get("id"), err), status_code=200)
+
+
+@app.on_event("shutdown")
+async def _shutdown() -> None:
+    await bus.close()

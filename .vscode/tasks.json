@@ -4,7 +4,7 @@
     {
       "label": "Test: Run All",
       "type": "shell",
-      "command": "python",
+      "command": "${command:python.interpreterPath}",
       "args": [
         "-m",
         "pytest",
@@ -24,7 +24,7 @@
     {
       "label": "Test: Current File",
       "type": "shell",
-      "command": "python",
+      "command": "${command:python.interpreterPath}",
       "args": [
         "-m",
         "pytest",
@@ -41,7 +41,7 @@
     {
       "label": "Lint: Check All",
       "type": "shell",
-      "command": "python",
+      "command": "${command:python.interpreterPath}",
       "args": [
         "-m",
         "ruff",
@@ -59,7 +59,7 @@
     {
       "label": "Format: Check All",
       "type": "shell",
-      "command": "python",
+      "command": "${command:python.interpreterPath}",
       "args": [
         "-m",
         "ruff",
@@ -78,7 +78,7 @@
     {
       "label": "Format: Fix All",
       "type": "shell",
-      "command": "python",
+      "command": "${command:python.interpreterPath}",
       "args": [
         "-m",
         "ruff",
@@ -96,7 +96,7 @@
     {
       "label": "HelixCare: Launch All Agents",
       "type": "shell",
-      "command": "python",
+      "command": "${command:python.interpreterPath}",
       "args": [
         "tools/launch_all_agents.py"
       ],
@@ -110,7 +110,7 @@
     {
       "label": "HelixCare: Launch Agents + Command Centre",
       "type": "shell",
-      "command": "python",
+      "command": "${command:python.interpreterPath}",
       "args": [
         "tools/launch_all_agents.py",
         "--with-backend"
@@ -125,7 +125,7 @@
     {
       "label": "HelixCare: Run All Scenarios",
       "type": "shell",
-      "command": "python",
+      "command": "${command:python.interpreterPath}",
       "args": [
         "tools/run_helixcare_scenarios.py"
       ],
@@ -138,7 +138,7 @@
     {
       "label": "HelixCare: Run Validation Suite",
       "type": "shell",
-      "command": "python",
+      "command": "${command:python.interpreterPath}",
       "args": [
         "tools/run_hc_validation.py"
       ],
@@ -151,7 +151,7 @@
     {
       "label": "Command Centre: Start",
       "type": "shell",
-      "command": "python",
+      "command": "${command:python.interpreterPath}",
       "args": [
         "shared/command-centre/app/main.py"
       ],
@@ -159,6 +159,20 @@
       "presentation": {
         "reveal": "always",
         "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Python: Interpreter Sanity",
+      "type": "shell",
+      "command": "${command:python.interpreterPath}",
+      "args": [
+        "-c",
+        "import sys; print(sys.executable)"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
       },
       "problemMatcher": []
     },

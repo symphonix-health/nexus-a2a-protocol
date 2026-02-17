@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeTopologyHint();
     initializeTopologyInteractions();
     initializeWebSocket();
+    initializePerformanceCharts();
     loadScenarioCatalog();
     initializeScenarioFlowBoard();
     initializeJourneyPopover();
@@ -136,12 +137,14 @@ function handleWebSocketMessage(message) {
             state.agents = message.payload;
             renderTopology();
             renderHeatmap();
+            updatePerformanceCharts();
             break;
 
         case 'task.event':
             addEvent(message.payload);
             updateHeatmapMetrics(message.payload);
             ingestScenarioEvent(message.payload, false);
+            updatePerformanceCharts();
             break;
 
         default:
@@ -526,14 +529,56 @@ function updateHeatmapCell(td, agent, metric) {
 }
 
 function updateHeatmapMetrics(event) {
-    // Update agent metrics based on incoming events
-    const agentName = event.agent;
-    const agent = state.agents.find(a => a.name === agentName);
+    if (!event || !event.agent) return;
 
-    if (agent && event.duration_ms) {
-        // Update would happen here in real implementation
-        // For now, metrics come from polling
+    const agentName = String(event.agent);
+    let agent = state.agents.find(a => a.name === agentName);
+
+    // Create optimistic local entry so charts/tables can update immediately
+    // between backend poll cycles.
+    if (!agent) {
+        agent = {
+            name: agentName,
+            status: 'healthy',
+            metrics: {},
+            dependencies: [],
+            last_seen: new Date().toISOString(),
+        };
+        state.agents.push(agent);
     }
+
+    agent.metrics = agent.metrics || {};
+    const metrics = agent.metrics;
+    const phase = String(event.event || '').split('.').pop();
+    const duration = Number(event.duration_ms || 0);
+
+    if (phase === 'accepted') {
+        metrics.tasks_accepted = (metrics.tasks_accepted || 0) + 1;
+    }
+
+    if (phase === 'final') {
+        const prevCompleted = Number(metrics.tasks_completed || 0);
+        const prevLatency = Number(metrics.avg_latency_ms || 0);
+        metrics.tasks_completed = prevCompleted + 1;
+
+        if (duration > 0) {
+            metrics.avg_latency_ms = (
+                (prevLatency * prevCompleted + duration) / metrics.tasks_completed
+            );
+        }
+    }
+
+    if (phase === 'error') {
+        metrics.tasks_errored = (metrics.tasks_errored || 0) + 1;
+        if (duration > 0 && !metrics.avg_latency_ms) {
+            metrics.avg_latency_ms = duration;
+        }
+    }
+
+    agent.last_seen = event.timestamp || new Date().toISOString();
+
+    renderHeatmap();
+    updatePerformanceCharts();
 }
 
 // ── Scenario Flow Board ───────────────────────────────────────────────
@@ -1064,10 +1109,19 @@ function initializeFilters() {
 
 // ── Performance Charts ────────────────────────────────────────────────
 function initializeCharts() {
+    if (typeof Chart === 'undefined') {
+        showToast('Chart library unavailable; performance charts disabled', 'warning');
+        return;
+    }
+
     const throughputCtx = document.getElementById('throughput-chart');
     const latencyCtx = document.getElementById('latency-chart');
     const loadCtx = document.getElementById('load-chart');
     const errorCtx = document.getElementById('error-gauge');
+
+    if (!throughputCtx || !latencyCtx || !loadCtx || !errorCtx) {
+        return;
+    }
 
     state.charts = {
         throughput: new Chart(throughputCtx, {
@@ -1109,7 +1163,26 @@ function initializeCharts() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => {
+                                const ds = ctx.dataset;
+                                const idx = ctx.dataIndex;
+                                const hasSample = Array.isArray(ds.__hasSamples)
+                                    ? ds.__hasSamples[idx]
+                                    : true;
+                                const rawLatency = Array.isArray(ds.__rawValues)
+                                    ? ds.__rawValues[idx]
+                                    : ctx.parsed.y;
+
+                                if (!hasSample) {
+                                    return 'No latency samples yet';
+                                }
+                                return `Avg latency: ${Math.round(rawLatency)} ms`;
+                            },
+                        },
+                    },
                 },
                 scales: {
                     y: { beginAtZero: true }
@@ -1132,7 +1205,23 @@ function initializeCharts() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => {
+                                const ds = ctx.dataset;
+                                const idx = ctx.dataIndex;
+                                const rawCount = Array.isArray(ds.__rawValues)
+                                    ? ds.__rawValues[idx]
+                                    : ctx.parsed.x;
+
+                                if (!rawCount) {
+                                    return 'No completed tasks yet';
+                                }
+                                return `Tasks completed: ${rawCount}`;
+                            },
+                        },
+                    },
                 },
                 scales: {
                     x: { beginAtZero: true }
@@ -1160,6 +1249,16 @@ function initializeCharts() {
     };
 }
 
+function initializePerformanceCharts() {
+    const panel = document.querySelector('.performance-panel');
+    if (!panel) return;
+
+    if (!state.charts && !panel.classList.contains('collapsed')) {
+        initializeCharts();
+        updatePerformanceCharts();
+    }
+}
+
 function updatePerformanceCharts() {
     if (!state.charts) return;
 
@@ -1182,15 +1281,31 @@ function updatePerformanceCharts() {
     // Latency: show avg latency per agent
     const latencyChart = state.charts.latency;
     latencyChart.data.labels = state.agents.map(a => a.name);
-    latencyChart.data.datasets[0].data = state.agents.map(a =>
-        Math.round(a.metrics?.avg_latency_ms || 0));
+    const latencyRaw = state.agents.map(a => Math.round(a.metrics?.avg_latency_ms || 0));
+    const latencyHasSamples = state.agents.map(a => {
+        const completed = Number(a.metrics?.tasks_completed || 0);
+        const errored = Number(a.metrics?.tasks_errored || 0);
+        return completed + errored > 0;
+    });
+    latencyChart.data.datasets[0].__rawValues = latencyRaw;
+    latencyChart.data.datasets[0].__hasSamples = latencyHasSamples;
+    latencyChart.data.datasets[0].data = latencyRaw.map((v, idx) => (
+        latencyHasSamples[idx] ? v : 1
+    ));
+    latencyChart.data.datasets[0].backgroundColor = latencyHasSamples.map((hasSample) => (
+        hasSample ? COLORS.status.degraded + '80' : COLORS.status.unknown + '55'
+    ));
     latencyChart.update('none');
 
     // Load balance: tasks per agent
     const loadChart = state.charts.load;
     loadChart.data.labels = state.agents.map(a => a.name);
-    loadChart.data.datasets[0].data = state.agents.map(a =>
-        a.metrics?.tasks_completed || 0);
+    const loadRaw = state.agents.map(a => Number(a.metrics?.tasks_completed || 0));
+    loadChart.data.datasets[0].__rawValues = loadRaw;
+    loadChart.data.datasets[0].data = loadRaw.map((v) => (v > 0 ? v : 0.1));
+    loadChart.data.datasets[0].backgroundColor = loadRaw.map((v) => (
+        v > 0 ? COLORS.status.healthy + '80' : COLORS.status.unknown + '55'
+    ));
     loadChart.update('none');
 
     // Error gauge: total error rate
@@ -1213,6 +1328,8 @@ function initializeToggleButtons() {
     const toggleBtn = document.getElementById('toggle-performance');
     const panel = document.querySelector('.performance-panel');
 
+    if (!toggleBtn || !panel) return;
+
     toggleBtn.addEventListener('click', () => {
         panel.classList.toggle('collapsed');
         toggleBtn.textContent = panel.classList.contains('collapsed') ? '▼' : '▲';
@@ -1223,6 +1340,9 @@ function initializeToggleButtons() {
                 initializeCharts();
                 updatePerformanceCharts();
             }, 100);
+        } else if (state.charts && !panel.classList.contains('collapsed')) {
+            Object.values(state.charts).forEach((chart) => chart.resize());
+            updatePerformanceCharts();
         }
     });
 }
@@ -1246,8 +1366,6 @@ function showToast(message, type = 'info') {
 // ── Periodic Updates ──────────────────────────────────────────────────
 // Poll for agent updates every 2 seconds (in addition to WebSocket events)
 setInterval(async () => {
-    if (!state.connected) return;
-
     try {
         const response = await fetch('/api/agents');
         if (response.ok) {

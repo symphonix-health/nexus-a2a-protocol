@@ -18,7 +18,13 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-import redis.asyncio as aioredis
+
+try:
+    import redis.asyncio as aioredis
+
+    REDIS_AVAILABLE = True
+except ImportError:
+    REDIS_AVAILABLE = False
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -26,6 +32,8 @@ from fastapi.staticfiles import StaticFiles
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 logger = logging.getLogger("nexus.command-centre")
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
 
 app = FastAPI(title="command-centre", description="NEXUS-A2A Agent Monitoring Dashboard")
 
@@ -40,14 +48,66 @@ app.add_middleware(
 
 # Configuration
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
-AGENT_URLS = os.getenv("AGENT_URLS", "").split(",")
-AGENT_URLS = [url.strip() for url in AGENT_URLS if url.strip()]
 UPDATE_INTERVAL_MS = int(os.getenv("UPDATE_INTERVAL_MS", "2000"))
 
 # In-memory agent state
 agent_states: dict[str, dict[str, Any]] = {}
 scenario_catalog: list[dict[str, Any]] = []
 lock = asyncio.Lock()
+poll_task_started = False
+first_poll_cycle_completed = False
+
+
+def _load_agent_urls_from_config() -> list[str]:
+    """Load agent URLs from repo config/agents.json as a local-dev fallback."""
+    try:
+        repo_root = Path(__file__).resolve().parents[3]
+        config_path = repo_root / "config" / "agents.json"
+        if not config_path.is_file():
+            return []
+
+        raw = json.loads(config_path.read_text(encoding="utf-8"))
+        agents_by_group = raw.get("agents", {})
+        if not isinstance(agents_by_group, dict):
+            return []
+
+        urls: list[str] = []
+        for _, group in agents_by_group.items():
+            if not isinstance(group, dict):
+                continue
+
+            for _, agent_info in group.items():
+                if not isinstance(agent_info, dict):
+                    continue
+
+                port = agent_info.get("port")
+                if isinstance(port, int) and port > 0:
+                    urls.append(f"http://localhost:{port}")
+
+        # Preserve order while removing duplicates
+        return list(dict.fromkeys(urls))
+    except Exception as exc:
+        logger.warning(f"Failed to load agent URLs from config/agents.json: {exc}")
+        return []
+
+
+def _resolve_agent_urls() -> list[str]:
+    """Resolve monitored agent URLs from env first, then config fallback."""
+    env_urls = [url.strip() for url in os.getenv("AGENT_URLS", "").split(",") if url.strip()]
+    if env_urls:
+        logger.info("Using AGENT_URLS from environment")
+        return env_urls
+
+    config_urls = _load_agent_urls_from_config()
+    if config_urls:
+        logger.info("AGENT_URLS not set; using URLs from config/agents.json")
+        return config_urls
+
+    logger.warning("No agent URLs configured (AGENT_URLS empty and config fallback unavailable)")
+    return []
+
+
+AGENT_URLS = _resolve_agent_urls()
 
 
 def _load_scenario_catalog() -> list[dict[str, Any]]:
@@ -119,6 +179,7 @@ async def fetch_agent_health(url: str, client: httpx.AsyncClient) -> dict[str, A
 
 async def poll_agents():
     """Background task to continuously poll agent health."""
+    global first_poll_cycle_completed
     async with httpx.AsyncClient() as client:
         while True:
             try:
@@ -180,6 +241,8 @@ async def poll_agents():
                                 agent_states[url]["status"] = "unhealthy"
                                 agent_states[url]["last_seen"] = timestamp
 
+                first_poll_cycle_completed = True
+
                 await asyncio.sleep(UPDATE_INTERVAL_MS / 1000)
             except Exception as exc:
                 logger.error(f"Error in poll_agents: {exc}")
@@ -189,9 +252,10 @@ async def poll_agents():
 @app.on_event("startup")
 async def startup_event():
     """Start background polling on startup."""
-    global scenario_catalog
+    global poll_task_started, scenario_catalog
     scenario_catalog = _load_scenario_catalog()
     asyncio.create_task(poll_agents())
+    poll_task_started = True
     logger.info(f"Command Centre started. Monitoring {len(AGENT_URLS)} agents.")
 
 
@@ -204,7 +268,22 @@ async def health():
         "name": "command-centre",
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "monitored_agents": len(AGENT_URLS),
+        "ready": poll_task_started and (first_poll_cycle_completed or not AGENT_URLS),
     }
+
+
+@app.get("/readyz")
+async def readyz():
+    """Readiness endpoint used by strict launcher health checks."""
+    ready = poll_task_started and (first_poll_cycle_completed or not AGENT_URLS)
+    payload = {
+        "status": "ready" if ready else "starting",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "poll_task_started": poll_task_started,
+        "first_poll_cycle_completed": first_poll_cycle_completed,
+        "monitored_agents": len(AGENT_URLS),
+    }
+    return JSONResponse(status_code=200 if ready else 503, content=payload)
 
 
 @app.get("/api/agents")
@@ -258,6 +337,26 @@ async def websocket_events(websocket: WebSocket):
     logger.info("WebSocket client connected")
 
     try:
+        if not REDIS_AVAILABLE:
+            await websocket.send_json(
+                {
+                    "type": "system.warning",
+                    "payload": {"message": "redis.asyncio not installed; event stream disabled"},
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+            )
+            # Keep socket alive with periodic snapshots.
+            while True:
+                async with lock:
+                    await websocket.send_json(
+                        {
+                            "type": "agents.snapshot",
+                            "payload": list(agent_states.values()),
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                        }
+                    )
+                await asyncio.sleep(5.0)
+
         # Connect to Redis
         redis_client = aioredis.from_url(REDIS_URL, decode_responses=True)
         pubsub = redis_client.pubsub()

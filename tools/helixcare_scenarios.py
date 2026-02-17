@@ -6,6 +6,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import random
 import sys
 import time
 from dataclasses import dataclass
@@ -21,18 +22,149 @@ from shared.nexus_common.auth import mint_jwt
 BASE_URLS = {
     "triage": "http://localhost:8021",
     "diagnosis": "http://localhost:8022",
+    "openhie_mediator": "http://localhost:8023",
     "imaging": "http://localhost:8024",
     "pharmacy": "http://localhost:8025",
     "bed_manager": "http://localhost:8026",
     "discharge": "http://localhost:8027",
     "followup": "http://localhost:8028",
     "coordinator": "http://localhost:8029",
+    "transcriber": "http://localhost:8031",
+    "summariser": "http://localhost:8032",
+    "ehr_writer": "http://localhost:8033",
     "primary_care": "http://localhost:8034",
     "specialty_care": "http://localhost:8035",
     "telehealth": "http://localhost:8036",
     "home_visit": "http://localhost:8037",
     "ccm": "http://localhost:8038",
+    "insurer_agent": "http://localhost:8041",
+    "provider_agent": "http://localhost:8042",
+    "consent_analyser": "http://localhost:8043",
+    "hitl_ui": "http://localhost:8044",
+    "hospital_reporter": "http://localhost:8051",
+    "osint_agent": "http://localhost:8052",
+    "central_surveillance": "http://localhost:8053",
 }
+
+RETRYABLE_STATUS_CODES = {408, 425, 429, 500, 502, 503, 504}
+
+
+@dataclass(frozen=True)
+class RetryRuntimeConfig:
+    mode: str
+    max_rpc_attempts: int
+    base_retry_delay_seconds: float
+    max_retry_delay_seconds: float
+    max_retry_budget_seconds: float
+    connect_timeout_seconds: float
+    read_timeout_seconds: float
+    max_inflight_per_endpoint: int
+
+
+RETRY_MODE_CONFIGS: dict[str, RetryRuntimeConfig] = {
+    "strict-zero": RetryRuntimeConfig(
+        mode="strict-zero",
+        max_rpc_attempts=10,
+        base_retry_delay_seconds=0.2,
+        max_retry_delay_seconds=2.0,
+        max_retry_budget_seconds=45.0,
+        connect_timeout_seconds=8.0,
+        read_timeout_seconds=35.0,
+        max_inflight_per_endpoint=4,
+    ),
+    "balanced": RetryRuntimeConfig(
+        mode="balanced",
+        max_rpc_attempts=7,
+        base_retry_delay_seconds=0.12,
+        max_retry_delay_seconds=1.2,
+        max_retry_budget_seconds=20.0,
+        connect_timeout_seconds=6.0,
+        read_timeout_seconds=25.0,
+        max_inflight_per_endpoint=8,
+    ),
+    "fast": RetryRuntimeConfig(
+        mode="fast",
+        max_rpc_attempts=4,
+        base_retry_delay_seconds=0.05,
+        max_retry_delay_seconds=0.5,
+        max_retry_budget_seconds=5.0,
+        connect_timeout_seconds=3.0,
+        read_timeout_seconds=10.0,
+        max_inflight_per_endpoint=12,
+    ),
+}
+
+ACTIVE_RETRY_MODE = "balanced"
+ACTIVE_RETRY_CONFIG = RETRY_MODE_CONFIGS[ACTIVE_RETRY_MODE]
+RPC_ENDPOINT_LIMITERS = {
+    base_url: asyncio.Semaphore(ACTIVE_RETRY_CONFIG.max_inflight_per_endpoint)
+    for base_url in BASE_URLS.values()
+}
+
+
+def configure_retry_mode(mode: str) -> RetryRuntimeConfig:
+    """Configure retry behavior profile for scenario execution runtime."""
+    normalized_mode = mode.strip().lower().replace("_", "-")
+    if normalized_mode not in RETRY_MODE_CONFIGS:
+        options = ", ".join(sorted(RETRY_MODE_CONFIGS))
+        raise ValueError(f"Unknown retry mode '{mode}'. Expected one of: {options}")
+
+    config = RETRY_MODE_CONFIGS[normalized_mode]
+
+    global ACTIVE_RETRY_MODE
+    global ACTIVE_RETRY_CONFIG
+    global RPC_ENDPOINT_LIMITERS
+
+    ACTIVE_RETRY_MODE = normalized_mode
+    ACTIVE_RETRY_CONFIG = config
+    RPC_ENDPOINT_LIMITERS = {
+        base_url: asyncio.Semaphore(config.max_inflight_per_endpoint)
+        for base_url in BASE_URLS.values()
+    }
+    return config
+
+
+def _load_retry_mode_from_env() -> RetryRuntimeConfig:
+    """Load optional retry mode from env; fallback to balanced on bad input."""
+    env_mode = os.getenv("HELIXCARE_RETRY_MODE", "balanced")
+    try:
+        return configure_retry_mode(env_mode)
+    except ValueError as exc:
+        print(f"⚠ Invalid HELIXCARE_RETRY_MODE '{env_mode}': {exc}")
+        print("⚠ Falling back to 'balanced'")
+        return configure_retry_mode("balanced")
+
+
+_load_retry_mode_from_env()
+
+
+def _retry_delay_seconds(attempt_number: int) -> float:
+    """Return bounded exponential backoff with jitter for retry attempts."""
+    exponential = ACTIVE_RETRY_CONFIG.base_retry_delay_seconds * (2 ** max(0, attempt_number - 1))
+    jitter = random.uniform(0.0, min(0.25, exponential))
+    return min(ACTIVE_RETRY_CONFIG.max_retry_delay_seconds, exponential + jitter)
+
+
+def _is_retriable_error(exc: Exception) -> bool:
+    """Return whether a failed request should be retried."""
+    if isinstance(exc, httpx.HTTPStatusError):
+        status_code = exc.response.status_code
+        return status_code in RETRYABLE_STATUS_CODES
+
+    return isinstance(
+        exc,
+        (
+            httpx.ConnectError,
+            httpx.ConnectTimeout,
+            httpx.ReadTimeout,
+            httpx.WriteError,
+            httpx.ReadError,
+            httpx.RemoteProtocolError,
+            httpx.PoolTimeout,
+            httpx.NetworkError,
+            httpx.TimeoutException,
+        ),
+    )
 
 
 @dataclass
@@ -68,20 +200,69 @@ async def make_jsonrpc_call(
     }
 
     print(f"📞 Calling {url}/rpc - Method: {method}")
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        try:
-            response = await client.post(
-                f"{url}/rpc",
-                json=payload,
-                headers=headers,
-            )
-            response.raise_for_status()
-            result = response.json()
-            print("   ✅ Response received")
-            return result
-        except Exception as exc:
-            print(f"   ❌ Error: {exc}")
-            return {"error": str(exc)}
+    timeout = httpx.Timeout(
+        connect=ACTIVE_RETRY_CONFIG.connect_timeout_seconds,
+        read=ACTIVE_RETRY_CONFIG.read_timeout_seconds,
+        write=ACTIVE_RETRY_CONFIG.connect_timeout_seconds,
+        pool=ACTIVE_RETRY_CONFIG.connect_timeout_seconds,
+    )
+
+    async with httpx.AsyncClient(timeout=timeout) as client:
+        last_error = "unknown error"
+        attempts_made = 0
+        start_time = time.perf_counter()
+        limiter = RPC_ENDPOINT_LIMITERS.get(url)
+        for attempt in range(1, ACTIVE_RETRY_CONFIG.max_rpc_attempts + 1):
+            attempts_made = attempt
+            try:
+                if limiter is None:
+                    response = await client.post(
+                        f"{url}/rpc",
+                        json=payload,
+                        headers=headers,
+                    )
+                else:
+                    async with limiter:
+                        response = await client.post(
+                            f"{url}/rpc",
+                            json=payload,
+                            headers=headers,
+                        )
+                response.raise_for_status()
+                result = response.json()
+                if attempt > 1:
+                    print(f"   ✅ Response received (recovered on attempt {attempt})")
+                else:
+                    print("   ✅ Response received")
+                return result
+            except Exception as exc:
+                last_error = str(exc)
+                retriable = _is_retriable_error(exc)
+                print(
+                    "   ❌ Attempt "
+                    f"{attempt}/{ACTIVE_RETRY_CONFIG.max_rpc_attempts} failed"
+                    f" ({'retriable' if retriable else 'non-retriable'}): {exc}"
+                )
+
+                if not retriable:
+                    return {"error": last_error, "attempts": attempts_made}
+
+                if attempt >= ACTIVE_RETRY_CONFIG.max_rpc_attempts:
+                    break
+
+                elapsed = time.perf_counter() - start_time
+                remaining_budget = ACTIVE_RETRY_CONFIG.max_retry_budget_seconds - elapsed
+                if remaining_budget <= 0:
+                    print("   ⏱ Retry budget exhausted for this call")
+                    break
+
+                delay = min(_retry_delay_seconds(attempt), remaining_budget)
+                print(f"   ↻ Retrying in {delay:.2f}s")
+                if delay > 0:
+                    await asyncio.sleep(delay)
+
+    print("   ❌ Error: All connection attempts failed")
+    return {"error": last_error, "attempts": attempts_made}
 
 
 def _step(
@@ -698,6 +879,7 @@ async def run_multiple_scenarios(
 
     print(f"🚀 Running {len(scenarios_to_run)} scenario(s)")
     print(f"   Mode: {'Parallel' if parallel else 'Sequential'}")
+    print(f"   Retry profile: {ACTIVE_RETRY_MODE}")
 
     if parallel:
         await asyncio.gather(*(run_scenario(s) for s in scenarios_to_run))
@@ -754,8 +936,17 @@ async def main() -> None:
     parser.add_argument("--all", action="store_true", help="Run all scenarios")
     parser.add_argument("--parallel", action="store_true", help="Run in parallel")
     parser.add_argument("--save", action="store_true", help="Save scenarios to JSON")
+    parser.add_argument(
+        "--retry-mode",
+        choices=sorted(RETRY_MODE_CONFIGS.keys()),
+        help="Retry profile: strict-zero (validation), balanced (default), fast (load)",
+    )
 
     args = parser.parse_args()
+
+    if args.retry_mode:
+        configure_retry_mode(args.retry_mode)
+    print(f"⚙ Active retry profile: {ACTIVE_RETRY_MODE}")
 
     if args.save:
         save_scenarios_to_file()

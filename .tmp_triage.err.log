@@ -1,0 +1,7 @@
+INFO:     Started server process [25076]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8021 (Press CTRL+C to quit)
+2026-02-16 16:31:44,448 nexus.triage-agent INFO [trace-ec498fe7-ea92-44ea-946b-1a7cfb1c1ad1] task=task-20f29ad0-d0e5-4d79-9018-cc6d568aecc2 ACCEPTED
+2026-02-16 16:31:53,924 httpx INFO HTTP Request: POST http://127.0.0.1:8022/rpc "HTTP/1.1 200 OK"
+2026-02-16 16:31:53,925 nexus.triage-agent INFO [trace-ec498fe7-ea92-44ea-946b-1a7cfb1c1ad1] task=task-20f29ad0-d0e5-4d79-9018-cc6d568aecc2 COMPLETED

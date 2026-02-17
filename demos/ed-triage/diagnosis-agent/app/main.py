@@ -1,5 +1,3 @@
-"""Diagnosis Agent — performs clinical assessment using LLM + FHIR context."""
-
 from __future__ import annotations
 
 import asyncio
@@ -53,7 +51,6 @@ async def agent_card():
 
 @app.get("/health")
 async def health():
-    """Health check endpoint with metrics."""
     return JSONResponse(content=health_monitor.get_health())
 
 
@@ -77,40 +74,84 @@ async def ws_stream(websocket: WebSocket, task_id: str):
             await websocket.send_json(evt)
     except WebSocketDisconnect:
         pass
+    finally:
+        bus.cleanup(task_id)
+
+
+def _extract_patient_context(task: dict) -> tuple[str, str]:
+    patient = task.get("patient") if isinstance(task.get("patient"), dict) else {}
+    patient_id = str(patient.get("patient_id") or "").strip()
+    patient_ref = str(task.get("patient_ref") or "").strip()
+    if patient_ref:
+        if not patient_id:
+            patient_id = patient_ref.split("/")[-1]
+        return patient_id or "unknown", patient_ref
+    if patient_id:
+        return patient_id, f"Patient/{patient_id}"
+    return "unknown", "Patient/unknown"
+
+
+def _derive_triage_level(task: dict) -> str:
+    complaint = str(task.get("chief_complaint") or (task.get("inputs") or {}).get("chief_complaint", "")).lower()
+    vitals = task.get("vitals") if isinstance(task.get("vitals"), dict) else {}
+    try:
+        spo2 = float(vitals.get("spo2", 100))
+    except Exception:
+        spo2 = 100.0
+    try:
+        temp_c = float(vitals.get("temp_c", 36.8))
+    except Exception:
+        temp_c = 36.8
+
+    if "chest" in complaint or "shortness of breath" in complaint or spo2 < 90:
+        return "ESI-2"
+    if "confusion" in complaint or temp_c >= 39.0:
+        return "ESI-2"
+    if "laceration" in complaint:
+        return "ESI-4"
+    return "ESI-3"
 
 
 METHODS: dict = {}
 
 
 async def _do_assess(params: dict, token: str) -> dict:
-    """Core assessment logic without metrics tracking."""
-    task = params.get("task", {})
-    patient_ref = task.get("patient_ref", "Patient/unknown")
+    task = params.get("task") if isinstance(params.get("task"), dict) else {}
+    patient_id, patient_ref = _extract_patient_context(task)
+
     openhie = os.getenv("NEXUS_OPENHIE_RPC", "http://openhie-mediator:8023/rpc")
-
-    # Fetch FHIR context via OpenHIE mediator
     try:
-        ctx = await jsonrpc_call(openhie, token, "fhir/get", {"patient_ref": patient_ref}, "fhir-1")
-    except Exception:
-        ctx = {"result": {"patient": {}, "allergies": {}}}
+        ctx = await jsonrpc_call(
+            openhie,
+            token,
+            "fhir/get",
+            {"patient_ref": patient_ref},
+            f"{params.get('task_id', 'diag')}-fhir",
+        )
+        patient_context = ctx.get("result", {}) if isinstance(ctx, dict) else {}
+    except Exception as exc:
+        logger.warning("FHIR context lookup failed: %s", exc)
+        patient_context = {"patient": {}, "allergies": {}}
 
-    chief = (task.get("inputs") or {}).get("chief_complaint", "")
-    triage = "EMERGENCY" if "chest" in chief.lower() else "URGENT"
+    triage_level = _derive_triage_level(task)
+    chief = str(task.get("chief_complaint") or (task.get("inputs") or {}).get("chief_complaint", "")).strip()
 
-    system = "You are a cautious ED triage support assistant. Provide brief rationale."
-    user = f"Complaint: {chief}. Context: {json.dumps(ctx.get('result', {}))[:1200]}"
+    system = "You are a cautious ED triage support assistant. Return a one sentence rationale."
+    user = f"Complaint: {chief}; triage={triage_level}; patient_id={patient_id}."
     rationale = await asyncio.to_thread(llm_chat, system, user)
 
     return {
         "task_id": params.get("task_id"),
-        "triage_priority": triage,
+        "patient_id": patient_id,
+        "patient_ref": patient_ref,
+        "triage_level": triage_level,
+        "triage_priority": "EMERGENCY" if triage_level == "ESI-2" else "URGENT",
         "rationale": rationale,
-        "patient_context": ctx.get("result", {}),
+        "patient_context": patient_context,
     }
 
 
 async def _assess(params: dict, token: str) -> dict:
-    """Assess with metrics tracking — for direct diagnosis/assess calls."""
     health_monitor.metrics.record_accepted()
     start_time = asyncio.get_event_loop().time()
     try:
@@ -124,37 +165,46 @@ async def _assess(params: dict, token: str) -> dict:
         raise
 
 
-METHODS["diagnosis/assess"] = _assess
-
-
 async def _send_subscribe(params: dict, token: str) -> dict:
-    """Handle tasks/sendSubscribe — matches the standard HelixCare agent pattern."""
     task_id = make_task_id()
     trace_id = make_trace_id()
     health_monitor.metrics.record_accepted()
     t0 = asyncio.get_event_loop().time()
-    await bus.publish(task_id, "nexus.task.status",
-                      json.dumps({"task_id": task_id, "state": "accepted", "trace_id": trace_id}))
 
-    async def run():
+    await bus.publish(
+        task_id,
+        "nexus.task.status",
+        json.dumps({"task_id": task_id, "state": "accepted", "trace_id": trace_id}),
+    )
+
+    async def run() -> None:
         try:
-            await bus.publish(task_id, "nexus.task.status",
-                              json.dumps({"task_id": task_id, "state": "working", "step": "diagnosing"}))
-            result = await _do_assess({"task": params}, token)
-            d = (asyncio.get_event_loop().time() - t0) * 1000
-            health_monitor.metrics.record_completed(d)
-            await bus.publish(task_id, "nexus.task.final",
-                              json.dumps({"task_id": task_id, "result": result}), d)
+            await bus.publish(
+                task_id,
+                "nexus.task.status",
+                json.dumps({"task_id": task_id, "state": "working", "step": "diagnosing"}),
+            )
+            result = await _do_assess({"task": params.get("task", {}), "task_id": task_id}, token)
+            duration_ms = (asyncio.get_event_loop().time() - t0) * 1000
+            health_monitor.metrics.record_completed(duration_ms)
+            await bus.publish(task_id, "nexus.task.final", json.dumps(result), duration_ms)
+            logger.info("[%s] task=%s COMPLETED", trace_id, task_id)
         except Exception as exc:
-            d = (asyncio.get_event_loop().time() - t0) * 1000
-            health_monitor.metrics.record_error(d)
-            await bus.publish(task_id, "nexus.task.error",
-                              json.dumps({"task_id": task_id, "error": str(exc)}), d)
+            duration_ms = (asyncio.get_event_loop().time() - t0) * 1000
+            health_monitor.metrics.record_error(duration_ms)
+            await bus.publish(
+                task_id,
+                "nexus.task.error",
+                json.dumps({"task_id": task_id, "error": str(exc)}),
+                duration_ms,
+            )
+            logger.exception("[%s] task=%s FAILED", trace_id, task_id)
 
     asyncio.create_task(run())
     return {"task_id": task_id, "trace_id": trace_id}
 
 
+METHODS["diagnosis/assess"] = _assess
 METHODS["tasks/sendSubscribe"] = _send_subscribe
 METHODS["tasks/send"] = _send_subscribe
 
@@ -169,9 +219,14 @@ async def rpc(request: Request):
         if method not in METHODS:
             raise JsonRpcError(-32601, "Method not found", method)
         result = await METHODS[method](params, token)
-        return JSONResponse(content=response_result(id_, result))
+        return JSONResponse(content=response_result(id_, result, method=method, params=params))
     except JsonRpcError as exc:
         return JSONResponse(content=response_error(payload.get("id"), exc), status_code=200)
     except Exception as exc:
         err = JsonRpcError(-32000, "Server error", str(exc))
         return JSONResponse(content=response_error(payload.get("id"), err), status_code=200)
+
+
+@app.on_event("shutdown")
+async def _shutdown() -> None:
+    await bus.close()

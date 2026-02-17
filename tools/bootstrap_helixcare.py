@@ -684,7 +684,7 @@ async def rpc(request: Request):
         if method not in METHODS:
             raise JsonRpcError(-32601, "Method not found", method)
         result = await METHODS[method](params, token)
-        return JSONResponse(content=response_result(id_, result))
+        return JSONResponse(content=response_result(id_, result, method=method, params=params))
     except JsonRpcError as exc:
         return JSONResponse(content=response_error(payload.get("id"), exc), status_code=200)
     except Exception as exc:
@@ -1082,3 +1082,4 @@ Next steps:
 
 if __name__ == "__main__":
     main()
+

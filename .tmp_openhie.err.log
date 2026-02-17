@@ -1,0 +1,7 @@
+INFO:     Started server process [20340]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8023 (Press CTRL+C to quit)
+2026-02-16 16:31:47,348 httpx INFO HTTP Request: GET http://127.0.0.1:18080/fhir/Patient/123 "HTTP/1.1 404 Not Found"
+2026-02-16 16:31:47,349 nexus.openhie-mediator WARNING FHIR request failed: Client error '404 Not Found' for url 'http://127.0.0.1:18080/fhir/Patient/123'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404 -- returning fallback context

@@ -193,7 +193,7 @@ WebSocket stream of real-time events.
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `REDIS_URL` | `redis://localhost:6379` | Redis connection URL for pub/sub |
-| `AGENT_URLS` | `""` | Comma-separated agent base URLs |
+| `AGENT_URLS` | `""` | Comma-separated agent base URLs (if empty, auto-loads localhost URLs from `config/agents.json` in local dev) |
 | `UPDATE_INTERVAL_MS` | `2000` | Agent health polling interval |
 
 ### Adding Agents
@@ -250,7 +250,7 @@ python -m json.tool nexus-a2a/artefacts/matrices/nexus_command_centre_matrix.jso
 - Check browser console for errors
 
 ### Agents not appearing
-- Confirm `AGENT_URLS` environment variable is set
+- Confirm `AGENT_URLS` environment variable is set (or that `config/agents.json` exists for local fallback)
 - Verify agents are reachable from command-centre container
 - Check agent health endpoints return 200: `curl http://agent:8021/health`
 

@@ -1,0 +1,365 @@
+{
+  "backlog_version": "2026-02-16",
+  "scope": "protocol-only",
+  "target": {
+    "registered_users": 1000000000,
+    "concurrent_sessions": 10000000
+  },
+  "milestones": [
+    {
+      "id": "M0",
+      "name": "Baseline Freeze",
+      "window_weeks": [1, 1],
+      "exit_criteria": "Behavior freeze + risk register accepted"
+    },
+    {
+      "id": "M1",
+      "name": "Contract Completeness",
+      "window_weeks": [2, 3],
+      "exit_criteria": "Deterministic validation and negotiation errors across mutating methods"
+    },
+    {
+      "id": "M2",
+      "name": "Stateful Semantics",
+      "window_weeks": [4, 5],
+      "exit_criteria": "Idempotency and stream resume deterministic under replay/restart"
+    },
+    {
+      "id": "M3",
+      "name": "Multi-Region Semantics",
+      "window_weeks": [6, 7],
+      "exit_criteria": "Conflict + consistency metadata complete and validated"
+    },
+    {
+      "id": "M4",
+      "name": "Deterministic Certification",
+      "window_weeks": [8, 9],
+      "exit_criteria": "G0-G4 deterministic strict-fail in CI"
+    },
+    {
+      "id": "M5",
+      "name": "Hyperscale Evidence Pack",
+      "window_weeks": [10, 12],
+      "exit_criteria": "Synthetic 10M protocol evidence + unresolved risk log"
+    }
+  ],
+  "tickets": [
+    {
+      "id": "SVC-PROT-001",
+      "type": "service",
+      "priority": "P0",
+      "milestone": "M1",
+      "status": "done",
+      "component": "jsonrpc-validation",
+      "paths": [
+        "src/nexus_a2a_protocol/jsonrpc.py",
+        "shared/nexus_common/jsonrpc.py"
+      ],
+      "gate": "G0"
+    },
+    {
+      "id": "SVC-PROT-002",
+      "type": "service",
+      "priority": "P0",
+      "milestone": "M1",
+      "status": "done",
+      "component": "idempotency-contract",
+      "paths": [
+        "src/nexus_a2a_protocol/jsonrpc.py",
+        "shared/nexus_common/idempotency.py"
+      ],
+      "gate": "G3"
+    },
+    {
+      "id": "SVC-PROT-003",
+      "type": "service",
+      "priority": "P0",
+      "milestone": "M2",
+      "status": "done",
+      "component": "stream-sequencing",
+      "paths": [
+        "shared/nexus_common/sse.py"
+      ],
+      "gate": "G3"
+    },
+    {
+      "id": "SVC-PROT-004",
+      "type": "service",
+      "priority": "P0",
+      "milestone": "M1",
+      "status": "done",
+      "component": "admission-error-contract",
+      "paths": [
+        "shared/nexus_common/jsonrpc.py"
+      ],
+      "gate": "G1"
+    },
+    {
+      "id": "SVC-PROT-005",
+      "type": "service",
+      "priority": "P0",
+      "milestone": "M1",
+      "status": "done",
+      "component": "canonical-shard-routing",
+      "paths": [
+        "shared/nexus_common/scale_profile.py",
+        "shared/nexus_common/jsonrpc.py",
+        "src/nexus_a2a_protocol/jsonrpc.py"
+      ],
+      "gate": "G0"
+    },
+    {
+      "id": "SVC-PROT-006",
+      "type": "service",
+      "priority": "P0",
+      "milestone": "M2",
+      "status": "done",
+      "component": "signed-resume-cursor",
+      "paths": [
+        "shared/nexus_common/sse.py",
+        "shared/nexus_common/jsonrpc.py",
+        "src/nexus_a2a_protocol/jsonrpc.py"
+      ],
+      "gate": "G3"
+    },
+    {
+      "id": "SVC-PROT-007",
+      "type": "service",
+      "priority": "P0",
+      "milestone": "M3",
+      "status": "done",
+      "component": "mutation-response-metadata",
+      "paths": [
+        "shared/nexus_common/protocol.py",
+        "shared/nexus_common/jsonrpc.py",
+        "src/nexus_a2a_protocol/jsonrpc.py"
+      ],
+      "gate": "G2"
+    },
+    {
+      "id": "SVC-PROT-008",
+      "type": "service",
+      "priority": "P0",
+      "milestone": "M3",
+      "status": "done",
+      "component": "conflict-policy-runtime",
+      "paths": [
+        "shared/nexus_common/protocol.py",
+        "shared/nexus_common/jsonrpc.py",
+        "src/nexus_a2a_protocol/jsonrpc.py"
+      ],
+      "gate": "G2"
+    },
+    {
+      "id": "SVC-PROT-009",
+      "type": "service",
+      "priority": "P0",
+      "milestone": "M1",
+      "status": "done",
+      "component": "feature-negotiation-middleware",
+      "paths": [
+        "shared/nexus_common/scale_profile.py",
+        "shared/nexus_common/jsonrpc.py"
+      ],
+      "gate": "G0"
+    },
+    {
+      "id": "SVC-PROT-010",
+      "type": "service",
+      "priority": "P1",
+      "milestone": "M1",
+      "status": "planned",
+      "component": "agent-card-capability-profile",
+      "paths": [
+        "tests/nexus_harness"
+      ],
+      "gate": "G0"
+    },
+    {
+      "id": "DS-IDEMP-001",
+      "type": "datastore",
+      "priority": "P0",
+      "milestone": "M2",
+      "status": "done",
+      "component": "idempotency-l1-window",
+      "paths": [
+        "shared/nexus_common/idempotency.py",
+        "tests/test_idempotency_runtime.py"
+      ],
+      "gate": "G3"
+    },
+    {
+      "id": "DS-IDEMP-002",
+      "type": "datastore",
+      "priority": "P0",
+      "milestone": "M2",
+      "status": "done",
+      "component": "idempotency-hash-conflict-metadata",
+      "paths": [
+        "shared/nexus_common/idempotency.py",
+        "tests/test_idempotency_runtime.py"
+      ],
+      "gate": "G3"
+    },
+    {
+      "id": "DS-STREAM-001",
+      "type": "datastore",
+      "priority": "P0",
+      "milestone": "M2",
+      "status": "done",
+      "component": "cursor-retention-contract",
+      "paths": [
+        "shared/nexus_common/sse.py",
+        "shared/nexus_common/jsonrpc.py",
+        "src/nexus_a2a_protocol/jsonrpc.py",
+        "tests/test_scale_profile_v1_1.py"
+      ],
+      "gate": "G3"
+    },
+    {
+      "id": "DS-CONFLICT-001",
+      "type": "datastore",
+      "priority": "P0",
+      "milestone": "M3",
+      "status": "done",
+      "component": "resource-version-contract",
+      "paths": [
+        "shared/nexus_common/protocol.py",
+        "shared/nexus_common/jsonrpc.py",
+        "src/nexus_a2a_protocol/jsonrpc.py",
+        "tests/test_nexus_protocol_contracts.py",
+        "tests/test_nexus_jsonrpc.py"
+      ],
+      "gate": "G2"
+    },
+    {
+      "id": "DS-CONFLICT-002",
+      "type": "datastore",
+      "priority": "P1",
+      "milestone": "M3",
+      "status": "done",
+      "component": "vector-clock-payload-schema",
+      "paths": [
+        "shared/nexus_common/protocol.py",
+        "tests/test_nexus_protocol_contracts.py"
+      ],
+      "gate": "G2"
+    },
+    {
+      "id": "GATE-G0-001",
+      "type": "gate",
+      "priority": "P0",
+      "milestone": "M4",
+      "status": "done",
+      "component": "schema-fuzz-negative-cases",
+      "paths": [
+        "tests/test_scale_profile_v1_1.py",
+        "nexus-a2a/artefacts/matrices/nexus_protocol_scale_profile_v1_1_matrix.json"
+      ],
+      "gate": "G0"
+    },
+    {
+      "id": "GATE-G0-002",
+      "type": "gate",
+      "priority": "P0",
+      "milestone": "M4",
+      "status": "done",
+      "component": "conformance-matrix-required-field-pairs",
+      "paths": [
+        "nexus-a2a/artefacts/matrices/nexus_protocol_scale_profile_v1_1_matrix.json",
+        "tests/test_scale_profile_v1_1.py"
+      ],
+      "gate": "G0"
+    },
+    {
+      "id": "GATE-G1-001",
+      "type": "gate",
+      "priority": "P0",
+      "milestone": "M4",
+      "status": "done",
+      "component": "admission-overload-harness",
+      "paths": [
+        "tools/traffic_generator.py",
+        "tests/test_traffic_generator_admission.py"
+      ],
+      "gate": "G1"
+    },
+    {
+      "id": "GATE-G1-002",
+      "type": "gate",
+      "priority": "P1",
+      "milestone": "M4",
+      "status": "done",
+      "component": "deterministic-scenario-selector-stability",
+      "paths": [
+        "tools/traffic_generator.py",
+        "tests/test_traffic_generator_determinism.py"
+      ],
+      "gate": "G1"
+    },
+    {
+      "id": "GATE-G2-001",
+      "type": "gate",
+      "priority": "P0",
+      "milestone": "M4",
+      "status": "done",
+      "component": "multi-region-conflict-simulator",
+      "paths": [
+        "tools/run_scale_profile_conformance.py",
+        "tests/test_scale_profile_v1_1.py"
+      ],
+      "gate": "G2"
+    },
+    {
+      "id": "GATE-G2-002",
+      "type": "gate",
+      "priority": "P1",
+      "milestone": "M4",
+      "status": "done",
+      "component": "failover-resume-tests",
+      "paths": [
+        "tools/run_scale_profile_conformance.py",
+        "tests/test_scale_profile_v1_1.py"
+      ],
+      "gate": "G2"
+    },
+    {
+      "id": "GATE-G4-001",
+      "type": "gate",
+      "priority": "P0",
+      "milestone": "M4",
+      "status": "done",
+      "component": "deterministic-bounded-gate-runtime",
+      "paths": [
+        "tools/traffic_generator.py"
+      ],
+      "gate": "G4"
+    },
+    {
+      "id": "GATE-G4-002",
+      "type": "gate",
+      "priority": "P0",
+      "milestone": "M4",
+      "status": "done",
+      "component": "integration-isolation-reproducibility",
+      "paths": [
+        "tools/run_target_architecture_validation.py"
+      ],
+      "gate": "G4"
+    },
+    {
+      "id": "GATE-G5-001",
+      "type": "gate",
+      "priority": "P0",
+      "milestone": "M5",
+      "status": "planned",
+      "component": "10m-concurrency-protocol-synthetic-benchmark",
+      "paths": [
+        "tools/run_target_architecture_validation.py",
+        "tools/traffic_generator.py",
+        "tests/test_hyperscale_load_matrix.py"
+      ],
+      "gate": "G5"
+    }
+  ]
+}

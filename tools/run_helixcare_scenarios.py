@@ -5,11 +5,14 @@ HelixCare Scenario Runner
 Simple script to run patient journey scenarios for testing and demonstration.
 """
 
+import argparse
 import asyncio
+import os
 import subprocess
 
 from additional_scenarios import ADDITIONAL_SCENARIOS
-from helixcare_scenarios import SCENARIOS
+from helixcare_scenarios import RETRY_MODE_CONFIGS, SCENARIOS
+from scenario_coverage import build_coverage_report
 
 
 def check_agents_running():
@@ -37,7 +40,7 @@ def check_agents_running():
             result = subprocess.run(["netstat", "-an"], capture_output=True, text=True, timeout=5)
             if f":{port} " in result.stdout:
                 running.append(port)
-        except:
+        except Exception:
             pass
 
     return running
@@ -56,15 +59,21 @@ def start_command_centre_monitor():
         return None
 
 
-async def run_scenario(scenario_name: str):
+async def run_scenario(scenario_name: str, retry_mode: str | None = None):
     """Run a specific scenario."""
     cmd = [r".\.venv\Scripts\python.exe", "tools/helixcare_scenarios.py", "--run", scenario_name]
+    if retry_mode:
+        cmd.extend(["--retry-mode", retry_mode])
 
     print(f"🏥 Running scenario: {scenario_name}")
+    print(f"   ↳ Command: {' '.join(cmd)}")
     try:
+        child_env = os.environ.copy()
+        child_env.setdefault("PYTHONUTF8", "1")
         result = await asyncio.create_subprocess_exec(
             *cmd,
             cwd=r"C:\nexus-a2a-protocol",
+            env=child_env,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
@@ -84,8 +93,18 @@ async def run_scenario(scenario_name: str):
 
 async def main():
     """Main runner function."""
+    parser = argparse.ArgumentParser(description="Run all HelixCare scenarios via orchestrator")
+    parser.add_argument(
+        "--retry-mode",
+        choices=sorted(RETRY_MODE_CONFIGS.keys()),
+        help="Retry profile passthrough for scenario runner",
+    )
+    args = parser.parse_args()
+
     print("🚀 HelixCare Scenario Runner")
     print("=" * 50)
+    if args.retry_mode:
+        print(f"⚙ Passthrough retry profile: {args.retry_mode}")
 
     # Check if agents are running
     running_ports = check_agents_running()
@@ -118,7 +137,24 @@ async def main():
         print("📊 Command Centre monitor started (check new console window)")
 
     # Run canonical + additive variant scenarios
-    scenarios = [scenario.name for scenario in SCENARIOS + ADDITIONAL_SCENARIOS]
+    combined_scenarios = SCENARIOS + ADDITIONAL_SCENARIOS
+    coverage = build_coverage_report(combined_scenarios)
+    if coverage.missing_agents:
+        missing = sorted(coverage.missing_agents)
+        print("❌ Scenario suite is missing configured agents:")
+        print("   " + ", ".join(missing))
+        print("💡 Add workflows so full suite touches all configured agents")
+        raise SystemExit(2)
+
+    print(
+        "✅ Scenario coverage gate passed "
+        "("
+        f"{len(coverage.covered_agents)}"
+        "/"
+        f"{len(coverage.expected_agents)}"
+        " agents)"
+    )
+    scenarios = [scenario.name for scenario in combined_scenarios]
 
     print(f"\n🏥 Running {len(scenarios)} patient journey scenarios...")
     print("Each scenario will exercise different agent combinations")
@@ -126,7 +162,7 @@ async def main():
     print("=" * 50)
 
     for scenario in scenarios:
-        await run_scenario(scenario)
+        await run_scenario(scenario, retry_mode=args.retry_mode)
         print()  # Blank line between scenarios
 
     print("🎉 All scenarios completed!")

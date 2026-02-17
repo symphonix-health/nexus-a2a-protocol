@@ -597,6 +597,269 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
         ],
         expected_duration=11,
     ),
+    PatientScenario(
+        name="regional_hie_referral_exchange",
+        description="ED-to-regional referral with OpenHIE mediation and coordinator handoff.",
+        patient_profile={
+            "age": 52,
+            "gender": "male",
+            "chief_complaint": "TIA symptoms requiring cross-network referral",
+            "urgency": "high",
+        },
+        journey_steps=[
+            {
+                "agent": "triage",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "symptoms": "transient unilateral weakness, slurred speech",
+                    "chief_complaint": "possible TIA",
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "diagnosis",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "symptoms": "neurologic deficit resolved",
+                    "differential_diagnosis": ["TIA", "Stroke mimic", "Migraine aura"],
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "openhie_mediator",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "exchange_type": "cross_org_referral",
+                        "payload": "neurology referral summary",
+                        "destination": "regional_neuro_centre",
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "coordinator",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "journey_type": "regional_referral",
+                        "coordination_tasks": [
+                            "Referral transport",
+                            "Records reconciliation",
+                            "Receiving team handoff",
+                        ],
+                    }
+                },
+                "delay": 1,
+            },
+        ],
+        expected_duration=12,
+    ),
+    PatientScenario(
+        name="telemed_scribe_documentation_chain",
+        description="Telemedicine encounter routed through transcriber, summariser, and EHR writer agents.",
+        patient_profile={
+            "age": 41,
+            "gender": "female",
+            "chief_complaint": "Persistent sinus pain after URI",
+            "urgency": "medium",
+        },
+        journey_steps=[
+            {
+                "agent": "telehealth",
+                "method": "telehealth/consult",
+                "params": {
+                    "modality": "video",
+                    "location_verified": True,
+                    "consent_documented": True,
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "transcriber",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "media_type": "audio",
+                        "source": "telemed_consult_stream",
+                        "expected_output": "verbatim_transcript",
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "summariser",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "input": "transcript",
+                        "style": "SOAP",
+                        "focus": ["assessment", "plan", "follow_up"],
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "ehr_writer",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "document_type": "encounter_note",
+                        "target_system": "EHR",
+                        "validation": "coding_and_completeness",
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "followup",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "followup_schedule": [
+                        {
+                            "type": "primary_care",
+                            "when": _future(10),
+                            "purpose": "sinus symptom re-evaluation",
+                        }
+                    ]
+                },
+                "delay": 1,
+            },
+        ],
+        expected_duration=13,
+    ),
+    PatientScenario(
+        name="consent_and_payer_authorization",
+        description="Consent verification and payer pre-authorization with HITL adjudication.",
+        patient_profile={
+            "age": 58,
+            "gender": "female",
+            "chief_complaint": "MRI authorization for persistent radiculopathy",
+            "urgency": "medium",
+        },
+        journey_steps=[
+            {
+                "agent": "provider_agent",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "request_type": "prior_auth",
+                        "service": "lumbar_spine_mri",
+                        "clinical_justification": "failed conservative therapy",
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "insurer_agent",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "policy_check": "benefit_and_medical_necessity",
+                        "member_tier": "commercial",
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "consent_analyser",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "consent_scope": "diagnostic_imaging_and_data_sharing",
+                        "jurisdiction": "state_and_federal",
+                        "hipaa_minimum_necessary": True,
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "hitl_ui",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "review_reason": "coverage_policy_exception",
+                        "required_actions": ["document rationale", "approve_or_deny"],
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "imaging",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "orders": [
+                        {
+                            "type": "mri_lumbar_spine",
+                            "priority": "routine",
+                            "indication": "lumbar radiculopathy",
+                        }
+                    ]
+                },
+                "delay": 1,
+            },
+        ],
+        expected_duration=14,
+    ),
+    PatientScenario(
+        name="notifiable_outbreak_public_health_loop",
+        description="Hospital case escalated to public health surveillance with OSINT corroboration.",
+        patient_profile={
+            "age": 46,
+            "gender": "male",
+            "chief_complaint": "Severe febrile respiratory illness with cluster exposure",
+            "urgency": "high",
+        },
+        journey_steps=[
+            {
+                "agent": "hospital_reporter",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "report_type": "notifiable_condition",
+                        "facility_signal": "respiratory_cluster",
+                        "severity": "high",
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "osint_agent",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "query": "regional respiratory outbreak mentions",
+                        "time_window_hours": 72,
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "central_surveillance",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "fusion_inputs": ["hospital_report", "osint_signal"],
+                        "action": "risk_scoring_and_alerting",
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "bed_manager",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "admission_type": "isolation",
+                        "required_monitoring": "continuous",
+                        "special_requirements": ["negative_pressure_room"],
+                    }
+                },
+                "delay": 1,
+            },
+        ],
+        expected_duration=11,
+    ),
 ]
 
 

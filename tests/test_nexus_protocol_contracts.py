@@ -1,14 +1,20 @@
 from __future__ import annotations
 
+import pytest
+
 from shared.nexus_common.health import HealthMonitor, apply_backpressure_to_agent_card
 from shared.nexus_common.idempotency import IdempotencyStore
+from shared.nexus_common.jsonrpc import response_result
 from shared.nexus_common.protocol import (
     CorrelationContext,
     IdempotencyContext,
     ProgressState,
+    ScaleProfileContext,
     ScenarioContext,
     build_task_envelope,
+    validate_vector_clock_conflict_payload,
 )
+from shared.nexus_common.scale_profile import build_canonical_shard_key
 from shared.nexus_common.sse import TaskEventBus
 
 from nexus_a2a_protocol import make_error, make_error_data, make_request
@@ -27,12 +33,24 @@ def test_task_envelope_contains_required_contracts() -> None:
         correlation=CorrelationContext(trace_id="trace-1", parent_task_id="task-parent"),
         idempotency=IdempotencyContext(idempotency_key="idem-1", dedup_window_ms=60000),
         progress=ProgressState(state="working", percent=25.0, eta_ms=12000),
+        scale_profile=ScaleProfileContext(
+            profile="nexus-scale-v1.1",
+            tenant_key="tenant-a",
+            user_key="user-1",
+            task_key="task-1",
+            shard_key=build_canonical_shard_key(
+                tenant_key="tenant-a",
+                user_key="user-1",
+                task_key="task-1",
+            ),
+        ),
     )
 
     assert envelope["scenario_context"]["scenario_id"] == "chest_pain_cardiac"
     assert envelope["correlation"]["trace_id"] == "trace-1"
     assert envelope["idempotency"]["idempotency_key"] == "idem-1"
     assert envelope["progress"]["state"] == "working"
+    assert envelope["scale_profile"]["tenant_key"] == "tenant-a"
 
 
 def test_idempotency_store_detects_duplicates() -> None:
@@ -126,3 +144,204 @@ def test_make_error_data_rejects_invalid_failure_domain() -> None:
         assert "failure_domain" in str(exc)
     else:
         raise AssertionError("Expected invalid failure_domain to raise")
+
+
+@pytest.mark.parametrize("method", ["tasks/send", "tasks/sendSubscribe", "tasks/cancel"])
+def test_response_result_enriches_mutation_with_scale_metadata(method: str) -> None:
+    profile = {
+        "profile": "nexus-scale-v1.1",
+        "tenant_key": "tenant-a",
+        "user_key": "user-1",
+        "task_key": "task-1",
+        "shard_key": build_canonical_shard_key(
+            tenant_key="tenant-a",
+            user_key="user-1",
+            task_key="task-1",
+        ),
+        "features_required": ["routing.v1", "stream.resume.v1"],
+    }
+    payload = response_result(
+        "req-1",
+        {"task_id": "task-1", "ok": True},
+        method=method,
+        params={"scale_profile": profile},
+    )
+    result = payload["result"]
+    assert result["resource_version"] == "rv:task-1"
+    assert result["consistency_applied"] == "eventual"
+    assert result["region_served"] == "local"
+    assert result["scale_profile"] == "nexus-scale-v1.1"
+    assert "routing.v1" in result["accepted_features"]
+
+
+def test_response_result_non_mutation_unmodified() -> None:
+    payload = response_result(
+        "req-2",
+        {"task_id": "task-2", "ok": True},
+        method="tasks/get",
+        params={},
+    )
+    result = payload["result"]
+    assert "resource_version" not in result
+    assert "consistency_applied" not in result
+
+
+def test_response_result_invalid_mutation_metadata_raises_internal_error() -> None:
+    profile = {
+        "profile": "nexus-scale-v1.1",
+        "tenant_key": "tenant-a",
+        "user_key": "user-1",
+        "task_key": "task-1",
+        "shard_key": build_canonical_shard_key(
+            tenant_key="tenant-a",
+            user_key="user-1",
+            task_key="task-1",
+        ),
+    }
+    with pytest.raises(Exception) as exc_info:
+        response_result(
+            "req-invalid-meta",
+            {
+                "task_id": "task-1",
+                "resource_version": "  ",
+                "region_served": "local",
+                "consistency_applied": "eventual",
+                "scale_profile": "nexus-scale-v1.1",
+                "accepted_features": [],
+            },
+            method="tasks/send",
+            params={"scale_profile": profile},
+        )
+
+    err = exc_info.value
+    assert getattr(err, "code", None) == -32603
+    assert getattr(err, "retryable", None) is False
+    data = getattr(err, "data", {}) or {}
+    assert data.get("reason") == "invalid_mutation_response_metadata"
+    assert data.get("method") == "tasks/send"
+
+
+def test_response_result_reject_on_conflict_raises_deterministic_error() -> None:
+    profile = {
+        "profile": "nexus-scale-v1.1",
+        "tenant_key": "tenant-a",
+        "user_key": "user-1",
+        "task_key": "task-1",
+        "shard_key": build_canonical_shard_key(
+            tenant_key="tenant-a",
+            user_key="user-1",
+            task_key="task-1",
+        ),
+        "conflict_policy": "reject_on_conflict",
+        "expected_version": "rv:expected",
+    }
+
+    try:
+        response_result(
+            "req-3",
+            {
+                "task_id": "task-1",
+                "resource_version": "rv:current",
+                "ok": True,
+            },
+            method="tasks/cancel",
+            params={"scale_profile": profile},
+        )
+    except Exception as exc:
+        assert getattr(exc, "code", None) == -32000
+        assert getattr(exc, "retryable", None) is False
+        data = getattr(exc, "data", {})
+        assert data.get("reason") == "conflict"
+        assert data.get("conflict_policy") == "reject_on_conflict"
+        assert data.get("expected_version") == "rv:expected"
+        assert data.get("current_version") == "rv:current"
+    else:
+        raise AssertionError("Expected reject_on_conflict mismatch to raise conflict error")
+
+
+def test_response_result_vector_clock_conflict_contains_causality() -> None:
+    profile = {
+        "profile": "nexus-scale-v1.1",
+        "tenant_key": "tenant-a",
+        "user_key": "user-1",
+        "task_key": "task-1",
+        "shard_key": build_canonical_shard_key(
+            tenant_key="tenant-a",
+            user_key="user-1",
+            task_key="task-1",
+        ),
+        "conflict_policy": "vector_clock",
+        "expected_version": "rv:expected",
+    }
+
+    try:
+        response_result(
+            "req-4",
+            {
+                "task_id": "task-1",
+                "resource_version": "rv:current",
+                "ok": True,
+            },
+            method="tasks/send",
+            params={"scale_profile": profile},
+        )
+    except Exception as exc:
+        assert getattr(exc, "code", None) == -32000
+        data = getattr(exc, "data", {})
+        assert data.get("conflict_policy") == "vector_clock"
+        assert data.get("reason") == "conflict"
+        competing = data.get("competing_versions")
+        assert isinstance(competing, list)
+        assert len(competing) >= 2
+        for item in competing:
+            assert isinstance(item, dict)
+            assert isinstance(item.get("version"), str) and item["version"].strip()
+            assert isinstance(item.get("source"), str) and item["source"].strip()
+        causality = data.get("causality", {})
+        assert causality.get("policy") == "vector_clock"
+        assert causality.get("resolution") == "manual_or_merge_required"
+        assert causality.get("winner") is None
+    else:
+        raise AssertionError("Expected vector_clock mismatch to raise conflict error")
+
+
+def test_validate_vector_clock_conflict_payload_rejects_invalid_winner() -> None:
+    payload = {
+        "reason": "conflict",
+        "conflict_policy": "vector_clock",
+        "expected_version": "rv:expected",
+        "current_version": "rv:current",
+        "competing_versions": [
+            {"version": "rv:expected", "source": "expected"},
+            {"version": "rv:current", "source": "current"},
+        ],
+        "causality": {
+            "policy": "vector_clock",
+            "resolution": "winner_selected",
+            "winner": "rv:unknown",
+        },
+    }
+
+    with pytest.raises(ValueError):
+        validate_vector_clock_conflict_payload(payload)
+
+
+def test_validate_vector_clock_conflict_payload_rejects_non_string_version_entry() -> None:
+    payload = {
+        "reason": "conflict",
+        "conflict_policy": "vector_clock",
+        "expected_version": "rv:expected",
+        "current_version": "rv:current",
+        "competing_versions": [
+            {"version": "rv:expected", "source": "expected"},
+            {"version": 7, "source": "current"},
+        ],
+        "causality": {
+            "policy": "vector_clock",
+            "resolution": "manual_or_merge_required",
+            "winner": None,
+        },
+    }
+
+    with pytest.raises(ValueError):
+        validate_vector_clock_conflict_payload(payload)

@@ -249,23 +249,61 @@ async def test_command_centre_ed_triage_statuses_after_task(
         deadline_ready = time.monotonic() + 180.0
         cc_ready = False
         triage_ready = False
+        cc_last_error = "not_attempted"
+        triage_last_error = "not_attempted"
         while time.monotonic() < deadline_ready:
             try:
                 health = await client.get(f"{dashboard_base}/health", timeout=10.0)
                 cc_ready = health.status_code == 200
+                cc_last_error = f"status={health.status_code}"
             except Exception:
                 cc_ready = False
+                cc_last_error = "request_error"
             try:
                 triage_health = await client.get(f"{triage_base}/health", timeout=10.0)
                 triage_ready = triage_health.status_code == 200
+                triage_last_error = f"health_status={triage_health.status_code}"
             except Exception:
                 triage_ready = False
+                triage_last_error = "health_request_error"
+
+            if not triage_ready:
+                try:
+                    triage_card = await client.get(
+                        f"{triage_base}/.well-known/agent-card.json", timeout=10.0
+                    )
+                    triage_ready = triage_card.status_code == 200
+                    triage_last_error = f"card_status={triage_card.status_code}"
+                except Exception:
+                    triage_ready = False
+                    triage_last_error = "card_request_error"
+
+            if not triage_ready and cc_ready:
+                try:
+                    agents_resp = await client.get(f"{dashboard_base}/api/agents", timeout=10.0)
+                    if agents_resp.status_code == 200:
+                        rows = agents_resp.json()
+                        if isinstance(rows, list):
+                            by_name = {
+                                a.get("name"): a for a in rows
+                                if isinstance(a, dict) and a.get("name")
+                            }
+                            triage_row = by_name.get("triage-agent")
+                            triage_ready = bool(
+                                isinstance(triage_row, dict) and triage_row.get("last_seen")
+                            )
+                            if not triage_ready:
+                                triage_last_error = "triage_missing_from_dashboard_poll"
+                    else:
+                        triage_last_error = f"agents_status={agents_resp.status_code}"
+                except Exception:
+                    triage_last_error = "agents_poll_error"
             if cc_ready and triage_ready:
                 break
             await asyncio.sleep(2.0)
 
-        assert cc_ready, "Command Centre did not become ready within 180s"
-        assert triage_ready, "Triage agent did not become ready within 180s"
+        assert cc_ready, f"Command Centre did not become ready within 180s ({cc_last_error})"
+        assert triage_ready, f"Triage agent did not become ready within 180s ({triage_last_error})"
 
         payload = {
             "jsonrpc": "2.0",

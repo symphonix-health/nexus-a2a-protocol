@@ -1,238 +1,247 @@
-"""Generate 1000 realistic command centre load test scenarios."""
+"""Generate an expanded command-centre load matrix for hyperscale readiness gates."""
+
+from __future__ import annotations
+
+import argparse
 import json
 import random
-from datetime import datetime
+from pathlib import Path
 
-# Chief complaints for realistic ED triage scenarios
 CHIEF_COMPLAINTS = [
-    "chest pain", "shortness of breath", "abdominal pain", "headache", "fever",
-    "nausea and vomiting", "back pain", "leg pain", "dizziness", "weakness",
-    "cough", "sore throat", "rash", "laceration", "ankle injury",
-    "wrist pain", "shoulder pain", "knee injury", "syncope", "seizure",
-    "altered mental status", "cardiac arrest", "stroke symptoms", "bleeding",
-    "difficulty swallowing", "chest tightness", "palpitations", "joint pain",
-    "eye pain", "ear pain", "toothache", "numbness", "tingling",
-    "anxiety", "depression", "suicidal ideation", "assault", "fall",
-    "motor vehicle accident", "burn", "poisoning", "allergic reaction",
-    "asthma exacerbation", "COPD exacerbation", "diabetic emergency",
-    "hypertensive emergency", "renal colic", "urinary retention",
-    "vaginal bleeding", "pregnancy complications", "pediatric fever",
+    "chest pain",
+    "shortness of breath",
+    "abdominal pain",
+    "headache",
+    "fever",
+    "nausea and vomiting",
+    "back pain",
+    "syncope",
+    "palpitations",
+    "stroke symptoms",
+    "allergic reaction",
+    "asthma exacerbation",
+    "hypertensive emergency",
+    "seizure",
+    "altered mental status",
 ]
 
-# Age ranges
-AGE_RANGES = list(range(1, 100))
+GATE_TAGS = ("gate:g0", "gate:g1", "gate:g2", "gate:g3", "gate:g4")
+CONCURRENCY_PROFILES = (25, 50, 100, 250, 500, 1000, 2000, 10000, 100000, 500000, 2000000)
+EDGE_SURGE_PROFILES = (500, 1000, 2000, 4000, 8000, 20000, 100000, 500000, 2000000)
 
-# Acuity levels
-ACUITY_LEVELS = ["EMERGENCY", "URGENT", "SEMI-URGENT", "NON-URGENT"]
 
-def generate_patient_id():
-    """Generate realistic patient ID."""
-    return f"Patient/{random.randint(1000, 99999)}"
+def generate_patient_id() -> str:
+    return f"Patient/{random.randint(1000, 99999999)}"
 
-def generate_positive_scenario(idx):
-    """Generate a positive test scenario."""
+
+def _base_record(idx: int, scenario_type: str, title: str, gate_tag: str) -> dict:
+    return {
+        "use_case_id": f"UC-CMD-LOAD-{idx:05d}",
+        "poc_demo": "command-centre",
+        "scenario_title": title,
+        "scenario_type": scenario_type,
+        "requirement_ids": ["MON-1", "MON-2", "MON-4", "NFR-8"],
+        "preconditions": ["docker_compose_up", "jwt_secret_configured"],
+        "expected_http_status": 200,
+        "error_condition": "none" if scenario_type == "positive" else "expected_failure",
+        "test_tags": ["load-test", scenario_type, gate_tag],
+    }
+
+
+def generate_positive_scenario(idx: int) -> dict:
     complaint = random.choice(CHIEF_COMPLAINTS)
-    age = random.choice(AGE_RANGES)
+    age = random.randint(1, 99)
     patient_id = generate_patient_id()
-    
-    return {
-        "use_case_id": f"UC-CMD-LOAD-{idx:04d}",
-        "poc_demo": "command-centre",
-        "scenario_title": f"Load test positive: {complaint} (age {age})",
-        "scenario_type": "positive",
-        "requirement_ids": ["MON-1", "MON-2", "MON-4"],
-        "preconditions": ["docker_compose_up", "jwt_secret_configured"],
-        "input_payload": {
-            "jsonrpc": "2.0",
-            "id": f"load-test-{idx}",
-            "method": "tasks/sendSubscribe",
-            "params": {
-                "task": {
-                    "type": "ed-triage",
-                    "patient_ref": patient_id,
-                    "inputs": {
-                        "chief_complaint": complaint,
-                        "age": age,
-                        "vital_signs": {
-                            "heart_rate": random.randint(50, 150),
-                            "blood_pressure": f"{random.randint(90, 180)}/{random.randint(50, 120)}",
-                            "respiratory_rate": random.randint(12, 30),
-                            "temperature": round(random.uniform(36.0, 40.0), 1),
-                            "oxygen_saturation": random.randint(85, 100)
-                        }
-                    }
-                }
-            }
-        },
-        "expected_http_status": 200,
-        "expected_result": {
-            "has_task_id": True,
-            "has_trace_id": True,
-            "status": "success"
-        },
-        "expected_latency_ms": 5000,
-        "expected_events": ["nexus.task.status", "nexus.task.final"],
-        "postconditions": ["task_completed", "metrics_updated"],
-        "error_condition": "none",
-        "tags": ["load-test", "positive", "ed-triage"]
-    }
+    gate_tag = random.choice(GATE_TAGS)
+    profile = random.choice(CONCURRENCY_PROFILES)
+    mode = random.choice(("task", "concurrent", "api"))
+    base = _base_record(
+        idx,
+        "positive",
+        f"Positive load path: {complaint} age {age}",
+        gate_tag,
+    )
 
-def generate_negative_scenario(idx):
-    """Generate a negative test scenario."""
-    scenarios = [
-        {
-            "title": "Missing chief complaint",
-            "payload": {"task": {"patient_ref": generate_patient_id(), "inputs": {}}},
-            "expected": "validation_error"
-        },
-        {
-            "title": "Invalid patient reference",
-            "payload": {"task": {"patient_ref": "invalid", "inputs": {"chief_complaint": "pain"}}},
-            "expected": "invalid_reference"
-        },
-        {
-            "title": "Malformed JSON-RPC",
-            "payload": {"invalid": "structure"},
-            "expected": "parse_error"
-        },
-        {
-            "title": "Missing authentication",
-            "payload": {"task": {"patient_ref": generate_patient_id(), "inputs": {"chief_complaint": "pain"}}},
-            "expected": "auth_error"
-        },
-    ]
-    
-    scenario = random.choice(scenarios)
-    
-    return {
-        "use_case_id": f"UC-CMD-LOAD-{idx:04d}",
-        "poc_demo": "command-centre",
-        "scenario_title": f"Load test negative: {scenario['title']}",
-        "scenario_type": "negative",
-        "requirement_ids": ["MON-1", "MON-4", "NFR-8"],
-        "preconditions": ["docker_compose_up"],
-        "input_payload": scenario["payload"],
-        "expected_http_status": 401 if "auth" in scenario["expected"] else 200,
-        "expected_result": {
-            "error": scenario["expected"]
-        },
-        "expected_latency_ms": 1000,
-        "expected_events": ["nexus.task.error"],
-        "postconditions": ["error_recorded", "metrics_updated"],
-        "error_condition": scenario["expected"],
-        "tags": ["load-test", "negative", "error-handling"]
-    }
-
-def generate_edge_scenario(idx):
-    """Generate an edge case scenario."""
-    edge_cases = [
-        {
-            "title": "Very long chief complaint",
-            "complaint": " ".join(["pain"] * 100),
-            "age": 50
-        },
-        {
-            "title": "Infant patient",
-            "complaint": "fever",
-            "age": 0
-        },
-        {
-            "title": "Elderly patient",
-            "complaint": "fall",
-            "age": 105
-        },
-        {
-            "title": "Multiple vital signs abnormal",
-            "complaint": "cardiac arrest",
-            "age": 70,
-            "vitals": {
-                "heart_rate": 180,
-                "blood_pressure": "60/40",
-                "respiratory_rate": 40,
-                "temperature": 35.0,
-                "oxygen_saturation": 70
+    if mode == "task":
+        base["input_payload"] = {
+            "task": {
+                "type": "ed-triage",
+                "patient_ref": patient_id,
+                "inputs": {
+                    "chief_complaint": complaint,
+                    "age": age,
+                    "vital_signs": {
+                        "heart_rate": random.randint(50, 150),
+                        "blood_pressure": f"{random.randint(90, 180)}/{random.randint(50, 120)}",
+                        "respiratory_rate": random.randint(12, 30),
+                        "temperature": round(random.uniform(36.0, 40.0), 1),
+                        "oxygen_saturation": random.randint(85, 100),
+                    },
+                },
             }
-        },
-    ]
-    
-    edge = random.choice(edge_cases)
-    
-    return {
-        "use_case_id": f"UC-CMD-LOAD-{idx:04d}",
-        "poc_demo": "command-centre",
-        "scenario_title": f"Load test edge: {edge['title']}",
-        "scenario_type": "edge",
-        "requirement_ids": ["MON-1", "MON-2", "NFR-1"],
-        "preconditions": ["docker_compose_up", "jwt_secret_configured"],
-        "input_payload": {
-            "jsonrpc": "2.0",
-            "id": f"edge-{idx}",
-            "method": "tasks/sendSubscribe",
-            "params": {
-                "task": {
-                    "type": "ed-triage",
-                    "patient_ref": generate_patient_id(),
-                    "inputs": {
-                        "chief_complaint": edge.get("complaint", "other"),
-                        "age": edge.get("age", 50),
-                        "vital_signs": edge.get("vitals", {
-                            "heart_rate": 75,
-                            "blood_pressure": "120/80",
-                            "respiratory_rate": 16,
-                            "temperature": 37.0,
-                            "oxygen_saturation": 98
-                        })
-                    }
-                }
-            }
-        },
-        "expected_http_status": 200,
-        "expected_result": {
-            "has_task_id": True,
-            "has_trace_id": True
-        },
-        "expected_latency_ms": 10000,
-        "expected_events": ["nexus.task.status"],
-        "postconditions": ["task_handled", "metrics_updated"],
-        "error_condition": "handled_gracefully",
-        "tags": ["load-test", "edge", "boundary-conditions"]
-    }
+        }
+        base["expected_result"] = {"has_task_id": True, "has_trace_id": True, "status": "success"}
+        base["expected_latency_ms"] = 5000
+        base["expected_events"] = ["nexus.task.status", "nexus.task.final"]
+    elif mode == "concurrent":
+        base["input_payload"] = {
+            "concurrent_count": profile,
+            "task_template": {
+                "type": "ed-triage",
+                "patient_ref": patient_id,
+                "inputs": {"chief_complaint": complaint, "age": age},
+            },
+        }
+        base["expected_result"] = {"all_completed": True, "throughput_increased": True}
+        base["expected_latency_ms"] = 10000
+        base["expected_events"] = ["nexus.task.status"]
+    else:
+        endpoint = random.choice(("/api/agents", "/api/topology", "/health"))
+        base["input_payload"] = {"endpoint": endpoint, "method": "GET"}
+        base["expected_result"] = {"status": "healthy"}
+        base["expected_latency_ms"] = 1000
+        base["expected_events"] = []
 
-def generate_scenarios():
-    """Generate 1000 scenarios: 800 positive, 200 negative, 50 edge."""
-    scenarios = []
+    base["postconditions"] = ["metrics_updated"]
+    base["load_gate"] = {
+        "gate_tag": gate_tag,
+        "target_concurrency": profile,
+        "target_rps": max(50, profile * 2),
+    }
+    return base
+
+
+def generate_negative_scenario(idx: int) -> dict:
+    gate_tag = random.choice(GATE_TAGS)
+    case = random.choice(
+        (
+            ("Missing chief complaint", {"task": {"patient_ref": generate_patient_id(), "inputs": {}}}, 200, "validation_error"),
+            (
+                "Invalid patient reference",
+                {"task": {"patient_ref": "invalid", "inputs": {"chief_complaint": "pain"}}},
+                200,
+                "invalid_reference",
+            ),
+            ("Malformed JSON-RPC", {"invalid": "structure"}, 200, "parse_error"),
+            (
+                "Missing authentication",
+                {"task": {"patient_ref": generate_patient_id(), "inputs": {"chief_complaint": "pain"}}},
+                401,
+                "auth_error",
+            ),
+            ("Rate limit exceeded", {"endpoint": "/api/agents", "method": "GET", "burst_count": 2500}, 429, "rate_limit_exceeded"),
+        )
+    )
+    title, payload, status, error = case
+    base = _base_record(idx, "negative", f"Negative load path: {title}", gate_tag)
+    base["input_payload"] = payload
+    base["expected_http_status"] = status
+    base["expected_result"] = {"error": error}
+    base["expected_latency_ms"] = 1500
+    base["expected_events"] = ["nexus.task.error"] if "task" in payload else []
+    base["postconditions"] = ["error_recorded", "metrics_updated"]
+    base["error_condition"] = error
+    base["load_gate"] = {
+        "gate_tag": gate_tag,
+        "target_concurrency": random.choice(CONCURRENCY_PROFILES),
+        "target_rps": random.choice((100, 250, 500, 1000)),
+    }
+    return base
+
+
+def generate_edge_scenario(idx: int) -> dict:
+    gate_tag = random.choice(GATE_TAGS)
+    surge = random.choice(EDGE_SURGE_PROFILES)
+    base = _base_record(
+        idx,
+        "edge",
+        f"Edge load path: concurrency surge {surge}",
+        gate_tag,
+    )
+    base["input_payload"] = {
+        "concurrent_count": surge,
+        "duration_seconds": random.choice((15, 30, 45, 60)),
+        "task_template": {
+            "type": "ed-triage",
+            "patient_ref": generate_patient_id(),
+            "inputs": {"chief_complaint": random.choice(CHIEF_COMPLAINTS), "age": random.randint(1, 99)},
+        },
+    }
+    base["expected_result"] = {"system_stable": True, "metrics_accurate": True}
+    base["expected_http_status"] = 200
+    base["expected_latency_ms"] = 20000
+    base["expected_events"] = ["nexus.task.status"]
+    base["postconditions"] = ["task_handled", "metrics_updated"]
+    base["error_condition"] = "handled_gracefully"
+    base["load_gate"] = {
+        "gate_tag": gate_tag,
+        "target_concurrency": surge,
+        "target_rps": max(1000, surge * 2),
+    }
+    return base
+
+
+def generate_scenarios(positive: int, negative: int, edge: int) -> list[dict]:
+    scenarios: list[dict] = []
     idx = 1
-    
-    # 800 positive scenarios (80%)
-    for _ in range(800):
+    for _ in range(positive):
         scenarios.append(generate_positive_scenario(idx))
         idx += 1
-    
-    # 150 negative scenarios (15%)
-    for _ in range(150):
+    for _ in range(negative):
         scenarios.append(generate_negative_scenario(idx))
         idx += 1
-    
-    # 50 edge scenarios (5%)
-    for _ in range(50):
+    for _ in range(edge):
         scenarios.append(generate_edge_scenario(idx))
         idx += 1
-    
-    # Shuffle to mix scenario types
     random.shuffle(scenarios)
-    
     return scenarios
 
-if __name__ == "__main__":
-    random.seed(42)  # Reproducible scenarios
-    scenarios = generate_scenarios()
-    
-    output_file = "nexus-a2a/artefacts/matrices/nexus_command_centre_load_matrix.json"
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(scenarios, f, indent=2)
-    
+
+def emit_gate_matrices(rows: list[dict], output_path: Path) -> None:
+    gate_dir = output_path.parent / "gates"
+    gate_dir.mkdir(parents=True, exist_ok=True)
+    for gate in GATE_TAGS:
+        gate_rows = [
+            row
+            for row in rows
+            if gate in row.get("test_tags", [])
+            or row.get("load_gate", {}).get("gate_tag") == gate
+        ]
+        gate_name = gate.replace(":", "_")
+        gate_path = gate_dir / f"nexus_command_centre_load_matrix_{gate_name}.json"
+        gate_path.write_text(json.dumps(gate_rows, indent=2), encoding="utf-8")
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Generate expanded command-centre load matrix")
+    parser.add_argument("--positive", type=int, default=5600)
+    parser.add_argument("--negative", type=int, default=1050)
+    parser.add_argument("--edge", type=int, default=350)
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--emit-gates", action="store_true")
+    parser.add_argument(
+        "--output",
+        default="nexus-a2a/artefacts/matrices/nexus_command_centre_load_matrix.json",
+    )
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    random.seed(args.seed)
+    scenarios = generate_scenarios(args.positive, args.negative, args.edge)
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(scenarios, indent=2), encoding="utf-8")
+    if args.emit_gates:
+        emit_gate_matrices(scenarios, output_path)
+
     print(f"Generated {len(scenarios)} scenarios")
-    print(f"Positive: {len([s for s in scenarios if s['scenario_type'] == 'positive'])}")
-    print(f"Negative: {len([s for s in scenarios if s['scenario_type'] == 'negative'])}")
-    print(f"Edge: {len([s for s in scenarios if s['scenario_type'] == 'edge'])}")
-    print(f"Saved to: {output_file}")
+    print(f"Positive: {args.positive}")
+    print(f"Negative: {args.negative}")
+    print(f"Edge: {args.edge}")
+    print(f"Saved to: {output_path}")
+
+
+if __name__ == "__main__":
+    main()

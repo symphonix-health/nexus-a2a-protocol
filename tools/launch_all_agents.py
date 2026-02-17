@@ -1,14 +1,15 @@
 """Launch all NEXUS-A2A demo agents locally for testing.
 
 Usage:
-    python tools/launch_all_agents.py                    # start all agents
-    python tools/launch_all_agents.py --with-backend     # start agents + backend
+    python tools/launch_all_agents.py                    # start agents + backend
+    python tools/launch_all_agents.py --no-backend       # start agents only
     python tools/launch_all_agents.py --llm-profile local_docker_smollm2
                                                         # start with a configured LLM profile
     python tools/launch_all_agents.py --list-llm-profiles
                                                         # show configured LLM profiles
     python tools/launch_all_agents.py --stop             # kill all
 """
+
 from __future__ import annotations
 
 import argparse
@@ -18,6 +19,8 @@ import signal
 import subprocess
 import sys
 import time
+import urllib.error
+import urllib.request
 
 PYTHON = sys.executable
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -33,24 +36,22 @@ def load_agent_config():
     agents = []
 
     # Flatten agent hierarchy into (path, port, name, rpc_env) tuples
-    for category, category_agents in config.get("agents", {}).items():
+    for _category, category_agents in config.get("agents", {}).items():
         for agent_name, agent_info in category_agents.items():
-            agents.append((
-                agent_info["path"],
-                agent_info["port"],
-                agent_name,
-                agent_info.get("rpc_env"),
-                agent_info.get("env")
-            ))
+            agents.append(
+                (
+                    agent_info["path"],
+                    agent_info["port"],
+                    agent_name,
+                    agent_info.get("rpc_env"),
+                    agent_info.get("env"),
+                )
+            )
 
     # Backend services (Command Centre)
     backend = []
     for service_name, service_info in config.get("backend", {}).items():
-        backend.append((
-            service_info["path"],
-            service_info["port"],
-            service_name
-        ))
+        backend.append((service_info["path"], service_info["port"], service_name))
 
     llm_profiles = config.get("llm_profiles", {})
 
@@ -98,8 +99,84 @@ def print_llm_profiles(llm_profiles: dict[str, dict]) -> None:
             print(f"    {desc}")
 
 
-def start_all(include_backend: bool = False, llm_profile: str | None = None):
-    """Start all agents and optionally the backend Command Centre."""
+def probe_http_health(
+    url: str,
+    *,
+    attempts: int,
+    timeout_s: float,
+    interval_s: float,
+) -> tuple[bool, str]:
+    """Probe an HTTP endpoint with bounded retries."""
+    last_error = "unknown error"
+    for attempt in range(1, attempts + 1):
+        try:
+            resp = urllib.request.urlopen(url, timeout=timeout_s)
+            if 200 <= resp.status < 300:
+                return True, f"status={resp.status}"
+            last_error = f"status={resp.status}"
+        except urllib.error.HTTPError as exc:
+            last_error = f"status={exc.code}"
+        except Exception as exc:  # noqa: BLE001 - launch-time diagnostics
+            last_error = str(exc)
+
+        if attempt < attempts:
+            time.sleep(interval_s)
+
+    return False, last_error
+
+
+def _probe_http_once(url: str, timeout_s: float) -> tuple[bool, str]:
+    """Single HTTP probe with compact diagnostics."""
+    try:
+        resp = urllib.request.urlopen(url, timeout=timeout_s)
+        if 200 <= resp.status < 300:
+            return True, f"status={resp.status}"
+        return False, f"status={resp.status}"
+    except urllib.error.HTTPError as exc:
+        return False, f"status={exc.code}"
+    except Exception as exc:  # noqa: BLE001 - launch-time diagnostics
+        return False, str(exc)
+
+
+def probe_backend_readiness(
+    port: int,
+    *,
+    attempts: int,
+    timeout_s: float,
+    interval_s: float,
+) -> tuple[bool, str]:
+    """Probe backend readiness with endpoint fallback.
+
+    Readiness preference order:
+    1) /readyz (if implemented)
+    2) /health + /api/agents (fallback for older backend builds)
+    """
+    base = f"http://localhost:{port}"
+    last_error = "unknown error"
+
+    for attempt in range(1, attempts + 1):
+        ready_ok, ready_detail = _probe_http_once(f"{base}/readyz", timeout_s)
+        if ready_ok:
+            return True, f"readyz={ready_detail}"
+
+        # Fallback path when /readyz is not available yet.
+        if "status=404" in ready_detail:
+            health_ok, health_detail = _probe_http_once(f"{base}/health", timeout_s)
+            agents_ok, agents_detail = _probe_http_once(f"{base}/api/agents", timeout_s)
+            if health_ok and agents_ok:
+                return True, f"health={health_detail}, agents={agents_detail}"
+            last_error = f"health={health_detail}, agents={agents_detail}"
+        else:
+            last_error = f"readyz={ready_detail}"
+
+        if attempt < attempts:
+            time.sleep(interval_s)
+
+    return False, last_error
+
+
+def start_all(include_backend: bool = True, llm_profile: str | None = None):
+    """Start all agents and the backend Command Centre (default)."""
     agents, backend, llm_profiles = load_agent_config()
 
     env = os.environ.copy()
@@ -109,7 +186,10 @@ def start_all(include_backend: bool = False, llm_profile: str | None = None):
 
     selected_profile = apply_llm_profile(env, llm_profiles, llm_profile)
     # Use provided test key/model only when neither the shell env nor profile set them.
-    env.setdefault("OPENAI_API_KEY", "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")
+    env.setdefault(
+        "OPENAI_API_KEY",
+        "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",
+    )
     env.setdefault("OPENAI_MODEL", "gpt-4o-mini")
     if selected_profile:
         profile_meta = llm_profiles.get(selected_profile, {})
@@ -125,7 +205,7 @@ def start_all(include_backend: bool = False, llm_profile: str | None = None):
             print("  OPENAI_BASE_URL=https://api.openai.com/v1 (SDK default)")
 
     # Build environment variables for inter-agent communication
-    for rel_dir, port, agent_name, rpc_env, env_name in agents:
+    for _rel_dir, port, _agent_name, rpc_env, env_name in agents:
         if rpc_env:
             env[rpc_env] = f"http://localhost:{port}/rpc"
         if env_name:
@@ -142,6 +222,7 @@ def start_all(include_backend: bool = False, llm_profile: str | None = None):
     env["AGENT_URLS"] = ",".join(agent_urls)
 
     pids = []
+    failed_starts = []
     services_to_start = []
 
     # Always start agents
@@ -154,11 +235,16 @@ def start_all(include_backend: bool = False, llm_profile: str | None = None):
     for rel_dir, port, service_type in services_to_start:
         agent_dir = os.path.join(ROOT, rel_dir)
         cmd = [
-            PYTHON, "-m", "uvicorn",
+            PYTHON,
+            "-m",
+            "uvicorn",
             "app.main:app",
-            "--host", "0.0.0.0",
-            "--port", str(port),
-            "--app-dir", ".",
+            "--host",
+            "0.0.0.0",
+            "--port",
+            str(port),
+            "--app-dir",
+            ".",
         ]
         # Optional: scale with multiple workers
         workers = int(os.getenv("UVICORN_WORKERS", "1"))
@@ -168,7 +254,7 @@ def start_all(include_backend: bool = False, llm_profile: str | None = None):
         certfile = os.getenv("NEXUS_SSL_CERTFILE")
         keyfile = os.getenv("NEXUS_SSL_KEYFILE")
         ca_certs = os.getenv("NEXUS_SSL_CA_CERTS")
-        cert_reqs_env = (os.getenv("NEXUS_SSL_CERT_REQS", "none").lower())
+        cert_reqs_env = os.getenv("NEXUS_SSL_CERT_REQS", "none").lower()
         if certfile and keyfile:
             cmd += ["--ssl-certfile", certfile, "--ssl-keyfile", keyfile]
             if ca_certs:
@@ -182,19 +268,35 @@ def start_all(include_backend: bool = False, llm_profile: str | None = None):
                 cmd += ["--ssl-cert-reqs", "0"]
 
         service_label = f"[{service_type.upper()}]" if service_type == "backend" else ""
-        print(f"  Starting {service_label} {os.path.basename(rel_dir):30s}  :{port} ...", end=" ", flush=True)
+        stderr_target = subprocess.DEVNULL if service_type == "backend" else subprocess.PIPE
+        print(
+            f"  Starting {service_label} {os.path.basename(rel_dir):30s}  :{port} ...",
+            end=" ",
+            flush=True,
+        )
         proc = subprocess.Popen(
             cmd,
             cwd=agent_dir,
             env=env,
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
+            stderr=stderr_target,
         )
         time.sleep(0.5)
         if proc.poll() is not None:
-            err = proc.stderr.read().decode(errors="replace")
+            err = ""
+            if proc.stderr is not None:
+                err = proc.stderr.read().decode(errors="replace")
             print(f"FAILED (exit {proc.returncode})")
-            print(f"    stderr: {err[:300]}")
+            if err:
+                print(f"    stderr: {err[:300]}")
+            failed_starts.append(
+                {
+                    "dir": rel_dir,
+                    "port": port,
+                    "type": service_type,
+                    "exit_code": proc.returncode,
+                }
+            )
         else:
             print(f"OK  (pid {proc.pid})")
             pids.append({"dir": rel_dir, "port": port, "pid": proc.pid, "type": service_type})
@@ -206,14 +308,18 @@ def start_all(include_backend: bool = False, llm_profile: str | None = None):
     backend_count = sum(1 for p in pids if p.get("type") == "backend")
     total = len(services_to_start)
 
-    print(f"\n{len(pids)}/{total} services started ({agent_count} agents, {backend_count} backend).  PIDs saved to {PID_FILE}")
+    service_summary = (
+        f"\n{len(pids)}/{total} services started "
+        f"({agent_count} agents, {backend_count} backend). "
+        f"PIDs saved to {PID_FILE}"
+    )
+    print(service_summary)
 
     # Give agents a moment to bind
     print("Waiting 3s for agents to settle...")
     time.sleep(3)
 
     # Quick health check - ONLY for agents, not backend
-    import urllib.request
     ok = 0
     agent_pids = [p for p in pids if p.get("type") == "agent"]
 
@@ -233,16 +339,62 @@ def start_all(include_backend: bool = False, llm_profile: str | None = None):
 
     # Check backend separately
     backend_pids = [p for p in pids if p.get("type") == "backend"]
+    backend_failures = []
+    backend_health_attempts = int(
+        os.getenv(
+            "NEXUS_BACKEND_HEALTHCHECK_ATTEMPTS",
+            os.getenv("NEXUS_HEALTHCHECK_ATTEMPTS", "20"),
+        )
+    )
+    backend_health_timeout_s = float(
+        os.getenv(
+            "NEXUS_BACKEND_HEALTHCHECK_TIMEOUT_SECONDS",
+            os.getenv("NEXUS_HEALTHCHECK_TIMEOUT_SECONDS", "5"),
+        )
+    )
+    backend_health_interval_s = float(
+        os.getenv(
+            "NEXUS_BACKEND_HEALTHCHECK_INTERVAL_SECONDS",
+            os.getenv("NEXUS_HEALTHCHECK_INTERVAL_SECONDS", "1.5"),
+        )
+    )
+    strict_backend_health = os.getenv("NEXUS_STRICT_BACKEND_HEALTHCHECK", "true").lower() not in {
+        "0",
+        "false",
+        "no",
+    }
+
     if backend_pids:
         print("\nBackend Services:")
         for entry in backend_pids:
-            url = f"http://localhost:{entry['port']}/api/agents"
-            try:
-                resp = urllib.request.urlopen(url, timeout=3)
-                print(f"  [ok] Command Centre :{entry['port']} running")
-            except Exception as e:
-                print(f"  [fail] Command Centre :{entry['port']} {e}")
+            healthy, detail = probe_backend_readiness(
+                entry["port"],
+                attempts=backend_health_attempts,
+                timeout_s=backend_health_timeout_s,
+                interval_s=backend_health_interval_s,
+            )
+            if healthy:
+                print(f"  [ok] Command Centre :{entry['port']} running ({detail})")
+            else:
+                failure = f"Command Centre :{entry['port']} {detail}"
+                backend_failures.append(failure)
+                print(f"  [fail] {failure}")
 
+    if include_backend and strict_backend_health:
+        expected_backend_count = len(backend)
+        if len(backend_pids) < expected_backend_count:
+            backend_failures.append(
+                f"started backends={len(backend_pids)}/{expected_backend_count}"
+            )
+        backend_start_failures = [
+            f"{entry['dir']}:{entry['port']} exit={entry['exit_code']}"
+            for entry in failed_starts
+            if entry.get("type") == "backend"
+        ]
+        backend_failures.extend(backend_start_failures)
+
+        if backend_failures:
+            raise RuntimeError("Backend health strict-fail: " + "; ".join(backend_failures))
 
 
 def stop_all():
@@ -264,9 +416,20 @@ def stop_all():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--stop", action="store_true", help="Stop all running services")
-    parser.add_argument("--with-backend", action="store_true", help="Include Command Centre backend (port 8099)")
+    parser.add_argument(
+        "--with-backend",
+        action="store_true",
+        help="Deprecated flag; backend now starts by default.",
+    )
+    parser.add_argument(
+        "--no-backend",
+        action="store_true",
+        help="Skip Command Centre backend startup.",
+    )
     parser.add_argument("--llm-profile", help="Name of LLM profile from config/agents.json")
-    parser.add_argument("--list-llm-profiles", action="store_true", help="List available LLM profiles")
+    parser.add_argument(
+        "--list-llm-profiles", action="store_true", help="List available LLM profiles"
+    )
     args = parser.parse_args()
     if args.stop:
         stop_all()
@@ -275,8 +438,10 @@ if __name__ == "__main__":
         print_llm_profiles(profiles)
     else:
         try:
-            start_all(include_backend=args.with_backend, llm_profile=args.llm_profile)
+            start_all(include_backend=not args.no_backend, llm_profile=args.llm_profile)
         except ValueError as exc:
             print(f"Error: {exc}")
             sys.exit(2)
-
+        except RuntimeError as exc:
+            print(f"Error: {exc}")
+            sys.exit(1)
