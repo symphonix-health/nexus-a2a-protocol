@@ -1,0 +1,65 @@
+{
+  "overall_passed": false,
+  "steps": [
+    {
+      "name": "preclean_stop_agents",
+      "passed": true,
+      "returncode": 0,
+      "duration_s": 0.59
+    },
+    {
+      "name": "generate_load_matrix",
+      "passed": true,
+      "returncode": 0,
+      "duration_s": 2.71
+    },
+    {
+      "name": "launch_agents",
+      "passed": true,
+      "returncode": 0,
+      "duration_s": 70.22
+    },
+    {
+      "name": "protocol_tests",
+      "passed": true,
+      "returncode": 0,
+      "duration_s": 9.1
+    },
+    {
+      "name": "scale_profile_conformance",
+      "passed": true,
+      "returncode": 0,
+      "duration_s": 0.7
+    },
+    {
+      "name": "integration_tests_core",
+      "passed": false,
+      "returncode": -9,
+      "duration_s": 120.08
+    },
+    {
+      "name": "restart_agents_for_command_centre_stop",
+      "passed": true,
+      "returncode": 0,
+      "duration_s": 0.47
+    },
+    {
+      "name": "restart_agents_for_command_centre_launch",
+      "passed": true,
+      "returncode": 0,
+      "duration_s": 69.91
+    },
+    {
+      "name": "integration_tests_command_centre",
+      "passed": true,
+      "returncode": 0,
+      "duration_s": 38.93
+    },
+    {
+      "name": "stop_agents",
+      "passed": true,
+      "returncode": 0,
+      "duration_s": 0.98
+    }
+  ]
+}

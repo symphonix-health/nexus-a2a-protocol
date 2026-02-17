@@ -1,0 +1,178 @@
+{
+  "overall_before": false,
+  "overall_after": true,
+  "steps_before": 10,
+  "steps_after": 17,
+  "added_steps": [
+    "restart_agents_for_load_stop",
+    "restart_agents_for_load_launch",
+    "load_gate_g0",
+    "load_gate_g1",
+    "load_gate_g2",
+    "load_gate_g3",
+    "load_gate_g4"
+  ],
+  "removed_steps": [],
+  "changed_steps": [
+    {
+      "name": "generate_load_matrix",
+      "before": {
+        "name": "generate_load_matrix",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 2.71
+      },
+      "after": {
+        "name": "generate_load_matrix",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 1.4
+      },
+      "duration_delta_s": -1.31
+    },
+    {
+      "name": "integration_tests_command_centre",
+      "before": {
+        "name": "integration_tests_command_centre",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 38.93
+      },
+      "after": {
+        "name": "integration_tests_command_centre",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 49.47
+      },
+      "duration_delta_s": 10.54
+    },
+    {
+      "name": "integration_tests_core",
+      "before": {
+        "name": "integration_tests_core",
+        "passed": false,
+        "returncode": -9,
+        "duration_s": 120.08
+      },
+      "after": {
+        "name": "integration_tests_core",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 247.75
+      },
+      "duration_delta_s": 127.67
+    },
+    {
+      "name": "launch_agents",
+      "before": {
+        "name": "launch_agents",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 70.22
+      },
+      "after": {
+        "name": "launch_agents",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 70.18
+      },
+      "duration_delta_s": -0.04
+    },
+    {
+      "name": "preclean_stop_agents",
+      "before": {
+        "name": "preclean_stop_agents",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 0.59
+      },
+      "after": {
+        "name": "preclean_stop_agents",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 0.32
+      },
+      "duration_delta_s": -0.27
+    },
+    {
+      "name": "protocol_tests",
+      "before": {
+        "name": "protocol_tests",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 9.1
+      },
+      "after": {
+        "name": "protocol_tests",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 2.11
+      },
+      "duration_delta_s": -6.99
+    },
+    {
+      "name": "restart_agents_for_command_centre_launch",
+      "before": {
+        "name": "restart_agents_for_command_centre_launch",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 69.91
+      },
+      "after": {
+        "name": "restart_agents_for_command_centre_launch",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 69.42
+      },
+      "duration_delta_s": -0.49
+    },
+    {
+      "name": "restart_agents_for_command_centre_stop",
+      "before": {
+        "name": "restart_agents_for_command_centre_stop",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 0.47
+      },
+      "after": {
+        "name": "restart_agents_for_command_centre_stop",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 0.4
+      },
+      "duration_delta_s": -0.07
+    },
+    {
+      "name": "scale_profile_conformance",
+      "before": {
+        "name": "scale_profile_conformance",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 0.7
+      },
+      "after": {
+        "name": "scale_profile_conformance",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 0.19
+      },
+      "duration_delta_s": -0.51
+    },
+    {
+      "name": "stop_agents",
+      "before": {
+        "name": "stop_agents",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 0.98
+      },
+      "after": {
+        "name": "stop_agents",
+        "passed": true,
+        "returncode": 0,
+        "duration_s": 2.63
+      },
+      "duration_delta_s": 1.65
+    }
+  ]
+}

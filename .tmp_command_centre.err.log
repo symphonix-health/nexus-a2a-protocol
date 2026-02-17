@@ -1,0 +1,6 @@
+2026-02-16 16:31:38,532 nexus.command-centre INFO Using AGENT_URLS from environment
+INFO:     Started server process [42944]
+INFO:     Waiting for application startup.
+2026-02-16 16:31:38,543 nexus.command-centre INFO Command Centre started. Monitoring 3 agents.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8099 (Press CTRL+C to quit)

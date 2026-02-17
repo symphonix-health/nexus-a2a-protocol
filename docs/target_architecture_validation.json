@@ -1,0 +1,328 @@
+{
+  "generated_at_epoch": 1771261154,
+  "steps": [
+    {
+      "name": "preclean_stop_agents",
+      "command": [
+        "C:\\nexus-a2a-protocol\\.venv\\Scripts\\python.exe",
+        "tools/launch_all_agents.py",
+        "--stop"
+      ],
+      "returncode": 0,
+      "duration_s": 0.83,
+      "stdout_tail": "No PID file found.\n",
+      "stderr_tail": "",
+      "passed": true
+    },
+    {
+      "name": "generate_load_matrix",
+      "command": [
+        "C:\\nexus-a2a-protocol\\.venv\\Scripts\\python.exe",
+        "tools/generate_load_matrix.py",
+        "--emit-gates"
+      ],
+      "returncode": 0,
+      "duration_s": 4.91,
+      "stdout_tail": "Generated 7000 scenarios\nPositive: 5600\nNegative: 1050\nEdge: 350\nSaved to: nexus-a2a\\artefacts\\matrices\\nexus_command_centre_load_matrix.json\n",
+      "stderr_tail": "",
+      "passed": true
+    },
+    {
+      "name": "launch_agents",
+      "command": [
+        "C:\\nexus-a2a-protocol\\.venv\\Scripts\\python.exe",
+        "tools/launch_all_agents.py",
+        "--with-backend"
+      ],
+      "returncode": 0,
+      "duration_s": 74.95,
+      "stdout_tail": "  Starting  openhie-mediator                :8023 ... OK  (pid 23056)\n  Starting  diagnosis-agent                 :8022 ... OK  (pid 7520)\n  Starting  triage-agent                    :8021 ... OK  (pid 42896)\n  Starting  ehr-writer-agent                :8033 ... OK  (pid 32580)\n  Starting  summariser-agent                :8032 ... OK  (pid 22424)\n  Starting  transcriber-agent               :8031 ... OK  (pid 33944)\n  Starting  consent-analyser                :8043 ... OK  (pid 22904)\n  Starting  hitl-ui                         :8044 ... OK  (pid 12348)\n  Starting  provider-agent                  :8042 ... OK  (pid 23852)\n  Starting  insurer-agent                   :8041 ... OK  (pid 8832)\n  Starting  hospital-reporter               :8051 ... OK  (pid 23468)\n  Starting  osint-agent                     :8052 ... OK  (pid 36552)\n  Starting  central-surveillance            :8053 ... OK  (pid 19904)\n  Starting  imaging-agent                   :8024 ... OK  (pid 42532)\n  Starting  pharmacy-agent                  :8025 ... OK  (pid 39832)\n  Starting  bed-manager-agent               :8026 ... OK  (pid 8288)\n  Starting  discharge-agent                 :8027 ... OK  (pid 17608)\n  Starting  followup-scheduler              :8028 ... OK  (pid 19956)\n  Starting  care-coordinator                :8029 ... OK  (pid 41892)\n  Starting  primary-care-agent              :8034 ... OK  (pid 808)\n  Starting  specialty-care-agent            :8035 ... OK  (pid 18724)\n  Starting  telehealth-agent                :8036 ... OK  (pid 27388)\n  Starting  home-visit-agent                :8037 ... OK  (pid 19104)\n  Starting  ccm-agent                       :8038 ... OK  (pid 35336)\n  Starting [BACKEND] command-centre                  :8099 ... OK  (pid 35720)\n\n25/25 services started (24 agents, 1 backend). PIDs saved to C:\\nexus-a2a-protocol\\.agent_pids.json\nWaiting 3s for agents to settle...\n  [ok] :8023 healthy\n  [ok] :8022 healthy\n  [ok] :8021 healthy\n  [ok] :8033 healthy\n  [ok] :8032 healthy\n  [ok] :8031 healthy\n  [ok] :8043 healthy\n  [ok] :8044 healthy\n  [ok] :8042 healthy\n  [ok] :8041 healthy\n  [ok] :8051 healthy\n  [ok] :8052 healthy\n  [ok] :8053 healthy\n  [ok] :8024 healthy\n  [ok] :8025 healthy\n  [ok] :8026 healthy\n  [ok] :8027 healthy\n  [ok] :8028 healthy\n  [ok] :8029 healthy\n  [ok] :8034 healthy\n  [ok] :8035 healthy\n  [ok] :8036 healthy\n  [ok] :8037 healthy\n  [ok] :8038 healthy\n\nAgent Health: 24/24 agents responding\n\nBackend Services:\n  [ok] Command Centre :8099 running (readyz=status=200)\n",
+      "stderr_tail": "",
+      "passed": true
+    },
+    {
+      "name": "protocol_tests",
+      "command": [
+        "C:\\nexus-a2a-protocol\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_nexus_protocol_contracts.py",
+        "tests/test_hyperscale_load_matrix.py",
+        "tests/test_architecture_boundaries.py",
+        "tests/test_scale_profile_v1_1.py",
+        "-q"
+      ],
+      "returncode": 0,
+      "duration_s": 6.35,
+      "stdout_tail": "..............................................                           [100%]\n",
+      "stderr_tail": "",
+      "passed": true
+    },
+    {
+      "name": "scale_profile_conformance",
+      "command": [
+        "C:\\nexus-a2a-protocol\\.venv\\Scripts\\python.exe",
+        "tools/run_scale_profile_conformance.py"
+      ],
+      "returncode": 0,
+      "duration_s": 1.84,
+      "stdout_tail": "Scale profile conformance: total=23 passed=23 failed=0\n",
+      "stderr_tail": "",
+      "passed": true
+    },
+    {
+      "name": "integration_tests_core",
+      "command": [
+        "C:\\nexus-a2a-protocol\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/nexus_harness/test_protocol_core.py",
+        "tests/nexus_harness/test_protocol_streaming.py",
+        "tests/nexus_harness/test_protocol_multitransport.py",
+        "tests/nexus_harness/test_ed_triage.py",
+        "tests/nexus_harness/test_telemed_scribe.py",
+        "tests/nexus_harness/test_consent_verification.py",
+        "tests/nexus_harness/test_public_health_surveillance.py",
+        "-q",
+        "--tb=short"
+      ],
+      "returncode": 0,
+      "duration_s": 11685.34,
+      "stdout_tail": "........................................................................ [ 51%]\n....................................................................     [100%]\n",
+      "stderr_tail": "",
+      "passed": true
+    },
+    {
+      "name": "restart_agents_for_command_centre_stop",
+      "command": [
+        "C:\\nexus-a2a-protocol\\.venv\\Scripts\\python.exe",
+        "tools/launch_all_agents.py",
+        "--stop"
+      ],
+      "returncode": 0,
+      "duration_s": 1.33,
+      "stdout_tail": "  Already gone: demos/ed-triage/openhie-mediator (pid 15252)\n  Already gone: demos/ed-triage/diagnosis-agent (pid 29720)\n  Already gone: demos/ed-triage/triage-agent (pid 7732)\n  Already gone: demos/telemed-scribe/ehr-writer-agent (pid 9092)\n  Already gone: demos/telemed-scribe/summariser-agent (pid 25172)\n  Already gone: demos/telemed-scribe/transcriber-agent (pid 10852)\n  Already gone: demos/consent-verification/consent-analyser (pid 42444)\n  Already gone: demos/consent-verification/hitl-ui (pid 14444)\n  Already gone: demos/consent-verification/provider-agent (pid 2708)\n  Already gone: demos/consent-verification/insurer-agent (pid 43996)\n  Already gone: demos/public-health-surveillance/hospital-reporter (pid 9388)\n  Already gone: demos/public-health-surveillance/osint-agent (pid 39100)\n  Already gone: demos/public-health-surveillance/central-surveillance (pid 4932)\n  Already gone: demos/helixcare/imaging-agent (pid 22472)\n  Killed demos/helixcare/pharmacy-agent (pid 35740)\n  Killed demos/helixcare/bed-manager-agent (pid 23080)\n  Already gone: demos/helixcare/discharge-agent (pid 8076)\n  Already gone: demos/helixcare/followup-scheduler (pid 8352)\n  Killed demos/helixcare/care-coordinator (pid 34968)\n  Already gone: demos/helixcare/primary-care-agent (pid 25940)\n  Already gone: demos/helixcare/specialty-care-agent (pid 39948)\n  Already gone: demos/helixcare/telehealth-agent (pid 7548)\n  Already gone: demos/helixcare/home-visit-agent (pid 980)\n  Already gone: demos/helixcare/ccm-agent (pid 25812)\n  Already gone: shared/command-centre (pid 1624)\nAll agents stopped.\n",
+      "stderr_tail": "",
+      "passed": true
+    },
+    {
+      "name": "restart_agents_for_command_centre_launch",
+      "command": [
+        "C:\\nexus-a2a-protocol\\.venv\\Scripts\\python.exe",
+        "tools/launch_all_agents.py",
+        "--with-backend"
+      ],
+      "returncode": 0,
+      "duration_s": 144.13,
+      "stdout_tail": "  Starting  openhie-mediator                :8023 ... OK  (pid 22952)\n  Starting  diagnosis-agent                 :8022 ... OK  (pid 9652)\n  Starting  triage-agent                    :8021 ... OK  (pid 39788)\n  Starting  ehr-writer-agent                :8033 ... OK  (pid 13060)\n  Starting  summariser-agent                :8032 ... OK  (pid 15476)\n  Starting  transcriber-agent               :8031 ... OK  (pid 24856)\n  Starting  consent-analyser                :8043 ... OK  (pid 41956)\n  Starting  hitl-ui                         :8044 ... OK  (pid 25684)\n  Starting  provider-agent                  :8042 ... OK  (pid 35056)\n  Starting  insurer-agent                   :8041 ... OK  (pid 1848)\n  Starting  hospital-reporter               :8051 ... OK  (pid 24780)\n  Starting  osint-agent                     :8052 ... OK  (pid 32168)\n  Starting  central-surveillance            :8053 ... OK  (pid 42008)\n  Starting  imaging-agent                   :8024 ... OK  (pid 29340)\n  Starting  pharmacy-agent                  :8025 ... OK  (pid 8424)\n  Starting  bed-manager-agent               :8026 ... OK  (pid 4336)\n  Starting  discharge-agent                 :8027 ... OK  (pid 10756)\n  Starting  followup-scheduler              :8028 ... OK  (pid 31436)\n  Starting  care-coordinator                :8029 ... OK  (pid 22832)\n  Starting  primary-care-agent              :8034 ... OK  (pid 5896)\n  Starting  specialty-care-agent            :8035 ... OK  (pid 33952)\n  Starting  telehealth-agent                :8036 ... OK  (pid 29796)\n  Starting  home-visit-agent                :8037 ... OK  (pid 31780)\n  Starting  ccm-agent                       :8038 ... OK  (pid 18024)\n  Starting [BACKEND] command-centre                  :8099 ... OK  (pid 15892)\n\n25/25 services started (24 agents, 1 backend). PIDs saved to C:\\nexus-a2a-protocol\\.agent_pids.json\nWaiting 3s for agents to settle...\n  [ok] :8023 healthy\n  [ok] :8022 healthy\n  [ok] :8021 healthy\n  [ok] :8033 healthy\n  [ok] :8032 healthy\n  [ok] :8031 healthy\n  [ok] :8043 healthy\n  [ok] :8044 healthy\n  [ok] :8042 healthy\n  [ok] :8041 healthy\n  [ok] :8051 healthy\n  [ok] :8052 healthy\n  [ok] :8053 healthy\n  [fail] :8024 timed out\n  [fail] :8025 <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>\n  [fail] :8026 <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>\n  [ok] :8027 healthy\n  [ok] :8028 healthy\n  [ok] :8029 healthy\n  [ok] :8034 healthy\n  [fail] :8035 timed out\n  [ok] :8036 healthy\n  [ok] :8037 healthy\n  [fail] :8038 timed out\n\nAgent Health: 19/24 agents responding\n\nBackend Services:\n  [ok] Command Centre :8099 running (readyz=status=200)\n",
+      "stderr_tail": "",
+      "passed": true
+    },
+    {
+      "name": "integration_tests_command_centre",
+      "command": [
+        "C:\\nexus-a2a-protocol\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/nexus_harness/test_command_centre.py",
+        "-q",
+        "--tb=short"
+      ],
+      "returncode": 0,
+      "duration_s": 89.67,
+      "stdout_tail": ".........................                                                [100%]\n",
+      "stderr_tail": "",
+      "passed": true
+    },
+    {
+      "name": "restart_agents_for_load_stop",
+      "command": [
+        "C:\\nexus-a2a-protocol\\.venv\\Scripts\\python.exe",
+        "tools/launch_all_agents.py",
+        "--stop"
+      ],
+      "returncode": 0,
+      "duration_s": 1.11,
+      "stdout_tail": "No PID file found.\n",
+      "stderr_tail": "",
+      "passed": true
+    },
+    {
+      "name": "restart_agents_for_load_launch",
+      "command": [
+        "C:\\nexus-a2a-protocol\\.venv\\Scripts\\python.exe",
+        "tools/launch_all_agents.py",
+        "--with-backend"
+      ],
+      "returncode": 0,
+      "duration_s": 174.93,
+      "stdout_tail": "  Starting  openhie-mediator                :8023 ... OK  (pid 16968)\n  Starting  diagnosis-agent                 :8022 ... OK  (pid 33296)\n  Starting  triage-agent                    :8021 ... OK  (pid 37748)\n  Starting  ehr-writer-agent                :8033 ... OK  (pid 7976)\n  Starting  summariser-agent                :8032 ... OK  (pid 24080)\n  Starting  transcriber-agent               :8031 ... OK  (pid 43608)\n  Starting  consent-analyser                :8043 ... OK  (pid 16336)\n  Starting  hitl-ui                         :8044 ... OK  (pid 42056)\n  Starting  provider-agent                  :8042 ... OK  (pid 21436)\n  Starting  insurer-agent                   :8041 ... OK  (pid 15476)\n  Starting  hospital-reporter               :8051 ... OK  (pid 9652)\n  Starting  osint-agent                     :8052 ... OK  (pid 19316)\n  Starting  central-surveillance            :8053 ... OK  (pid 35944)\n  Starting  imaging-agent                   :8024 ... OK  (pid 16064)\n  Starting  pharmacy-agent                  :8025 ... OK  (pid 25456)\n  Starting  bed-manager-agent               :8026 ... OK  (pid 9592)\n  Starting  discharge-agent                 :8027 ... OK  (pid 1056)\n  Starting  followup-scheduler              :8028 ... OK  (pid 18208)\n  Starting  care-coordinator                :8029 ... OK  (pid 7232)\n  Starting  primary-care-agent              :8034 ... OK  (pid 37364)\n  Starting  specialty-care-agent            :8035 ... OK  (pid 17944)\n  Starting  telehealth-agent                :8036 ... OK  (pid 34780)\n  Starting  home-visit-agent                :8037 ... OK  (pid 31140)\n  Starting  ccm-agent                       :8038 ... OK  (pid 39372)\n  Starting [BACKEND] command-centre                  :8099 ... OK  (pid 32660)\n\n25/25 services started (24 agents, 1 backend). PIDs saved to C:\\nexus-a2a-protocol\\.agent_pids.json\nWaiting 3s for agents to settle...\n  [ok] :8023 healthy\n  [ok] :8022 healthy\n  [ok] :8021 healthy\n  [ok] :8033 healthy\n  [ok] :8032 healthy\n  [ok] :8031 healthy\n  [ok] :8043 healthy\n  [ok] :8044 healthy\n  [ok] :8042 healthy\n  [fail] :8041 <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>\n  [ok] :8051 healthy\n  [fail] :8052 <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>\n  [ok] :8053 healthy\n  [ok] :8024 healthy\n  [ok] :8025 healthy\n  [ok] :8026 healthy\n  [ok] :8027 healthy\n  [ok] :8028 healthy\n  [ok] :8029 healthy\n  [ok] :8034 healthy\n  [ok] :8035 healthy\n  [ok] :8036 healthy\n  [ok] :8037 healthy\n  [ok] :8038 healthy\n\nAgent Health: 22/24 agents responding\n\nBackend Services:\n  [ok] Command Centre :8099 running (readyz=status=200)\n",
+      "stderr_tail": "",
+      "passed": true
+    },
+    {
+      "name": "load_gate_g0",
+      "command": [
+        "C:\\nexus-a2a-protocol\\.venv\\Scripts\\python.exe",
+        "tools/traffic_generator.py",
+        "--mode",
+        "sustained",
+        "--duration",
+        "30",
+        "--rate",
+        "25.0",
+        "--gate",
+        "g0",
+        "--strict-positive",
+        "--deterministic",
+        "--seed",
+        "1729",
+        "--max-scenarios",
+        "24",
+        "--scenario-timeout",
+        "25.0",
+        "--max-concurrent-tasks",
+        "200"
+      ],
+      "returncode": 0,
+      "duration_s": 33.84,
+      "stdout_tail": "r=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=450 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=451 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=452 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=453 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=454 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=455 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=456 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=457 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=458 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=459 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=460 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=461 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=462 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=463 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=464 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=465 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=466 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=467 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=468 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=469 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=470 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=471 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=472 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=473 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=474 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=475 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=476 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=477 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=478 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=479 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=480 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=481 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=482 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=483 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=484 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=485 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=486 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=487 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=488 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=489 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=490 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=491 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=492 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=493 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=494 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=495 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=496 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=497 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=498 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=499 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=500 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=501 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=502 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=503 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=504 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=505 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=506 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=507 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=508 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=509 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=510 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=511 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=512 fail=0 err=0 \nT+32s | Tasks: 0 (0.0/s) | Tests: pass=513 fail=0 err=0 \nT+32s | Tasks: 0 (0.0/s) | Tests: pass=514 fail=0 err=0 \nT+32s | Tasks: 0 (0.0/s) | Tests: pass=515 fail=0 err=0 \n\nTraffic generation complete.\n\nFinal Stats:\n   Total scenarios executed: 515\n   Tasks sent to agents: 0\n   Tasks completed: 0\n   Tests passed: 515\n   Tests failed: 0\n   Errors: 0\n   Duration: 31.7s\n   Average rate: 0.00 tasks/second\n",
+      "stderr_tail": "",
+      "passed": true
+    },
+    {
+      "name": "load_gate_g1",
+      "command": [
+        "C:\\nexus-a2a-protocol\\.venv\\Scripts\\python.exe",
+        "tools/traffic_generator.py",
+        "--mode",
+        "sustained",
+        "--duration",
+        "30",
+        "--rate",
+        "25.0",
+        "--gate",
+        "g1",
+        "--strict-positive",
+        "--deterministic",
+        "--seed",
+        "1729",
+        "--max-scenarios",
+        "24",
+        "--scenario-timeout",
+        "25.0",
+        "--max-concurrent-tasks",
+        "200"
+      ],
+      "returncode": 0,
+      "duration_s": 33.09,
+      "stdout_tail": "r=0 \nT+27s | Tasks: 0 (0.0/s) | Tests: pass=450 fail=0 err=0 \nT+27s | Tasks: 0 (0.0/s) | Tests: pass=451 fail=0 err=0 \nT+27s | Tasks: 0 (0.0/s) | Tests: pass=452 fail=0 err=0 \nT+27s | Tasks: 0 (0.0/s) | Tests: pass=453 fail=0 err=0 \nT+27s | Tasks: 0 (0.0/s) | Tests: pass=454 fail=0 err=0 \nT+27s | Tasks: 0 (0.0/s) | Tests: pass=455 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=456 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=457 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=458 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=459 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=460 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=461 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=462 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=463 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=464 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=465 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=466 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=467 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=468 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=469 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=470 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=471 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=472 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=473 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=474 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=475 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=476 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=477 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=478 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=479 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=480 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=481 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=482 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=483 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=484 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=485 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=486 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=487 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=488 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=489 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=490 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=491 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=492 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=493 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=494 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=495 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=496 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=497 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=498 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=499 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=500 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=501 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=502 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=503 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=504 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=505 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=506 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=507 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=508 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=509 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=510 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=511 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=512 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=513 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=514 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=515 fail=0 err=0 \n\nTraffic generation complete.\n\nFinal Stats:\n   Total scenarios executed: 515\n   Tasks sent to agents: 0\n   Tasks completed: 0\n   Tests passed: 515\n   Tests failed: 0\n   Errors: 0\n   Duration: 31.2s\n   Average rate: 0.00 tasks/second\n",
+      "stderr_tail": "",
+      "passed": true
+    },
+    {
+      "name": "load_gate_g2",
+      "command": [
+        "C:\\nexus-a2a-protocol\\.venv\\Scripts\\python.exe",
+        "tools/traffic_generator.py",
+        "--mode",
+        "sustained",
+        "--duration",
+        "30",
+        "--rate",
+        "25.0",
+        "--gate",
+        "g2",
+        "--strict-positive",
+        "--deterministic",
+        "--seed",
+        "1729",
+        "--max-scenarios",
+        "24",
+        "--scenario-timeout",
+        "25.0",
+        "--max-concurrent-tasks",
+        "200"
+      ],
+      "returncode": 0,
+      "duration_s": 33.31,
+      "stdout_tail": "r=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=485 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=486 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=487 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=488 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=489 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=490 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=491 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=492 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=493 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=494 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=495 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=496 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=497 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=498 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=499 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=500 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=501 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=502 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=503 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=504 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=505 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=506 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=507 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=508 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=509 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=510 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=511 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=512 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=513 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=514 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=515 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=516 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=517 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=518 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=519 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=520 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=521 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=522 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=523 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=524 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=525 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=526 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=527 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=528 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=529 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=530 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=531 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=532 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=533 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=534 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=535 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=536 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=537 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=538 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=539 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=540 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=541 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=542 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=543 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=544 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=545 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=546 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=547 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=548 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=549 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=550 fail=0 err=0 \n\nTraffic generation complete.\n\nFinal Stats:\n   Total scenarios executed: 550\n   Tasks sent to agents: 0\n   Tasks completed: 0\n   Tests passed: 550\n   Tests failed: 0\n   Errors: 0\n   Duration: 31.3s\n   Average rate: 0.00 tasks/second\n",
+      "stderr_tail": "",
+      "passed": true
+    },
+    {
+      "name": "load_gate_g3",
+      "command": [
+        "C:\\nexus-a2a-protocol\\.venv\\Scripts\\python.exe",
+        "tools/traffic_generator.py",
+        "--mode",
+        "sustained",
+        "--duration",
+        "30",
+        "--rate",
+        "25.0",
+        "--gate",
+        "g3",
+        "--strict-positive",
+        "--deterministic",
+        "--seed",
+        "1729",
+        "--max-scenarios",
+        "24",
+        "--scenario-timeout",
+        "25.0",
+        "--max-concurrent-tasks",
+        "200"
+      ],
+      "returncode": 0,
+      "duration_s": 32.79,
+      "stdout_tail": "r=0 \nT+27s | Tasks: 0 (0.0/s) | Tests: pass=511 fail=0 err=0 \nT+27s | Tasks: 0 (0.0/s) | Tests: pass=512 fail=0 err=0 \nT+27s | Tasks: 0 (0.0/s) | Tests: pass=513 fail=0 err=0 \nT+27s | Tasks: 0 (0.0/s) | Tests: pass=514 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=515 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=516 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=517 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=518 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=519 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=520 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=521 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=522 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=523 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=524 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=525 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=526 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=527 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=528 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=529 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=530 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=531 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=532 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=533 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=534 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=535 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=536 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=537 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=538 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=539 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=540 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=541 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=542 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=543 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=544 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=545 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=546 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=547 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=548 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=549 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=550 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=551 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=552 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=553 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=554 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=555 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=556 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=557 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=558 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=559 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=560 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=561 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=562 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=563 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=564 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=565 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=566 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=567 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=568 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=569 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=570 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=571 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=572 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=573 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=574 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=575 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=576 fail=0 err=0 \n\nTraffic generation complete.\n\nFinal Stats:\n   Total scenarios executed: 576\n   Tasks sent to agents: 0\n   Tasks completed: 0\n   Tests passed: 576\n   Tests failed: 0\n   Errors: 0\n   Duration: 31.3s\n   Average rate: 0.00 tasks/second\n",
+      "stderr_tail": "",
+      "passed": true
+    },
+    {
+      "name": "load_gate_g4",
+      "command": [
+        "C:\\nexus-a2a-protocol\\.venv\\Scripts\\python.exe",
+        "tools/traffic_generator.py",
+        "--mode",
+        "sustained",
+        "--duration",
+        "30",
+        "--rate",
+        "25.0",
+        "--gate",
+        "g4",
+        "--strict-positive",
+        "--deterministic",
+        "--seed",
+        "1729",
+        "--max-scenarios",
+        "24",
+        "--scenario-timeout",
+        "25.0",
+        "--max-concurrent-tasks",
+        "200"
+      ],
+      "returncode": 0,
+      "duration_s": 34.49,
+      "stdout_tail": "r=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=468 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=469 fail=0 err=0 \nT+28s | Tasks: 0 (0.0/s) | Tests: pass=470 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=471 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=472 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=473 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=474 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=475 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=476 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=477 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=478 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=479 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=480 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=481 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=482 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=483 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=484 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=485 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=486 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=487 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=488 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=489 fail=0 err=0 \nT+29s | Tasks: 0 (0.0/s) | Tests: pass=490 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=491 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=492 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=493 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=494 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=495 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=496 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=497 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=498 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=499 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=500 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=501 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=502 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=503 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=504 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=505 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=506 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=507 fail=0 err=0 \nT+30s | Tasks: 0 (0.0/s) | Tests: pass=508 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=509 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=510 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=511 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=512 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=513 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=514 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=515 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=516 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=517 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=518 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=519 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=520 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=521 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=522 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=523 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=524 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=525 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=526 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=527 fail=0 err=0 \nT+31s | Tasks: 0 (0.0/s) | Tests: pass=528 fail=0 err=0 \nT+32s | Tasks: 0 (0.0/s) | Tests: pass=529 fail=0 err=0 \nT+32s | Tasks: 0 (0.0/s) | Tests: pass=530 fail=0 err=0 \nT+32s | Tasks: 0 (0.0/s) | Tests: pass=531 fail=0 err=0 \nT+32s | Tasks: 0 (0.0/s) | Tests: pass=532 fail=0 err=0 \nT+32s | Tasks: 0 (0.0/s) | Tests: pass=533 fail=0 err=0 \n\nTraffic generation complete.\n\nFinal Stats:\n   Total scenarios executed: 533\n   Tasks sent to agents: 0\n   Tasks completed: 0\n   Tests passed: 533\n   Tests failed: 0\n   Errors: 0\n   Duration: 31.8s\n   Average rate: 0.00 tasks/second\n",
+      "stderr_tail": "",
+      "passed": true
+    },
+    {
+      "name": "stop_agents",
+      "command": [
+        "C:\\nexus-a2a-protocol\\.venv\\Scripts\\python.exe",
+        "tools/launch_all_agents.py",
+        "--stop"
+      ],
+      "returncode": 0,
+      "duration_s": 0.55,
+      "stdout_tail": "  Killed demos/ed-triage/openhie-mediator (pid 26312)\n  Killed demos/ed-triage/diagnosis-agent (pid 40988)\n  Killed demos/ed-triage/triage-agent (pid 44008)\n  Killed demos/telemed-scribe/ehr-writer-agent (pid 32980)\n  Killed demos/telemed-scribe/summariser-agent (pid 27064)\n  Killed demos/telemed-scribe/transcriber-agent (pid 31652)\n  Killed demos/consent-verification/consent-analyser (pid 33680)\n  Killed demos/consent-verification/hitl-ui (pid 30440)\n  Killed demos/consent-verification/provider-agent (pid 1788)\n  Killed demos/consent-verification/insurer-agent (pid 33000)\n  Killed demos/public-health-surveillance/hospital-reporter (pid 38856)\n  Killed demos/public-health-surveillance/osint-agent (pid 42804)\n  Killed demos/public-health-surveillance/central-surveillance (pid 21748)\n  Killed demos/helixcare/imaging-agent (pid 13396)\n  Killed demos/helixcare/pharmacy-agent (pid 18508)\n  Killed demos/helixcare/bed-manager-agent (pid 31264)\n  Killed demos/helixcare/discharge-agent (pid 32240)\n  Killed demos/helixcare/followup-scheduler (pid 8768)\n  Killed demos/helixcare/care-coordinator (pid 35064)\n  Killed demos/helixcare/primary-care-agent (pid 43312)\n  Killed demos/helixcare/specialty-care-agent (pid 33868)\n  Killed demos/helixcare/telehealth-agent (pid 2248)\n  Killed demos/helixcare/home-visit-agent (pid 31548)\n  Killed demos/helixcare/ccm-agent (pid 30688)\n  Killed shared/command-centre (pid 9856)\nAll agents stopped.\n",
+      "stderr_tail": "",
+      "passed": true
+    }
+  ],
+  "overall_passed": true
+}

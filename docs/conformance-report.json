@@ -1,25 +1,2310 @@
 {
-  "generated_at": "2026-02-13T11:45:32.584330+00:00",
-  "total": 1,
-  "passed": 1,
-  "failed": 0,
-  "skipped": 0,
+  "generated_at": "2026-02-16T20:32:40.870366+00:00",
+  "total": 140,
+  "passed": 60,
+  "failed": 50,
+  "skipped": 30,
   "errors": 0,
   "results": [
     {
-      "use_case_id": "UC-CMD-HEALTH-TRIAGE-0001",
-      "scenario_title": "Command Centre reports healthy ED triage statuses after one task",
-      "poc_demo": "command-centre",
+      "use_case_id": "UC-PROT-CORE-0001",
+      "scenario_title": "protocol-core core positive scenario 1",
+      "poc_demo": "protocol-core",
       "scenario_type": "positive",
       "requirement_ids": [
-        "MON-1",
-        "FR-3",
-        "FR-4",
-        "FR-5"
+        "CR-1",
+        "FR-2",
+        "IR-3",
+        "NFR-1",
+        "NFR-2",
+        "SPR-5"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDA19B40>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDA19B40> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0002",
+      "scenario_title": "protocol-core core positive scenario 2",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-6",
+        "FR-7",
+        "IR-8",
+        "NFR-3",
+        "NFR-9"
       ],
       "status": "pass",
       "message": "",
-      "duration_ms": 5859.9999999999
+      "duration_ms": 328.00000003771856
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0003",
+      "scenario_title": "protocol-core core positive scenario 3",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "FR-5",
+        "FR-8",
+        "IR-4",
+        "NFR-2",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0004",
+      "scenario_title": "protocol-core core positive scenario 4",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-4",
+        "IR-3",
+        "IR-8",
+        "NFR-8",
+        "SPR-4",
+        "SPR-5"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDACF840>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDACF840> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 265.00000001396984
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0005",
+      "scenario_title": "protocol-core core positive scenario 5",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "IR-3",
+        "NFR-8",
+        "SPR-1",
+        "SPR-6",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 264.9999999557622
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0007",
+      "scenario_title": "protocol-core core positive scenario 7",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-2",
+        "FR-3",
+        "IR-7",
+        "NFR-6",
+        "SPR-6",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDB4BB80>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDB4BB80> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0008",
+      "scenario_title": "protocol-core core positive scenario 8",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "IR-1",
+        "IR-3",
+        "NFR-1",
+        "NFR-8",
+        "SPR-4",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDB4B740>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDB4B740> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 282.00000000651926
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0009",
+      "scenario_title": "protocol-core core positive scenario 9",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-4",
+        "FR-2",
+        "IR-5",
+        "NFR-3",
+        "SPR-2",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDB4B300>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDB4B300> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0010",
+      "scenario_title": "protocol-core core positive scenario 10",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-3",
+        "FR-5",
+        "FR-8",
+        "IR-6",
+        "NFR-3",
+        "NFR-6"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDB4BF00>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDB4BF00> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0011",
+      "scenario_title": "protocol-core core positive scenario 11",
+      "poc_demo": "protocol-core",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-1",
+        "FR-7",
+        "FR-8",
+        "IR-8",
+        "SPR-1"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDB4AAC0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDB4AAC0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': [], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 282.00000000651926
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0013",
+      "scenario_title": "protocol-core core negative scenario 13",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-3",
+        "FR-8",
+        "NFR-3",
+        "NFR-6",
+        "NFR-9",
+        "SPR-3"
+      ],
+      "status": "skip",
+      "message": "Non-RPC negative scenario",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0028",
+      "scenario_title": "protocol-core core negative scenario 28",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "FR-5",
+        "FR-8",
+        "NFR-1",
+        "SPR-5",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0029",
+      "scenario_title": "protocol-core core negative scenario 29",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-2",
+        "IR-2",
+        "NFR-2",
+        "NFR-9",
+        "SPR-1",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0030",
+      "scenario_title": "protocol-core core negative scenario 30",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "FR-7",
+        "FR-8",
+        "IR-7",
+        "NFR-2",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0031",
+      "scenario_title": "protocol-core core negative scenario 31",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-1",
+        "CR-5",
+        "FR-5",
+        "IR-7",
+        "NFR-10",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0032",
+      "scenario_title": "protocol-core core negative scenario 32",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-1",
+        "IR-3",
+        "NFR-3",
+        "SPR-1",
+        "SPR-3",
+        "SPR-5"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0036",
+      "scenario_title": "protocol-core core negative scenario 36",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-3",
+        "IR-2",
+        "NFR-4",
+        "NFR-8",
+        "SPR-3",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0043",
+      "scenario_title": "protocol-core core negative scenario 43",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-8",
+        "NFR-3",
+        "SPR-2",
+        "SPR-5",
+        "SPR-6",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 297.0000000204891
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0050",
+      "scenario_title": "protocol-core core negative scenario 50",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "FR-5",
+        "SPR-2",
+        "SPR-3",
+        "SPR-4",
+        "SPR-6"
+      ],
+      "status": "skip",
+      "message": "Non-RPC negative scenario",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-CORE-0053",
+      "scenario_title": "protocol-core core negative scenario 53",
+      "poc_demo": "protocol-core",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "IR-2",
+        "NFR-2",
+        "NFR-3",
+        "NFR-9",
+        "SPR-2"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0002",
+      "scenario_title": "protocol-streaming streaming positive scenario 2",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-2",
+        "FR-2",
+        "IR-3",
+        "NFR-3",
+        "SPR-3",
+        "SPR-4"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0003",
+      "scenario_title": "protocol-streaming streaming positive scenario 3",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-7",
+        "NFR-5",
+        "NFR-6",
+        "SPR-4",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDB502C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDB502C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0004",
+      "scenario_title": "protocol-streaming streaming positive scenario 4",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-1",
+        "FR-8",
+        "IR-4",
+        "IR-6",
+        "NFR-3",
+        "NFR-9"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0006",
+      "scenario_title": "protocol-streaming streaming positive scenario 6",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-2",
+        "IR-2",
+        "IR-4",
+        "IR-7",
+        "SPR-8"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0007",
+      "scenario_title": "protocol-streaming streaming positive scenario 7",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-1",
+        "NFR-1",
+        "SPR-1",
+        "SPR-2",
+        "SPR-5"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0010",
+      "scenario_title": "protocol-streaming streaming positive scenario 10",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-6",
+        "IR-4",
+        "NFR-3",
+        "SPR-1",
+        "SPR-2",
+        "SPR-6"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0011",
+      "scenario_title": "protocol-streaming streaming positive scenario 11",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-6",
+        "FR-8",
+        "NFR-4",
+        "NFR-5",
+        "NFR-7",
+        "SPR-2"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0014",
+      "scenario_title": "protocol-streaming streaming positive scenario 14",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-2",
+        "FR-6",
+        "IR-1",
+        "IR-5",
+        "NFR-7",
+        "SPR-2"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0015",
+      "scenario_title": "protocol-streaming streaming positive scenario 15",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-4",
+        "IR-5",
+        "NFR-1",
+        "NFR-3",
+        "SPR-2",
+        "SPR-3"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0018",
+      "scenario_title": "protocol-streaming streaming positive scenario 18",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-1",
+        "FR-2",
+        "FR-5",
+        "NFR-5",
+        "NFR-7",
+        "NFR-8"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0005",
+      "scenario_title": "protocol-streaming streaming negative scenario 5",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-8",
+        "IR-3",
+        "IR-4",
+        "NFR-10",
+        "SPR-6",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 265.00000001396984
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0008",
+      "scenario_title": "protocol-streaming streaming negative scenario 8",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-1",
+        "CR-4",
+        "CR-5",
+        "FR-3",
+        "NFR-1",
+        "SPR-2"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 280.9999999590218
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0009",
+      "scenario_title": "protocol-streaming streaming negative scenario 9",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-5",
+        "FR-3",
+        "FR-8",
+        "IR-1",
+        "NFR-5",
+        "NFR-6"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0012",
+      "scenario_title": "protocol-streaming streaming negative scenario 12",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-5",
+        "FR-6",
+        "NFR-4",
+        "NFR-5",
+        "NFR-7",
+        "SPR-6"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0013",
+      "scenario_title": "protocol-streaming streaming negative scenario 13",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-2",
+        "NFR-6",
+        "NFR-9",
+        "SPR-2",
+        "SPR-5",
+        "SPR-6"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0016",
+      "scenario_title": "protocol-streaming streaming negative scenario 16",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-2",
+        "FR-4",
+        "FR-6",
+        "IR-8",
+        "NFR-9",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0017",
+      "scenario_title": "protocol-streaming streaming negative scenario 17",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "FR-5",
+        "IR-1",
+        "IR-7",
+        "NFR-7",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0027",
+      "scenario_title": "protocol-streaming streaming negative scenario 27",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-5",
+        "FR-7",
+        "IR-2",
+        "NFR-7",
+        "SPR-2",
+        "SPR-8"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0029",
+      "scenario_title": "protocol-streaming streaming negative scenario 29",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-8",
+        "IR-4",
+        "IR-8",
+        "NFR-3",
+        "SPR-1",
+        "SPR-7"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-STREAM-0037",
+      "scenario_title": "protocol-streaming streaming negative scenario 37",
+      "poc_demo": "protocol-streaming",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "IR-2",
+        "NFR-1",
+        "NFR-10",
+        "NFR-2",
+        "NFR-9"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0001",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 1",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-6",
+        "FR-7",
+        "IR-7",
+        "NFR-8",
+        "SPR-2"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0003",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 3",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-2",
+        "FR-5",
+        "FR-6",
+        "IR-5",
+        "NFR-3",
+        "NFR-9"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0006",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 6",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "IR-6",
+        "NFR-1",
+        "NFR-2",
+        "NFR-3",
+        "NFR-7",
+        "SPR-3"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0007",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 7",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-2",
+        "FR-5",
+        "IR-2",
+        "IR-3",
+        "NFR-1"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDC7F180>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDC7F180> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0008",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 8",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-4",
+        "IR-6",
+        "NFR-3",
+        "NFR-7",
+        "SPR-1",
+        "SPR-2"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0011",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 11",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-3",
+        "IR-5",
+        "SPR-1",
+        "SPR-5",
+        "SPR-6"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0012",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 12",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "FR-6",
+        "IR-6",
+        "NFR-3",
+        "NFR-4",
+        "NFR-5"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0013",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 13",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-6",
+        "FR-7",
+        "IR-3",
+        "NFR-5",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDCD9EC0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDCD9EC0> = {'auth_mode': 'jwt+did(optional)', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0017",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 17",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-3",
+        "FR-2",
+        "FR-7",
+        "IR-3",
+        "NFR-8",
+        "SPR-5"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0018",
+      "scenario_title": "protocol-multitransport multitransport positive scenario 18",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-2",
+        "FR-5",
+        "IR-2",
+        "IR-5",
+        "SPR-5",
+        "SPR-8"
+      ],
+      "status": "skip",
+      "message": "Unrecognised payload",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0002",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 2",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-4",
+        "FR-2",
+        "NFR-5",
+        "NFR-9",
+        "SPR-1",
+        "SPR-6"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0004",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 4",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-4",
+        "FR-3",
+        "NFR-1",
+        "NFR-2",
+        "NFR-7",
+        "SPR-8"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0010",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 10",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-2",
+        "IR-4",
+        "IR-6",
+        "NFR-2",
+        "NFR-5",
+        "SPR-3"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0014",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 14",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-1",
+        "CR-3",
+        "FR-6",
+        "FR-7",
+        "SPR-1",
+        "SPR-6"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0015",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 15",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-2",
+        "FR-5",
+        "IR-5",
+        "NFR-5",
+        "SPR-6",
+        "SPR-8"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0020",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 20",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-8",
+        "NFR-1",
+        "NFR-4",
+        "NFR-7",
+        "NFR-8",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 264.9999999557622
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0024",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 24",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-4",
+        "FR-2",
+        "FR-7",
+        "IR-7",
+        "NFR-4",
+        "NFR-8"
+      ],
+      "status": "skip",
+      "message": "",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0028",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 28",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "FR-1",
+        "FR-7",
+        "IR-6",
+        "NFR-3",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0033",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 33",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "FR-3",
+        "FR-6",
+        "FR-8",
+        "IR-6",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-PROT-MULTI-0036",
+      "scenario_title": "protocol-multitransport multitransport negative scenario 36",
+      "poc_demo": "protocol-multitransport",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "FR-1",
+        "FR-4",
+        "FR-7",
+        "NFR-2",
+        "SPR-2"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-ED-0001",
+      "scenario_title": "ed-triage positive scenario 1",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "FR-6",
+        "FR-7",
+        "NFR-10",
+        "SPR-1"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE64BB00>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE64BB00> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 265.00000001396984
+    },
+    {
+      "use_case_id": "UC-ED-0002",
+      "scenario_title": "ed-triage positive scenario 2",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-2",
+        "FR-4",
+        "IR-4",
+        "NFR-1",
+        "NFR-3"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDE27B40>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDE27B40> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 265.00000001396984
+    },
+    {
+      "use_case_id": "UC-ED-0004",
+      "scenario_title": "ed-triage positive scenario 4",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "FR-6",
+        "FR-7",
+        "NFR-2",
+        "SPR-3"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDE66E80>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDE66E80> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-ED-0007",
+      "scenario_title": "ed-triage positive scenario 7",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "CR-5",
+        "SPR-2",
+        "SPR-6",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDE93E00>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDE93E00> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 250.0
+    },
+    {
+      "use_case_id": "UC-ED-0008",
+      "scenario_title": "ed-triage positive scenario 8",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "FR-6",
+        "NFR-4",
+        "NFR-9",
+        "SPR-6"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDE82F80>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDE82F80> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-ED-0009",
+      "scenario_title": "ed-triage positive scenario 9",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-2",
+        "FR-5",
+        "IR-7",
+        "IR-8",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDEA01C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDEA01C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 264.9999999557622
+    },
+    {
+      "use_case_id": "UC-ED-0010",
+      "scenario_title": "ed-triage positive scenario 10",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-4",
+        "FR-1",
+        "FR-6",
+        "IR-5",
+        "IR-6"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDE6CC00>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDE6CC00> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-ED-0011",
+      "scenario_title": "ed-triage positive scenario 11",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-4",
+        "IR-1",
+        "NFR-7",
+        "SPR-6",
+        "SPR-7"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDEB1600>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDEB1600> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-ED-0013",
+      "scenario_title": "ed-triage positive scenario 13",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-2",
+        "IR-5",
+        "NFR-5",
+        "NFR-9",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDEC3CC0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDEC3CC0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 265.00000001396984
+    },
+    {
+      "use_case_id": "UC-ED-0016",
+      "scenario_title": "ed-triage positive scenario 16",
+      "poc_demo": "ed-triage",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-2",
+        "FR-3",
+        "IR-3",
+        "NFR-9",
+        "SPR-5"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FDF0E8C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FDF0E8C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-ED-0003",
+      "scenario_title": "ed-triage negative scenario 3",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-5",
+        "FR-1",
+        "FR-6",
+        "IR-7",
+        "SPR-2"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 282.00000000651926
+    },
+    {
+      "use_case_id": "UC-ED-0005",
+      "scenario_title": "ed-triage negative scenario 5",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "IR-1",
+        "NFR-9",
+        "SPR-2",
+        "SPR-5"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-ED-0006",
+      "scenario_title": "ed-triage negative scenario 6",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-5",
+        "IR-4",
+        "NFR-6",
+        "SPR-5",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-ED-0015",
+      "scenario_title": "ed-triage negative scenario 15",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-1",
+        "FR-1",
+        "FR-5",
+        "IR-7",
+        "SPR-2"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-ED-0018",
+      "scenario_title": "ed-triage negative scenario 18",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-1",
+        "FR-4",
+        "IR-2",
+        "IR-7",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-ED-0030",
+      "scenario_title": "ed-triage negative scenario 30",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-3",
+        "IR-5",
+        "IR-6",
+        "SPR-1",
+        "SPR-4"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-ED-0031",
+      "scenario_title": "ed-triage negative scenario 31",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "IR-7",
+        "NFR-4",
+        "NFR-5",
+        "SPR-1"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 282.00000000651926
+    },
+    {
+      "use_case_id": "UC-ED-0044",
+      "scenario_title": "ed-triage negative scenario 44",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "FR-8",
+        "IR-8",
+        "SPR-1",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 297.0000000204891
+    },
+    {
+      "use_case_id": "UC-ED-0045",
+      "scenario_title": "ed-triage negative scenario 45",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-5",
+        "NFR-1",
+        "NFR-2",
+        "SPR-6",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-ED-0048",
+      "scenario_title": "ed-triage negative scenario 48",
+      "poc_demo": "ed-triage",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-8",
+        "IR-1",
+        "IR-2",
+        "IR-3",
+        "NFR-6"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0003",
+      "scenario_title": "telemed-scribe positive scenario 3",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-8",
+        "IR-1",
+        "IR-4",
+        "IR-5",
+        "IR-6"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE07C440>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE07C440> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 280.9999999590218
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0004",
+      "scenario_title": "telemed-scribe positive scenario 4",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-5",
+        "FR-6",
+        "IR-2",
+        "SPR-2"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE09BEC0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE09BEC0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 282.00000000651926
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0005",
+      "scenario_title": "telemed-scribe positive scenario 5",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-7",
+        "NFR-1",
+        "SPR-3",
+        "SPR-7",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE082AC0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE082AC0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0008",
+      "scenario_title": "telemed-scribe positive scenario 8",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-3",
+        "FR-5",
+        "FR-8",
+        "IR-2"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE0A18C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE0A18C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0009",
+      "scenario_title": "telemed-scribe positive scenario 9",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-1",
+        "IR-7",
+        "NFR-6",
+        "SPR-1",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE0A1980>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE0A1980> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0010",
+      "scenario_title": "telemed-scribe positive scenario 10",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "FR-5",
+        "FR-6",
+        "FR-8",
+        "SPR-2"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE082B00>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE082B00> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 280.9999999590218
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0011",
+      "scenario_title": "telemed-scribe positive scenario 11",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-3",
+        "IR-3",
+        "NFR-1",
+        "NFR-4",
+        "NFR-7"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE0B6040>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE0B6040> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 264.9999999557622
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0012",
+      "scenario_title": "telemed-scribe positive scenario 12",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-8",
+        "IR-4",
+        "IR-5",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE0E07C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE0E07C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0013",
+      "scenario_title": "telemed-scribe positive scenario 13",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-2",
+        "FR-3",
+        "NFR-1",
+        "NFR-8"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE0BCAC0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE0BCAC0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0014",
+      "scenario_title": "telemed-scribe positive scenario 14",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-1",
+        "FR-7",
+        "IR-4",
+        "IR-6",
+        "IR-8"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE0FE080>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE0FE080> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0002",
+      "scenario_title": "telemed-scribe negative scenario 2",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "IR-7",
+        "NFR-1",
+        "NFR-2",
+        "SPR-4"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 282.00000000651926
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0006",
+      "scenario_title": "telemed-scribe negative scenario 6",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "FR-3",
+        "NFR-1",
+        "SPR-2",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 264.9999999557622
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0007",
+      "scenario_title": "telemed-scribe negative scenario 7",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-2",
+        "IR-1",
+        "IR-5",
+        "NFR-8",
+        "SPR-4"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 265.00000001396984
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0016",
+      "scenario_title": "telemed-scribe negative scenario 16",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-5",
+        "FR-6",
+        "IR-2",
+        "IR-6",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0019",
+      "scenario_title": "telemed-scribe negative scenario 19",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-2",
+        "IR-8",
+        "NFR-7",
+        "NFR-9",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0022",
+      "scenario_title": "telemed-scribe negative scenario 22",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-4",
+        "FR-7",
+        "IR-8",
+        "NFR-3",
+        "NFR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 250.0
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0024",
+      "scenario_title": "telemed-scribe negative scenario 24",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "FR-4",
+        "IR-6",
+        "NFR-4",
+        "SPR-6"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0025",
+      "scenario_title": "telemed-scribe negative scenario 25",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-2",
+        "FR-8",
+        "IR-8",
+        "SPR-7",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 265.00000001396984
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0026",
+      "scenario_title": "telemed-scribe negative scenario 26",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-1",
+        "CR-4",
+        "NFR-2",
+        "NFR-3",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 265.00000001396984
+    },
+    {
+      "use_case_id": "UC-SCRIBE-0030",
+      "scenario_title": "telemed-scribe negative scenario 30",
+      "poc_demo": "telemed-scribe",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-2",
+        "FR-7",
+        "IR-2",
+        "NFR-3",
+        "SPR-4"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-CONSENT-0001",
+      "scenario_title": "consent-verification positive scenario 1",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-3",
+        "FR-2",
+        "IR-8",
+        "SPR-5",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FEADFC00>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FEADFC00> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 295.99999997299165
+    },
+    {
+      "use_case_id": "UC-CONSENT-0006",
+      "scenario_title": "consent-verification positive scenario 6",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "NFR-1",
+        "NFR-6",
+        "SPR-2",
+        "SPR-3",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE367A80>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE367A80> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 264.9999999557622
+    },
+    {
+      "use_case_id": "UC-CONSENT-0007",
+      "scenario_title": "consent-verification positive scenario 7",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-6",
+        "FR-8",
+        "IR-2",
+        "NFR-1",
+        "SPR-2"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE365740>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE365740> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 280.9999999590218
+    },
+    {
+      "use_case_id": "UC-CONSENT-0011",
+      "scenario_title": "consent-verification positive scenario 11",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-4",
+        "IR-3",
+        "IR-8",
+        "NFR-5",
+        "NFR-8"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE391F00>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE391F00> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 282.00000000651926
+    },
+    {
+      "use_case_id": "UC-CONSENT-0012",
+      "scenario_title": "consent-verification positive scenario 12",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "IR-2",
+        "IR-5",
+        "NFR-7",
+        "SPR-5",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE3A5A00>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE3A5A00> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 265.00000001396984
+    },
+    {
+      "use_case_id": "UC-CONSENT-0013",
+      "scenario_title": "consent-verification positive scenario 13",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-1",
+        "IR-7",
+        "NFR-9",
+        "SPR-1",
+        "SPR-5"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE3BF940>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE3BF940> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 280.9999999590218
+    },
+    {
+      "use_case_id": "UC-CONSENT-0014",
+      "scenario_title": "consent-verification positive scenario 14",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-7",
+        "IR-5",
+        "IR-7",
+        "NFR-1",
+        "NFR-7"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE3BFB80>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE3BFB80> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 280.9999999590218
+    },
+    {
+      "use_case_id": "UC-CONSENT-0015",
+      "scenario_title": "consent-verification positive scenario 15",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-4",
+        "FR-3",
+        "FR-6",
+        "NFR-6",
+        "NFR-7"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE3EE580>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE3EE580> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-CONSENT-0016",
+      "scenario_title": "consent-verification positive scenario 16",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "IR-2",
+        "IR-5",
+        "NFR-10",
+        "NFR-4",
+        "NFR-8"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE3E6180>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE3E6180> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-CONSENT-0017",
+      "scenario_title": "consent-verification positive scenario 17",
+      "poc_demo": "consent-verification",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-2",
+        "FR-4",
+        "IR-1",
+        "IR-4",
+        "IR-8"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE425580>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE425580> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 282.00000000651926
+    },
+    {
+      "use_case_id": "UC-CONSENT-0002",
+      "scenario_title": "consent-verification negative scenario 2",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "NFR-10",
+        "NFR-2",
+        "NFR-9",
+        "SPR-1",
+        "SPR-2"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 264.9999999557622
+    },
+    {
+      "use_case_id": "UC-CONSENT-0003",
+      "scenario_title": "consent-verification negative scenario 3",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-5",
+        "IR-2",
+        "IR-4",
+        "IR-5",
+        "NFR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 280.9999999590218
+    },
+    {
+      "use_case_id": "UC-CONSENT-0005",
+      "scenario_title": "consent-verification negative scenario 5",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-3",
+        "FR-8",
+        "IR-3",
+        "IR-5",
+        "SPR-1"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-CONSENT-0008",
+      "scenario_title": "consent-verification negative scenario 8",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "FR-7",
+        "IR-4",
+        "NFR-5",
+        "SPR-4"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 265.00000001396984
+    },
+    {
+      "use_case_id": "UC-CONSENT-0009",
+      "scenario_title": "consent-verification negative scenario 9",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "FR-3",
+        "IR-4",
+        "IR-7",
+        "NFR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 264.9999999557622
+    },
+    {
+      "use_case_id": "UC-CONSENT-0018",
+      "scenario_title": "consent-verification negative scenario 18",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "FR-7",
+        "FR-8",
+        "NFR-5",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-CONSENT-0021",
+      "scenario_title": "consent-verification negative scenario 21",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-1",
+        "IR-2",
+        "IR-3",
+        "IR-4",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-CONSENT-0023",
+      "scenario_title": "consent-verification negative scenario 23",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-3",
+        "IR-1",
+        "IR-7",
+        "NFR-10",
+        "SPR-4"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-CONSENT-0024",
+      "scenario_title": "consent-verification negative scenario 24",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-4",
+        "FR-8",
+        "IR-3",
+        "IR-6",
+        "NFR-9"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-CONSENT-0025",
+      "scenario_title": "consent-verification negative scenario 25",
+      "poc_demo": "consent-verification",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-1",
+        "NFR-1",
+        "NFR-6",
+        "SPR-6",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-SURV-0001",
+      "scenario_title": "public-health-surveillance positive scenario 1",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-2",
+        "FR-3",
+        "IR-2",
+        "NFR-6"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FEDA3700>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FEDA3700> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-SURV-0002",
+      "scenario_title": "public-health-surveillance positive scenario 2",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-3",
+        "FR-1",
+        "IR-6",
+        "NFR-1",
+        "SPR-1"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE58E780>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE58E780> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-SURV-0005",
+      "scenario_title": "public-health-surveillance positive scenario 5",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-2",
+        "FR-3",
+        "IR-3",
+        "IR-6",
+        "NFR-4"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE749DC0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE749DC0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-SURV-0006",
+      "scenario_title": "public-health-surveillance positive scenario 6",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-2",
+        "FR-3",
+        "SPR-4",
+        "SPR-6",
+        "SPR-8"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE700640>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE700640> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 265.00000001396984
+    },
+    {
+      "use_case_id": "UC-SURV-0007",
+      "scenario_title": "public-health-surveillance positive scenario 7",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-4",
+        "IR-2",
+        "IR-7",
+        "IR-8",
+        "NFR-8"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE780680>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE780680> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-SURV-0009",
+      "scenario_title": "public-health-surveillance positive scenario 9",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "IR-7",
+        "NFR-1",
+        "NFR-10",
+        "NFR-7",
+        "SPR-3"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE7C2840>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE7C2840> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-SURV-0010",
+      "scenario_title": "public-health-surveillance positive scenario 10",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-3",
+        "CR-5",
+        "FR-5",
+        "NFR-10",
+        "NFR-6"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE7007C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE7007C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 264.9999999557622
+    },
+    {
+      "use_case_id": "UC-SURV-0015",
+      "scenario_title": "public-health-surveillance positive scenario 15",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "FR-6",
+        "IR-4",
+        "NFR-2",
+        "NFR-4",
+        "SPR-4"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE7CF5C0>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE7CF5C0> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-SURV-0016",
+      "scenario_title": "public-health-surveillance positive scenario 16",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "IR-3",
+        "IR-6",
+        "NFR-5",
+        "NFR-8",
+        "SPR-6"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE7E3900>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE7E3900> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 264.9999999557622
+    },
+    {
+      "use_case_id": "UC-SURV-0017",
+      "scenario_title": "public-health-surveillance positive scenario 17",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "CR-5",
+        "FR-5",
+        "IR-1",
+        "IR-4",
+        "SPR-5"
+      ],
+      "status": "fail",
+      "message": "assert 401 == 200\n +  where 401 = <Response [401 Unauthorized]>.status_code\n +  and   200 = <built-in method get of dict object at 0x000001B9FE7F8900>('expected_http_status', 200)\n +    where <built-in method get of dict object at 0x000001B9FE7F8900> = {'auth_mode': 'jwt', 'error_condition': 'none', 'expected_events': ['nexus.task.status', 'nexus.task.final'], 'expected_http_status': 200, ...}.get",
+      "duration_ms": 280.9999999590218
+    },
+    {
+      "use_case_id": "UC-SURV-0004",
+      "scenario_title": "public-health-surveillance negative scenario 4",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "IR-7",
+        "NFR-9",
+        "SPR-5",
+        "SPR-6"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 282.00000000651926
+    },
+    {
+      "use_case_id": "UC-SURV-0011",
+      "scenario_title": "public-health-surveillance negative scenario 11",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-1",
+        "SPR-1",
+        "SPR-4",
+        "SPR-6",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 264.9999999557622
+    },
+    {
+      "use_case_id": "UC-SURV-0018",
+      "scenario_title": "public-health-surveillance negative scenario 18",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "IR-5",
+        "NFR-1",
+        "NFR-4",
+        "SPR-3",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-SURV-0019",
+      "scenario_title": "public-health-surveillance negative scenario 19",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-2",
+        "FR-3",
+        "FR-8",
+        "IR-7",
+        "NFR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-SURV-0020",
+      "scenario_title": "public-health-surveillance negative scenario 20",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "IR-3",
+        "NFR-2",
+        "SPR-5",
+        "SPR-7"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 250.0
+    },
+    {
+      "use_case_id": "UC-SURV-0026",
+      "scenario_title": "public-health-surveillance negative scenario 26",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-6",
+        "FR-7",
+        "IR-2",
+        "IR-7",
+        "NFR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 265.00000001396984
+    },
+    {
+      "use_case_id": "UC-SURV-0027",
+      "scenario_title": "public-health-surveillance negative scenario 27",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-4",
+        "IR-1",
+        "IR-4",
+        "IR-6",
+        "SPR-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 264.9999999557622
+    },
+    {
+      "use_case_id": "UC-SURV-0035",
+      "scenario_title": "public-health-surveillance negative scenario 35",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-7",
+        "IR-4",
+        "NFR-8",
+        "SPR-4",
+        "SPR-5"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 265.00000001396984
+    },
+    {
+      "use_case_id": "UC-SURV-0038",
+      "scenario_title": "public-health-surveillance negative scenario 38",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "FR-3",
+        "FR-6",
+        "FR-8",
+        "NFR-10",
+        "NFR-9"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 264.9999999557622
+    },
+    {
+      "use_case_id": "UC-SURV-0040",
+      "scenario_title": "public-health-surveillance negative scenario 40",
+      "poc_demo": "public-health-surveillance",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "CR-2",
+        "NFR-10",
+        "NFR-7",
+        "SPR-6",
+        "SPR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 280.9999999590218
     }
   ]
 }

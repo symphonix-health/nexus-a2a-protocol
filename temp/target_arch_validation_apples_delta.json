@@ -1,0 +1,12 @@
+{
+  "overall_pass1": true,
+  "overall_pass2": true,
+  "core_pass1_passed": true,
+  "core_pass2_passed": true,
+  "core_pass1_returncode": 0,
+  "core_pass2_returncode": 0,
+  "core_pass1_duration_s": 345.42,
+  "core_pass2_duration_s": 11685.34,
+  "core_duration_delta_s": 11339.92,
+  "core_duration_delta_pct": 3282.94
+}

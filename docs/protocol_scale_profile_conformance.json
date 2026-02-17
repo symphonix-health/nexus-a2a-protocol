@@ -1,0 +1,123 @@
+{
+  "total": 23,
+  "passed": 23,
+  "failed": 0,
+  "pass_rate_pct": 100.0,
+  "results": [
+    {
+      "use_case_id": "UC-PROT-SCALE-G0-0001",
+      "status": "pass",
+      "message": "request scale_profile missing required field: shard_key"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G0-0002",
+      "status": "pass",
+      "message": "validated"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G0-0003",
+      "status": "pass",
+      "message": "request scale_profile.shard_key invalid_shard_key_format: expected 'sha256:<64 lowercase hex>'"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G0-0004",
+      "status": "pass",
+      "message": "request scale_profile.shard_key non_canonical_shard_key: expected sha256:143ac57a31ed2bd4e00e86cc8c5ea811def8319483d1ad1d4a49c42805041ae1"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G0-0005",
+      "status": "pass",
+      "message": "request idempotency missing required field: payload_hash"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G0-0006",
+      "status": "pass",
+      "message": "request idempotency.dedup_window_ms must be > 0"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G0-0007",
+      "status": "pass",
+      "message": "request scale_profile missing required field: profile"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G0-0008",
+      "status": "pass",
+      "message": "request scale_profile missing required field: tenant_key"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G0-0009",
+      "status": "pass",
+      "message": "request scale_profile missing required field: user_key"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G0-0010",
+      "status": "pass",
+      "message": "request scale_profile missing required field: task_key"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G0-0011",
+      "status": "pass",
+      "message": "request idempotency missing required field: idempotency_key"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G0-0012",
+      "status": "pass",
+      "message": "request idempotency missing required field: scope"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G0-0013",
+      "status": "pass",
+      "message": "request idempotency missing required field: dedup_window_ms"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G1-0001",
+      "status": "pass",
+      "message": "validated"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G2-0001",
+      "status": "pass",
+      "message": "validated"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G2-0002",
+      "status": "pass",
+      "message": "validated"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G3-0001",
+      "status": "pass",
+      "message": "validated"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G4-0001",
+      "status": "pass",
+      "message": "validated"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G2-SIM-0001",
+      "status": "pass",
+      "message": "validated"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G2-SIM-0002",
+      "status": "pass",
+      "message": "validated"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G2-SIM-0003",
+      "status": "pass",
+      "message": "validated"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G2-SIM-FAILOVER-0001",
+      "status": "pass",
+      "message": "validated"
+    },
+    {
+      "use_case_id": "UC-PROT-SCALE-G2-SIM-FAILOVER-0002",
+      "status": "pass",
+      "message": "validated"
+    }
+  ]
+}
