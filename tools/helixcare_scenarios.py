@@ -9,6 +9,7 @@ import os
 import random
 import sys
 import time
+import uuid
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
@@ -18,6 +19,9 @@ import httpx
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from shared.nexus_common.auth import mint_jwt
+from shared.nexus_common.ids import make_trace_id
+from shared.nexus_common.redaction import redact_payload
+from shared.nexus_common.trace import TraceRun, TraceStepEvent
 
 BASE_URLS = {
     "triage": "http://localhost:8021",
@@ -45,6 +49,7 @@ BASE_URLS = {
     "osint_agent": "http://localhost:8052",
     "central_surveillance": "http://localhost:8053",
 }
+ON_DEMAND_GATEWAY_URL = os.getenv("NEXUS_ON_DEMAND_GATEWAY_URL", "").strip().rstrip("/")
 
 RETRYABLE_STATUS_CODES = {408, 425, 429, 500, 502, 503, 504}
 
@@ -96,10 +101,46 @@ RETRY_MODE_CONFIGS: dict[str, RetryRuntimeConfig] = {
 
 ACTIVE_RETRY_MODE = "balanced"
 ACTIVE_RETRY_CONFIG = RETRY_MODE_CONFIGS[ACTIVE_RETRY_MODE]
-RPC_ENDPOINT_LIMITERS = {
-    base_url: asyncio.Semaphore(ACTIVE_RETRY_CONFIG.max_inflight_per_endpoint)
-    for base_url in BASE_URLS.values()
-}
+
+
+def normalize_agent_alias(agent: str) -> str:
+    """Normalize agent alias for direct/gateway routing."""
+    value = agent.strip().lower().replace("-", "_")
+    if value in BASE_URLS:
+        return value
+    for suffix in ("_agent", "_scheduler", "_service"):
+        if value.endswith(suffix):
+            value = value[: -len(suffix)]
+            break
+    if value == "care_coordinator":
+        return "coordinator"
+    preserved = f"{value}_agent"
+    if preserved in BASE_URLS:
+        return preserved
+    return value
+
+
+def resolve_agent_rpc_url(agent: str, gateway_url: str | None = None) -> str:
+    """Resolve per-agent RPC URL in direct or on-demand gateway mode."""
+    alias = normalize_agent_alias(agent)
+    gateway = (
+        (gateway_url if gateway_url is not None else ON_DEMAND_GATEWAY_URL).strip().rstrip("/")
+    )
+    if gateway:
+        return f"{gateway}/rpc/{alias}"
+    if alias not in BASE_URLS:
+        raise KeyError(f"Unknown agent alias '{agent}'")
+    return f"{BASE_URLS[alias].rstrip('/')}/rpc"
+
+
+def _build_rpc_endpoint_limiters(config: RetryRuntimeConfig) -> dict[str, asyncio.Semaphore]:
+    return {
+        resolve_agent_rpc_url(agent): asyncio.Semaphore(config.max_inflight_per_endpoint)
+        for agent in BASE_URLS
+    }
+
+
+RPC_ENDPOINT_LIMITERS = _build_rpc_endpoint_limiters(ACTIVE_RETRY_CONFIG)
 
 
 def configure_retry_mode(mode: str) -> RetryRuntimeConfig:
@@ -117,11 +158,19 @@ def configure_retry_mode(mode: str) -> RetryRuntimeConfig:
 
     ACTIVE_RETRY_MODE = normalized_mode
     ACTIVE_RETRY_CONFIG = config
-    RPC_ENDPOINT_LIMITERS = {
-        base_url: asyncio.Semaphore(config.max_inflight_per_endpoint)
-        for base_url in BASE_URLS.values()
-    }
+    RPC_ENDPOINT_LIMITERS = _build_rpc_endpoint_limiters(config)
     return config
+
+
+def configure_gateway_url(gateway_url: str | None) -> str:
+    """Configure optional on-demand gateway routing for all agent RPC."""
+    normalized = (gateway_url or "").strip().rstrip("/")
+    global ON_DEMAND_GATEWAY_URL
+    global RPC_ENDPOINT_LIMITERS
+
+    ON_DEMAND_GATEWAY_URL = normalized
+    RPC_ENDPOINT_LIMITERS = _build_rpc_endpoint_limiters(ACTIVE_RETRY_CONFIG)
+    return ON_DEMAND_GATEWAY_URL
 
 
 def _load_retry_mode_from_env() -> RetryRuntimeConfig:
@@ -187,11 +236,21 @@ async def make_jsonrpc_call(
     method: str,
     params: dict[str, Any],
     task_id: str,
-) -> dict[str, Any]:
+    *,
+    trace_id: str = "",
+    step_index: int = 0,
+    scenario_name: str = "",
+    patient_id: str = "",
+    visit_id: str = "",
+) -> tuple[dict[str, Any], TraceStepEvent | None]:
+    correlation_id = f"corr-{uuid.uuid4()}"
     headers = {
         "Authorization": f"Bearer {create_jwt_token()}",
         "Content-Type": "application/json",
     }
+    if trace_id:
+        headers["X-Trace-ID"] = trace_id
+        headers["X-Correlation-ID"] = correlation_id
     payload = {
         "jsonrpc": "2.0",
         "id": task_id,
@@ -199,7 +258,10 @@ async def make_jsonrpc_call(
         "params": params,
     }
 
-    print(f"📞 Calling {url}/rpc - Method: {method}")
+    rpc_url = url
+    if "/rpc/" not in rpc_url and not rpc_url.rstrip("/").endswith("/rpc"):
+        rpc_url = f"{rpc_url.rstrip('/')}/rpc"
+    print(f"📞 Calling {rpc_url} - Method: {method}")
     timeout = httpx.Timeout(
         connect=ACTIVE_RETRY_CONFIG.connect_timeout_seconds,
         read=ACTIVE_RETRY_CONFIG.read_timeout_seconds,
@@ -207,24 +269,25 @@ async def make_jsonrpc_call(
         pool=ACTIVE_RETRY_CONFIG.connect_timeout_seconds,
     )
 
+    ts_start = datetime.now().astimezone().isoformat()
     async with httpx.AsyncClient(timeout=timeout) as client:
         last_error = "unknown error"
         attempts_made = 0
         start_time = time.perf_counter()
-        limiter = RPC_ENDPOINT_LIMITERS.get(url)
+        limiter = RPC_ENDPOINT_LIMITERS.get(rpc_url)
         for attempt in range(1, ACTIVE_RETRY_CONFIG.max_rpc_attempts + 1):
             attempts_made = attempt
             try:
                 if limiter is None:
                     response = await client.post(
-                        f"{url}/rpc",
+                        rpc_url,
                         json=payload,
                         headers=headers,
                     )
                 else:
                     async with limiter:
                         response = await client.post(
-                            f"{url}/rpc",
+                            rpc_url,
                             json=payload,
                             headers=headers,
                         )
@@ -234,7 +297,27 @@ async def make_jsonrpc_call(
                     print(f"   ✅ Response received (recovered on attempt {attempt})")
                 else:
                     print("   ✅ Response received")
-                return result
+                ts_end = datetime.now().astimezone().isoformat()
+                duration_ms = (time.perf_counter() - start_time) * 1000
+                step_event = _build_trace_step(
+                    trace_id=trace_id,
+                    correlation_id=correlation_id,
+                    scenario_name=scenario_name,
+                    patient_id=patient_id,
+                    visit_id=visit_id,
+                    agent=task_id.rsplit("-", 2)[-2] if "-" in task_id else method,
+                    method=method,
+                    step_index=step_index,
+                    ts_start=ts_start,
+                    ts_end=ts_end,
+                    duration_ms=duration_ms,
+                    status="final",
+                    request=payload,
+                    response=result,
+                    retry_count=attempts_made - 1,
+                    headers=headers,
+                )
+                return result, step_event
             except Exception as exc:
                 last_error = str(exc)
                 retriable = _is_retriable_error(exc)
@@ -245,7 +328,28 @@ async def make_jsonrpc_call(
                 )
 
                 if not retriable:
-                    return {"error": last_error, "attempts": attempts_made}
+                    ts_end = datetime.now().astimezone().isoformat()
+                    duration_ms = (time.perf_counter() - start_time) * 1000
+                    step_event = _build_trace_step(
+                        trace_id=trace_id,
+                        correlation_id=correlation_id,
+                        scenario_name=scenario_name,
+                        patient_id=patient_id,
+                        visit_id=visit_id,
+                        agent=task_id.rsplit("-", 2)[-2] if "-" in task_id else method,
+                        method=method,
+                        step_index=step_index,
+                        ts_start=ts_start,
+                        ts_end=ts_end,
+                        duration_ms=duration_ms,
+                        status="error",
+                        request=payload,
+                        response={"error": last_error},
+                        retry_count=attempts_made - 1,
+                        headers=headers,
+                        error_message=last_error,
+                    )
+                    return {"error": last_error, "attempts": attempts_made}, step_event
 
                 if attempt >= ACTIVE_RETRY_CONFIG.max_rpc_attempts:
                     break
@@ -262,7 +366,78 @@ async def make_jsonrpc_call(
                     await asyncio.sleep(delay)
 
     print("   ❌ Error: All connection attempts failed")
-    return {"error": last_error, "attempts": attempts_made}
+    ts_end = datetime.now().astimezone().isoformat()
+    duration_ms = (time.perf_counter() - start_time) * 1000
+    step_event = _build_trace_step(
+        trace_id=trace_id,
+        correlation_id=correlation_id,
+        scenario_name=scenario_name,
+        patient_id=patient_id,
+        visit_id=visit_id,
+        agent=task_id.rsplit("-", 2)[-2] if "-" in task_id else method,
+        method=method,
+        step_index=step_index,
+        ts_start=ts_start,
+        ts_end=ts_end,
+        duration_ms=duration_ms,
+        status="error",
+        request=payload,
+        response={"error": last_error},
+        retry_count=attempts_made - 1,
+        headers=headers,
+        error_message=last_error,
+    )
+    return {"error": last_error, "attempts": attempts_made}, step_event
+
+
+def _build_trace_step(
+    *,
+    trace_id: str,
+    correlation_id: str,
+    scenario_name: str,
+    patient_id: str,
+    visit_id: str,
+    agent: str,
+    method: str,
+    step_index: int,
+    ts_start: str,
+    ts_end: str,
+    duration_ms: float,
+    status: str,
+    request: dict[str, Any],
+    response: dict[str, Any],
+    retry_count: int,
+    headers: dict[str, str],
+    error_message: str | None = None,
+) -> TraceStepEvent | None:
+    """Build a TraceStepEvent with redacted payloads.  Returns None if trace_id is empty."""
+    if not trace_id:
+        return None
+    req_redacted, req_meta = redact_payload({**request, "_headers": headers})
+    resp_redacted, resp_meta = redact_payload(response)
+    combined_meta = {
+        "request": req_meta,
+        "response": resp_meta,
+    }
+    return TraceStepEvent(
+        trace_id=trace_id,
+        correlation_id=correlation_id,
+        scenario_name=scenario_name,
+        patient_id=patient_id,
+        visit_id=visit_id,
+        agent=agent,
+        method=method,
+        step_index=step_index,
+        timestamp_start=ts_start,
+        timestamp_end=ts_end,
+        duration_ms=round(duration_ms, 2),
+        status=status,
+        request_redacted=req_redacted,
+        response_redacted=resp_redacted,
+        redaction_meta=combined_meta,
+        retry_count=retry_count,
+        error_message=error_message,
+    )
 
 
 def _step(
@@ -830,33 +1005,76 @@ def _load_additional_scenarios() -> list[PatientScenario]:
             return []
 
 
+TRACE_SINK_URL = os.getenv("TRACE_SINK_URL", "http://localhost:8099")
+
+
+async def _post_trace_run(trace_run: TraceRun) -> None:
+    """POST completed TraceRun to Command Centre (best-effort)."""
+    url = f"{TRACE_SINK_URL.rstrip('/')}/api/traces"
+    try:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(5.0)) as client:
+            resp = await client.post(url, json=trace_run.to_dict())
+            if resp.status_code < 300:
+                print(f"   📋 Trace posted → {trace_run.trace_id}")
+            else:
+                print(f"   ⚠ Trace POST returned {resp.status_code}")
+    except Exception as exc:
+        print(f"   ⚠ Trace POST failed (non-fatal): {exc}")
+
+
 async def run_scenario(scenario: PatientScenario) -> None:
     patient_id = f"PAT-{int(time.time())}-{scenario.name}"
     visit_id = f"VISIT-{int(time.time())}-{scenario.name}"
+    trace_id = make_trace_id()
 
     print(f"🏥 Starting Scenario: {scenario.name}")
     print(f"   Description: {scenario.description}")
     print(f"   Patient ID: {patient_id}")
     print(f"   Visit ID: {visit_id}")
+    print(f"   Trace ID: {trace_id}")
     print(f"   Profile: {scenario.patient_profile}")
     print("=" * 80)
 
+    trace_run = TraceRun(
+        trace_id=trace_id,
+        scenario_name=scenario.name,
+        visit_id=visit_id,
+        patient_id=patient_id,
+        patient_profile=scenario.patient_profile,
+        started_at=datetime.now().astimezone().isoformat(),
+    )
+
+    final_status = "final"
     for i, step in enumerate(scenario.journey_steps, 1):
         print(f"\nStep {i}/{len(scenario.journey_steps)}: {step['agent'].upper()}")
         step_params = step["params"].copy()
         step_params["patient_id"] = patient_id
         step_params["visit_id"] = visit_id
         task_id = f"{visit_id}-{step['agent']}-{i}"
+        rpc_url = resolve_agent_rpc_url(step["agent"])
 
-        await make_jsonrpc_call(
-            BASE_URLS[step["agent"]],
+        result, step_event = await make_jsonrpc_call(
+            rpc_url,
             step["method"],
             step_params,
             task_id,
+            trace_id=trace_id,
+            step_index=i,
+            scenario_name=scenario.name,
+            patient_id=patient_id,
+            visit_id=visit_id,
         )
+
+        if step_event is not None:
+            trace_run.add_step(step_event)
+            if step_event.status == "error":
+                final_status = "error"
 
         if "delay" in step:
             await asyncio.sleep(step["delay"])
+
+    trace_run.finalize(status=final_status)
+    await _post_trace_run(trace_run)
 
     print(f"\n✅ Scenario '{scenario.name}' completed!")
     print(f"   Duration: ~{scenario.expected_duration} seconds")
@@ -941,12 +1159,27 @@ async def main() -> None:
         choices=sorted(RETRY_MODE_CONFIGS.keys()),
         help="Retry profile: strict-zero (validation), balanced (default), fast (load)",
     )
+    parser.add_argument(
+        "--gateway",
+        nargs="?",
+        const="http://localhost:8100",
+        help=(
+            "Route agent RPC via on-demand gateway. Optional URL (default: http://localhost:8100)."
+        ),
+    )
 
     args = parser.parse_args()
 
     if args.retry_mode:
         configure_retry_mode(args.retry_mode)
+    if args.gateway is not None:
+        configure_gateway_url(args.gateway)
+
     print(f"⚙ Active retry profile: {ACTIVE_RETRY_MODE}")
+    if ON_DEMAND_GATEWAY_URL:
+        print(f"⚙ On-demand gateway routing: {ON_DEMAND_GATEWAY_URL}")
+    else:
+        print("⚙ On-demand gateway routing: disabled (direct agent ports)")
 
     if args.save:
         save_scenarios_to_file()

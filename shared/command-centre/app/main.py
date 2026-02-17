@@ -13,6 +13,7 @@ import asyncio
 import json
 import logging
 import os
+from collections import OrderedDict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -25,9 +26,9 @@ try:
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
@@ -56,6 +57,14 @@ scenario_catalog: list[dict[str, Any]] = []
 lock = asyncio.Lock()
 poll_task_started = False
 first_poll_cycle_completed = False
+
+# ── Trace Store ───────────────────────────────────────────────────────
+TRACE_STORE_MAX = 200
+trace_store: OrderedDict[str, dict[str, Any]] = OrderedDict()
+trace_lock = asyncio.Lock()
+
+# ── WebSocket Client Registry ────────────────────────────────────────
+ws_clients: set[WebSocket] = set()
 
 
 def _load_agent_urls_from_config() -> list[str]:
@@ -329,11 +338,108 @@ async def get_scenario_catalog():
     return JSONResponse(content=scenario_catalog)
 
 
+# ── Trace API ─────────────────────────────────────────────────────────
+async def _broadcast_ws(message: dict[str, Any]) -> None:
+    """Best-effort broadcast a JSON message to all connected WebSocket clients."""
+    stale: list[WebSocket] = []
+    for ws in ws_clients:
+        try:
+            await ws.send_json(message)
+        except Exception:
+            stale.append(ws)
+    for ws in stale:
+        ws_clients.discard(ws)
+
+
+@app.post("/api/traces", status_code=201)
+async def ingest_trace(request: Request):
+    """Accept a completed TraceRun JSON from the scenario runner."""
+    body = await request.json()
+    trace_id = body.get("trace_id", "")
+    if not trace_id:
+        return JSONResponse(status_code=400, content={"error": "trace_id required"})
+
+    async with trace_lock:
+        trace_store[trace_id] = body
+        # Evict oldest when over capacity
+        while len(trace_store) > TRACE_STORE_MAX:
+            trace_store.popitem(last=False)
+
+    # Broadcast to all WS clients
+    await _broadcast_ws(
+        {
+            "type": "trace.run",
+            "payload": {
+                "trace_id": trace_id,
+                "scenario_name": body.get("scenario_name", ""),
+                "status": body.get("status", ""),
+                "step_count": body.get("step_count", 0),
+                "total_duration_ms": body.get("total_duration_ms", 0),
+                "started_at": body.get("started_at", ""),
+            },
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+    )
+    return JSONResponse(
+        status_code=201,
+        content={"trace_id": trace_id, "stored": True},
+    )
+
+
+@app.get("/api/traces")
+async def list_traces():
+    """List stored trace run summaries (newest first)."""
+    async with trace_lock:
+        summaries = []
+        for tid in reversed(trace_store):
+            run = trace_store[tid]
+            summaries.append(
+                {
+                    "trace_id": tid,
+                    "scenario_name": run.get("scenario_name", ""),
+                    "status": run.get("status", ""),
+                    "started_at": run.get("started_at", ""),
+                    "step_count": run.get("step_count", 0),
+                    "total_duration_ms": run.get("total_duration_ms", 0),
+                    "visit_id": run.get("visit_id", ""),
+                    "patient_id": run.get("patient_id", ""),
+                    "patient_profile": run.get("patient_profile", {}),
+                }
+            )
+        return JSONResponse(content=summaries)
+
+
+@app.get("/api/traces/{trace_id}")
+async def get_trace(trace_id: str):
+    """Return full trace run with all steps."""
+    async with trace_lock:
+        run = trace_store.get(trace_id)
+    if run is None:
+        return JSONResponse(status_code=404, content={"error": "trace not found"})
+    return JSONResponse(content=run)
+
+
+@app.get("/api/traces/{trace_id}/export")
+async def export_trace(trace_id: str):
+    """Download trace run as a JSON file attachment."""
+    async with trace_lock:
+        run = trace_store.get(trace_id)
+    if run is None:
+        return JSONResponse(status_code=404, content={"error": "trace not found"})
+    content = json.dumps(run, indent=2, default=str)
+    return Response(
+        content=content,
+        media_type="application/json",
+        headers={"Content-Disposition": f'attachment; filename="trace-{trace_id}.json"'},
+    )
+
+
 # ── WebSocket Event Streaming ─────────────────────────────────────────
 @app.websocket("/api/events")
 async def websocket_events(websocket: WebSocket):
     """Stream real-time events from Redis pub/sub."""
     await websocket.accept()
+    ws_clients.add(websocket)
     logger.info("WebSocket client connected")
 
     try:
@@ -395,6 +501,7 @@ async def websocket_events(websocket: WebSocket):
     except Exception as exc:
         logger.error(f"WebSocket error: {exc}")
     finally:
+        ws_clients.discard(websocket)
         try:
             await pubsub.unsubscribe("nexus:events")
             await redis_client.close()

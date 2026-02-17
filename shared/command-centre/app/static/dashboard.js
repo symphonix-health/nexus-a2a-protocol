@@ -27,6 +27,8 @@ const state = {
         final: true,
         error: true,
     },
+    traceRuns: [],
+    selectedTraceId: null,
 };
 
 const FLOW_STALE_MS = 30000;
@@ -56,6 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeJourneyPopover();
     initializeFilters();
     initializeToggleButtons();
+    loadTraceRuns();
+    initializeTracePanel();
 });
 
 const popoverState = {
@@ -145,6 +149,10 @@ function handleWebSocketMessage(message) {
             updateHeatmapMetrics(message.payload);
             ingestScenarioEvent(message.payload, false);
             updatePerformanceCharts();
+            break;
+
+        case 'trace.run':
+            handleTraceRunEvent(message.payload);
             break;
 
         default:
@@ -1361,6 +1369,339 @@ function showToast(message, type = 'info') {
         toast.style.opacity = '0';
         setTimeout(() => container.removeChild(toast), 300);
     }, 3000);
+}
+
+// ── Clinical Trace Panel ──────────────────────────────────────────────
+
+function initializeTracePanel() {
+    const searchInput = document.getElementById('trace-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => renderTraceRunList());
+    }
+    const exportBtn = document.getElementById('trace-export-btn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+            if (state.selectedTraceId) exportTraceRun(state.selectedTraceId);
+        });
+    }
+}
+
+function humanizeScenarioName(name) {
+    if (!name) return 'Unknown Scenario';
+    return name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function urgencyColor(urgency) {
+    switch ((urgency || '').toLowerCase()) {
+        case 'critical': return '#ef4444';
+        case 'high':     return '#f59e0b';
+        case 'medium':   return '#3b82f6';
+        case 'low':      return '#10b981';
+        default:         return '#6b7280';
+    }
+}
+
+function urgencyLabel(urgency) {
+    switch ((urgency || '').toLowerCase()) {
+        case 'critical': return 'CRITICAL';
+        case 'high':     return 'URGENT';
+        case 'medium':   return 'ROUTINE';
+        case 'low':      return 'LOW PRIORITY';
+        default:         return '';
+    }
+}
+
+function clinicalStatus(status) {
+    if (status === 'final' || status === 'completed') return 'Completed';
+    if (status === 'error' || status === 'failed') return 'Failed';
+    if (status === 'working' || status === 'accepted') return 'In Progress';
+    return status || 'Unknown';
+}
+
+function humanizeAgentName(agent) {
+    if (!agent) return 'Unknown';
+    return agent.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+async function loadTraceRuns() {
+    try {
+        const response = await fetch('/api/traces');
+        if (!response.ok) return;
+        state.traceRuns = await response.json();
+        renderTraceRunList();
+        const badge = document.getElementById('trace-count-badge');
+        if (badge) badge.textContent = `${state.traceRuns.length} runs`;
+        // Auto-select the most recent run
+        if (state.traceRuns.length > 0 && !state.selectedTraceId) {
+            selectTraceRun(state.traceRuns[0].trace_id);
+        }
+    } catch (err) {
+        console.error('Failed to load trace runs:', err);
+    }
+}
+
+function handleTraceRunEvent(payload) {
+    // Prepend new run to the list (most recent first)
+    state.traceRuns = [payload, ...state.traceRuns.filter(r => r.trace_id !== payload.trace_id)];
+    renderTraceRunList();
+    const badge = document.getElementById('trace-count-badge');
+    if (badge) badge.textContent = `${state.traceRuns.length} runs`;
+}
+
+async function selectTraceRun(traceId) {
+    state.selectedTraceId = traceId;
+    // Highlight active card
+    document.querySelectorAll('.trace-run-card').forEach(card => {
+        card.classList.toggle('active', card.dataset.traceId === traceId);
+    });
+    try {
+        const response = await fetch(`/api/traces/${traceId}`);
+        if (!response.ok) {
+            console.error('Trace not found:', traceId);
+            return;
+        }
+        const run = await response.json();
+        renderTraceStepTimeline(run);
+        renderTracePatientContext(run);
+        // Enable export button
+        const exportBtn = document.getElementById('trace-export-btn');
+        if (exportBtn) exportBtn.disabled = false;
+    } catch (err) {
+        console.error('Failed to load trace detail:', err);
+    }
+}
+
+function renderTraceRunList() {
+    const container = document.getElementById('trace-run-items');
+    if (!container) return;
+
+    const searchInput = document.getElementById('trace-search');
+    const filter = searchInput ? searchInput.value.toLowerCase() : '';
+
+    const filtered = state.traceRuns.filter(run => {
+        if (!filter) return true;
+        const profile = run.patient_profile || {};
+        const text = [
+            run.scenario_name, run.visit_id, run.status,
+            profile.chief_complaint, profile.gender,
+            profile.age != null ? String(profile.age) : '',
+            profile.urgency,
+        ].join(' ').toLowerCase();
+        return text.includes(filter);
+    });
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<div class="trace-empty">No matching patient journeys.</div>';
+        return;
+    }
+
+    container.innerHTML = filtered.map(run => {
+        const profile = run.patient_profile || {};
+        const statusCss = (run.status === 'final' || run.status === 'completed') ? 'status-final'
+            : (run.status === 'error' || run.status === 'failed') ? 'status-error' : 'status-working';
+        const stepCount = run.step_count || (run.steps ? run.steps.length : 0);
+        const ts = run.started_at ? new Date(run.started_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+        const dur = run.total_duration_ms != null ? `${(run.total_duration_ms / 1000).toFixed(1)}s` : '';
+        const isActive = state.selectedTraceId === run.trace_id;
+        const urgency = profile.urgency || '';
+        const uColor = urgencyColor(urgency);
+        const uLabel = urgencyLabel(urgency);
+        const complaint = profile.chief_complaint || '';
+        const patientSummary = [profile.age ? `${profile.age}y` : '', profile.gender || ''].filter(Boolean).join(' ');
+
+        return `<div class="trace-run-card ${statusCss} ${isActive ? 'active' : ''}"
+                     data-trace-id="${escapeHtml(run.trace_id)}"
+                     onclick="selectTraceRun('${escapeHtml(run.trace_id)}')">
+            <div class="run-top-row">
+                <span class="run-name">${escapeHtml(humanizeScenarioName(run.scenario_name))}</span>
+                ${uLabel ? `<span class="urgency-pill" style="background:${uColor}">${uLabel}</span>` : ''}
+            </div>
+            ${complaint ? `<div class="run-complaint">${escapeHtml(complaint)}</div>` : ''}
+            <div class="run-meta">
+                <span>${escapeHtml(patientSummary)}</span>
+                <span>${stepCount} steps &middot; ${dur}</span>
+                <span class="run-status ${statusCss}">${clinicalStatus(run.status)}</span>
+            </div>
+            <div class="run-time">${escapeHtml(ts)}</div>
+        </div>`;
+    }).join('');
+}
+
+function renderTraceStepTimeline(run) {
+    const container = document.getElementById('trace-step-container');
+    if (!container) return;
+
+    const steps = run.steps || [];
+    if (steps.length === 0) {
+        container.innerHTML = '<div class="trace-empty">No steps recorded for this trace.</div>';
+        return;
+    }
+
+    const profile = run.patient_profile || {};
+    const complaint = profile.chief_complaint || '';
+    const urgency = profile.urgency || '';
+    const uColor = urgencyColor(urgency);
+    const uLabel = urgencyLabel(urgency);
+    const patientLine = [profile.age ? `${profile.age}y` : '', profile.gender || ''].filter(Boolean).join(' ');
+
+    container.innerHTML = `
+        <div class="timeline-header">
+            <h4>${escapeHtml(humanizeScenarioName(run.scenario_name))}</h4>
+            <div class="timeline-header-meta">
+                ${complaint ? `<span class="timeline-complaint">${escapeHtml(complaint)}</span>` : ''}
+                <span>${escapeHtml(patientLine)} &middot; ${steps.length} steps &middot; ${run.total_duration_ms != null ? (run.total_duration_ms / 1000).toFixed(1) + 's' : ''}</span>
+                ${uLabel ? `<span class="urgency-pill" style="background:${uColor}">${uLabel}</span>` : ''}
+            </div>
+        </div>
+        <div class="timeline-steps">
+        ${steps.map((step, idx) => {
+            const stepOk = step.status === 'final' || step.status === 'success' || step.status === 'completed';
+            const stepErr = step.status === 'error' || step.status === 'failed';
+            const stepCss = stepErr ? 'step-error' : '';
+            const dur = step.duration_ms != null ? step.duration_ms : 0;
+            const durLabel = dur >= 1000 ? `${(dur / 1000).toFixed(1)}s` : `${dur.toFixed(0)}ms`;
+            const durClass = dur > 5000 ? 'duration-slow' : dur > 2000 ? 'duration-medium' : 'duration-fast';
+            const ts = step.timestamp_start
+                ? new Date(step.timestamp_start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+                : '';
+            const retryInfo = step.retry_count > 0 ? `<span class="retry-badge">${step.retry_count} retries</span>` : '';
+            const errorInfo = step.error_message
+                ? `<div class="step-error-msg"><strong>Error:</strong> ${escapeHtml(step.error_message)}</div>` : '';
+            const maskedFields = (step.redaction_meta && step.redaction_meta.masked_fields) || [];
+            const redactBadge = maskedFields.length > 0
+                ? `<span class="redaction-badge">${maskedFields.length} fields redacted</span>` : '';
+            const statusIcon = stepOk ? '&#10003;' : stepErr ? '&#10007;' : '&#9679;';
+            const statusColor = stepOk ? 'var(--status-healthy)' : stepErr ? 'var(--status-unhealthy)' : 'var(--status-degraded)';
+
+            // Extract the clinical inputs/outputs
+            const reqParams = step.request_redacted?.params?.task || step.request_redacted?.params || {};
+            const resResult = step.response_redacted?.result?.status
+                ? step.response_redacted.result
+                : step.response_redacted?.result?.artifacts?.[0]?.parts?.[0]?.data || step.response_redacted?.result || {};
+
+            return `<div class="trace-step-card ${stepCss}" data-step-index="${idx}">
+                <div class="step-header" onclick="toggleTraceStep(this)">
+                    <div class="step-number" style="color:${statusColor}">
+                        <span class="step-icon">${statusIcon}</span> ${idx + 1}
+                    </div>
+                    <div class="step-info">
+                        <span class="step-agent">${escapeHtml(humanizeAgentName(step.agent))}</span>
+                        <span class="step-method">${escapeHtml(step.method || '')}</span>
+                    </div>
+                    <div class="step-timing">
+                        <span class="duration ${durClass}">${durLabel}</span>
+                        <span>${escapeHtml(ts)}</span>
+                        ${retryInfo}
+                        ${redactBadge}
+                    </div>
+                    <span class="step-toggle">&#9654;</span>
+                </div>
+                <div class="step-body" style="display:none;">
+                    <div class="step-correlation">
+                        <span class="correlation-label">Correlation:</span>
+                        <span class="correlation-id">${escapeHtml(step.correlation_id || '')}</span>
+                        <button class="trace-copy-btn" onclick="event.stopPropagation();copyToClipboard('${escapeHtml(step.correlation_id || '')}')">Copy</button>
+                    </div>
+                    ${errorInfo}
+                    <div class="step-payloads expanded">
+                        <h4>Clinical Input</h4>
+                        <pre class="trace-json-block">${escapeHtml(JSON.stringify(reqParams, null, 2) || '{}')}</pre>
+                        <h4>Clinical Output</h4>
+                        <pre class="trace-json-block">${escapeHtml(JSON.stringify(resResult, null, 2) || '{}')}</pre>
+                    </div>
+                </div>
+            </div>`;
+        }).join('')}
+        </div>
+    `;
+}
+
+function toggleTraceStep(headerEl) {
+    const body = headerEl.nextElementSibling;
+    const toggle = headerEl.querySelector('.step-toggle');
+    if (body.style.display === 'none') {
+        body.style.display = 'block';
+        if (toggle) toggle.innerHTML = '&#9660;';
+    } else {
+        body.style.display = 'none';
+        if (toggle) toggle.innerHTML = '&#9654;';
+    }
+}
+
+function renderTracePatientContext(run) {
+    const container = document.getElementById('trace-patient-context');
+    if (!container) return;
+
+    const profile = run.patient_profile || {};
+    const urgency = profile.urgency || '';
+    const uColor = urgencyColor(urgency);
+
+    const fields = [
+        { label: 'Chief Complaint', value: profile.chief_complaint, highlight: true },
+        { label: 'Urgency', value: urgencyLabel(urgency), color: uColor },
+        { label: 'Age', value: profile.age ? `${profile.age} years` : '' },
+        { label: 'Gender', value: profile.gender ? profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1) : '' },
+        { label: 'Symptoms', value: Array.isArray(profile.symptoms) ? profile.symptoms.join(', ') : profile.symptoms },
+        { label: 'Acuity Level', value: profile.acuity_level || profile.acuity },
+        { label: 'Journey Status', value: clinicalStatus(run.status) },
+        { label: 'Started', value: run.started_at ? new Date(run.started_at).toLocaleString() : '' },
+        { label: 'Completed', value: run.completed_at ? new Date(run.completed_at).toLocaleString() : '' },
+        { label: 'Total Duration', value: run.total_duration_ms != null ? `${(run.total_duration_ms / 1000).toFixed(2)}s` : '' },
+        { label: 'Steps', value: run.steps ? `${run.steps.length} clinical interactions` : '' },
+    ];
+
+    // List the agents involved
+    const agentsUsed = run.steps ? [...new Set(run.steps.map(s => humanizeAgentName(s.agent)))].join(', ') : '';
+    if (agentsUsed) fields.push({ label: 'Agents Involved', value: agentsUsed });
+
+    container.innerHTML = `
+        <div class="trace-patient-card">
+            <h4>Patient Context</h4>
+            ${fields
+                .filter(f => f.value != null && f.value !== '')
+                .map(f => `<div class="patient-field">
+                    <strong>${escapeHtml(f.label)}</strong>
+                    <span ${f.color ? `style="color:${f.color};font-weight:600"` : ''}
+                          ${f.highlight ? 'style="color:var(--text-primary);font-weight:600"' : ''}>
+                        ${escapeHtml(String(f.value))}
+                    </span>
+                </div>`)
+                .join('')}
+        </div>
+    `;
+}
+
+async function exportTraceRun(traceId) {
+    try {
+        const response = await fetch(`/api/traces/${traceId}/export`);
+        if (!response.ok) { console.error('Export failed'); return; }
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `trace_${traceId}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (err) {
+        console.error('Failed to export trace:', err);
+    }
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showToast('Copied to clipboard', 'success');
+    }).catch(() => {
+        // Fallback
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('Copied to clipboard', 'success');
+    });
 }
 
 // ── Periodic Updates ──────────────────────────────────────────────────

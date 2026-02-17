@@ -3,6 +3,7 @@
 Usage:
     python tools/launch_all_agents.py                    # start agents + backend
     python tools/launch_all_agents.py --no-backend       # start agents only
+    python tools/launch_all_agents.py --with-gateway     # also start on-demand gateway
     python tools/launch_all_agents.py --llm-profile local_docker_smollm2
                                                         # start with a configured LLM profile
     python tools/launch_all_agents.py --list-llm-profiles
@@ -26,6 +27,9 @@ PYTHON = sys.executable
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG_FILE = os.path.join(ROOT, "config", "agents.json")
 PID_FILE = os.path.join(ROOT, ".agent_pids.json")
+
+GATEWAY_MODULE = "shared.on_demand_gateway.app.main:app"
+GATEWAY_PORT = int(os.getenv("NEXUS_ON_DEMAND_GATEWAY_PORT", "8100"))
 
 
 def load_agent_config():
@@ -175,7 +179,68 @@ def probe_backend_readiness(
     return False, last_error
 
 
-def start_all(include_backend: bool = True, llm_profile: str | None = None):
+def start_gateway(env: dict[str, str]) -> dict | None:
+    """Start the on-demand gateway as a managed background process.
+
+    Returns a PID entry dict on success, or ``None`` on failure.
+    """
+    cmd = [
+        PYTHON,
+        "-m",
+        "uvicorn",
+        GATEWAY_MODULE,
+        "--host",
+        "0.0.0.0",
+        "--port",
+        str(GATEWAY_PORT),
+    ]
+    print(
+        f"  Starting [GATEWAY] on-demand-gateway           :{GATEWAY_PORT} ...",
+        end=" ",
+        flush=True,
+    )
+    proc = subprocess.Popen(
+        cmd,
+        cwd=ROOT,
+        env=env,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    time.sleep(1.0)
+    if proc.poll() is not None:
+        print(f"FAILED (exit {proc.returncode})")
+        return None
+    print(f"OK  (pid {proc.pid})")
+
+    # Readiness probe
+    gw_health_attempts = int(os.getenv("NEXUS_GATEWAY_HEALTHCHECK_ATTEMPTS", "15"))
+    gw_health_timeout_s = float(os.getenv("NEXUS_GATEWAY_HEALTHCHECK_TIMEOUT_SECONDS", "3"))
+    gw_health_interval_s = float(os.getenv("NEXUS_GATEWAY_HEALTHCHECK_INTERVAL_SECONDS", "1"))
+
+    healthy, detail = probe_http_health(
+        f"http://localhost:{GATEWAY_PORT}/readyz",
+        attempts=gw_health_attempts,
+        timeout_s=gw_health_timeout_s,
+        interval_s=gw_health_interval_s,
+    )
+    if healthy:
+        print(f"  [ok] Gateway :{GATEWAY_PORT} ready ({detail})")
+    else:
+        print(f"  [warn] Gateway :{GATEWAY_PORT} not ready yet ({detail})")
+
+    return {
+        "dir": "shared/on_demand_gateway",
+        "port": GATEWAY_PORT,
+        "pid": proc.pid,
+        "type": "gateway",
+    }
+
+
+def start_all(
+    include_backend: bool = True,
+    include_gateway: bool = False,
+    llm_profile: str | None = None,
+):
     """Start all agents and the backend Command Centre (default)."""
     agents, backend, llm_profiles = load_agent_config()
 
@@ -301,17 +366,26 @@ def start_all(include_backend: bool = True, llm_profile: str | None = None):
             print(f"OK  (pid {proc.pid})")
             pids.append({"dir": rel_dir, "port": port, "pid": proc.pid, "type": service_type})
 
+    # Optionally start on-demand gateway
+    gateway_entry = None
+    if include_gateway:
+        gateway_entry = start_gateway(env)
+        if gateway_entry:
+            pids.append(gateway_entry)
+
     with open(PID_FILE, "w") as f:
         json.dump(pids, f, indent=2)
 
     agent_count = sum(1 for p in pids if p.get("type") == "agent")
     backend_count = sum(1 for p in pids if p.get("type") == "backend")
-    total = len(services_to_start)
+    gateway_count = sum(1 for p in pids if p.get("type") == "gateway")
+    total = len(services_to_start) + (1 if include_gateway else 0)
 
     service_summary = (
         f"\n{len(pids)}/{total} services started "
-        f"({agent_count} agents, {backend_count} backend). "
-        f"PIDs saved to {PID_FILE}"
+        f"({agent_count} agents, {backend_count} backend"
+        + (f", {gateway_count} gateway" if include_gateway else "")
+        + f"). PIDs saved to {PID_FILE}"
     )
     print(service_summary)
 
@@ -426,6 +500,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Skip Command Centre backend startup.",
     )
+    parser.add_argument(
+        "--with-gateway",
+        action="store_true",
+        help="Also launch the on-demand gateway on port 8100.",
+    )
     parser.add_argument("--llm-profile", help="Name of LLM profile from config/agents.json")
     parser.add_argument(
         "--list-llm-profiles", action="store_true", help="List available LLM profiles"
@@ -438,7 +517,11 @@ if __name__ == "__main__":
         print_llm_profiles(profiles)
     else:
         try:
-            start_all(include_backend=not args.no_backend, llm_profile=args.llm_profile)
+            start_all(
+                include_backend=not args.no_backend,
+                include_gateway=args.with_gateway,
+                llm_profile=args.llm_profile,
+            )
         except ValueError as exc:
             print(f"Error: {exc}")
             sys.exit(2)

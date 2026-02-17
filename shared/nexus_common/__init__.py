@@ -16,6 +16,7 @@ from .protocol import (  # noqa: F401
     build_task_envelope,
     validate_vector_clock_conflict_payload,
 )
+from .redaction import redact_payload  # noqa: F401
 from .scale_profile import (  # noqa: F401
     SCALE_PROFILE_VERSION,
     build_canonical_shard_key,
@@ -26,3 +27,4 @@ from .scale_profile import (  # noqa: F401
     validate_canonical_shard_key,
 )
 from .sse import TaskEventBus, build_signed_resume_cursor, parse_signed_resume_cursor  # noqa: F401
+from .trace import TraceRun, TraceStepEvent  # noqa: F401

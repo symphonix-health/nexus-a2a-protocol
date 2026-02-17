@@ -703,4 +703,529 @@ body {
     .scenario-flow-board {
         grid-template-columns: 1fr;
     }
+
+    .trace-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .trace-run-list,
+    .trace-step-timeline,
+    .trace-context-sidebar {
+        max-height: 400px;
+    }
+}
+
+/* ── Clinical Trace Panel ─────────────────────────────────────────── */
+.trace-panel {
+    margin: 0.75rem 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.trace-panel h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.trace-count-badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: var(--accent);
+    color: #fff;
+    padding: 0.15rem 0.6rem;
+    border-radius: 10px;
+}
+
+.trace-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr 240px;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    min-height: 360px;
+}
+
+/* Left rail — run list */
+.trace-run-list {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+    overflow-y: auto;
+    max-height: calc(100vh - 280px);
+}
+
+.trace-search {
+    width: 100%;
+    padding: 0.4rem 0.6rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.trace-search::placeholder {
+    color: var(--text-muted);
+}
+
+.trace-run-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.trace-run-card {
+    padding: 0.5rem 0.6rem;
+    background: var(--bg-surface);
+    border-left: 3px solid var(--status-unknown);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.trace-run-card:hover,
+.trace-run-card.active {
+    background: var(--border-color);
+}
+
+.trace-run-card.status-final {
+    border-left-color: var(--status-healthy);
+}
+
+.trace-run-card.status-error {
+    border-left-color: var(--status-unhealthy);
+}
+
+.trace-run-card.status-working {
+    border-left-color: var(--status-degraded);
+}
+
+.trace-run-card .run-name {
+    font-weight: 600;
+    font-size: 0.82rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.trace-run-card .run-meta {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.2rem;
+}
+
+/* Run card clinical enhancements */
+.trace-run-card .run-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+}
+
+.trace-run-card .run-complaint {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.15rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.trace-run-card .run-status {
+    font-weight: 600;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+}
+.trace-run-card .run-status.status-final { color: var(--status-healthy); }
+.trace-run-card .run-status.status-error { color: var(--status-unhealthy); }
+.trace-run-card .run-status.status-working { color: var(--status-degraded); }
+
+.trace-run-card .run-time {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-top: 0.1rem;
+}
+
+.urgency-pill {
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #fff;
+    padding: 0.1rem 0.45rem;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Timeline header */
+.timeline-header {
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.timeline-header h4 {
+    margin: 0 0 0.3rem;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.timeline-header-meta {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.timeline-complaint {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.timeline-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Step card improvements */
+.step-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    flex-wrap: wrap;
+}
+
+.step-number {
+    font-weight: 700;
+    font-size: 0.85rem;
+    min-width: 36px;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.step-icon {
+    font-size: 0.9rem;
+}
+
+.step-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.step-agent {
+    font-weight: 600;
+    font-size: 0.82rem;
+}
+
+.step-method {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-family: monospace;
+}
+
+.step-toggle {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    transition: transform 0.15s;
+    flex-shrink: 0;
+}
+
+.step-body {
+    margin-top: 0.5rem;
+    padding-top: 0.4rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.step-correlation {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.correlation-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.step-error-msg {
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 3px solid var(--status-unhealthy);
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Centre — step timeline */
+.trace-step-timeline {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+    overflow-y: auto;
+    max-height: calc(100vh - 280px);
+}
+
+.trace-step-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.trace-step-card {
+    background: var(--bg-surface);
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+    border-left: 3px solid var(--accent);
+    position: relative;
+}
+
+.trace-step-card.step-error {
+    border-left-color: var(--status-unhealthy);
+}
+
+.trace-step-card .step-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.trace-step-card .step-number {
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: var(--accent);
+    min-width: 28px;
+}
+
+.trace-step-card .step-agent {
+    font-weight: 600;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+}
+
+.trace-step-card .step-method {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: monospace;
+}
+
+.trace-step-card .step-timing {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 0.3rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.trace-step-card .step-timing .duration {
+    font-weight: 600;
+}
+
+.duration-fast {
+    color: var(--status-healthy);
+}
+
+.duration-medium {
+    color: var(--status-degraded);
+}
+
+.duration-slow {
+    color: var(--status-unhealthy);
+}
+
+.correlation-id {
+    font-family: monospace;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.correlation-id:hover {
+    color: var(--accent);
+}
+
+.trace-copy-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 0.68rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.trace-copy-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.step-payload-toggle {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 0.75rem;
+    cursor: pointer;
+    margin-top: 0.3rem;
+    padding: 0;
+}
+
+.step-payload-toggle:hover {
+    text-decoration: underline;
+}
+
+.trace-json-block {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 0.72rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+    max-height: 200px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin-top: 0.3rem;
+    position: relative;
+}
+
+.trace-json-block .json-copy-btn {
+    position: absolute;
+    top: 0.3rem;
+    right: 0.3rem;
+}
+
+.step-payloads {
+    display: none;
+    margin-top: 0.4rem;
+}
+
+.step-payloads.expanded {
+    display: block;
+}
+
+.step-payloads h4 {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0.4rem 0 0.2rem;
+}
+
+.retry-badge {
+    font-size: 0.68rem;
+    background: var(--status-degraded);
+    color: #000;
+    padding: 0.1rem 0.4rem;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.phase-badge-step {
+    font-size: 0.68rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 8px;
+    font-weight: 500;
+    color: #fff;
+}
+
+/* Right sidebar — patient context */
+.trace-context-sidebar {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    overflow-y: auto;
+    max-height: calc(100vh - 280px);
+}
+
+/* Column headers — match flow-lane h3 */
+.trace-layout h3 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-muted);
+    margin: 0 0 0.5rem 0;
+}
+
+.trace-patient-card {
+    background: var(--bg-elevated);
+    border-radius: 6px;
+    padding: 0.6rem;
+}
+
+.trace-patient-card h4 {
+    font-size: 0.82rem;
+    margin-bottom: 0.4rem;
+    color: var(--accent);
+}
+
+.trace-patient-card .patient-field {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.2rem;
+}
+
+.trace-patient-card .patient-field strong {
+    color: var(--text-primary);
+}
+
+.redaction-badge {
+    font-size: 0.72rem;
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--status-degraded);
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.trace-export-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.trace-export-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.trace-export-btn:not(:disabled):hover {
+    opacity: 0.85;
+}
+
+.trace-empty {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 1.5rem 0.5rem;
+    border: 1px dashed var(--border-color);
+    border-radius: 6px;
 }

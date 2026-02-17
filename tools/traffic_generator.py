@@ -18,6 +18,8 @@ from shared.nexus_common.auth import mint_jwt
 # Configuration
 COMMAND_CENTRE_URL = "http://localhost:8099"
 TRIAGE_AGENT_URL = "http://localhost:8021"
+ON_DEMAND_GATEWAY_URL = os.getenv("NEXUS_ON_DEMAND_GATEWAY_URL", "").strip().rstrip("/")
+ON_DEMAND_GATEWAY_TRIAGE_ALIAS = os.getenv("NEXUS_ON_DEMAND_GATEWAY_TRIAGE_ALIAS", "triage")
 JWT_SECRET = os.getenv("NEXUS_JWT_SECRET", "dev-secret-change-me")
 TOKEN = mint_jwt("traffic-generator", JWT_SECRET, ttl_seconds=3600)
 MAX_CONCURRENT_TASKS = int(os.getenv("TRAFFIC_MAX_CONCURRENT_TASKS", "500"))
@@ -48,6 +50,55 @@ DEFAULT_SCENARIO_ERROR_THRESHOLD = int(
 GATE_SCENARIO_ERROR_THRESHOLD = int(
     os.getenv("TRAFFIC_GATE_SCENARIO_ERROR_THRESHOLD", "1")
 )
+
+
+def normalize_agent_alias(alias: str) -> str:
+    """Normalize agent alias used for gateway routing."""
+    value = alias.strip().lower().replace("-", "_")
+    for suffix in ("_agent", "_scheduler", "_service"):
+        if value.endswith(suffix):
+            value = value[: -len(suffix)]
+            break
+    if value == "care_coordinator":
+        return "coordinator"
+    return value
+
+
+def resolve_triage_rpc_endpoint(
+    triage_agent_url: str,
+    gateway_url: str | None,
+    triage_alias: str = "triage",
+) -> str:
+    """Resolve the triage RPC endpoint for direct or gateway mode."""
+    normalized_gateway = (gateway_url or "").strip().rstrip("/")
+    if normalized_gateway:
+        alias = normalize_agent_alias(triage_alias)
+        return f"{normalized_gateway}/rpc/{alias}"
+    return f"{triage_agent_url.rstrip('/')}/rpc"
+
+
+TRIAGE_RPC_ENDPOINT = resolve_triage_rpc_endpoint(
+    TRIAGE_AGENT_URL,
+    ON_DEMAND_GATEWAY_URL,
+    ON_DEMAND_GATEWAY_TRIAGE_ALIAS,
+)
+
+
+def configure_triage_routing(gateway_url: str | None, triage_alias: str = "triage") -> str:
+    """Configure runtime triage routing endpoint for gateway mode."""
+    global ON_DEMAND_GATEWAY_URL
+    global ON_DEMAND_GATEWAY_TRIAGE_ALIAS
+    global TRIAGE_RPC_ENDPOINT
+
+    ON_DEMAND_GATEWAY_URL = (gateway_url or "").strip().rstrip("/")
+    ON_DEMAND_GATEWAY_TRIAGE_ALIAS = triage_alias
+    TRIAGE_RPC_ENDPOINT = resolve_triage_rpc_endpoint(
+        TRIAGE_AGENT_URL,
+        ON_DEMAND_GATEWAY_URL,
+        ON_DEMAND_GATEWAY_TRIAGE_ALIAS,
+    )
+    return TRIAGE_RPC_ENDPOINT
+
 
 class MetricsTracker:
     """Track execution metrics."""
@@ -222,7 +273,7 @@ async def send_triage_task(client: httpx.AsyncClient, scenario: Dict) -> Dict:
     
     try:
         resp = await client.post(
-            f"{TRIAGE_AGENT_URL}/rpc",
+            TRIAGE_RPC_ENDPOINT,
             json=rpc_payload,
             headers=HEADERS,
             timeout=30.0
@@ -406,6 +457,7 @@ async def run_traffic_generator(
     if scenario_timeout_seconds is not None:
         print(f"   Scenario runtime budget: {scenario_timeout_seconds}s")
     print(f"   Command Centre: {COMMAND_CENTRE_URL}")
+    print(f"   Triage RPC target: {TRIAGE_RPC_ENDPOINT}")
     print()
     isolation = ScenarioRuntimeIsolation(error_threshold=scenario_error_threshold)
     
@@ -611,8 +663,22 @@ def main():
         default=DEFAULT_SCENARIO_ERROR_THRESHOLD,
         help="Consecutive runtime errors before scenario is quarantined.",
     )
+    parser.add_argument(
+        "--gateway-url",
+        help=(
+            "Optional on-demand gateway base URL. "
+            "When set, triage RPC is routed to {gateway}/rpc/<triage-alias>."
+        ),
+    )
+    parser.add_argument(
+        "--gateway-triage-alias",
+        default=ON_DEMAND_GATEWAY_TRIAGE_ALIAS,
+        help="Agent alias to use when routing triage RPC via on-demand gateway.",
+    )
     
     args = parser.parse_args()
+
+    configure_triage_routing(args.gateway_url or ON_DEMAND_GATEWAY_URL, args.gateway_triage_alias)
     
     # Load scenarios
     matrix_path = (
