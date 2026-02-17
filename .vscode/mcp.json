@@ -1,0 +1,10 @@
+{
+  "servers": {
+    "nexus-a2a-mcp": {
+      "type": "stdio",
+      "command": "${command:python.interpreterPath}",
+      "args": ["tools/nexus_mcp_server.py"],
+      "env": {}
+    }
+  }
+}

@@ -13,13 +13,14 @@ def llm_available() -> bool:
 def llm_chat(system: str, user: str) -> str:
     """Call OpenAI chat completion, or return deterministic mock when key is absent."""
     if llm_available():
-        from openai import OpenAI
-        client = OpenAI()
         try:
+            from openai import OpenAI
+
+            client = OpenAI()
             kwargs = {}
             # If the system prompt asks for JSON, enforce it via the API
             if "json" in system.lower():
-                 kwargs["response_format"] = {"type": "json_object"}
+                kwargs["response_format"] = {"type": "json_object"}
 
             resp = client.chat.completions.create(
                 model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
@@ -28,25 +29,25 @@ def llm_chat(system: str, user: str) -> str:
                     {"role": "user", "content": user},
                 ],
                 temperature=0.2,
-                **kwargs
+                **kwargs,
             )
             content = resp.choices[0].message.content or ""
-            
-            # Additional safety: strip known markdown markers providing robust "correction"
+
+            # Additional safety: strip known markdown markers
             if content.startswith("```json"):
                 content = content[7:]
             if content.startswith("```"):
                 content = content[3:]
             if content.endswith("```"):
                 content = content[:-3]
-            
+
             return content.strip()
         except Exception:
-            pass  # Fallback to mock if API call fails
-    
+            pass  # Fallback to mock if client init or API call fails
+
     # ── Deterministic Mocks ─────────────────────────────────────────
     sys_lower = system.lower()
-    
+
     # 1. ED Triage: Diagnosis Agent
     if "diagnose" in sys_lower or "clinical assessment" in sys_lower:
         return (
@@ -77,15 +78,17 @@ def llm_chat(system: str, user: str) -> str:
             '{"resourceType": "Bundle", "type": "transaction", "entry": [{'
             '  "resource": {"resourceType": "Encounter", "status": "finished", "class": {"system": "http://terminology.hl7.org/CodeSystem/v3-ActCode", "code": "AMB"}},'
             '  "request": {"method": "POST", "url": "Encounter"}'
-            '}]}'
+            "}]}"
         )
 
     # 5. Consent Verification: Consent Analyser
     if "consent" in sys_lower or "policy" in sys_lower:
         # Check user prompt for "deny" hints, otherwise permit
         if "deny" in user.lower() or "revoked" in user.lower():
-             return '{"allowed": false, "reason": "Consent revoked by patient.", "obligations": []}'
-        return '{"allowed": true, "reason": "Valid active consent found.", "obligations": ["logging"]}'
+            return '{"allowed": false, "reason": "Consent revoked by patient.", "obligations": []}'
+        return (
+            '{"allowed": true, "reason": "Valid active consent found.", "obligations": ["logging"]}'
+        )
 
     # 6. Public Health: OSINT Agent
     if "osint" in sys_lower or "alert" in sys_lower:
