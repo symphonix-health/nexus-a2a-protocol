@@ -91,5 +91,6 @@
             "source": "PowerShell",
             "icon": "terminal-powershell"
         }
-    }
+    },
+    "editor.codeActions.triggerOnFocusChange": true
 }

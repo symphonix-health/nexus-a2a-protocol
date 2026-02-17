@@ -206,6 +206,20 @@
         "panel": "shared"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "MCP Server: Start",
+      "type": "shell",
+      "command": "${command:python.interpreterPath}",
+      "args": [
+        "tools/nexus_mcp_server.py"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
     }
   ]
 }

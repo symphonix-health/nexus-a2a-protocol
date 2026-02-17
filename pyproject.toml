@@ -22,6 +22,12 @@ security = [
   "httpx>=0.27.2"
 ]
 
+# MCP server extras
+mcp = [
+  "mcp[cli]>=1.0.0",
+  "httpx>=0.27.2"
+]
+
 [tool.setuptools]
 package-dir = {"" = "src"}
 
