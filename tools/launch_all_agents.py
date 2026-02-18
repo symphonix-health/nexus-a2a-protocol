@@ -3,7 +3,12 @@
 Usage:
     python tools/launch_all_agents.py                    # start agents + backend
     python tools/launch_all_agents.py --no-backend       # start agents only
+    python tools/launch_all_agents.py --backend-only     # start backend only (no agents)
     python tools/launch_all_agents.py --with-gateway     # also start on-demand gateway
+    python tools/launch_all_agents.py --gateway-port 9000
+                                                        # override gateway port (default 8100)
+    python tools/launch_all_agents.py --only-gateway     # start only the gateway
+                                                        # (no backend, no agents)
     python tools/launch_all_agents.py --llm-profile local_docker_smollm2
                                                         # start with a configured LLM profile
     python tools/launch_all_agents.py --list-llm-profiles
@@ -179,11 +184,23 @@ def probe_backend_readiness(
     return False, last_error
 
 
-def start_gateway(env: dict[str, str]) -> dict | None:
+def start_gateway(env: dict[str, str], port: int | None = None) -> dict | dict[str, int] | None:
     """Start the on-demand gateway as a managed background process.
 
     Returns a PID entry dict on success, or ``None`` on failure.
     """
+    # Allow override via CLI flag; otherwise use env/default
+    gw_port = int(port or GATEWAY_PORT)
+
+    # If a gateway is already running on the port, detect and reuse
+    detected_ok, detected_detail = probe_http_health(
+        f"http://localhost:{gw_port}/readyz", attempts=1, timeout_s=1.5, interval_s=0.2
+    )
+    if detected_ok:
+        print(f"  [ok] On-demand Gateway :{gw_port} already running (readyz={detected_detail})")
+        # Return a sentinel describing an existing (not managed) gateway
+        return {"existing": True, "port": gw_port}
+
     cmd = [
         PYTHON,
         "-m",
@@ -192,10 +209,27 @@ def start_gateway(env: dict[str, str]) -> dict | None:
         "--host",
         "0.0.0.0",
         "--port",
-        str(GATEWAY_PORT),
+        str(gw_port),
     ]
+    # Optional: TLS/mTLS (same env contract as agents/backend)
+    certfile = os.getenv("NEXUS_SSL_CERTFILE")
+    keyfile = os.getenv("NEXUS_SSL_KEYFILE")
+    ca_certs = os.getenv("NEXUS_SSL_CA_CERTS")
+    cert_reqs_env = os.getenv("NEXUS_SSL_CERT_REQS", "none").lower()
+    using_tls = False
+    if certfile and keyfile:
+        using_tls = True
+        cmd += ["--ssl-certfile", certfile, "--ssl-keyfile", keyfile]
+        if ca_certs:
+            cmd += ["--ssl-ca-certs", ca_certs]
+        if cert_reqs_env in ("required", "2"):
+            cmd += ["--ssl-cert-reqs", "2"]
+        elif cert_reqs_env in ("optional", "1"):
+            cmd += ["--ssl-cert-reqs", "1"]
+        elif cert_reqs_env in ("none", "0"):
+            cmd += ["--ssl-cert-reqs", "0"]
     print(
-        f"  Starting [GATEWAY] on-demand-gateway           :{GATEWAY_PORT} ...",
+        f"  Starting [GATEWAY] on-demand-gateway           :{gw_port} ...",
         end=" ",
         flush=True,
     )
@@ -218,23 +252,25 @@ def start_gateway(env: dict[str, str]) -> dict | None:
     gw_health_interval_s = float(os.getenv("NEXUS_GATEWAY_HEALTHCHECK_INTERVAL_SECONDS", "1"))
 
     healthy, detail = probe_http_health(
-        f"http://localhost:{GATEWAY_PORT}/readyz",
+        f"http://localhost:{gw_port}/readyz",
         attempts=gw_health_attempts,
         timeout_s=gw_health_timeout_s,
         interval_s=gw_health_interval_s,
     )
     if healthy:
-        print(f"  [ok] Gateway :{GATEWAY_PORT} ready ({detail})")
+        print(f"  [ok] Gateway :{gw_port} ready ({detail})")
     else:
-        print(f"  [warn] Gateway :{GATEWAY_PORT} not ready yet ({detail})")
+        print(f"  [warn] Gateway :{gw_port} not ready yet ({detail})")
 
     return {
         "dir": "shared/on_demand_gateway",
-        "port": GATEWAY_PORT,
+        "port": gw_port,
         "pid": proc.pid,
         "type": "gateway",
         "ready": healthy,
         "ready_detail": detail,
+        "scheme": "https" if using_tls else "http",
+        "url": f"{'https' if using_tls else 'http'}://localhost:{gw_port}",
     }
 
 
@@ -242,6 +278,9 @@ def start_all(
     include_backend: bool = True,
     include_gateway: bool = False,
     llm_profile: str | None = None,
+    *,
+    start_agents: bool = True,
+    gateway_port: int | None = None,
 ):
     """Start all agents and the backend Command Centre (default)."""
     agents, backend, llm_profiles = load_agent_config()
@@ -292,8 +331,9 @@ def start_all(
     failed_starts = []
     services_to_start = []
 
-    # Always start agents
-    services_to_start.extend([(rel_dir, port, "agent") for rel_dir, port, _, _, _ in agents])
+    # Optionally start agents (default on)
+    if start_agents:
+        services_to_start.extend([(rel_dir, port, "agent") for rel_dir, port, _, _, _ in agents])
 
     # Optionally start backend
     if include_backend:
@@ -370,8 +410,13 @@ def start_all(
 
     # Optionally start on-demand gateway
     gateway_entry = None
+    gateway_existing = False
     if include_gateway:
-        gateway_entry = start_gateway(env)
+        gateway_entry = start_gateway(env, port=gateway_port)
+        if gateway_entry and gateway_entry.get("existing"):
+            gateway_existing = True
+            # Do not append to pids; we don't manage this process
+            gateway_entry = None
         if gateway_entry:
             pids.append(gateway_entry)
 
@@ -381,15 +426,54 @@ def start_all(
     agent_count = sum(1 for p in pids if p.get("type") == "agent")
     backend_count = sum(1 for p in pids if p.get("type") == "backend")
     gateway_count = sum(1 for p in pids if p.get("type") == "gateway")
-    total = len(services_to_start) + (1 if include_gateway else 0)
+    # Only count the gateway in totals if it actually started
+    total = len(services_to_start) + (1 if gateway_count else 0)
 
     service_summary = (
         f"\n{len(pids)}/{total} services started "
         f"({agent_count} agents, {backend_count} backend"
-        + (f", {gateway_count} gateway" if include_gateway else "")
+        + (f", {gateway_count} gateway" if gateway_count else "")
         + f"). PIDs saved to {PID_FILE}"
     )
     print(service_summary)
+
+    # Effective configuration (easy copy-paste)
+    backend_effective_url = None
+    if include_backend:
+        # Prefer an actually started backend entry if present
+        backend_pids = [p for p in pids if p.get("type") == "backend"]
+        if backend_pids:
+            b_port = backend_pids[0].get("port")
+            if b_port:
+                b_scheme = (
+                    "https"
+                    if (os.getenv("NEXUS_SSL_CERTFILE") and os.getenv("NEXUS_SSL_KEYFILE"))
+                    else "http"
+                )
+                backend_effective_url = f"{b_scheme}://localhost:{b_port}"
+
+    gateway_effective_url = None
+    if include_gateway:
+        if gateway_entry and isinstance(gateway_entry, dict) and gateway_entry.get("url"):
+            gateway_effective_url = str(gateway_entry.get("url"))
+        elif gateway_existing:
+            # Best-effort assumption for externally running gateway
+            port_eff = gateway_port or GATEWAY_PORT
+            gw_scheme = (
+                "https"
+                if (os.getenv("NEXUS_SSL_CERTFILE") and os.getenv("NEXUS_SSL_KEYFILE"))
+                else "http"
+            )
+            gateway_effective_url = f"{gw_scheme}://localhost:{port_eff}"
+
+    if backend_effective_url or gateway_effective_url or selected_profile:
+        print("\nEffective configuration:")
+        if backend_effective_url:
+            print(f"  Backend URL: {backend_effective_url}")
+        if gateway_effective_url:
+            print(f"  Gateway URL: {gateway_effective_url}")
+        profile_name = selected_profile or os.getenv("NEXUS_LLM_PROFILE")
+        print(f"  Selected LLM profile: {profile_name or 'default'}")
 
     # Give agents a moment to bind
     print("Waiting 3s for agents to settle...")
@@ -459,9 +543,12 @@ def start_all(
 
     if include_gateway:
         print("\nGateway Services:")
-        if not gateway_pids:
+        if not gateway_pids and not gateway_existing:
             backend_failures.append("On-demand Gateway failed to start")
             print("  [fail] On-demand Gateway failed to start")
+        elif gateway_existing:
+            # Existing gateway detected; already reported earlier
+            pass
         else:
             for entry in gateway_pids:
                 if entry.get("ready"):
@@ -479,7 +566,7 @@ def start_all(
 
     if strict_backend_health and (include_backend or include_gateway):
         expected_backend_count = len(backend) if include_backend else 0
-        expected_gateway_count = 1 if include_gateway else 0
+        expected_gateway_count = 0 if gateway_existing else (1 if include_gateway else 0)
 
         if len(backend_pids) < expected_backend_count:
             backend_failures.append(
@@ -531,15 +618,44 @@ if __name__ == "__main__":
         help="Skip Command Centre backend startup.",
     )
     parser.add_argument(
+        "--backend-only",
+        action="store_true",
+        help="Start only the Command Centre backend (no agents).",
+    )
+    parser.add_argument(
         "--with-gateway",
         action="store_true",
         help="Also launch the on-demand gateway on port 8100.",
     )
+    parser.add_argument(
+        "--only-gateway",
+        action="store_true",
+        help="Start only the on-demand gateway (no backend, no agents).",
+    )
+    parser.add_argument(
+        "--gateway-port",
+        type=int,
+        help=(
+            "Override the on-demand gateway port. "
+            "Defaults to NEXUS_ON_DEMAND_GATEWAY_PORT env or 8100."
+        ),
+    )
     parser.add_argument("--llm-profile", help="Name of LLM profile from config/agents.json")
     parser.add_argument(
-        "--list-llm-profiles", action="store_true", help="List available LLM profiles"
+        "--list-llm-profiles",
+        action="store_true",
+        help="List available LLM profiles",
     )
     args = parser.parse_args()
+
+    # Basic argument validation
+    if args.backend_only and args.no_backend:
+        print("Error: --backend-only and --no-backend are mutually exclusive")
+        sys.exit(2)
+    if args.only_gateway and args.backend_only:
+        print("Error: --only-gateway and --backend-only are mutually exclusive")
+        sys.exit(2)
+
     if args.stop:
         stop_all()
     elif args.list_llm_profiles:
@@ -548,9 +664,11 @@ if __name__ == "__main__":
     else:
         try:
             start_all(
-                include_backend=not args.no_backend,
-                include_gateway=args.with_gateway,
+                include_backend=(not args.no_backend) and (not args.only_gateway),
+                include_gateway=(args.with_gateway or args.only_gateway),
                 llm_profile=args.llm_profile,
+                start_agents=(not args.backend_only) and (not args.only_gateway),
+                gateway_port=args.gateway_port,
             )
         except ValueError as exc:
             print(f"Error: {exc}")

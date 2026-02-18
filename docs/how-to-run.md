@@ -11,7 +11,7 @@ This guide covers running the HelixCare system, including individual demos, scen
 | Tool | Version | Purpose |
 |------|---------|---------|
 | Docker & Docker Compose | v2+ | Container orchestration |
-| Python | 3.11+ | Development and tooling |
+| Python | 3.12+ | Development and tooling |
 | curl / httpx | any | API testing |
 | Git | any | Repository management |
 
@@ -37,13 +37,13 @@ python tools/nexus_mint_jwt.py
 # Copy the generated token to NEXUS_JWT_TOKEN in your .env file
 ```
 
-> **Note**: Set `OPENAI_API_KEY` for real LLM responses.  
+> **Note**: Set `OPENAI_API_KEY` for real LLM responses.
 > Optional: set `OPENAI_BASE_URL` + `OPENAI_MODEL` to use a local OpenAI-compatible endpoint.
 
 Example local run profile:
 
 ```bash
-python tools/launch_all_agents.py --llm-profile local_docker_smollm2
+python tools/launch_all_agents.py --with-gateway --llm-profile local_docker_smollm2
 ```
 
 ### 2. Run Your First Demo
@@ -84,6 +84,20 @@ curl -X POST http://localhost:8021/rpc \
         }
       }
     }
+  }'
+```
+
+Or via the on-demand gateway (recommended for local):
+
+```bash
+curl -X POST http://localhost:8100/rpc/triage \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": "test-1",
+    "method": "tasks/sendSubscribe",
+    "params": {"task": {}}
   }'
 ```
 
@@ -168,11 +182,11 @@ HelixCare includes comprehensive patient journey scenarios for testing all agent
 # Install Python dependencies
 pip install -r requirements.txt
 
-# Run all scenarios
-python tools/run_helixcare_scenarios.py
+# Run all scenarios via on-demand gateway
+python tools/run_helixcare_scenarios.py --gateway http://localhost:8100
 
-# Run a specific scenario
-python tools/helixcare_scenarios.py --scenario cardiac_arrest
+# Run a specific scenario (via gateway)
+python tools/helixcare_scenarios.py --run cardiac_arrest --gateway http://localhost:8100
 
 # List available scenarios
 python tools/helixcare_scenarios.py --list
@@ -202,6 +216,32 @@ python tools/scenario_manager.py --validate helixcare_all_scenarios.json
 ```
 
 ## Advanced Operations
+
+### On-Demand Gateway (JSON-RPC proxy + process manager)
+
+Use the launcher to manage the gateway lifecycle:
+
+```powershell
+.\.venv\Scripts\python.exe tools\launch_all_agents.py --with-gateway
+```
+
+Flags:
+
+- `--gateway-port <port>`: override default 8100
+- `--backend-only`: start only Command Centre (useful with gateway)
+- `--only-gateway`: start just the gateway (no backend, no agents)
+
+Run scenarios through the gateway:
+
+```powershell
+.\.venv\Scripts\python.exe tools\run_helixcare_scenarios.py --gateway http://localhost:8100
+```
+
+Traffic generator through the gateway (routes triage RPC via gateway):
+
+```powershell
+.\.venv\Scripts\python.exe tools\traffic_generator.py --gateway-url http://localhost:8100
+```
 
 ### JSON-RPC API Testing
 

@@ -274,6 +274,23 @@
         "panel": "new"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "Gateway: Stop",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "$p = Get-NetTCPConnection -LocalPort 8100 -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty OwningProcess; if ($p) { Stop-Process -Id $p -Force; Write-Host \"Stopped gateway PID $p on port 8100\" } else { Write-Host \"No listening process on port 8100\" }"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
     }
   ]
 }

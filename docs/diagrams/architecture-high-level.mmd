@@ -1,0 +1,44 @@
+flowchart LR
+  subgraph Clients
+    A1[Scenario Runner\n(tools/helixcare_scenarios.py)]
+    A2[Traffic Generator\n(tools/traffic_generator.py)]
+    A3[Other Clients / Tests]
+  end
+
+  GW[On-Demand Gateway\nFastAPI + httpx\n/rpc/{agent}]:::svc
+  CC[Command Centre\nFastAPI + Dashboard\n:8099]:::svc
+
+  subgraph Agents
+    AG1[Primary Care]
+    AG2[Diagnosis]
+    AG3[Pharmacy]
+    AG4[Followup]
+    AG5[Imaging]
+    AG6[Coordinator]
+    AGN(... more ...)
+  end
+
+  R[Redis (pub/sub)]:::infra
+  FHIR[FHIR Server]:::infra
+  MQTT[MQTT Broker]:::infra
+
+  classDef svc fill:#eaf5ff,stroke:#3b82f6,color:#000;
+  classDef infra fill:#f5f5f5,stroke:#64748b,color:#000;
+
+  A1 -->|JSON-RPC| GW
+  A2 -->|JSON-RPC| GW
+  A3 -->|JSON-RPC| GW
+
+  GW -->|Proxy /rpc| AG1
+  GW --> AG2
+  GW --> AG3
+  GW --> AG4
+  GW --> AG5
+  GW --> AG6
+
+  CC <-->|Health, Agents| Agents
+  Agents -->|Events| R
+
+  CC -->|Subscribe| R
+  Agents -->|FHIR API| FHIR
+  Agents -->|Pub/Sub| MQTT
