@@ -207,16 +207,23 @@ function renderTopology() {
         y: centerY + radius * Math.sin(i * angleStep - Math.PI / 2),
     }));
 
-    // Draw edges (dependencies)
+    // Draw dependency edges between agents (outer ring)
     state.agents.forEach((agent) => {
         const sourcePos = positions.find(p => p.agent.name === agent.name);
         agent.dependencies.forEach((depName) => {
             const targetPos = positions.find(p => p.agent.name === depName);
             if (sourcePos && targetPos) {
-                drawEdge(viewport, sourcePos.x, sourcePos.y, targetPos.x, targetPos.y);
+                drawEdge(viewport, sourcePos.x, sourcePos.y, targetPos.x, targetPos.y, 'edge-line edge-agent');
             }
         });
     });
+
+    // Draw animated hub links to show nexus-a2a-protocol as the communication centre.
+    positions.forEach(({ x, y }) => {
+        drawEdge(viewport, centerX, centerY, x, y, 'edge-line edge-hub-link');
+    });
+
+    drawHubNode(viewport, centerX, centerY);
 
     // Draw nodes
     const placedLabels = [];
@@ -313,14 +320,46 @@ function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
 }
 
-function drawEdge(svg, x1, y1, x2, y2) {
+function drawEdge(svg, x1, y1, x2, y2, className = 'edge-line') {
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('x1', x1);
     line.setAttribute('y1', y1);
     line.setAttribute('x2', x2);
     line.setAttribute('y2', y2);
-    line.classList.add('edge-line');
+    className.split(' ').filter(Boolean).forEach((name) => line.classList.add(name));
     svg.appendChild(line);
+}
+
+function drawHubNode(svg, x, y) {
+    const ringOuter = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    ringOuter.setAttribute('cx', x);
+    ringOuter.setAttribute('cy', y);
+    ringOuter.setAttribute('r', '36');
+    ringOuter.classList.add('hub-ring', 'hub-ring-outer');
+    svg.appendChild(ringOuter);
+
+    const ringInner = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    ringInner.setAttribute('cx', x);
+    ringInner.setAttribute('cy', y);
+    ringInner.setAttribute('r', '28');
+    ringInner.classList.add('hub-ring', 'hub-ring-inner');
+    svg.appendChild(ringInner);
+
+    const hub = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    hub.setAttribute('cx', x);
+    hub.setAttribute('cy', y);
+    hub.setAttribute('r', '20');
+    hub.classList.add('hub-node');
+    hub.setAttribute('title', 'nexus-a2a-protocol\nCommunication hub for agent-to-agent routing');
+    svg.appendChild(hub);
+
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', String(x));
+    label.setAttribute('y', String(y + 44));
+    label.setAttribute('text-anchor', 'middle');
+    label.textContent = 'nexus-a2a-protocol';
+    label.classList.add('hub-label');
+    svg.appendChild(label);
 }
 
 function drawNode(svg, agent, x, y, centerX, centerY, options = {}) {

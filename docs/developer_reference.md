@@ -36,6 +36,36 @@ sequenceDiagram
 
 All agents MUST expose a standard interface compliant with **JSON-RPC 2.0**.
 
+### 2.1 RPC via On-Demand Gateway (recommended for local/dev)
+
+The on-demand gateway provides a single stable entrypoint that lazily starts target agents (and their dependencies) before proxying the JSON-RPC call.
+
+- Endpoint: `POST /rpc/{agent_alias}` on the gateway (default `http://localhost:8100`)
+- Behavior: Ensures dependencies are started in order, waits for agent readiness (`/.well-known/agent-card.json`), and then forwards the original JSON-RPC payload
+- See also: [On-Demand Gateway](on-demand-gateway.md)
+
+```mermaid
+sequenceDiagram
+  participant Client (Scenario Runner)
+  participant Gateway (/rpc/{alias})
+  participant ProcMgr (Process Manager)
+  participant Agent (Target Agent)
+
+  Client->>Gateway: POST /rpc/{alias} { jsonrpc, method, params }
+  activate Gateway
+  Gateway->>ProcMgr: ensure_started(alias)
+  activate ProcMgr
+  ProcMgr->>Agent: start if needed; wait for /.well-known/agent-card.json
+  ProcMgr-->>Gateway: spec(alias, port)
+  deactivate ProcMgr
+  Gateway->>Agent: POST /rpc { same JSON-RPC payload }
+  activate Agent
+  Agent-->>Gateway: JSON-RPC response
+  deactivate Agent
+  Gateway-->>Client: JSON-RPC response (transparent proxy)
+  deactivate Gateway
+```
+
 ### `POST /` (Main Entry Point)
 
 This is the primary endpoint for all agent-to-agent communication.
@@ -118,7 +148,7 @@ Nexus uses **JSON Web Tokens (JWT)** for all authorization. All agents acting in
   "sub": "did:web:sender-agency:agents:001",  # Subject (The Agent ID)
   "iat": 1700000000,                           # Issued At (Unix Timestamp)
   "exp": 1700003600,                           # Expiration (Max 1 hour rec.)
-  "scope": "nexus:invoke",                     # Required capability 
+  "scope": "nexus:invoke",                     # Required capability
 }
 ```
 *Reference: See `nexus-a2a/artefacts/specs/tools-mint_jwt.py.txt` for the reference signing implementation.*

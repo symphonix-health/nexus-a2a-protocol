@@ -16,24 +16,27 @@ python -m venv .venv
 .venv\Scripts\activate  # Windows
 pip install -r requirements.txt
 
-# 2. Start the system
-python tools/launch_all_agents.py
+# 2. Start the system (agents + backend)
+python tools/launch_all_agents.py --with-gateway
 
-# 3. Run a patient scenario
-python tools/helixcare_scenarios.py --run chest_pain_cardiac
+# 3. Run a patient scenario (via on-demand gateway)
+python tools/helixcare_scenarios.py --run chest_pain_cardiac --gateway http://localhost:8100
 
 # 4. Monitor in real-time
 python tools/monitor_command_centre.py
 ```
 
-**Result**: Complete patient journey from triage to discharge with live monitoring at http://localhost:8099
+**Result**: Complete patient journey from triage to discharge with live monitoring at <http://localhost:8099>.
+Gateway routes JSON-RPC to agents on-demand at <http://localhost:8100/rpc/{agent}>.
 
 ## 📖 Documentation
 
 | Document | Description | Use Case |
 |----------|-------------|----------|
 | **[User Manual](HELIXCARE_USER_MANUAL.md)** | Complete guide for users | **Start Here** - Full system walkthrough |
-| **[How to Run](docs/how-to-run.md)** | Setup and deployment | Installation & configuration |
+| **[How to Run](docs/how-to-run.md)** | Setup and deployment | Installation & configuration (includes on-demand gateway) |
+| **[On-Demand Gateway](docs/on-demand-gateway.md)** | Lazy process manager + JSON-RPC proxy | Route all RPC to /rpc/{agent} |
+| **[Architecture](docs/architecture.md)** | High-level and detailed diagrams | Align code, specs, diagrams |
 | **[Developer Reference](docs/developer_reference.md)** | API documentation | Technical development |
 | **[Scenarios Guide](tools/SCENARIOS_README.md)** | Patient journey scenarios | Testing & demonstrations |
 | **[Compliance Guide](docs/compliance_guide.md)** | Security & compliance | Regulatory requirements |
@@ -77,13 +80,13 @@ python tools/helixcare_scenarios.py --list
 python tools/helixcare_scenarios.py --run chest_pain_cardiac
 
 # Run all scenarios
-python tools/run_helixcare_scenarios.py
+python tools/run_helixcare_scenarios.py --gateway http://localhost:8100
 ```
 
 ### Monitor System Health
 ```bash
 # Start Command Centre
-python shared/command-centre/app/main.py
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8099 --app-dir shared/command-centre
 # Visit: http://localhost:8099
 
 # Real-time monitoring
@@ -134,7 +137,7 @@ docker-compose -f docker-compose-helixcare.yml logs -f command-centre
     └─────────┘
 ```
 
-**Communication**: JSON-RPC 2.0 over HTTP with JWT authentication
+**Communication**: JSON-RPC 2.0 over HTTP with JWT authentication. Supports an on-demand gateway at `/rpc/{agent}`.
 **Real-time**: WebSocket and Server-Sent Events
 **Security**: HS256 JWT tokens with configurable secrets
 

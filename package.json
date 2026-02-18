@@ -6,9 +6,12 @@
   "scripts": {
     "pw:install": "playwright install",
     "pw:test": "playwright test",
-    "pw:codegen": "playwright codegen"
+    "pw:codegen": "playwright codegen",
+    "diagrams": "node scripts/render_mermaid_cli.js",
+    "diagrams:chrome": "node scripts/render_mermaid_cli.js --use-chrome"
   },
   "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^10.9.1",
     "@playwright/test": "^1.58.2",
     "playwright": "^1.58.2"
   }

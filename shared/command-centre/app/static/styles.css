@@ -207,6 +207,54 @@ body {
     fill: none;
 }
 
+.edge-agent {
+    stroke: rgba(148, 163, 184, 0.35);
+}
+
+.edge-hub-link {
+    stroke: rgba(59, 130, 246, 0.7);
+    stroke-width: 2.2px;
+    stroke-dasharray: 7 9;
+    animation: hubFlow 1.8s linear infinite;
+}
+
+.hub-node {
+    fill: #1d4ed8;
+    stroke: #93c5fd;
+    stroke-width: 2.5px;
+    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.45));
+}
+
+.hub-ring {
+    fill: none;
+    stroke: rgba(147, 197, 253, 0.55);
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.hub-ring-outer {
+    stroke-width: 1.5px;
+    animation: hubPulse 2.8s ease-out infinite;
+}
+
+.hub-ring-inner {
+    stroke-width: 1.2px;
+    animation: hubPulse 2.2s ease-out infinite;
+    animation-delay: 0.4s;
+}
+
+.hub-label {
+    fill: #bfdbfe;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    paint-order: stroke;
+    stroke: var(--bg-primary);
+    stroke-width: 3px;
+    stroke-linejoin: round;
+    pointer-events: none;
+}
+
 .edge-particle {
     fill: var(--accent);
     animation: flow 2s linear infinite;
@@ -219,6 +267,33 @@ body {
 
     100% {
         offset-distance: 100%;
+    }
+}
+
+@keyframes hubFlow {
+    from {
+        stroke-dashoffset: 0;
+    }
+
+    to {
+        stroke-dashoffset: -32;
+    }
+}
+
+@keyframes hubPulse {
+    0% {
+        opacity: 0.75;
+        transform: scale(0.94);
+    }
+
+    70% {
+        opacity: 0.2;
+        transform: scale(1.1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.16);
     }
 }
 

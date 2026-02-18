@@ -60,21 +60,39 @@ Agents are organized by use case category:
 
 ## Usage
 
-### Launch All Agents (Without Backend)
+### Launch Agents + Backend (default)
 
 ```bash
 python tools/launch_all_agents.py
 ```
 
-This starts all agents on ports 8021-8053, **excluding port 8099** (Command Centre).
+Starts agents on ports 8021-8053 and the Command Centre backend on port 8099 by default.
 
-### Launch Agents + Backend
+### Launch Agents Only (skip backend)
 
 ```bash
-python tools/launch_all_agents.py --with-backend
+python tools/launch_all_agents.py --no-backend
 ```
 
-This includes the Command Centre on port 8099.
+Skips Command Centre startup.
+
+### On-Demand Gateway (optional)
+
+```bash
+# Start with gateway (agents + backend + gateway)
+python tools/launch_all_agents.py --with-gateway
+
+# Start only backend + gateway (no agents)
+python tools/launch_all_agents.py --backend-only --with-gateway
+
+# Start only the gateway (no backend, no agents)
+python tools/launch_all_agents.py --only-gateway
+
+# Override port
+python tools/launch_all_agents.py --with-gateway --gateway-port 8111
+```
+
+The gateway proxies JSON-RPC to `/rpc/{agent}` and lazily starts agent processes.
 
 ### Stop All Services
 
@@ -134,7 +152,7 @@ The launcher automatically creates these environment variables:
 After launching, check:
 
 ```bash
-# Verify no 404 errors on port 8099
+# Command Centre agent list
 curl http://localhost:8099/api/agents
 
 # Verify agent health (should have agent-card.json)

@@ -1,0 +1,23 @@
+sequenceDiagram
+  participant Client (Scenario Runner)
+  participant Gateway (/rpc/{alias})
+  participant ProcMgr (Process Manager)
+  participant Agent (Primary Care)
+  participant DepA (Diagnosis)
+  participant DepB (Pharmacy)
+
+  Client->>Gateway: POST /rpc/primary_care { jsonrpc, method, params }
+  activate Gateway
+  Gateway->>ProcMgr: ensure_started("primary_care")
+  activate ProcMgr
+  ProcMgr->>DepA: start if needed; wait for /.well-known/agent-card.json
+  ProcMgr->>DepB: start if needed; wait for /.well-known/agent-card.json
+  ProcMgr->>Agent: start if needed; wait for /.well-known/agent-card.json
+  ProcMgr-->>Gateway: spec(port=8025, alias=primary_care)
+  deactivate ProcMgr
+  Gateway->>Agent: POST /rpc { same JSON-RPC payload }
+  activate Agent
+  Agent-->>Gateway: JSON-RPC response
+  deactivate Agent
+  Gateway-->>Client: JSON-RPC response (transparent proxy)
+  deactivate Gateway
