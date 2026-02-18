@@ -233,6 +233,8 @@ def start_gateway(env: dict[str, str]) -> dict | None:
         "port": GATEWAY_PORT,
         "pid": proc.pid,
         "type": "gateway",
+        "ready": healthy,
+        "ready_detail": detail,
     }
 
 
@@ -413,6 +415,7 @@ def start_all(
 
     # Check backend separately
     backend_pids = [p for p in pids if p.get("type") == "backend"]
+    gateway_pids = [p for p in pids if p.get("type") == "gateway"]
     backend_failures = []
     backend_health_attempts = int(
         os.getenv(
@@ -454,21 +457,48 @@ def start_all(
                 backend_failures.append(failure)
                 print(f"  [fail] {failure}")
 
-    if include_backend and strict_backend_health:
-        expected_backend_count = len(backend)
+    if include_gateway:
+        print("\nGateway Services:")
+        if not gateway_pids:
+            backend_failures.append("On-demand Gateway failed to start")
+            print("  [fail] On-demand Gateway failed to start")
+        else:
+            for entry in gateway_pids:
+                if entry.get("ready"):
+                    print(
+                        f"  [ok] On-demand Gateway :{entry['port']} running "
+                        f"(readyz={entry.get('ready_detail')})"
+                    )
+                else:
+                    failure = (
+                        f"On-demand Gateway :{entry['port']} readiness failed "
+                        f"({entry.get('ready_detail', 'unknown')})"
+                    )
+                    backend_failures.append(failure)
+                    print(f"  [fail] {failure}")
+
+    if strict_backend_health and (include_backend or include_gateway):
+        expected_backend_count = len(backend) if include_backend else 0
+        expected_gateway_count = 1 if include_gateway else 0
+
         if len(backend_pids) < expected_backend_count:
             backend_failures.append(
                 f"started backends={len(backend_pids)}/{expected_backend_count}"
             )
-        backend_start_failures = [
+        if len(gateway_pids) < expected_gateway_count:
+            backend_failures.append(
+                f"started gateways={len(gateway_pids)}/{expected_gateway_count}"
+            )
+
+        managed_start_failures = [
             f"{entry['dir']}:{entry['port']} exit={entry['exit_code']}"
             for entry in failed_starts
-            if entry.get("type") == "backend"
+            if entry.get("type") in {"backend", "gateway"}
         ]
-        backend_failures.extend(backend_start_failures)
+        backend_failures.extend(managed_start_failures)
 
         if backend_failures:
-            raise RuntimeError("Backend health strict-fail: " + "; ".join(backend_failures))
+            raise RuntimeError("Managed backend strict-fail: " + "; ".join(backend_failures))
 
 
 def stop_all():

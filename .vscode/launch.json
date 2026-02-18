@@ -10,7 +10,7 @@
       "console": "integratedTerminal",
       "justMyCode": false,
       "env": {
-        "PYTHONPATH": "${workspaceFolder}/src"
+        "PYTHONPATH": "${workspaceFolder}"
       }
     },
     {
@@ -26,7 +26,7 @@
       "console": "integratedTerminal",
       "justMyCode": false,
       "env": {
-        "PYTHONPATH": "${workspaceFolder}/src"
+        "PYTHONPATH": "${workspaceFolder}"
       }
     },
     {
@@ -42,7 +42,7 @@
       "console": "integratedTerminal",
       "justMyCode": false,
       "env": {
-        "PYTHONPATH": "${workspaceFolder}/src"
+        "PYTHONPATH": "${workspaceFolder}"
       }
     },
     {
@@ -51,10 +51,31 @@
       "request": "launch",
       "python": "${command:python.interpreterPath}",
       "program": "${workspaceFolder}/tools/launch_all_agents.py",
+      "args": [
+        "--with-gateway"
+      ],
       "console": "integratedTerminal",
       "justMyCode": false,
       "env": {
-        "PYTHONPATH": "${workspaceFolder}/src"
+        "PYTHONPATH": "${workspaceFolder}"
+      }
+    },
+    {
+      "name": "HelixCare: Run Scenario via Gateway",
+      "type": "debugpy",
+      "request": "launch",
+      "python": "${command:python.interpreterPath}",
+      "program": "${workspaceFolder}/tools/helixcare_scenarios.py",
+      "args": [
+        "--gateway",
+        "http://localhost:8100",
+        "--run",
+        "telehealth_video_consult"
+      ],
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
       }
     },
     {
@@ -70,7 +91,7 @@
       "console": "integratedTerminal",
       "justMyCode": false,
       "env": {
-        "PYTHONPATH": "${workspaceFolder}/src"
+        "PYTHONPATH": "${workspaceFolder}"
       }
     },
     {

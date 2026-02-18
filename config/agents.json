@@ -16,6 +16,15 @@
             ]
         }
     },
+    "gateway": {
+        "on_demand_gateway": {
+            "port": 8100,
+            "path": "shared/on_demand_gateway",
+            "description": "On-demand gateway for agent routing and discovery",
+            "type": "gateway",
+            "env_var": "NEXUS_ON_DEMAND_GATEWAY_PORT"
+        }
+    },
     "llm_profiles": {
         "openai_cloud": {
             "description": "OpenAI-hosted inference (uses default API base URL unless OPENAI_BASE_URL is set).",

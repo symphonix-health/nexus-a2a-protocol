@@ -98,7 +98,8 @@
       "type": "shell",
       "command": "${command:python.interpreterPath}",
       "args": [
-        "tools/launch_all_agents.py"
+        "tools/launch_all_agents.py",
+        "--with-gateway"
       ],
       "isBackground": true,
       "presentation": {
@@ -123,11 +124,45 @@
       "problemMatcher": []
     },
     {
+      "label": "HelixCare: Launch Agents + Backend + Gateway",
+      "type": "shell",
+      "command": "${command:python.interpreterPath}",
+      "args": [
+        "tools/launch_all_agents.py",
+        "--with-gateway"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "HelixCare: Run All Scenarios",
       "type": "shell",
       "command": "${command:python.interpreterPath}",
       "args": [
         "tools/run_helixcare_scenarios.py"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "HelixCare: Run Gateway Scenario Pass",
+      "type": "shell",
+      "command": "${command:python.interpreterPath}",
+      "args": [
+        "tools/helixcare_scenarios.py",
+        "--gateway",
+        "http://localhost:8100",
+        "--retry-mode",
+        "fast",
+        "--run",
+        "telehealth_video_consult"
       ],
       "presentation": {
         "reveal": "always",
@@ -214,6 +249,25 @@
       "args": [
         "tools/nexus_mcp_server.py"
       ],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Gateway: Start",
+      "type": "shell",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": [
+        "-m",
+        "uvicorn",
+        "shared.on_demand_gateway.app.main:app",
+        "--host", "0.0.0.0",
+        "--port", "8100"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
       "isBackground": true,
       "presentation": {
         "reveal": "always",
