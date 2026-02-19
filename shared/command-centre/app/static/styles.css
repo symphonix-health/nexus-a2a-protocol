@@ -381,6 +381,66 @@ body {
     background: var(--bg-primary);
 }
 
+.flow-board-status-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.flow-live-freshness {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.flow-board-source.stale {
+    color: #fca5a5;
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.flow-live-stale-warning {
+    margin: -0.3rem 0 0.6rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid rgba(239, 68, 68, 0.55);
+    color: #fecaca;
+    background: rgba(127, 29, 29, 0.25);
+    font-size: 0.76rem;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.flow-board-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 0.75rem;
+}
+
+.flow-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--text-muted);
+    font-size: 0.76rem;
+}
+
+.flow-select-label {
+    color: var(--text-muted);
+    font-size: 0.76rem;
+}
+
+.flow-select {
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.76rem;
+    padding: 0.22rem 0.45rem;
+}
+
 .flow-board-source.live {
     color: #86efac;
     border-color: rgba(16, 185, 129, 0.5);
@@ -393,9 +453,38 @@ body {
 
 .flow-board-summary {
     display: grid;
-    grid-template-columns: repeat(3, minmax(120px, 1fr));
+    grid-template-columns: repeat(5, minmax(120px, 1fr));
     gap: 0.75rem;
     margin-bottom: 1rem;
+}
+
+.flow-kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(140px, 1fr));
+    gap: 0.55rem;
+    margin-bottom: 0.9rem;
+}
+
+.flow-kpi-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.45rem 0.65rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.flow-kpi-card .label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.25px;
+}
+
+.flow-kpi-card .value {
+    font-size: 0.95rem;
+    font-weight: 700;
 }
 
 .flow-summary-card {
@@ -422,7 +511,7 @@ body {
 
 .scenario-flow-board {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0.75rem;
 }
 
@@ -470,6 +559,18 @@ body {
 
 .flow-card.synthetic {
     border-left-style: dashed;
+}
+
+.flow-card.lane-blocked {
+    border-left-color: var(--status-unhealthy);
+}
+
+.flow-card.lane-queued {
+    border-left-color: #8b5cf6;
+}
+
+.flow-card.lane-in-progress {
+    border-left-color: var(--accent);
 }
 
 .flow-card .scenario-id {
@@ -528,6 +629,134 @@ body {
     border-radius: 999px;
     font-size: 0.68rem;
     font-weight: 600;
+}
+
+.flow-card .risk-badge {
+    display: inline-block;
+    margin-top: 0.3rem;
+    padding: 0.12rem 0.46rem;
+    border-radius: 999px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.15px;
+}
+
+.flow-card .risk-low {
+    color: #86efac;
+    background: rgba(16, 185, 129, 0.2);
+}
+
+.flow-card .risk-medium {
+    color: #fde68a;
+    background: rgba(245, 158, 11, 0.2);
+}
+
+.flow-card .risk-high {
+    color: #fdba74;
+    background: rgba(249, 115, 22, 0.2);
+}
+
+.flow-card .risk-critical {
+    color: #fecaca;
+    background: rgba(239, 68, 68, 0.22);
+}
+
+.flow-why-row {
+    margin-top: 0.35rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}
+
+.flow-why-badge {
+    font-size: 0.66rem;
+    color: var(--text-muted);
+    background: rgba(148, 163, 184, 0.12);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 999px;
+    padding: 0.08rem 0.4rem;
+}
+
+.observer-controls {
+    margin-top: 0.5rem;
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    gap: 0.35rem;
+}
+
+.flow-action-btn,
+.flow-assign-select {
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.68rem;
+    padding: 0.2rem 0.4rem;
+}
+
+.flow-action-btn {
+    cursor: pointer;
+}
+
+.flow-action-btn.warn {
+    border-color: rgba(239, 68, 68, 0.6);
+    color: #fecaca;
+}
+
+.observer-state {
+    margin-top: 0.35rem;
+}
+
+.flow-alert-panel {
+    margin-top: 0.8rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.6rem;
+}
+
+.flow-alert-panel h3 {
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.35px;
+    color: var(--text-muted);
+    margin-bottom: 0.45rem;
+}
+
+.flow-alert-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    max-height: 170px;
+    overflow-y: auto;
+}
+
+.flow-alert-item {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.4rem 0.55rem;
+    background: var(--bg-surface);
+}
+
+.flow-alert-item.severity-critical {
+    border-color: rgba(239, 68, 68, 0.6);
+}
+
+.flow-alert-item.severity-high {
+    border-color: rgba(249, 115, 22, 0.6);
+}
+
+.flow-alert-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.flow-alert-meta {
+    margin-top: 0.2rem;
+    display: flex;
+    gap: 0.45rem;
+    font-size: 0.67rem;
+    color: var(--text-muted);
 }
 
 .flow-card .phase-accepted {
@@ -777,6 +1006,14 @@ body {
 
     .scenario-flow-board {
         grid-template-columns: 1fr;
+    }
+
+    .flow-board-summary {
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+    }
+
+    .flow-kpi-strip {
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
     }
 
     .trace-layout {
