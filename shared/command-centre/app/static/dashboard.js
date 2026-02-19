@@ -29,11 +29,28 @@ const state = {
     },
     traceRuns: [],
     selectedTraceId: null,
+    observerActions: {},
+    observerAudit: [],
+    flowFilters: {
+        hideSynthetic: false,
+        severity: 'all',
+        needsAction: false,
+    },
+    alertFeed: [],
+    alertHistory: {},
 };
 
 const FLOW_STALE_MS = 30000;
 const FLOW_EXPIRE_MS = 10 * 60 * 1000;
 const FLOW_SYNTHETIC_DELAY_MS = 8000;
+const FLOW_LIVE_STALE_MS = 15000;
+const FLOW_RETRY_BLOCK_THRESHOLD = 2;
+const FLOW_ALERT_DEDUP_MS = 60 * 1000;
+const FLOW_SLA_DEFAULT_MS = 45 * 1000;
+const FLOW_SLA_URGENT_MS = 30 * 1000;
+const FLOW_SLA_CRITICAL_MS = 20 * 1000;
+const FLOW_OBSERVER_STORAGE_KEY = 'command-centre.flow-observer-actions.v1';
+const FLOW_ALERT_WEBHOOK_KEY = 'command-centre.flow-alert-webhook-url';
 const TOPOLOGY_HINT_DISMISSED_KEY = 'command-centre.topology-hint-dismissed';
 
 const topologyView = {
@@ -630,6 +647,9 @@ function updateHeatmapMetrics(event) {
 
 // ── Scenario Flow Board ───────────────────────────────────────────────
 function initializeScenarioFlowBoard() {
+    loadObserverActions();
+    initializeFlowBoardControls();
+    initializeFlowBoardInteractions();
     renderScenarioFlowBoard();
 
     setInterval(() => {
@@ -641,6 +661,82 @@ function initializeScenarioFlowBoard() {
     setTimeout(() => {
         maybeStartSyntheticFlow();
     }, FLOW_SYNTHETIC_DELAY_MS);
+}
+
+function initializeFlowBoardControls() {
+    const hideSynthetic = document.getElementById('flow-hide-synthetic');
+    const severityFilter = document.getElementById('flow-risk-filter');
+    const needsAction = document.getElementById('flow-needs-action');
+
+    if (hideSynthetic) {
+        hideSynthetic.checked = state.flowFilters.hideSynthetic;
+        hideSynthetic.addEventListener('change', (event) => {
+            state.flowFilters.hideSynthetic = event.target.checked;
+            renderScenarioFlowBoard();
+        });
+    }
+
+    if (severityFilter) {
+        severityFilter.value = state.flowFilters.severity;
+        severityFilter.addEventListener('change', (event) => {
+            state.flowFilters.severity = event.target.value;
+            renderScenarioFlowBoard();
+        });
+    }
+
+    if (needsAction) {
+        needsAction.checked = state.flowFilters.needsAction;
+        needsAction.addEventListener('change', (event) => {
+            state.flowFilters.needsAction = event.target.checked;
+            renderScenarioFlowBoard();
+        });
+    }
+}
+
+function initializeFlowBoardInteractions() {
+    const panel = document.querySelector('.scenario-flow-panel');
+    if (!panel) return;
+
+    panel.addEventListener('click', (event) => {
+        const actionBtn = event.target.closest('button[data-flow-action]');
+        if (actionBtn) {
+            event.stopPropagation();
+            const scenarioId = actionBtn.dataset.scenarioId;
+            const action = actionBtn.dataset.flowAction;
+            if (!scenarioId || !action) return;
+
+            if (action === 'ack') {
+                ackScenario(scenarioId);
+            } else if (action === 'escalate') {
+                escalateScenario(scenarioId);
+            }
+
+            renderScenarioFlowBoard();
+            return;
+        }
+
+        const card = event.target.closest('.flow-card[data-scenario-id]');
+        if (!card) return;
+
+        const interactive = event.target.closest('button, select, input, label');
+        if (interactive) return;
+
+        const scenario = state.scenarios[card.dataset.scenarioId];
+        if (scenario) {
+            drillThroughScenarioTrace(scenario);
+        }
+    });
+
+    panel.addEventListener('change', (event) => {
+        const assigneeSelect = event.target.closest('select[data-flow-action="assign"]');
+        if (!assigneeSelect) return;
+
+        const scenarioId = assigneeSelect.dataset.scenarioId;
+        if (!scenarioId) return;
+
+        assignScenario(scenarioId, assigneeSelect.value || '');
+        renderScenarioFlowBoard();
+    });
 }
 
 async function loadScenarioCatalog() {
@@ -693,6 +789,11 @@ function ingestScenarioEvent(event, isSynthetic = false) {
         completedAt: null,
         isSynthetic,
         totalDurationMs: 0,
+        retryCount: 0,
+        requiresHitl: inferRequiresHitl(event.task_id),
+        waitingOn: event.waiting_on || null,
+        lane: 'in-progress',
+        laneEnteredAt: now,
     };
 
     current.taskId = event.task_id;
@@ -704,16 +805,34 @@ function ingestScenarioEvent(event, isSynthetic = false) {
     current.updatedAt = now;
     current.isSynthetic = isSynthetic;
     current.totalDurationMs += event.duration_ms || 0;
+    current.retryCount = Math.max(current.retryCount, Number(event.retry_count || 0));
+    current.requiresHitl = Boolean(event.requires_hitl ?? current.requiresHitl ?? inferRequiresHitl(event.task_id));
+    current.waitingOn = event.waiting_on || current.waitingOn || null;
 
-    if (phase === 'final' || phase === 'error') {
+    if (phase === 'final') {
         current.status = 'completed';
         current.completedAt = now;
+    } else if (phase === 'error') {
+        current.status = 'active';
+        current.retryCount = Math.max(current.retryCount, FLOW_RETRY_BLOCK_THRESHOLD);
     } else {
         current.status = 'active';
     }
 
+    const risk = evaluateScenarioRisk(current, now);
+    const nextLane = getFlowLane(current, risk, now);
+    if (current.lane !== nextLane) {
+        current.lane = nextLane;
+        current.laneEnteredAt = now;
+    }
+
     state.scenarios[scenarioId] = current;
     renderScenarioFlowBoard();
+}
+
+function inferRequiresHitl(taskId) {
+    const value = String(taskId || '').toLowerCase();
+    return value.includes('hitl') || value.includes('approval') || value.includes('consent');
 }
 
 function normalizeFlowPhase(eventName) {
@@ -812,49 +931,103 @@ function humanizeScenarioId(value) {
         .trim() || value;
 }
 
-function getFlowLane(scenario, now = Date.now()) {
+function getFlowLane(scenario, risk, now = Date.now()) {
     if (scenario.status === 'completed') {
         return 'completed';
     }
 
     const ageMs = now - scenario.updatedAt;
-    if (ageMs > FLOW_STALE_MS || scenario.phase === 'error') {
-        return 'at-risk';
+    if (scenario.requiresHitl && !isScenarioAcknowledged(scenario.id)) {
+        return 'queued';
     }
 
-    return 'now';
+    if (
+        scenario.phase === 'error' ||
+        scenario.retryCount >= FLOW_RETRY_BLOCK_THRESHOLD ||
+        ageMs > FLOW_STALE_MS ||
+        risk.slaBreached
+    ) {
+        return 'blocked';
+    }
+
+    return 'in-progress';
 }
 
 function renderScenarioFlowBoard() {
-    const laneNow = document.getElementById('flow-lane-now');
-    const laneAtRisk = document.getElementById('flow-lane-at-risk');
+    const laneQueued = document.getElementById('flow-lane-queued');
+    const laneInProgress = document.getElementById('flow-lane-in-progress');
+    const laneBlocked = document.getElementById('flow-lane-blocked');
     const laneCompleted = document.getElementById('flow-lane-completed');
 
-    if (!laneNow || !laneAtRisk || !laneCompleted) return;
+    if (!laneQueued || !laneInProgress || !laneBlocked || !laneCompleted) return;
+
+    const now = Date.now();
 
     const scenarios = Object.values(state.scenarios)
-        .sort((a, b) => b.updatedAt - a.updatedAt)
-        .slice(0, 18);
+        .map((scenario) => {
+            const risk = evaluateScenarioRisk(scenario, now);
+            const lane = getFlowLane(scenario, risk, now);
+
+            if (scenario.lane !== lane) {
+                scenario.lane = lane;
+                scenario.laneEnteredAt = now;
+            }
+
+            return {
+                ...scenario,
+                lane,
+                risk,
+                observer: getObserverAction(scenario.id),
+            };
+        })
+        .filter((scenario) => applyFlowFilters(scenario))
+        .sort((a, b) => {
+            if (b.risk.score !== a.risk.score) return b.risk.score - a.risk.score;
+            return b.updatedAt - a.updatedAt;
+        })
+        .slice(0, 24);
 
     const lanes = {
-        now: [],
-        'at-risk': [],
+        queued: [],
+        'in-progress': [],
+        blocked: [],
         completed: [],
     };
 
     scenarios.forEach((scenario) => {
-        lanes[getFlowLane(scenario)].push(scenario);
+        lanes[scenario.lane].push(scenario);
     });
 
-    updateFlowSummaryCounts(lanes);
+    updateFlowSummaryCounts(lanes, scenarios);
+    updateFlowKpis(scenarios);
     updateFlowSourceBadge();
+    refreshFlowAlerts(scenarios, now);
+    renderFlowAlertFeed();
 
-    renderFlowLane(laneNow, lanes.now, 'No active journeys right now');
-    renderFlowLane(laneAtRisk, lanes['at-risk'], 'No at-risk journeys');
+    renderFlowLane(laneQueued, lanes.queued, 'No queued/HITL journeys', 'queued');
+    renderFlowLane(laneInProgress, lanes['in-progress'], 'No journeys in progress', 'in-progress');
+    renderFlowLane(laneBlocked, lanes.blocked, 'No blocked journeys', 'blocked');
     renderFlowLane(laneCompleted, lanes.completed, 'No completed journeys yet');
 }
 
-function renderFlowLane(container, scenarios, emptyMessage) {
+function applyFlowFilters(scenario) {
+    if (state.flowFilters.hideSynthetic && scenario.isSynthetic) {
+        return false;
+    }
+
+    if (state.flowFilters.needsAction && !scenarioNeedsObserverAction(scenario)) {
+        return false;
+    }
+
+    if (state.flowFilters.severity === 'all') return true;
+    const rank = severityRank(scenario.risk.severity);
+    if (state.flowFilters.severity === 'medium') return rank >= severityRank('medium');
+    if (state.flowFilters.severity === 'high') return rank >= severityRank('high');
+    if (state.flowFilters.severity === 'critical') return rank >= severityRank('critical');
+    return true;
+}
+
+function renderFlowLane(container, scenarios, emptyMessage, laneName = '') {
     container.innerHTML = '';
 
     if (scenarios.length === 0) {
@@ -867,10 +1040,12 @@ function renderFlowLane(container, scenarios, emptyMessage) {
 
     scenarios.forEach((scenario) => {
         const card = document.createElement('article');
-        card.className = `flow-card ${scenario.isSynthetic ? 'synthetic' : ''}`;
+        card.className = `flow-card ${scenario.isSynthetic ? 'synthetic' : ''} lane-${laneName}`;
+        card.dataset.scenarioId = scenario.id;
 
         const ageSeconds = Math.max(0, Math.floor((Date.now() - scenario.updatedAt) / 1000));
         const durationSeconds = Math.max(0, Math.floor((scenario.updatedAt - scenario.firstSeenAt) / 1000));
+        const laneAgeSeconds = Math.max(0, Math.floor((Date.now() - (scenario.laneEnteredAt || scenario.updatedAt)) / 1000));
 
         const journeyLabel = escapeHtml(scenario.journeyLabel || 'Unknown Journey');
         const journeyDescription = escapeHtmlAttribute(
@@ -880,6 +1055,20 @@ function renderFlowLane(container, scenarios, emptyMessage) {
         const agentName = escapeHtml(scenario.agent || 'unknown-agent');
         const stepName = escapeHtml(scenario.step || 'unknown-step');
         const phase = escapeHtml(scenario.phase || 'working');
+        const severity = escapeHtml(scenario.risk.severity || 'low');
+        const riskScore = Number(scenario.risk.score || 0);
+        const whyBadges = (scenario.risk.reasons || [])
+            .slice(0, 3)
+            .map((reason) => `<span class="flow-why-badge">${escapeHtml(reason)}</span>`)
+            .join('');
+
+        const observer = scenario.observer || getObserverAction(scenario.id);
+        const ackText = observer.ackAt
+            ? `Acked ${formatAgeSeconds(Math.max(0, Math.floor((Date.now() - observer.ackAt) / 1000)))} ago`
+            : 'Unacknowledged';
+        const escalationText = observer.escalatedAt
+            ? `Escalated ${formatAgeSeconds(Math.max(0, Math.floor((Date.now() - observer.escalatedAt) / 1000)))} ago`
+            : 'Not escalated';
 
         card.innerHTML = `
             <div class="journey-label" data-description="${journeyDescription}" tabindex="0" aria-describedby="journey-popover">${journeyLabel}</div>
@@ -889,14 +1078,350 @@ function renderFlowLane(container, scenarios, emptyMessage) {
                 <span>${ageSeconds}s ago</span>
             </div>
             <span class="phase-badge phase-${phase}">${phase}</span>
+            <span class="risk-badge risk-${severity}">Risk ${severity.toUpperCase()} · ${riskScore}</span>
+            <div class="flow-why-row">${whyBadges || '<span class="flow-why-badge">No active risk signals</span>'}</div>
             <div class="meta">
                 <span>Step: ${stepName}</span>
                 <span>Elapsed: ${durationSeconds}s</span>
+            </div>
+            <div class="meta">
+                <span>Lane age: ${laneAgeSeconds}s</span>
+                <span>SLA: ${scenario.risk.slaBreached ? 'Breached' : 'Within target'}</span>
+            </div>
+            <div class="observer-controls">
+                <button type="button" class="flow-action-btn" data-flow-action="ack" data-scenario-id="${scenarioId}">
+                    ${observer.ackAt ? 'Re-ack' : 'Acknowledge'}
+                </button>
+                <button type="button" class="flow-action-btn warn" data-flow-action="escalate" data-scenario-id="${scenarioId}">
+                    ${observer.escalated ? 'Escalated' : 'Escalate'}
+                </button>
+                <select class="flow-assign-select" data-flow-action="assign" data-scenario-id="${scenarioId}" aria-label="Assign observer">
+                    <option value="" ${observer.assignee ? '' : 'selected'}>Unassigned</option>
+                    <option value="ops-nurse" ${observer.assignee === 'ops-nurse' ? 'selected' : ''}>Ops nurse</option>
+                    <option value="flow-lead" ${observer.assignee === 'flow-lead' ? 'selected' : ''}>Flow lead</option>
+                    <option value="incident-commander" ${observer.assignee === 'incident-commander' ? 'selected' : ''}>Incident commander</option>
+                </select>
+            </div>
+            <div class="meta observer-state">
+                <span>${escapeHtml(ackText)}</span>
+                <span>${escapeHtml(escalationText)}</span>
             </div>
         `;
 
         container.appendChild(card);
     });
+}
+
+function updateFlowSummaryCounts(lanes, scenarios) {
+    document.getElementById('flow-in-progress-count').textContent = lanes['in-progress'].length;
+    document.getElementById('flow-queued-count').textContent = lanes.queued.length;
+    document.getElementById('flow-blocked-count').textContent = lanes.blocked.length;
+    document.getElementById('flow-completed-count').textContent = lanes.completed.length;
+    const criticalCount = scenarios.filter((scenario) => scenario.risk.severity === 'critical').length;
+    document.getElementById('flow-critical-count').textContent = criticalCount;
+}
+
+function updateFlowKpis(scenarios) {
+    const blockedAgesSec = scenarios
+        .filter((scenario) => scenario.lane === 'blocked')
+        .map((scenario) => Math.max(0, (Date.now() - scenario.updatedAt) / 1000));
+    const p95RiskAge = percentile(blockedAgesSec, 95);
+
+    const active = scenarios.filter((scenario) => scenario.status !== 'completed');
+    const breached = active.filter((scenario) => scenario.risk.slaBreached).length;
+    const breachRate = active.length > 0 ? (breached / active.length) * 100 : 0;
+
+    const ackDurations = Object.entries(state.observerActions)
+        .map(([scenarioId, action]) => {
+            const scenario = state.scenarios[scenarioId];
+            if (!scenario || !action?.ackAt) return null;
+            return Math.max(0, (action.ackAt - scenario.firstSeenAt) / 1000);
+        })
+        .filter((value) => Number.isFinite(value));
+    const meanAckSeconds = ackDurations.length
+        ? ackDurations.reduce((sum, value) => sum + value, 0) / ackDurations.length
+        : NaN;
+
+    const escalations = Object.values(state.observerActions).filter((action) => action.escalated).length;
+
+    document.getElementById('flow-kpi-p95-risk-age').textContent = Number.isFinite(p95RiskAge)
+        ? `${Math.round(p95RiskAge)}s`
+        : '--';
+    document.getElementById('flow-kpi-sla-breach-rate').textContent = `${breachRate.toFixed(1)}%`;
+    document.getElementById('flow-kpi-mean-ack-seconds').textContent = Number.isFinite(meanAckSeconds)
+        ? `${Math.round(meanAckSeconds)}s`
+        : '--';
+    document.getElementById('flow-kpi-escalations').textContent = String(escalations);
+}
+
+function percentile(values, p) {
+    if (!Array.isArray(values) || values.length === 0) return NaN;
+    const sorted = [...values].sort((a, b) => a - b);
+    const index = Math.ceil((p / 100) * sorted.length) - 1;
+    return sorted[Math.max(0, Math.min(sorted.length - 1, index))];
+}
+
+function evaluateScenarioRisk(scenario, now = Date.now()) {
+    const elapsedMs = Math.max(0, scenario.updatedAt - scenario.firstSeenAt);
+    const ageMs = Math.max(0, now - scenario.updatedAt);
+    const retryCount = Number(scenario.retryCount || 0);
+    const slaTargetMs = deriveScenarioSlaTargetMs(scenario);
+    const slaOverrunMs = Math.max(0, elapsedMs - slaTargetMs);
+    const slaBreached = slaOverrunMs > 0;
+
+    const reasons = [];
+    let score = 0;
+
+    if (slaBreached) {
+        score += Math.min(30, 10 + Math.round(slaOverrunMs / 1000));
+        reasons.push(`SLA +${Math.round(slaOverrunMs / 1000)}s`);
+    }
+    if (ageMs > FLOW_STALE_MS) {
+        score += 20;
+        reasons.push(`Stale update ${Math.round(ageMs / 1000)}s`);
+    }
+    if (retryCount > 0) {
+        score += Math.min(20, retryCount * 6);
+        reasons.push(`${retryCount} retries`);
+    }
+    if (scenario.phase === 'error') {
+        score += 30;
+        reasons.push('Error state');
+    }
+    if (scenario.requiresHitl && !isScenarioAcknowledged(scenario.id)) {
+        score += 15;
+        reasons.push('Awaiting HITL/observer');
+    }
+    if (scenario.waitingOn) {
+        score += 10;
+        reasons.push(`Waiting on ${scenario.waitingOn}`);
+    }
+    if (reasons.length === 0) {
+        reasons.push('Nominal progression');
+    }
+
+    return {
+        score: Math.max(0, Math.min(100, score)),
+        severity: riskSeverityFromScore(score),
+        reasons,
+        elapsedMs,
+        ageMs,
+        slaTargetMs,
+        slaOverrunMs,
+        slaBreached,
+    };
+}
+
+function deriveScenarioSlaTargetMs(scenario) {
+    const text = `${scenario.journeyLabel || ''} ${scenario.journeyDescription || ''} ${scenario.taskId || ''}`.toLowerCase();
+    if (text.includes('critical') || text.includes('stroke') || text.includes('sepsis') || text.includes('cardiac')) {
+        return FLOW_SLA_CRITICAL_MS;
+    }
+    if (text.includes('urgent') || text.includes('triage') || text.includes('high')) {
+        return FLOW_SLA_URGENT_MS;
+    }
+    return FLOW_SLA_DEFAULT_MS;
+}
+
+function riskSeverityFromScore(score) {
+    if (score >= 75) return 'critical';
+    if (score >= 50) return 'high';
+    if (score >= 25) return 'medium';
+    return 'low';
+}
+
+function severityRank(severity) {
+    if (severity === 'critical') return 4;
+    if (severity === 'high') return 3;
+    if (severity === 'medium') return 2;
+    return 1;
+}
+
+function scenarioNeedsObserverAction(scenario) {
+    const observer = scenario.observer || getObserverAction(scenario.id);
+    if (!observer.ackAt) return true;
+    if (scenario.lane === 'blocked' && !observer.escalated) return true;
+    if (!observer.assignee && scenario.risk.severity !== 'low') return true;
+    return false;
+}
+
+function getObserverAction(scenarioId) {
+    return state.observerActions[scenarioId] || {
+        ackAt: null,
+        escalated: false,
+        escalatedAt: null,
+        assignee: '',
+    };
+}
+
+function setObserverAction(scenarioId, patch) {
+    const current = getObserverAction(scenarioId);
+    state.observerActions[scenarioId] = {
+        ...current,
+        ...patch,
+    };
+    persistObserverActions();
+}
+
+function isScenarioAcknowledged(scenarioId) {
+    return Boolean(getObserverAction(scenarioId).ackAt);
+}
+
+function ackScenario(scenarioId) {
+    const now = Date.now();
+    setObserverAction(scenarioId, { ackAt: now });
+    state.observerAudit.unshift({ type: 'ack', scenarioId, timestamp: now });
+}
+
+function escalateScenario(scenarioId) {
+    const now = Date.now();
+    const scenario = state.scenarios[scenarioId];
+    const risk = scenario ? evaluateScenarioRisk(scenario, now) : { severity: 'high', score: 60 };
+
+    setObserverAction(scenarioId, { escalated: true, escalatedAt: now });
+    state.observerAudit.unshift({ type: 'escalate', scenarioId, timestamp: now });
+
+    triggerFlowAlert({
+        kind: 'observer-escalation',
+        scenarioId,
+        message: `Observer escalation raised for ${scenarioId}`,
+        severity: risk.severity,
+        score: risk.score,
+        timestamp: now,
+    });
+}
+
+function assignScenario(scenarioId, assignee) {
+    const now = Date.now();
+    setObserverAction(scenarioId, { assignee });
+    state.observerAudit.unshift({ type: 'assign', scenarioId, assignee, timestamp: now });
+}
+
+function loadObserverActions() {
+    try {
+        const raw = window.localStorage.getItem(FLOW_OBSERVER_STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+            state.observerActions = parsed;
+        }
+    } catch (error) {
+        console.warn('Unable to load observer actions:', error);
+    }
+}
+
+function persistObserverActions() {
+    try {
+        window.localStorage.setItem(FLOW_OBSERVER_STORAGE_KEY, JSON.stringify(state.observerActions));
+    } catch (error) {
+        console.warn('Unable to persist observer actions:', error);
+    }
+}
+
+function refreshFlowAlerts(scenarios, now = Date.now()) {
+    scenarios.forEach((scenario) => {
+        const shouldAlert = scenario.lane === 'blocked' || scenario.risk.severity === 'critical';
+        if (!shouldAlert) return;
+
+        const dedupKey = `${scenario.id}:${scenario.lane}:${scenario.risk.severity}`;
+        const lastAlertAt = state.alertHistory[dedupKey] || 0;
+        if (now - lastAlertAt < FLOW_ALERT_DEDUP_MS) return;
+
+        state.alertHistory[dedupKey] = now;
+        triggerFlowAlert({
+            kind: scenario.lane === 'blocked' ? 'blocked-journey' : 'critical-risk',
+            scenarioId: scenario.id,
+            message: `${scenario.journeyLabel} is ${scenario.lane === 'blocked' ? 'blocked' : 'critical risk'}`,
+            severity: scenario.risk.severity,
+            score: scenario.risk.score,
+            timestamp: now,
+        });
+    });
+}
+
+function triggerFlowAlert(alert) {
+    state.alertFeed.unshift(alert);
+    state.alertFeed = state.alertFeed.slice(0, 30);
+    emitAlertHook(alert);
+
+    if (alert.severity === 'critical' || alert.kind === 'observer-escalation') {
+        showToast(alert.message, 'warning');
+    }
+}
+
+function emitAlertHook(alert) {
+    try {
+        window.dispatchEvent(new CustomEvent('command-centre-flow-alert', { detail: alert }));
+    } catch (error) {
+        console.warn('Failed to dispatch flow alert event:', error);
+    }
+
+    try {
+        const webhookUrl = window.localStorage.getItem(FLOW_ALERT_WEBHOOK_KEY);
+        if (!webhookUrl) return;
+        fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(alert),
+            keepalive: true,
+        }).catch(() => {});
+    } catch (error) {
+        // Ignore storage/network config issues.
+    }
+}
+
+function renderFlowAlertFeed() {
+    const feed = document.getElementById('flow-alert-feed');
+    if (!feed) return;
+
+    if (!state.alertFeed.length) {
+        feed.innerHTML = '<div class="flow-empty">No active flow alerts.</div>';
+        return;
+    }
+
+    feed.innerHTML = state.alertFeed.slice(0, 8).map((alert) => {
+        const ageSec = Math.max(0, Math.floor((Date.now() - alert.timestamp) / 1000));
+        return `
+            <div class="flow-alert-item severity-${escapeHtml(alert.severity)}">
+                <div class="flow-alert-title">${escapeHtml(alert.message)}</div>
+                <div class="flow-alert-meta">
+                    <span>${escapeHtml(alert.kind)}</span>
+                    <span>Score ${Number(alert.score || 0)}</span>
+                    <span>${ageSec}s ago</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function drillThroughScenarioTrace(scenario) {
+    const scenarioToken = String(scenario.id || '').toLowerCase();
+    const labelToken = String(scenario.journeyLabel || '').toLowerCase();
+
+    const match = state.traceRuns.find((run) => {
+        const name = String(run.scenario_name || '').toLowerCase();
+        const visit = String(run.visit_id || '').toLowerCase();
+        const traceId = String(run.trace_id || '').toLowerCase();
+        return (
+            (scenarioToken && (name.includes(scenarioToken) || visit.includes(scenarioToken) || traceId.includes(scenarioToken))) ||
+            (labelToken && name.includes(labelToken.replace(/\s+/g, '_')))
+        );
+    });
+
+    if (!match) {
+        showToast(`No matching trace run for ${scenario.id}`, 'warning');
+        return;
+    }
+
+    selectTraceRun(match.trace_id);
+    showToast(`Focused trace ${match.trace_id}`, 'success');
+}
+
+function formatAgeSeconds(seconds) {
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    const rem = seconds % 60;
+    return `${minutes}m ${rem}s`;
 }
 
 function initializeJourneyPopover() {
@@ -995,25 +1520,51 @@ function positionJourneyPopover(target) {
     popover.style.top = `${Math.max(window.scrollY + margin, top)}px`;
 }
 
-function updateFlowSummaryCounts(lanes) {
-    document.getElementById('flow-now-count').textContent = lanes.now.length;
-    document.getElementById('flow-at-risk-count').textContent = lanes['at-risk'].length;
-    document.getElementById('flow-completed-count').textContent = lanes.completed.length;
+function updateFlowSummaryCounts(lanes, scenarios = []) {
+    document.getElementById('flow-in-progress-count').textContent = lanes['in-progress']?.length || 0;
+    document.getElementById('flow-queued-count').textContent = lanes.queued?.length || 0;
+    document.getElementById('flow-blocked-count').textContent = lanes.blocked?.length || 0;
+    document.getElementById('flow-completed-count').textContent = lanes.completed?.length || 0;
+    const criticalCount = scenarios.filter((scenario) => scenario.risk?.severity === 'critical').length;
+    document.getElementById('flow-critical-count').textContent = criticalCount;
 }
 
 function updateFlowSourceBadge() {
     const badge = document.getElementById('flow-board-source');
+    const freshness = document.getElementById('flow-live-freshness');
+    const warning = document.getElementById('flow-live-stale-warning');
     if (!badge) return;
 
-    badge.classList.remove('idle', 'live', 'synthetic');
+    badge.classList.remove('idle', 'live', 'synthetic', 'stale');
     badge.classList.add(state.flowSource);
 
+    const liveAgeMs = state.lastRealFlowEventAt > 0 ? Date.now() - state.lastRealFlowEventAt : Infinity;
+    const liveAgeSec = Number.isFinite(liveAgeMs) ? Math.floor(liveAgeMs / 1000) : null;
+    const liveIsStale = state.flowSource === 'live' && Number.isFinite(liveAgeMs) && liveAgeMs > FLOW_LIVE_STALE_MS;
+
+    if (warning) {
+        warning.classList.toggle('hidden', !liveIsStale);
+    }
+
     if (state.flowSource === 'live') {
-        badge.textContent = 'Live journey events';
+        badge.textContent = liveIsStale ? 'Live feed stale' : 'Live journey events';
+        if (liveIsStale) {
+            badge.classList.add('stale');
+        }
     } else if (state.flowSource === 'synthetic') {
         badge.textContent = 'Demo mode (synthetic)';
     } else {
         badge.textContent = 'Waiting for events';
+    }
+
+    if (freshness) {
+        if (state.flowSource === 'synthetic') {
+            freshness.textContent = 'Synthetic heartbeat active';
+        } else if (!Number.isFinite(liveAgeMs)) {
+            freshness.textContent = 'No live heartbeat';
+        } else {
+            freshness.textContent = `Last live event ${liveAgeSec}s ago`;
+        }
     }
 }
 

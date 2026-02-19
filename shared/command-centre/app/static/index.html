@@ -68,35 +68,95 @@
             <section class="panel scenario-flow-panel">
                 <h2>
                     Scenario Flow Board
-                    <span id="flow-board-source" class="flow-board-source idle">Waiting for events</span>
+                    <span class="flow-board-status-group">
+                        <span id="flow-board-source" class="flow-board-source idle">Waiting for events</span>
+                        <span id="flow-live-freshness" class="flow-live-freshness">No live heartbeat</span>
+                    </span>
                 </h2>
+                <div id="flow-live-stale-warning" class="flow-live-stale-warning hidden" role="status"
+                    aria-live="polite">
+                    Live event feed appears stale. Displayed journeys may be delayed.
+                </div>
+                <div class="flow-board-controls">
+                    <label class="flow-toggle">
+                        <input id="flow-hide-synthetic" type="checkbox">
+                        Hide synthetic scenarios
+                    </label>
+                    <label class="flow-select-label" for="flow-risk-filter">Severity filter</label>
+                    <select id="flow-risk-filter" class="flow-select" aria-label="Risk severity filter">
+                        <option value="all">All</option>
+                        <option value="medium">Medium+</option>
+                        <option value="high">High+</option>
+                        <option value="critical">Critical only</option>
+                    </select>
+                    <label class="flow-toggle">
+                        <input id="flow-needs-action" type="checkbox">
+                        Needs observer action
+                    </label>
+                </div>
                 <div class="flow-board-summary">
                     <div class="flow-summary-card">
-                        <span class="label">Now</span>
-                        <span id="flow-now-count" class="value">0</span>
+                        <span class="label">In Progress</span>
+                        <span id="flow-in-progress-count" class="value">0</span>
                     </div>
                     <div class="flow-summary-card">
-                        <span class="label">At Risk</span>
-                        <span id="flow-at-risk-count" class="value">0</span>
+                        <span class="label">Queued / HITL</span>
+                        <span id="flow-queued-count" class="value">0</span>
+                    </div>
+                    <div class="flow-summary-card">
+                        <span class="label">Blocked</span>
+                        <span id="flow-blocked-count" class="value">0</span>
                     </div>
                     <div class="flow-summary-card">
                         <span class="label">Completed</span>
                         <span id="flow-completed-count" class="value">0</span>
                     </div>
+                    <div class="flow-summary-card">
+                        <span class="label">Critical Risk</span>
+                        <span id="flow-critical-count" class="value">0</span>
+                    </div>
+                </div>
+                <div class="flow-kpi-strip" aria-label="Observer KPI strip">
+                    <div class="flow-kpi-card">
+                        <span class="label">P95 At-Risk Age</span>
+                        <span id="flow-kpi-p95-risk-age" class="value">--</span>
+                    </div>
+                    <div class="flow-kpi-card">
+                        <span class="label">SLA Breach Rate</span>
+                        <span id="flow-kpi-sla-breach-rate" class="value">--</span>
+                    </div>
+                    <div class="flow-kpi-card">
+                        <span class="label">Mean Ack Time</span>
+                        <span id="flow-kpi-mean-ack-seconds" class="value">--</span>
+                    </div>
+                    <div class="flow-kpi-card">
+                        <span class="label">Escalations</span>
+                        <span id="flow-kpi-escalations" class="value">0</span>
+                    </div>
                 </div>
                 <div class="scenario-flow-board">
-                    <section class="flow-lane" aria-label="Now lane">
-                        <h3>Now</h3>
-                        <div id="flow-lane-now" class="flow-cards"></div>
+                    <section class="flow-lane" aria-label="Queued and HITL lane">
+                        <h3>Queued / HITL</h3>
+                        <div id="flow-lane-queued" class="flow-cards"></div>
                     </section>
-                    <section class="flow-lane" aria-label="At risk lane">
-                        <h3>At Risk</h3>
-                        <div id="flow-lane-at-risk" class="flow-cards"></div>
+                    <section class="flow-lane" aria-label="In progress lane">
+                        <h3>In Progress</h3>
+                        <div id="flow-lane-in-progress" class="flow-cards"></div>
+                    </section>
+                    <section class="flow-lane" aria-label="Blocked lane">
+                        <h3>Blocked</h3>
+                        <div id="flow-lane-blocked" class="flow-cards"></div>
                     </section>
                     <section class="flow-lane" aria-label="Completed lane">
                         <h3>Completed</h3>
                         <div id="flow-lane-completed" class="flow-cards"></div>
                     </section>
+                </div>
+                <div class="flow-alert-panel" aria-label="Flow alert feed">
+                    <h3>Observer Alerts</h3>
+                    <div id="flow-alert-feed" class="flow-alert-feed">
+                        <div class="flow-empty">No active flow alerts.</div>
+                    </div>
                 </div>
             </section>
 
