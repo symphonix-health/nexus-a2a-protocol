@@ -20,7 +20,10 @@ test.describe('Command Centre dashboard', () => {
     await expect(page.locator('#flow-lane-completed')).toBeVisible();
     await expect(page.locator('#timeline-container')).toBeVisible();
 
-    await expect(page.locator('#connection-text')).toHaveText(/Connected|Disconnected|Connecting/);
+    const connectionText = page.locator('#connection-text');
+    await expect(connectionText).toBeVisible();
+    await expect.poll(async () => (await connectionText.textContent())?.trim() || '').not.toBe('');
+    await expect(connectionText).toContainText(/Connected|Disconnected|Connecting/i);
   });
 
   test('renders risk badges and observer controls for blocked journeys', async ({ page }) => {
