@@ -27,6 +27,9 @@ const state = {
         final: true,
         error: true,
     },
+    timelinePaused: false,
+    timelineBufferedCount: 0,
+    timelineFrozenEvents: null,
     traceRuns: [],
     selectedTraceId: null,
     observerActions: {},
@@ -201,7 +204,7 @@ function renderTopology() {
     if (state.agents.length === 0) return;
 
     const width = svg.clientWidth || svg.parentElement?.clientWidth || 900;
-    const dynamicHeight = Math.max(380, Math.min(620, 340 + Math.max(0, state.agents.length - 6) * 26));
+    const dynamicHeight = Math.max(300, Math.min(560, 280 + Math.max(0, state.agents.length - 6) * 22));
     const height = dynamicHeight;
     svg.setAttribute('height', String(height));
     svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
@@ -1656,17 +1659,21 @@ function addEvent(event) {
         state.events = state.events.slice(0, 100);
     }
 
+    if (state.timelinePaused) {
+        state.timelineBufferedCount += 1;
+        updateTimelineOps();
+        return;
+    }
+
     renderTimeline();
 }
 
 function renderTimeline() {
     const container = document.getElementById('timeline-container');
+    if (!container) return;
 
     // Filter events based on active filters
-    const filteredEvents = state.events.filter(event => {
-        const eventType = event.event.split('.').pop(); // Extract last part
-        return state.filters[eventType];
-    });
+    const filteredEvents = getFilteredTimelineEvents(getTimelineSourceEvents());
 
     // Render (showing most recent first)
     container.innerHTML = filteredEvents.slice(0, 50).map(event => {
@@ -1692,6 +1699,8 @@ function renderTimeline() {
             </div>
         `;
     }).join('');
+
+    updateTimelineOps(filteredEvents.length);
 }
 
 // ── Filters & Controls ────────────────────────────────────────────────
@@ -1703,6 +1712,140 @@ function initializeFilters() {
             renderTimeline();
         });
     });
+
+    initializeTimelineOperations();
+}
+
+function initializeTimelineOperations() {
+    const pauseBtn = document.getElementById('timeline-pause-btn');
+    const clearBtn = document.getElementById('timeline-clear-btn');
+    const jumpBtn = document.getElementById('timeline-jump-btn');
+    const timelineContainer = document.getElementById('timeline-container');
+
+    if (pauseBtn) {
+        pauseBtn.addEventListener('click', () => {
+            state.timelinePaused = !state.timelinePaused;
+
+            if (!state.timelinePaused) {
+                state.timelineBufferedCount = 0;
+                state.timelineFrozenEvents = null;
+                renderTimeline();
+                showToast('Timeline resumed', 'success');
+            } else {
+                state.timelineFrozenEvents = [...state.events];
+                renderTimeline();
+                showToast('Timeline paused (events continue buffering)', 'warning');
+            }
+        });
+    }
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            state.events = [];
+            state.timelineBufferedCount = 0;
+            state.timelineFrozenEvents = state.timelinePaused ? [] : null;
+            renderTimeline();
+            showToast('Timeline cleared', 'success');
+        });
+    }
+
+    if (jumpBtn) {
+        jumpBtn.addEventListener('click', () => {
+            jumpTimelineToLatest();
+        });
+    }
+
+    if (timelineContainer) {
+        timelineContainer.addEventListener('scroll', () => {
+            updateTimelineJumpButton();
+        }, { passive: true });
+    }
+
+    updateTimelineOps();
+}
+
+function getTimelineSourceEvents() {
+    if (state.timelinePaused && Array.isArray(state.timelineFrozenEvents)) {
+        return state.timelineFrozenEvents;
+    }
+    return state.events;
+}
+
+function getFilteredTimelineEvents(events = state.events) {
+    return events.filter((event) => {
+        const eventType = event.event.split('.').pop();
+        return state.filters[eventType];
+    });
+}
+
+function updateTimelineOps(filteredCount = null) {
+    const countEl = document.getElementById('timeline-event-count');
+    const streamStateEl = document.getElementById('timeline-stream-state');
+    const pauseBtn = document.getElementById('timeline-pause-btn');
+
+    const visibleCount = Number.isFinite(filteredCount)
+        ? filteredCount
+        : getFilteredTimelineEvents(getTimelineSourceEvents()).length;
+    const totalCount = state.events.length;
+
+    if (countEl) {
+        const baseLabel = `${visibleCount} visible · ${totalCount} total`;
+        countEl.textContent = state.timelinePaused && state.timelineBufferedCount > 0
+            ? `${baseLabel} · +${state.timelineBufferedCount} buffered`
+            : baseLabel;
+    }
+
+    if (streamStateEl) {
+        streamStateEl.classList.toggle('paused', state.timelinePaused);
+        streamStateEl.classList.toggle('live', !state.timelinePaused);
+        streamStateEl.textContent = state.timelinePaused ? 'Paused' : 'Live';
+    }
+
+    if (pauseBtn) {
+        pauseBtn.textContent = state.timelinePaused ? 'Resume' : 'Pause';
+        pauseBtn.setAttribute('aria-pressed', state.timelinePaused ? 'true' : 'false');
+    }
+
+    updateTimelineJumpButton();
+}
+
+function jumpTimelineToLatest() {
+    const container = document.getElementById('timeline-container');
+    if (!container) return;
+
+    const newestEvent = container.firstElementChild;
+    if (newestEvent && typeof newestEvent.scrollIntoView === 'function') {
+        newestEvent.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // With column-reverse, latest event is at visual bottom and scrollTop=0.
+    container.scrollTop = 0;
+
+    window.setTimeout(() => {
+        updateTimelineJumpButton();
+    }, 80);
+}
+
+function updateTimelineJumpButton() {
+    const jumpBtn = document.getElementById('timeline-jump-btn');
+    if (!jumpBtn) return;
+
+    const shouldShow = state.timelinePaused || isTimelineAwayFromLatest();
+    jumpBtn.classList.toggle('hidden', !shouldShow);
+}
+
+function isTimelineAwayFromLatest() {
+    const container = document.getElementById('timeline-container');
+    if (!container) return false;
+
+    const newestEvent = container.firstElementChild;
+    if (!(newestEvent instanceof HTMLElement)) return false;
+
+    const containerRect = container.getBoundingClientRect();
+    const newestRect = newestEvent.getBoundingClientRect();
+    const margin = 8;
+
+    return newestRect.top < containerRect.top - margin || newestRect.bottom > containerRect.bottom + margin;
 }
 
 // ── Performance Charts ────────────────────────────────────────────────

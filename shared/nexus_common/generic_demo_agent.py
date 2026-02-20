@@ -17,6 +17,7 @@ from .did import did_verify_enabled, verify_did_signature
 from .health import HealthMonitor, apply_backpressure_to_agent_card
 from .ids import make_task_id, make_trace_id
 from .jsonrpc import JsonRpcError, parse_request, response_error, response_result
+from .llm_agent_handler import try_llm_result
 from .sse import TaskEventBus
 
 LOGGER = logging.getLogger("nexus.generic-demo-agent")
@@ -33,12 +34,13 @@ def _extract_patient_id(task: dict[str, Any]) -> str:
     return "unknown"
 
 
-def _build_common_result(method: str, params: dict[str, Any], task_id: str | None = None) -> dict[str, Any]:
+def _build_common_result(
+    method: str, params: dict[str, Any], task_id: str | None = None
+) -> dict[str, Any]:
     task = params.get("task") if isinstance(params.get("task"), dict) else {}
     patient_id = _extract_patient_id(task)
     complaint = str(
-        task.get("chief_complaint")
-        or (task.get("inputs") or {}).get("chief_complaint", "")
+        task.get("chief_complaint") or (task.get("inputs") or {}).get("chief_complaint", "")
     ).strip()
     result: dict[str, Any] = {
         "task_id": task_id or params.get("task_id"),
@@ -58,9 +60,7 @@ def _build_common_result(method: str, params: dict[str, Any], task_id: str | Non
     elif "osint" in method_l:
         result.update(
             {
-                "headlines": [
-                    "No critical OSINT signals detected in startup-safe mode."
-                ],
+                "headlines": ["No critical OSINT signals detected in startup-safe mode."],
                 "source": "generic-demo-agent",
             }
         )
@@ -105,6 +105,25 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
     jwt_secret = os.getenv("NEXUS_JWT_SECRET", "dev-secret-change-me")
     required_scope = os.getenv("NEXUS_REQUIRED_SCOPE", "nexus:invoke")
     card_path = Path(app_dir) / "agent_card.json"
+
+    def _build_result(
+        method: str, params: dict[str, Any], task_id: str | None = None
+    ) -> dict[str, Any]:
+        """Build response payload with optional LLM enhancement.
+
+        LLM enhancement is guarded in llm_agent_handler by env flag
+        NEXUS_AGENT_LLM_ENABLED. If disabled/unavailable/error, this returns the
+        deterministic startup-safe payload.
+        """
+        base = _build_common_result(method, params, task_id=task_id)
+        llm_method_hint = f"{default_name}/{method}"
+        llm_result = try_llm_result(llm_method_hint, params)
+        if not isinstance(llm_result, dict):
+            return base
+        merged = dict(base)
+        merged.update(llm_result)
+        merged["rationale"] = f"Processed by LLM-enhanced generic handler for {default_name}."
+        return merged
 
     def _load_card() -> dict[str, Any]:
         if card_path.is_file():
@@ -174,10 +193,16 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
 
     async def _tasks_send_subscribe(params: dict[str, Any], token: str) -> dict[str, Any]:
         nonlocal inflight_tasks
-        correlation = params.get("correlation") if isinstance(params.get("correlation"), dict) else {}
-        idempotency = params.get("idempotency") if isinstance(params.get("idempotency"), dict) else {}
+        correlation = (
+            params.get("correlation") if isinstance(params.get("correlation"), dict) else {}
+        )
+        idempotency = (
+            params.get("idempotency") if isinstance(params.get("idempotency"), dict) else {}
+        )
         scenario_context = (
-            params.get("scenario_context") if isinstance(params.get("scenario_context"), dict) else {}
+            params.get("scenario_context")
+            if isinstance(params.get("scenario_context"), dict)
+            else {}
         )
 
         task_id = make_task_id()
@@ -208,7 +233,7 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
                     correlation=correlation or None,
                     idempotency=idempotency or None,
                 )
-                final_payload = _build_common_result("tasks/sendSubscribe", params, task_id=task_id)
+                final_payload = _build_result("tasks/sendSubscribe", params, task_id=task_id)
                 duration_ms = (asyncio.get_event_loop().time() - start_time) * 1000
                 health_monitor.metrics.record_completed(duration_ms)
                 await bus.publish(
@@ -240,7 +265,7 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
         return {
             "task_id": task_id,
             "trace_id": trace_id,
-            **_build_common_result("tasks/sendSubscribe", params, task_id=task_id),
+            **_build_result("tasks/sendSubscribe", params, task_id=task_id),
         }
 
     async def _tasks_get(params: dict[str, Any], token: str) -> dict[str, Any]:
@@ -269,7 +294,7 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
     async def _invoke_declared_method(method: str, params: dict[str, Any]) -> dict[str, Any]:
         health_monitor.metrics.record_accepted()
         start = asyncio.get_event_loop().time()
-        result = _build_common_result(method, params)
+        result = _build_result(method, params)
         duration_ms = (asyncio.get_event_loop().time() - start) * 1000
         health_monitor.metrics.record_completed(duration_ms)
         return result
@@ -297,5 +322,7 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
     @app.on_event("shutdown")
     async def _shutdown() -> None:
         await bus.close()
+
+    return app
 
     return app

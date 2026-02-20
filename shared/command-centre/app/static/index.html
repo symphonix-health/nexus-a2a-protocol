@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEXUS-A2A Command Centre</title>
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/styles.css?v=__ASSET_VERSION__">
 </head>
 
 <body>
@@ -162,22 +162,37 @@
 
             <!-- Timeline Panel (Right Sidebar) -->
             <aside class="panel timeline-panel">
-                <h2>Event Timeline</h2>
-                <div class="timeline-filters">
-                    <label>
-                        <input type="checkbox" checked data-filter="accepted"> Accepted
-                    </label>
-                    <label>
-                        <input type="checkbox" checked data-filter="working"> Working
-                    </label>
-                    <label>
-                        <input type="checkbox" checked data-filter="final"> Final
-                    </label>
-                    <label>
-                        <input type="checkbox" checked data-filter="error"> Error
-                    </label>
+                <div class="timeline-controls" role="region" aria-label="Timeline controls">
+                    <h2>Event Timeline</h2>
+                    <p class="timeline-controls-hint">Live stream (newest first). Filter by lifecycle state.</p>
+                    <div class="timeline-ops-row" role="status" aria-live="polite">
+                        <span id="timeline-event-count" class="timeline-count-pill">0 events</span>
+                        <span id="timeline-stream-state" class="timeline-stream-state live">Live</span>
+                        <div class="timeline-ops-actions">
+                            <button id="timeline-jump-btn" class="timeline-op-btn timeline-jump-btn hidden"
+                                type="button">Jump to latest</button>
+                            <button id="timeline-pause-btn" class="timeline-op-btn" type="button"
+                                aria-pressed="false">Pause</button>
+                            <button id="timeline-clear-btn" class="timeline-op-btn" type="button">Clear</button>
+                        </div>
+                    </div>
+                    <div class="timeline-filters" role="group" aria-label="Timeline event filters">
+                        <label>
+                            <input type="checkbox" checked data-filter="accepted"> Accepted
+                        </label>
+                        <label>
+                            <input type="checkbox" checked data-filter="working"> Working
+                        </label>
+                        <label>
+                            <input type="checkbox" checked data-filter="final"> Final
+                        </label>
+                        <label>
+                            <input type="checkbox" checked data-filter="error"> Error
+                        </label>
+                    </div>
                 </div>
-                <div id="timeline-container" class="timeline-events">
+                <div id="timeline-container" class="timeline-events" role="log" aria-live="polite"
+                    aria-label="Timeline event stream">
                     <!-- Events populated dynamically -->
                 </div>
             </aside>
@@ -252,8 +267,8 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="/colors.js"></script>
-    <script src="/dashboard.js"></script>
+    <script src="/colors.js?v=__ASSET_VERSION__"></script>
+    <script src="/dashboard.js?v=__ASSET_VERSION__"></script>
 </body>
 
 </html>
