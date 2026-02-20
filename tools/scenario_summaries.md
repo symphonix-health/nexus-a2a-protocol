@@ -1,8 +1,8 @@
 # HelixCare Patient Journey Scenarios
 
-Generated: 2026-02-13 20:52:29
+Generated: 2026-02-19 18:32:19
 
-Total Scenarios: 20
+Total Scenarios: 24
 
 ## Scenario Overview
 
@@ -430,22 +430,119 @@ Total Scenarios: 20
 
 ---
 
+### 21. Regional Hie Referral Exchange
+
+**Description:** ED-to-regional referral with OpenHIE mediation and coordinator handoff.
+
+**Patient Profile:**
+- Age: 52
+- Gender: male
+- Chief Complaint: TIA symptoms requiring cross-network referral
+- Urgency: high
+
+**Journey Steps:** 4
+
+1. **Triage** - tasks/sendSubscribe
+2. **Diagnosis** - tasks/sendSubscribe
+3. **Openhie Mediator** - tasks/sendSubscribe
+4. **Coordinator** - tasks/sendSubscribe
+
+**Expected Duration:** ~12 seconds
+
+---
+
+### 22. Telemed Scribe Documentation Chain
+
+**Description:** Telemedicine encounter routed through transcriber, summariser, and EHR writer agents.
+
+**Patient Profile:**
+- Age: 41
+- Gender: female
+- Chief Complaint: Persistent sinus pain after URI
+- Urgency: medium
+
+**Journey Steps:** 5
+
+1. **Telehealth** - telehealth/consult
+2. **Transcriber** - tasks/sendSubscribe
+3. **Summariser** - tasks/sendSubscribe
+4. **Ehr Writer** - tasks/sendSubscribe
+5. **Followup** - tasks/sendSubscribe
+
+**Expected Duration:** ~13 seconds
+
+---
+
+### 23. Consent And Payer Authorization
+
+**Description:** Consent verification and payer pre-authorization with HITL adjudication.
+
+**Patient Profile:**
+- Age: 58
+- Gender: female
+- Chief Complaint: MRI authorization for persistent radiculopathy
+- Urgency: medium
+
+**Journey Steps:** 5
+
+1. **Provider Agent** - tasks/sendSubscribe
+2. **Insurer Agent** - tasks/sendSubscribe
+3. **Consent Analyser** - tasks/sendSubscribe
+4. **Hitl Ui** - tasks/sendSubscribe
+5. **Imaging** - tasks/sendSubscribe
+
+**Expected Duration:** ~14 seconds
+
+---
+
+### 24. Notifiable Outbreak Public Health Loop
+
+**Description:** Hospital case escalated to public health surveillance with OSINT corroboration.
+
+**Patient Profile:**
+- Age: 46
+- Gender: male
+- Chief Complaint: Severe febrile respiratory illness with cluster exposure
+- Urgency: high
+
+**Journey Steps:** 4
+
+1. **Hospital Reporter** - tasks/sendSubscribe
+2. **Osint Agent** - tasks/sendSubscribe
+3. **Central Surveillance** - tasks/sendSubscribe
+4. **Bed Manager** - tasks/sendSubscribe
+
+**Expected Duration:** ~11 seconds
+
+---
+
 ## Agent Coverage
 
 The following agents are exercised across all scenarios:
 
 - **Bed Manager**
 - **Ccm**
+- **Central Surveillance**
+- **Consent Analyser**
 - **Coordinator**
 - **Diagnosis**
 - **Discharge**
+- **Ehr Writer**
 - **Followup**
+- **Hitl Ui**
 - **Home Visit**
+- **Hospital Reporter**
 - **Imaging**
+- **Insurer Agent**
+- **Openhie Mediator**
+- **Osint Agent**
 - **Pharmacy**
 - **Primary Care**
+- **Provider Agent**
 - **Specialty Care**
+- **Summariser**
 - **Telehealth**
+- **Transcriber**
 - **Triage**
 
-**Total Agents:** 13
+**Total Agents:** 24

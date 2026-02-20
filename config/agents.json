@@ -188,6 +188,12 @@
                 "path": "demos/helixcare/ccm-agent",
                 "description": "Chronic care management workflow agent",
                 "rpc_env": "NEXUS_CCM_RPC"
+            },
+            "clinician_avatar_agent": {
+                "port": 8039,
+                "path": "demos/helixcare/clinician-avatar-agent",
+                "description": "Clinician avatar consultation agent",
+                "rpc_env": "NEXUS_AVATAR_RPC"
             }
         }
     },

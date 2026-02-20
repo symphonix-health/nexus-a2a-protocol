@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clinician Avatar</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+</head>
+
+<body>
+    <header class="topbar">
+        <h1>Clinician Avatar Console</h1>
+        <div class="controls">
+            <label>
+                Avatar
+                <select id="avatar-select">
+                    <option value="male_black">Male - Black</option>
+                    <option value="male_white">Male - White</option>
+                    <option value="female_black">Female - Black</option>
+                    <option value="female_white">Female - White</option>
+                </select>
+            </label>
+            <label>
+                Voice
+                <select id="voice-select">
+                    <option value="alloy">alloy</option>
+                    <option value="echo">echo</option>
+                    <option value="nova">nova</option>
+                    <option value="shimmer">shimmer</option>
+                </select>
+            </label>
+            <button id="start-btn">Start Session</button>
+        </div>
+    </header>
+
+    <main class="layout">
+        <section class="avatar-panel">
+            <div id="avatar-canvas"></div>
+            <div id="status-pill" class="pill">No session</div>
+        </section>
+
+        <section class="chat-panel">
+            <div id="chat-log" class="chat-log"></div>
+            <div class="composer">
+                <input id="chat-input" placeholder="Type patient response..." />
+                <button id="send-btn">Send</button>
+            </div>
+        </section>
+
+        <aside class="side-panel">
+            <h3>Framework Progress</h3>
+            <pre id="framework-state">{}</pre>
+        </aside>
+    </main>
+
+    <script src="/static/avatar_renderer.js"></script>
+    <script src="/static/lipsync_engine.js"></script>
+    <script src="/static/tts_client.js"></script>
+    <script src="/static/chat_controller.js"></script>
+</body>
+
+</html>

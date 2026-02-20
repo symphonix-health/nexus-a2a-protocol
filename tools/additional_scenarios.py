@@ -30,6 +30,32 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "chief_complaint": "Severe chest pain with dyspnea",
             "urgency": "high",
         },
+        medical_history={
+            "past_medical_history": ["Hypertension", "Hyperlipidemia", "GERD"],
+            "medications": [
+                "Amlodipine 10 mg daily",
+                "Rosuvastatin 20 mg nightly",
+                "Omeprazole 20 mg daily",
+            ],
+            "allergies": ["Penicillin (hives)"],
+            "social_history": {
+                "tobacco": "current smoker (1 pack/day)",
+                "alcohol": "weekend use",
+                "substances": "denies illicit drug use",
+            },
+            "family_history": ["Mother with coronary artery disease"],
+            "review_of_systems": {
+                "cardiac": "Crushing substernal chest pain with nausea and diaphoresis",
+                "respiratory": "Shortness of breath without productive cough",
+            },
+            "vital_signs": {
+                "blood_pressure": "160/95",
+                "heart_rate": 110,
+                "respiratory_rate": 24,
+                "oxygen_saturation": 95,
+                "temperature_c": 36.9,
+            },
+        },
         journey_steps=[
             {
                 "agent": "triage",
@@ -108,6 +134,28 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "chief_complaint": "High fever and poor feeding",
             "urgency": "high",
         },
+        medical_history={
+            "past_medical_history": ["Full-term birth", "Recurrent otitis media"],
+            "medications": ["None"],
+            "allergies": ["No known drug allergies"],
+            "social_history": {
+                "household": "lives with parents and older sibling",
+                "daycare": "attends daycare 5 days/week",
+                "immunizations": "up to date per schedule",
+            },
+            "family_history": ["No significant family history"],
+            "review_of_systems": {
+                "constitutional": "High fever x3 days, decreased oral intake, listless",
+                "gastrointestinal": "No vomiting, mild diarrhea",
+            },
+            "vital_signs": {
+                "blood_pressure": "85/50",
+                "heart_rate": 160,
+                "respiratory_rate": 36,
+                "oxygen_saturation": 96,
+                "temperature_c": 39.7,
+            },
+        },
         journey_steps=[
             {
                 "agent": "triage",
@@ -166,6 +214,29 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "gender": "male",
             "chief_complaint": "Left leg pain after fall",
             "urgency": "medium",
+        },
+        medical_history={
+            "past_medical_history": ["No chronic illness"],
+            "medications": ["None"],
+            "allergies": ["No known drug allergies"],
+            "social_history": {
+                "tobacco": "never",
+                "alcohol": "social",
+                "occupation": "Carpenter",
+                "mechanism": "fell from 3-metre ladder onto concrete",
+            },
+            "family_history": ["No significant family history"],
+            "review_of_systems": {
+                "musculoskeletal": "Left lower leg deformity, unable to bear weight",
+                "neurologic": "Sensation intact distally, capillary refill < 2 s",
+            },
+            "vital_signs": {
+                "blood_pressure": "138/82",
+                "heart_rate": 98,
+                "respiratory_rate": 18,
+                "oxygen_saturation": 99,
+                "temperature_c": 36.8,
+            },
         },
         journey_steps=[
             {
@@ -233,6 +304,33 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "chief_complaint": "Sudden confusion and agitation",
             "urgency": "high",
         },
+        medical_history={
+            "past_medical_history": ["Alzheimer disease (mild)", "Hypertension", "Osteoporosis", "Recurrent UTI"],
+            "medications": [
+                "Donepezil 10 mg daily",
+                "Amlodipine 5 mg daily",
+                "Calcium-vitamin D supplement",
+            ],
+            "allergies": ["Sulfonamides (rash)"],
+            "social_history": {
+                "living_situation": "assisted-living facility",
+                "tobacco": "never",
+                "alcohol": "none",
+                "baseline_cognition": "oriented x2 at baseline",
+            },
+            "family_history": ["Sister with Alzheimer disease"],
+            "review_of_systems": {
+                "neurologic": "Acute disorientation, agitation, incoherent speech",
+                "genitourinary": "New-onset urinary incontinence, cloudy urine",
+            },
+            "vital_signs": {
+                "blood_pressure": "158/90",
+                "heart_rate": 94,
+                "respiratory_rate": 20,
+                "oxygen_saturation": 96,
+                "temperature_c": 38.2,
+            },
+        },
         journey_steps=[
             {
                 "agent": "triage",
@@ -281,6 +379,29 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "gender": "female",
             "chief_complaint": "Bleeding at 28 weeks gestation",
             "urgency": "critical",
+        },
+        medical_history={
+            "past_medical_history": ["Gestational diabetes (current pregnancy)", "Previous C-section (2019)"],
+            "medications": ["Prenatal vitamins", "Insulin aspart per sliding scale"],
+            "allergies": ["No known drug allergies"],
+            "social_history": {
+                "tobacco": "never",
+                "alcohol": "none during pregnancy",
+                "parity": "G3P1011",
+                "gestational_age": "28 weeks 3 days",
+            },
+            "family_history": ["Mother with gestational diabetes"],
+            "review_of_systems": {
+                "obstetric": "Sudden onset painless bright-red vaginal bleeding",
+                "cardiovascular": "Mild lightheadedness, no syncope",
+            },
+            "vital_signs": {
+                "blood_pressure": "100/62",
+                "heart_rate": 118,
+                "respiratory_rate": 22,
+                "oxygen_saturation": 97,
+                "temperature_c": 36.9,
+            },
         },
         journey_steps=[
             {
@@ -339,6 +460,33 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "chief_complaint": "Suicidal thoughts",
             "urgency": "critical",
         },
+        medical_history={
+            "past_medical_history": ["Major depressive disorder", "Generalized anxiety disorder", "Previous suicide attempt (2021)"],
+            "medications": [
+                "Sertraline 150 mg daily",
+                "Lorazepam 0.5 mg PRN",
+            ],
+            "allergies": ["No known drug allergies"],
+            "social_history": {
+                "tobacco": "occasional",
+                "alcohol": "increased recently (4-5 drinks/day)",
+                "substances": "denies",
+                "living_situation": "lives alone, recently separated",
+                "employment": "unemployed for 3 months",
+            },
+            "family_history": ["Brother with bipolar disorder", "Father completed suicide"],
+            "review_of_systems": {
+                "psychiatric": "Hopelessness, insomnia, anhedonia, active suicidal ideation with plan",
+                "constitutional": "Weight loss 5 kg over 4 weeks, poor self-care",
+            },
+            "vital_signs": {
+                "blood_pressure": "128/80",
+                "heart_rate": 88,
+                "respiratory_rate": 16,
+                "oxygen_saturation": 99,
+                "temperature_c": 36.6,
+            },
+        },
         journey_steps=[
             {
                 "agent": "triage",
@@ -381,6 +529,38 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "gender": "female",
             "chief_complaint": "Foot ulcer with infection",
             "urgency": "medium",
+        },
+        medical_history={
+            "past_medical_history": [
+                "Type 2 diabetes (15 years)",
+                "Diabetic peripheral neuropathy",
+                "Hypertension",
+                "Chronic kidney disease stage 3a",
+            ],
+            "medications": [
+                "Insulin glargine 30 units nightly",
+                "Metformin 1000 mg BID",
+                "Lisinopril 20 mg daily",
+            ],
+            "allergies": ["Penicillin (anaphylaxis)"],
+            "social_history": {
+                "tobacco": "former smoker (10 pack-years)",
+                "alcohol": "none",
+                "occupation": "Retired teacher",
+                "mobility": "uses walker, limited sensation in feet",
+            },
+            "family_history": ["Mother with type 2 diabetes", "Father with peripheral artery disease"],
+            "review_of_systems": {
+                "integumentary": "Right plantar ulcer with purulent drainage, surrounding erythema",
+                "musculoskeletal": "Right foot pain on weight-bearing",
+            },
+            "vital_signs": {
+                "blood_pressure": "148/86",
+                "heart_rate": 88,
+                "respiratory_rate": 18,
+                "oxygen_saturation": 97,
+                "temperature_c": 38.1,
+            },
         },
         journey_steps=[
             {
@@ -439,6 +619,30 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "chief_complaint": "Multiple traumatic injuries",
             "urgency": "critical",
         },
+        medical_history={
+            "past_medical_history": ["No chronic illness"],
+            "medications": ["None"],
+            "allergies": ["No known drug allergies"],
+            "social_history": {
+                "tobacco": "never",
+                "alcohol": "social",
+                "occupation": "University student",
+                "mechanism": "unrestrained driver, head-on collision at ~80 km/h",
+            },
+            "family_history": ["No significant family history"],
+            "review_of_systems": {
+                "neurologic": "GCS 12 (E3 V4 M5), no lateralizing signs",
+                "cardiovascular": "Tachycardic, weak peripheral pulses",
+                "abdominal": "Diffuse tenderness, guarding LUQ",
+            },
+            "vital_signs": {
+                "blood_pressure": "88/56",
+                "heart_rate": 128,
+                "respiratory_rate": 26,
+                "oxygen_saturation": 92,
+                "temperature_c": 36.2,
+            },
+        },
         journey_steps=[
             {
                 "agent": "triage",
@@ -492,6 +696,28 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "gender": "female",
             "chief_complaint": "Fever, cough, hypoxia",
             "urgency": "high",
+        },
+        medical_history={
+            "past_medical_history": ["Type 2 diabetes", "Obesity"],
+            "medications": ["Metformin 1000 mg BID"],
+            "allergies": ["No known drug allergies"],
+            "social_history": {
+                "occupation": "School administrator",
+                "exposure": "recent close contact with multiple symptomatic coworkers",
+                "vaccination_status": "influenza overdue",
+            },
+            "family_history": ["Father with COPD"],
+            "review_of_systems": {
+                "respiratory": "Productive cough, dyspnea, pleuritic discomfort",
+                "constitutional": "Fever, fatigue, myalgias",
+            },
+            "vital_signs": {
+                "blood_pressure": "132/78",
+                "heart_rate": 112,
+                "respiratory_rate": 30,
+                "oxygen_saturation": 89,
+                "temperature_c": 39.1,
+            },
         },
         journey_steps=[
             {
@@ -550,6 +776,28 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "chief_complaint": "Severe wheeze and shortness of breath",
             "urgency": "high",
         },
+        medical_history={
+            "past_medical_history": ["Asthma", "Atopic dermatitis"],
+            "medications": ["Albuterol inhaler PRN", "Fluticasone inhaler daily"],
+            "allergies": ["Peanut allergy", "Dust mite allergy"],
+            "social_history": {
+                "household": "lives with parents",
+                "triggers": ["viral URI", "exercise", "seasonal pollen"],
+                "secondhand_smoke": "none",
+            },
+            "family_history": ["Mother with asthma"],
+            "review_of_systems": {
+                "respiratory": "Severe wheeze, chest tightness, accessory muscle use",
+                "constitutional": "No persistent high fever",
+            },
+            "vital_signs": {
+                "blood_pressure": "102/64",
+                "heart_rate": 138,
+                "respiratory_rate": 45,
+                "oxygen_saturation": 85,
+                "temperature_c": 37.3,
+            },
+        },
         journey_steps=[
             {
                 "agent": "triage",
@@ -605,6 +853,32 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "gender": "male",
             "chief_complaint": "TIA symptoms requiring cross-network referral",
             "urgency": "high",
+        },
+        medical_history={
+            "past_medical_history": ["Atrial fibrillation", "Hypertension", "Hyperlipidemia"],
+            "medications": [
+                "Apixaban 5 mg BID",
+                "Metoprolol 50 mg BID",
+                "Atorvastatin 40 mg nightly",
+            ],
+            "allergies": ["Iodine contrast (mild hives)"],
+            "social_history": {
+                "tobacco": "former smoker (20 pack-years, quit 5 yrs ago)",
+                "alcohol": "occasional",
+                "occupation": "Long-haul truck driver",
+            },
+            "family_history": ["Mother with stroke at age 68"],
+            "review_of_systems": {
+                "neurologic": "Right-sided weakness and speech difficulty (resolved after 45 min)",
+                "cardiovascular": "Irregular heart rhythm at baseline",
+            },
+            "vital_signs": {
+                "blood_pressure": "162/96",
+                "heart_rate": 92,
+                "respiratory_rate": 18,
+                "oxygen_saturation": 98,
+                "temperature_c": 36.7,
+            },
         },
         journey_steps=[
             {
@@ -663,6 +937,28 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "gender": "female",
             "chief_complaint": "Persistent sinus pain after URI",
             "urgency": "medium",
+        },
+        medical_history={
+            "past_medical_history": ["Allergic rhinitis", "Migraine"],
+            "medications": ["Cetirizine 10 mg daily", "Sumatriptan 50 mg PRN"],
+            "allergies": ["Amoxicillin (GI upset)"],
+            "social_history": {
+                "tobacco": "never",
+                "alcohol": "occasional",
+                "occupation": "Remote software developer",
+            },
+            "family_history": ["Mother with chronic sinusitis"],
+            "review_of_systems": {
+                "ent": "Bilateral facial pressure, purulent nasal discharge x10 days",
+                "neurologic": "Frontal headache worse when leaning forward",
+            },
+            "vital_signs": {
+                "blood_pressure": "122/76",
+                "heart_rate": 78,
+                "respiratory_rate": 16,
+                "oxygen_saturation": 99,
+                "temperature_c": 37.4,
+            },
         },
         journey_steps=[
             {
@@ -737,6 +1033,32 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "chief_complaint": "MRI authorization for persistent radiculopathy",
             "urgency": "medium",
         },
+        medical_history={
+            "past_medical_history": ["Lumbar disc herniation L4-L5", "Hypertension", "Fibromyalgia"],
+            "medications": [
+                "Gabapentin 300 mg TID",
+                "Naproxen 500 mg BID",
+                "Losartan 50 mg daily",
+            ],
+            "allergies": ["Codeine (nausea)"],
+            "social_history": {
+                "tobacco": "never",
+                "alcohol": "rare",
+                "occupation": "Librarian (limited lifting tolerance)",
+            },
+            "family_history": ["Father with degenerative disc disease"],
+            "review_of_systems": {
+                "musculoskeletal": "Left-sided radicular pain L4 dermatomal distribution",
+                "neurologic": "Diminished ankle reflex left, positive SLR left",
+            },
+            "vital_signs": {
+                "blood_pressure": "136/82",
+                "heart_rate": 74,
+                "respiratory_rate": 16,
+                "oxygen_saturation": 99,
+                "temperature_c": 36.6,
+            },
+        },
         journey_steps=[
             {
                 "agent": "provider_agent",
@@ -810,6 +1132,29 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "chief_complaint": "Severe febrile respiratory illness with cluster exposure",
             "urgency": "high",
         },
+        medical_history={
+            "past_medical_history": ["Chronic obstructive pulmonary disease", "Former TB (treated 2015)"],
+            "medications": ["Tiotropium inhaler daily", "Salbutamol inhaler PRN"],
+            "allergies": ["No known drug allergies"],
+            "social_history": {
+                "tobacco": "former smoker (25 pack-years, quit 3 yrs ago)",
+                "alcohol": "occasional",
+                "occupation": "Meat-processing plant worker",
+                "exposure": "co-workers with similar symptoms over 2 weeks",
+            },
+            "family_history": ["No significant family history"],
+            "review_of_systems": {
+                "respiratory": "Productive cough, dyspnea at rest, pleuritic chest pain",
+                "constitutional": "Fever, rigors, night sweats, 3 kg weight loss",
+            },
+            "vital_signs": {
+                "blood_pressure": "124/78",
+                "heart_rate": 106,
+                "respiratory_rate": 28,
+                "oxygen_saturation": 90,
+                "temperature_c": 39.4,
+            },
+        },
         journey_steps=[
             {
                 "agent": "hospital_reporter",
@@ -859,6 +1204,160 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             },
         ],
         expected_duration=11,
+    ),
+    # ── Clinician Avatar Interview Scenario ──────────────────────────────
+    PatientScenario(
+        name="clinician_avatar_consultation",
+        description="Clinician avatar conducts a Calgary-Cambridge structured interview with a chest-pain patient.",
+        patient_profile={
+            "age": 54,
+            "gender": "male",
+            "chief_complaint": "Intermittent chest tightness with exertion",
+            "urgency": "high",
+        },
+        medical_history={
+            "past_medical_history": [
+                "Hypertension",
+                "Hyperlipidemia",
+                "Prediabetes",
+            ],
+            "medications": [
+                "Amlodipine 10 mg daily",
+                "Rosuvastatin 10 mg nightly",
+            ],
+            "allergies": ["No known drug allergies"],
+            "social_history": {
+                "tobacco": "former smoker (10 pack-years, quit 2 yrs ago)",
+                "alcohol": "1-2 beers on weekends",
+                "occupation": "Construction foreman",
+                "exercise": "reduced due to chest symptoms",
+            },
+            "family_history": ["Father with MI at age 58", "Mother with type 2 diabetes"],
+            "review_of_systems": {
+                "cardiac": "Substernal tightness on exertion, relieved by rest within 5 min",
+                "respiratory": "No cough or dyspnea at rest",
+                "constitutional": "No fever, no weight loss",
+            },
+            "vital_signs": {
+                "blood_pressure": "148/90",
+                "heart_rate": 82,
+                "respiratory_rate": 18,
+                "oxygen_saturation": 97,
+                "temperature_c": 36.7,
+            },
+        },
+        journey_steps=[
+            # 1 — Triage to establish context and urgency
+            {
+                "agent": "triage",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "symptoms": "intermittent exertional chest tightness",
+                    "vital_signs": {
+                        "blood_pressure": "148/90",
+                        "heart_rate": 82,
+                        "oxygen_saturation": 97,
+                    },
+                    "chief_complaint": "chest tightness with exertion over 3 weeks",
+                },
+                "delay": 2,
+            },
+            # 2 — Avatar starts a structured clinical interview
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/start_session",
+                "params": {
+                    "patient_case": {
+                        "chief_complaint": "Intermittent chest tightness with exertion",
+                        "age": 54,
+                        "gender": "male",
+                        "urgency": "high",
+                    },
+                    "persona": "senior_cardiologist",
+                },
+                "delay": 2,
+            },
+            # 3 — Patient describes symptom onset (avatar progresses interview)
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": "{{avatar_session_id}}",
+                    "message": "It started about three weeks ago. I get this tight feeling across my chest when I'm climbing stairs or lifting heavy things at work. It goes away when I sit down for a few minutes.",
+                },
+                "delay": 2,
+            },
+            # 4 — Patient answers follow-up about radiation and associations
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": "{{avatar_session_id}}",
+                    "message": "Sometimes it goes into my left arm and jaw. I also feel a bit nauseous when it happens. No sweating though.",
+                },
+                "delay": 2,
+            },
+            # 5 — Diagnosis agent processes gathered findings
+            {
+                "agent": "diagnosis",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "symptoms": "exertional chest tightness with left arm and jaw radiation, nausea",
+                    "differential_diagnosis": [
+                        "Stable angina",
+                        "Unstable angina",
+                        "GERD",
+                        "Musculoskeletal chest pain",
+                    ],
+                },
+                "delay": 2,
+            },
+            # 6 — Imaging workup
+            {
+                "agent": "imaging",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "orders": [
+                        {"type": "ecg", "priority": "urgent", "indication": "exertional chest pain"},
+                        {
+                            "type": "stress_echo",
+                            "priority": "routine",
+                            "indication": "ischemia workup",
+                        },
+                    ]
+                },
+                "delay": 2,
+            },
+            # 7 — Pharmacy
+            {
+                "agent": "pharmacy",
+                "method": "pharmacy/recommend",
+                "params": {
+                    "task": {
+                        "med_plan": ["Aspirin 81 mg", "Nitroglycerin SL PRN"],
+                        "allergies": [],
+                        "current_medications": ["Amlodipine", "Rosuvastatin"],
+                    }
+                },
+                "delay": 1,
+            },
+            # 8 — Follow-up scheduling
+            {
+                "agent": "followup",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "followup_schedule": [
+                        {
+                            "type": "cardiology",
+                            "when": _future(7),
+                            "purpose": "stress echo results review and risk stratification",
+                        }
+                    ]
+                },
+                "delay": 1,
+            },
+        ],
+        expected_duration=18,
     ),
 ]
 

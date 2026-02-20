@@ -6,17 +6,15 @@ Comprehensive tool for managing, saving, and running patient journey scenarios.
 """
 
 import json
-import asyncio
-import time
 from datetime import datetime
-from pathlib import Path
-from typing import List, Dict, Any
+
+from additional_scenarios import ADDITIONAL_SCENARIOS
 
 # Import scenario definitions
 from helixcare_scenarios import SCENARIOS as BASE_SCENARIOS
-from additional_scenarios import ADDITIONAL_SCENARIOS
 
 ALL_SCENARIOS = BASE_SCENARIOS + ADDITIONAL_SCENARIOS
+
 
 def save_scenarios_to_json(filename: str = "tools/helixcare_all_scenarios.json"):
     """Save all scenarios to a JSON file."""
@@ -29,18 +27,23 @@ def save_scenarios_to_json(filename: str = "tools/helixcare_all_scenarios.json")
             "journey_steps": scenario.journey_steps,
             "expected_duration": scenario.expected_duration,
             "created_at": datetime.now().isoformat(),
-            "version": "1.0"
+            "version": "1.0",
         }
+        # Include optional enriched medical_history if present on the dataclass
+        mh = getattr(scenario, "medical_history", None)
+        if isinstance(mh, dict) and mh:
+            scenario_dict["medical_history"] = mh
         scenarios_data.append(scenario_dict)
 
-    with open(filename, "w", encoding='utf-8') as f:
+    with open(filename, "w", encoding="utf-8") as f:
         json.dump(scenarios_data, f, indent=2, ensure_ascii=False)
 
     print(f"💾 Saved {len(scenarios_data)} scenarios to {filename}")
 
+
 def save_scenario_summaries(filename: str = "tools/scenario_summaries.md"):
     """Save scenario summaries to a markdown file."""
-    with open(filename, "w", encoding='utf-8') as f:
+    with open(filename, "w", encoding="utf-8") as f:
         f.write("# HelixCare Patient Journey Scenarios\n\n")
         f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
         f.write(f"Total Scenarios: {len(ALL_SCENARIOS)}\n\n")
@@ -49,7 +52,7 @@ def save_scenario_summaries(filename: str = "tools/scenario_summaries.md"):
         for i, scenario in enumerate(ALL_SCENARIOS, 1):
             f.write(f"### {i}. {scenario.name.replace('_', ' ').title()}\n\n")
             f.write(f"**Description:** {scenario.description}\n\n")
-            f.write(f"**Patient Profile:**\n")
+            f.write("**Patient Profile:**\n")
             f.write(f"- Age: {scenario.patient_profile['age']}\n")
             f.write(f"- Gender: {scenario.patient_profile['gender']}\n")
             f.write(f"- Chief Complaint: {scenario.patient_profile['chief_complaint']}\n")
@@ -57,7 +60,7 @@ def save_scenario_summaries(filename: str = "tools/scenario_summaries.md"):
 
             f.write(f"**Journey Steps:** {len(scenario.journey_steps)}\n\n")
             for j, step in enumerate(scenario.journey_steps, 1):
-                agent_name = step['agent'].replace('_', ' ').title()
+                agent_name = step["agent"].replace("_", " ").title()
                 f.write(f"{j}. **{agent_name}** - {step['method']}\n")
 
             f.write(f"\n**Expected Duration:** ~{scenario.expected_duration} seconds\n\n")
@@ -67,16 +70,17 @@ def save_scenario_summaries(filename: str = "tools/scenario_summaries.md"):
         agents_used = set()
         for scenario in ALL_SCENARIOS:
             for step in scenario.journey_steps:
-                agents_used.add(step['agent'])
+                agents_used.add(step["agent"])
 
         f.write("The following agents are exercised across all scenarios:\n\n")
         for agent in sorted(agents_used):
-            agent_name = agent.replace('_', ' ').title()
+            agent_name = agent.replace("_", " ").title()
             f.write(f"- **{agent_name}**\n")
 
         f.write(f"\n**Total Agents:** {len(agents_used)}\n")
 
     print(f"📝 Saved scenario summaries to {filename}")
+
 
 def create_scenario_runner_script(filename: str = "tools/run_all_scenarios.py"):
     """Create a comprehensive scenario runner script."""
@@ -276,10 +280,11 @@ if __name__ == "__main__":
     asyncio.run(main())
 '''
 
-    with open(filename, "w", encoding='utf-8') as f:
+    with open(filename, "w", encoding="utf-8") as f:
         f.write(script_content)
 
     print(f"🏃 Created comprehensive runner script: {filename}")
+
 
 def create_scenario_validator(filename: str = "tools/validate_scenarios.py"):
     """Create a scenario validation script."""
@@ -318,6 +323,48 @@ async def validate_scenario_structure(scenario_data: dict) -> bool:
             if field not in step:
                 print(f"❌ Step {i+1}: Missing required field: {field}")
                 return False
+
+    # Optional medical history validation (backward compatible)
+    if "medical_history" in scenario_data:
+        mh = scenario_data["medical_history"]
+        if not isinstance(mh, dict):
+            print("❌ medical_history must be an object/dict")
+            return False
+        expected_keys = [
+            "past_medical_history",
+            "medications",
+            "allergies",
+            "social_history",
+            "family_history",
+            "review_of_systems",
+            "vital_signs",
+        ]
+        for key in expected_keys:
+            if key not in mh:
+                print(f"❌ medical_history missing key: {key}")
+                return False
+
+        if not isinstance(mh.get("past_medical_history"), list):
+            print("❌ medical_history.past_medical_history must be a list")
+            return False
+        if not isinstance(mh.get("medications"), list):
+            print("❌ medical_history.medications must be a list")
+            return False
+        if not isinstance(mh.get("allergies"), list):
+            print("❌ medical_history.allergies must be a list")
+            return False
+        if not isinstance(mh.get("social_history"), dict):
+            print("❌ medical_history.social_history must be a dict")
+            return False
+        if not isinstance(mh.get("family_history"), list):
+            print("❌ medical_history.family_history must be a list")
+            return False
+        if not isinstance(mh.get("review_of_systems"), dict):
+            print("❌ medical_history.review_of_systems must be a dict")
+            return False
+        if not isinstance(mh.get("vital_signs"), dict):
+            print("❌ medical_history.vital_signs must be a dict")
+            return False
 
     return True
 
@@ -398,10 +445,11 @@ if __name__ == "__main__":
     main()
 '''
 
-    with open(filename, "w", encoding='utf-8') as f:
+    with open(filename, "w", encoding="utf-8") as f:
         f.write(script_content)
 
     print(f"✅ Created validator script: {filename}")
+
 
 def main():
     """Main scenario management function."""
@@ -427,6 +475,7 @@ def main():
     print(f"\n📊 Total scenarios saved: {len(ALL_SCENARIOS)}")
     print("🏥 Scenarios cover diverse medical conditions and agent interactions")
     print("🚀 Ready for testing and demonstration!")
+
 
 if __name__ == "__main__":
     main()

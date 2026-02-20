@@ -55,6 +55,7 @@
     // Docker
     "docker.showStartPage": false,
     // Chat
+    "github.copilot.chat.edits.enabled": true,
     "chat.openFile.editorAssociations": {
         "*.md": "vscode.markdown.preview.editor"
     },

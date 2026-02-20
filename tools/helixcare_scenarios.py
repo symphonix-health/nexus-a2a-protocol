@@ -10,7 +10,7 @@ import random
 import sys
 import time
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -41,6 +41,7 @@ BASE_URLS = {
     "telehealth": "http://localhost:8036",
     "home_visit": "http://localhost:8037",
     "ccm": "http://localhost:8038",
+    "clinician_avatar": "http://localhost:8039",
     "insurer_agent": "http://localhost:8041",
     "provider_agent": "http://localhost:8042",
     "consent_analyser": "http://localhost:8043",
@@ -225,6 +226,9 @@ class PatientScenario:
     patient_profile: dict[str, Any]
     journey_steps: list[dict[str, Any]]
     expected_duration: int
+    # Optional enriched clinical context for more realistic simulations.
+    # Backward-compatible: scenarios without this field remain valid.
+    medical_history: dict[str, Any] = field(default_factory=dict)
 
 
 def create_jwt_token(subject: str = "test-patient-scenario") -> str:
@@ -468,6 +472,33 @@ SCENARIOS = [
             "chief_complaint": "Fatigue and elevated blood pressure follow-up",
             "urgency": "medium",
         },
+        medical_history={
+            "past_medical_history": [
+                "Type 2 diabetes",
+                "Hypertension",
+                "Iron deficiency anemia (history)",
+            ],
+            "medications": ["Metformin 1000 mg BID", "Lisinopril 10 mg daily"],
+            "allergies": ["No known drug allergies"],
+            "social_history": {
+                "tobacco": "never",
+                "alcohol": "occasional",
+                "occupation": "Administrative assistant",
+                "exercise": "limited due to fatigue",
+            },
+            "family_history": ["Mother with hypertension", "Father with type 2 diabetes"],
+            "review_of_systems": {
+                "constitutional": "Fatigue over 6 weeks, no fevers",
+                "neurologic": "Intermittent headaches, no focal deficits",
+            },
+            "vital_signs": {
+                "blood_pressure": "152/92",
+                "heart_rate": 82,
+                "respiratory_rate": 16,
+                "oxygen_saturation": 98,
+                "temperature_c": 36.7,
+            },
+        },
         journey_steps=[
             _step(
                 "primary_care",
@@ -519,6 +550,28 @@ SCENARIOS = [
             "gender": "male",
             "chief_complaint": "Progressive exertional chest discomfort",
             "urgency": "high",
+        },
+        medical_history={
+            "past_medical_history": ["Hypertension", "Hyperlipidemia", "GERD"],
+            "medications": ["Aspirin 81 mg daily", "Atorvastatin 20 mg nightly"],
+            "allergies": ["No known drug allergies"],
+            "social_history": {
+                "tobacco": "former smoker (15 pack-years)",
+                "alcohol": "occasional",
+                "activity": "reduced exertional tolerance over 2 months",
+            },
+            "family_history": ["Brother with CAD requiring PCI"],
+            "review_of_systems": {
+                "cardiac": "Exertional pressure-like chest discomfort relieved by rest",
+                "respiratory": "No rest dyspnea, no hemoptysis",
+            },
+            "vital_signs": {
+                "blood_pressure": "146/88",
+                "heart_rate": 86,
+                "respiratory_rate": 18,
+                "oxygen_saturation": 97,
+                "temperature_c": 36.6,
+            },
         },
         journey_steps=[
             _step(
@@ -577,6 +630,29 @@ SCENARIOS = [
             "chief_complaint": "Migraine follow-up",
             "urgency": "low",
         },
+        medical_history={
+            "past_medical_history": ["Migraine without aura", "Generalized anxiety disorder"],
+            "medications": ["Sumatriptan 50 mg PRN", "Sertraline 50 mg daily"],
+            "allergies": ["No known drug allergies"],
+            "social_history": {
+                "tobacco": "never",
+                "alcohol": "occasional",
+                "occupation": "Software engineer",
+                "sleep": "5-6 hours/night during work weeks",
+            },
+            "family_history": ["Mother with migraine"],
+            "review_of_systems": {
+                "neurologic": "Photophobia and pulsatile unilateral headaches; no focal deficits",
+                "constitutional": "No fever, no weight loss",
+            },
+            "vital_signs": {
+                "blood_pressure": "124/78",
+                "heart_rate": 74,
+                "respiratory_rate": 16,
+                "oxygen_saturation": 99,
+                "temperature_c": 36.7,
+            },
+        },
         journey_steps=[
             _step(
                 "telehealth",
@@ -624,6 +700,28 @@ SCENARIOS = [
             "chief_complaint": "Medication side-effect review",
             "urgency": "low",
         },
+        medical_history={
+            "past_medical_history": ["Hypertension", "Stage 3 CKD", "Osteoarthritis"],
+            "medications": ["Lisinopril 10 mg daily", "Ibuprofen 400 mg PRN"],
+            "allergies": ["Sulfa (rash)"],
+            "social_history": {
+                "tobacco": "never",
+                "alcohol": "none",
+                "living_situation": "lives with spouse",
+            },
+            "family_history": ["Mother with hypertension"],
+            "review_of_systems": {
+                "neurologic": "Intermittent dizziness after medication change",
+                "cardiovascular": "No syncope, no chest pain",
+            },
+            "vital_signs": {
+                "blood_pressure": "118/66",
+                "heart_rate": 72,
+                "respiratory_rate": 16,
+                "oxygen_saturation": 98,
+                "temperature_c": 36.5,
+            },
+        },
         journey_steps=[
             _step(
                 "telehealth",
@@ -663,6 +761,32 @@ SCENARIOS = [
             "gender": "female",
             "chief_complaint": "Frailty and recurrent falls",
             "urgency": "medium",
+        },
+        medical_history={
+            "past_medical_history": [
+                "Atrial fibrillation",
+                "Osteoporosis",
+                "Mild cognitive impairment",
+            ],
+            "medications": ["Warfarin 5 mg daily", "Vitamin D3 1000 IU daily"],
+            "allergies": ["Codeine (nausea)"],
+            "social_history": {
+                "living_situation": "Lives alone with daytime caregiver support",
+                "mobility": "Uses walker",
+                "home_risks": ["Loose rugs", "Poor bathroom grab-bar support"],
+            },
+            "family_history": ["Daughter with osteoporosis"],
+            "review_of_systems": {
+                "musculoskeletal": "Gait instability and lower-extremity weakness",
+                "neurologic": "No recent syncope, intermittent confusion at night",
+            },
+            "vital_signs": {
+                "blood_pressure": "134/74",
+                "heart_rate": 78,
+                "respiratory_rate": 18,
+                "oxygen_saturation": 97,
+                "temperature_c": 36.4,
+            },
         },
         journey_steps=[
             _step(
@@ -715,6 +839,37 @@ SCENARIOS = [
             "chief_complaint": "CCM monthly review for diabetes and CHF",
             "urgency": "low",
         },
+        medical_history={
+            "past_medical_history": [
+                "Type 2 diabetes",
+                "Congestive heart failure (HFrEF)",
+                "Chronic kidney disease stage 2",
+            ],
+            "medications": [
+                "Metformin 1000 mg BID",
+                "Lisinopril 20 mg daily",
+                "Aspirin 81 mg daily",
+                "Furosemide 20 mg daily",
+            ],
+            "allergies": ["No known drug allergies"],
+            "social_history": {
+                "diet": "Inconsistent low-sodium adherence",
+                "activity": "Walks 10-15 minutes/day",
+                "self_monitoring": "Intermittent glucose and weight logging",
+            },
+            "family_history": ["Brother with heart failure"],
+            "review_of_systems": {
+                "cardiac": "Mild exertional dyspnea, occasional ankle edema",
+                "endocrine": "Variable fasting glucose control",
+            },
+            "vital_signs": {
+                "blood_pressure": "140/84",
+                "heart_rate": 80,
+                "respiratory_rate": 18,
+                "oxygen_saturation": 96,
+                "temperature_c": 36.8,
+            },
+        },
         journey_steps=[
             _step(
                 "ccm",
@@ -758,6 +913,28 @@ SCENARIOS = [
             "gender": "male",
             "chief_complaint": "Acute asthma exacerbation",
             "urgency": "high",
+        },
+        medical_history={
+            "past_medical_history": ["Asthma (moderate persistent)", "Allergic rhinitis"],
+            "medications": ["Albuterol inhaler PRN", "Budesonide-formoterol inhaler BID"],
+            "allergies": ["Cats", "Dust mites"],
+            "social_history": {
+                "tobacco": "never",
+                "alcohol": "social",
+                "trigger_exposures": ["Cold air", "Recent viral URI", "Missed controller doses"],
+            },
+            "family_history": ["Sibling with asthma"],
+            "review_of_systems": {
+                "respiratory": "Wheeze, chest tightness, dyspnea; no hemoptysis",
+                "cardiac": "No exertional chest pressure",
+            },
+            "vital_signs": {
+                "blood_pressure": "138/86",
+                "heart_rate": 116,
+                "respiratory_rate": 28,
+                "oxygen_saturation": 92,
+                "temperature_c": 37.1,
+            },
         },
         journey_steps=[
             _step(
@@ -830,6 +1007,33 @@ SCENARIOS = [
             "gender": "female",
             "chief_complaint": "Chest pain and diaphoresis",
             "urgency": "critical",
+        },
+        medical_history={
+            "past_medical_history": ["Hypertension", "Hyperlipidemia", "Type 2 diabetes"],
+            "medications": [
+                "Lisinopril 20 mg daily",
+                "Atorvastatin 40 mg nightly",
+                "Metformin 1000 mg BID",
+            ],
+            "allergies": ["Penicillin (rash)"],
+            "social_history": {
+                "tobacco": "former smoker (20 pack-years)",
+                "alcohol": "rare",
+                "exercise_tolerance": "decreased over past month",
+            },
+            "family_history": ["Father with MI at 59"],
+            "review_of_systems": {
+                "cardiac": "Substernal pressure radiating to left arm with diaphoresis",
+                "respiratory": "Mild dyspnea",
+                "gi": "Nausea present",
+            },
+            "vital_signs": {
+                "blood_pressure": "168/98",
+                "heart_rate": 112,
+                "respiratory_rate": 24,
+                "oxygen_saturation": 94,
+                "temperature_c": 36.8,
+            },
         },
         journey_steps=[
             _step(
@@ -904,6 +1108,32 @@ SCENARIOS = [
             "chief_complaint": "Community acquired pneumonia with hypoxia",
             "urgency": "high",
         },
+        medical_history={
+            "past_medical_history": ["COPD", "Hypertension", "Chronic tobacco exposure"],
+            "medications": [
+                "Tiotropium inhaler daily",
+                "Amlodipine 5 mg daily",
+                "Albuterol inhaler PRN",
+            ],
+            "allergies": ["No known drug allergies"],
+            "social_history": {
+                "tobacco": "former smoker (40 pack-years)",
+                "living_situation": "Lives with spouse",
+                "recent_exposure": "Grandchild with respiratory infection",
+            },
+            "family_history": ["Father with COPD"],
+            "review_of_systems": {
+                "respiratory": "Productive cough, pleuritic chest discomfort, dyspnea",
+                "constitutional": "Fever and fatigue",
+            },
+            "vital_signs": {
+                "blood_pressure": "128/72",
+                "heart_rate": 102,
+                "respiratory_rate": 26,
+                "oxygen_saturation": 88,
+                "temperature_c": 38.7,
+            },
+        },
         journey_steps=[
             _step(
                 "bed_manager",
@@ -939,6 +1169,36 @@ SCENARIOS = [
             "gender": "female",
             "chief_complaint": "Discharge readiness after CHF admission",
             "urgency": "medium",
+        },
+        medical_history={
+            "past_medical_history": [
+                "Congestive heart failure",
+                "Hypertension",
+                "Coronary artery disease",
+            ],
+            "medications": [
+                "Lisinopril 20 mg daily",
+                "Aspirin 81 mg daily",
+                "Furosemide 40 mg daily",
+            ],
+            "allergies": ["Ibuprofen (fluid retention)"],
+            "social_history": {
+                "diet": "High sodium prior to admission; now educated on restriction",
+                "support": "Lives with partner who assists medication management",
+                "self_monitoring": "Agrees to daily weight logs",
+            },
+            "family_history": ["Mother with heart failure"],
+            "review_of_systems": {
+                "cardiac": "Improved dyspnea and edema compared with admission",
+                "constitutional": "No fever; appetite improving",
+            },
+            "vital_signs": {
+                "blood_pressure": "122/70",
+                "heart_rate": 76,
+                "respiratory_rate": 18,
+                "oxygen_saturation": 97,
+                "temperature_c": 36.6,
+            },
         },
         journey_steps=[
             _step(
@@ -1005,6 +1265,27 @@ def _load_additional_scenarios() -> list[PatientScenario]:
             return []
 
 
+def _resolve_context_template(value: Any, clinical_context: dict[str, Any]) -> Any:
+    """Resolve $ctx.<dot.path> references in scenario step params."""
+    if isinstance(value, dict):
+        return {k: _resolve_context_template(v, clinical_context) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_resolve_context_template(v, clinical_context) for v in value]
+    if not isinstance(value, str):
+        return value
+    if not value.startswith("$ctx."):
+        return value
+
+    path = value[len("$ctx.") :].split(".")
+    cursor: Any = clinical_context
+    for segment in path:
+        if isinstance(cursor, dict) and segment in cursor:
+            cursor = cursor[segment]
+            continue
+        return value
+    return cursor
+
+
 TRACE_SINK_URL = os.getenv("TRACE_SINK_URL", "http://localhost:8099")
 
 
@@ -1044,12 +1325,29 @@ async def run_scenario(scenario: PatientScenario) -> None:
         started_at=datetime.now().astimezone().isoformat(),
     )
 
+    # Phase 4: Inter-step clinical context threading (opt-in, harmless to existing agents)
+    clinical_context: dict[str, Any] = {
+        "patient_profile": dict(scenario.patient_profile or {}),
+        # If medical_history is absent, keep an empty dict to remain backward compatible
+        "medical_history": dict(getattr(scenario, "medical_history", {}) or {}),
+        # Container for agent outputs by agent alias
+        "agent_outputs": {},
+        # Scenario metadata useful for downstream prompts/logic
+        "_meta": {
+            "scenario_name": scenario.name,
+            "trace_id": trace_id,
+        },
+    }
+
     final_status = "final"
     for i, step in enumerate(scenario.journey_steps, 1):
         print(f"\nStep {i}/{len(scenario.journey_steps)}: {step['agent'].upper()}")
-        step_params = step["params"].copy()
+        step_params = _resolve_context_template(step["params"], clinical_context)
         step_params["patient_id"] = patient_id
         step_params["visit_id"] = visit_id
+        # Inject accumulated clinical context so agents can generate realistic outputs
+        # Existing agents that ignore this field remain unaffected
+        step_params["clinical_context"] = clinical_context
         task_id = f"{visit_id}-{step['agent']}-{i}"
         rpc_url = resolve_agent_rpc_url(step["agent"])
 
@@ -1069,6 +1367,23 @@ async def run_scenario(scenario: PatientScenario) -> None:
             trace_run.add_step(step_event)
             if step_event.status == "error":
                 final_status = "error"
+
+        # Merge agent output back into the clinical context for downstream steps
+        try:
+            # JSON-RPC envelope typically has {"jsonrpc":"2.0","id":...,"result":{...}}
+            env = result if isinstance(result, dict) else {}
+            payload = env.get("result", env)
+            # Store under agent alias; also keep the last_step for quick reference
+            clinical_context["agent_outputs"][step["agent"]] = payload
+            clinical_context["last_step"] = {
+                "agent": step["agent"],
+                "method": step["method"],
+                "result": payload,
+                "index": i,
+            }
+        except Exception:
+            # Non-fatal; context threading is best-effort
+            pass
 
         if "delay" in step:
             await asyncio.sleep(step["delay"])
@@ -1134,6 +1449,8 @@ def save_scenarios_to_file() -> None:
                 "patient_profile": scenario.patient_profile,
                 "journey_steps": scenario.journey_steps,
                 "expected_duration": scenario.expected_duration,
+                # Include optional enriched history when present
+                "medical_history": getattr(scenario, "medical_history", {}),
             }
         )
 

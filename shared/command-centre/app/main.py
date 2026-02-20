@@ -10,6 +10,7 @@ Provides:
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import logging
 import os
@@ -28,7 +29,7 @@ except ImportError:
     REDIS_AVAILABLE = False
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
@@ -62,9 +63,27 @@ first_poll_cycle_completed = False
 TRACE_STORE_MAX = 200
 trace_store: OrderedDict[str, dict[str, Any]] = OrderedDict()
 trace_lock = asyncio.Lock()
+TRACE_STORE_FILE = Path(
+    os.getenv(
+        "COMMAND_CENTRE_TRACE_STORE_FILE",
+        str(Path(__file__).resolve().parents[3] / "temp" / "command_centre_trace_store.json"),
+    )
+)
 
 # ── WebSocket Client Registry ────────────────────────────────────────
 ws_clients: set[WebSocket] = set()
+
+
+class DevNoCacheStaticFiles(StaticFiles):
+    """Static file handler that disables browser caching for rapid UI iteration."""
+
+    async def get_response(self, path: str, scope: dict[str, Any]) -> Response:
+        response = await super().get_response(path, scope)
+        if response.status_code == 200:
+            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+        return response
 
 
 def _load_agent_urls_from_config() -> list[str]:
@@ -161,6 +180,53 @@ def _load_scenario_catalog() -> list[dict[str, Any]]:
     except Exception as exc:
         logger.warning(f"Failed to load scenario catalog: {exc}")
         return []
+
+
+def _restore_trace_store_from_disk() -> int:
+    """Restore persisted trace runs from disk into in-memory trace store."""
+    try:
+        if not TRACE_STORE_FILE.is_file():
+            return 0
+
+        raw = json.loads(TRACE_STORE_FILE.read_text(encoding="utf-8"))
+        items = raw.get("traces", raw) if isinstance(raw, dict) else raw
+        if not isinstance(items, list):
+            return 0
+
+        restored: OrderedDict[str, dict[str, Any]] = OrderedDict()
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            trace_id = str(item.get("trace_id", "")).strip()
+            if not trace_id:
+                continue
+            restored[trace_id] = item
+
+        while len(restored) > TRACE_STORE_MAX:
+            restored.popitem(last=False)
+
+        trace_store.clear()
+        trace_store.update(restored)
+        return len(trace_store)
+    except Exception as exc:
+        logger.warning(f"Failed to restore trace store from {TRACE_STORE_FILE}: {exc}")
+        return 0
+
+
+def _persist_trace_store_to_disk() -> None:
+    """Persist in-memory trace store to disk for restart resilience."""
+    try:
+        TRACE_STORE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "saved_at": datetime.now(timezone.utc).isoformat(),
+            "traces": list(trace_store.values()),
+        }
+
+        temp_path = TRACE_STORE_FILE.with_suffix(TRACE_STORE_FILE.suffix + ".tmp")
+        temp_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+        temp_path.replace(TRACE_STORE_FILE)
+    except Exception as exc:
+        logger.warning(f"Failed to persist trace store to {TRACE_STORE_FILE}: {exc}")
 
 
 # ── Agent Discovery & Health Polling ──────────────────────────────────
@@ -263,8 +329,11 @@ async def startup_event():
     """Start background polling on startup."""
     global poll_task_started, scenario_catalog
     scenario_catalog = _load_scenario_catalog()
+    restored = _restore_trace_store_from_disk()
     asyncio.create_task(poll_agents())
     poll_task_started = True
+    if restored:
+        logger.info(f"Restored {restored} trace runs from {TRACE_STORE_FILE}")
     logger.info(f"Command Centre started. Monitoring {len(AGENT_URLS)} agents.")
 
 
@@ -364,6 +433,7 @@ async def ingest_trace(request: Request):
         # Evict oldest when over capacity
         while len(trace_store) > TRACE_STORE_MAX:
             trace_store.popitem(last=False)
+        _persist_trace_store_to_disk()
 
     # Broadcast to all WS clients
     await _broadcast_ws(
@@ -512,9 +582,55 @@ async def websocket_events(websocket: WebSocket):
 # ── Static Files ──────────────────────────────────────────────────────
 # Mount static files last (fallback route)
 # Use __file__-relative path so it works regardless of CWD
-_static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
-if os.path.isdir(_static_dir):
-    app.mount("/", StaticFiles(directory=_static_dir, html=True), name="static")
+_static_dir = Path(__file__).resolve().parent / "static"
+_index_html_path = _static_dir / "index.html"
+_versioned_assets = ("styles.css", "colors.js", "dashboard.js")
+
+
+def _compute_asset_version() -> str:
+    """Compute a stable version token from static asset metadata."""
+    hasher = hashlib.sha256()
+
+    for asset_name in _versioned_assets:
+        asset_path = _static_dir / asset_name
+        hasher.update(asset_name.encode("utf-8"))
+
+        if asset_path.is_file():
+            stat = asset_path.stat()
+            hasher.update(str(stat.st_mtime_ns).encode("utf-8"))
+            hasher.update(str(stat.st_size).encode("utf-8"))
+        else:
+            hasher.update(b"missing")
+
+    return hasher.hexdigest()[:12]
+
+
+def _render_index_html() -> str:
+    """Render index.html with runtime asset version token."""
+    raw = _index_html_path.read_text(encoding="utf-8")
+    version = _compute_asset_version()
+    return raw.replace("__ASSET_VERSION__", version)
+
+
+@app.get("/", response_class=HTMLResponse)
+@app.get("/index.html", response_class=HTMLResponse)
+async def serve_dashboard_index() -> HTMLResponse:
+    """Serve dashboard index with dynamic cache-busting asset version token."""
+    if not _index_html_path.is_file():
+        return HTMLResponse(status_code=404, content="Dashboard index.html not found")
+
+    return HTMLResponse(
+        content=_render_index_html(),
+        headers={
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0",
+        },
+    )
+
+
+if _static_dir.is_dir():
+    app.mount("/", DevNoCacheStaticFiles(directory=str(_static_dir), html=True), name="static")
 else:
     logger.warning(f"Static files directory not found at {_static_dir} — dashboard UI disabled")
 

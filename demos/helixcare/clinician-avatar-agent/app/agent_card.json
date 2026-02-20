@@ -1,0 +1,28 @@
+{
+  "name": "ClinicianAvatarAgent",
+  "description": "LLM-driven clinician avatar session agent",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "url": "http://clinician-avatar-agent:8039",
+  "capabilities": {
+    "streaming": true,
+    "websocket": true,
+    "pushNotifications": false
+  },
+  "methods": [
+    "avatar/start_session",
+    "avatar/patient_message",
+    "avatar/get_status",
+    "avatar/end_session"
+  ],
+  "authentication": {
+    "schemes": ["bearer"]
+  },
+  "skills": [
+    {
+      "id": "clinician-avatar",
+      "name": "Clinician Avatar",
+      "description": "Protocol-first avatar consultation with framework-guided interviewing"
+    }
+  ]
+}

@@ -34,6 +34,48 @@ async def validate_scenario_structure(scenario_data: dict) -> bool:
                 print(f"❌ Step {i+1}: Missing required field: {field}")
                 return False
 
+    # Optional medical history validation (backward compatible)
+    if "medical_history" in scenario_data:
+        mh = scenario_data["medical_history"]
+        if not isinstance(mh, dict):
+            print("❌ medical_history must be an object/dict")
+            return False
+        expected_keys = [
+            "past_medical_history",
+            "medications",
+            "allergies",
+            "social_history",
+            "family_history",
+            "review_of_systems",
+            "vital_signs",
+        ]
+        for key in expected_keys:
+            if key not in mh:
+                print(f"❌ medical_history missing key: {key}")
+                return False
+
+        if not isinstance(mh.get("past_medical_history"), list):
+            print("❌ medical_history.past_medical_history must be a list")
+            return False
+        if not isinstance(mh.get("medications"), list):
+            print("❌ medical_history.medications must be a list")
+            return False
+        if not isinstance(mh.get("allergies"), list):
+            print("❌ medical_history.allergies must be a list")
+            return False
+        if not isinstance(mh.get("social_history"), dict):
+            print("❌ medical_history.social_history must be a dict")
+            return False
+        if not isinstance(mh.get("family_history"), list):
+            print("❌ medical_history.family_history must be a list")
+            return False
+        if not isinstance(mh.get("review_of_systems"), dict):
+            print("❌ medical_history.review_of_systems must be a dict")
+            return False
+        if not isinstance(mh.get("vital_signs"), dict):
+            print("❌ medical_history.vital_signs must be a dict")
+            return False
+
     return True
 
 async def check_agent_availability(base_urls: dict) -> dict:

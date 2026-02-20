@@ -40,6 +40,7 @@ DEFAULT_DEPENDENCY_GRAPH: dict[str, list[str]] = {
     "telehealth": ["diagnosis", "pharmacy", "followup"],
     "home_visit": ["primary_care", "coordinator"],
     "ccm": ["primary_care", "followup"],
+    "clinician_avatar": ["diagnosis", "imaging", "pharmacy", "followup", "coordinator"],
 }
 
 
@@ -223,7 +224,9 @@ class OnDemandProcessManager:
                 if proc is None:
                     raise RuntimeError(f"{spec.alias} process missing during startup")
                 if proc.poll() is not None:
-                    raise RuntimeError(f"{spec.alias} exited during startup (code={proc.returncode})")
+                    raise RuntimeError(
+                        f"{spec.alias} exited during startup (code={proc.returncode})"
+                    )
 
                 try:
                     response = await client.get(health_url)
@@ -349,7 +352,9 @@ class OnDemandProcessManager:
 
     def status(self) -> list[dict[str, Any]]:
         rows: list[dict[str, Any]] = []
-        for spec in sorted(self._specs_by_id.values(), key=lambda item: (item.category, item.alias)):
+        for spec in sorted(
+            self._specs_by_id.values(), key=lambda item: (item.category, item.alias)
+        ):
             proc = self._processes.get(spec.spec_id)
             running = proc is not None and proc.poll() is None
             rows.append(
@@ -466,6 +471,8 @@ async def proxy_rpc(agent_alias: str, request: Request) -> Response:
         try:
             return JSONResponse(status_code=resp.status_code, content=resp.json())
         except Exception:
-            return Response(content=resp.content, status_code=resp.status_code, media_type=content_type)
+            return Response(
+                content=resp.content, status_code=resp.status_code, media_type=content_type
+            )
 
     return Response(content=resp.content, status_code=resp.status_code, media_type=content_type)

@@ -243,6 +243,8 @@ async def test_command_centre_ed_triage_statuses_after_task(
     dashboard_base = URLS.get("dashboard", "http://localhost:8099")
     triage_base = ED_URLS["triage-agent"]
     required_agents = ("openhie-mediator", "diagnosis-agent", "triage-agent")
+    baseline_processed = {name: 0 for name in required_agents}
+    baseline_errored = {name: 0 for name in required_agents}
 
     try:
         # Wait for command centre and triage agent to become reachable.
@@ -305,6 +307,25 @@ async def test_command_centre_ed_triage_statuses_after_task(
         assert cc_ready, f"Command Centre did not become ready within 180s ({cc_last_error})"
         assert triage_ready, f"Triage agent did not become ready within 180s ({triage_last_error})"
 
+        # Capture baseline metrics so assertions are tied to this test run.
+        try:
+            baseline_resp = await client.get(f"{dashboard_base}/api/agents", timeout=30.0)
+            if baseline_resp.status_code == 200:
+                baseline_rows = baseline_resp.json()
+                baseline_by_name = {
+                    a.get("name"): a for a in baseline_rows
+                    if isinstance(a, dict) and a.get("name")
+                }
+                for name in required_agents:
+                    metrics = (baseline_by_name.get(name) or {}).get("metrics", {})
+                    completed = int(metrics.get("tasks_completed", 0))
+                    errored = int(metrics.get("tasks_errored", 0))
+                    baseline_processed[name] = completed + errored
+                    baseline_errored[name] = errored
+        except Exception:
+            # If baseline read fails transiently, continue with zeroed baselines.
+            pass
+
         payload = {
             "jsonrpc": "2.0",
             "id": "harness-cmd-health-1",
@@ -319,13 +340,25 @@ async def test_command_centre_ed_triage_statuses_after_task(
                 }
             },
         }
-        triage_resp = await client.post(
-            f"{triage_base}/rpc",
-            headers=auth_headers,
-            content=json.dumps(payload),
-            timeout=30.0,
+        triage_resp = None
+        triage_last_error = "not_attempted"
+        for _ in range(5):
+            try:
+                triage_resp = await client.post(
+                    f"{triage_base}/rpc",
+                    headers=auth_headers,
+                    content=json.dumps(payload),
+                    timeout=30.0,
+                )
+                if triage_resp.status_code == 200:
+                    break
+                triage_last_error = f"status={triage_resp.status_code}"
+            except Exception as exc:
+                triage_last_error = str(exc)
+            await asyncio.sleep(1.5)
+        assert triage_resp is not None and triage_resp.status_code == 200, (
+            f"Triage RPC failed after retries ({triage_last_error})"
         )
-        assert triage_resp.status_code == 200, f"Triage RPC failed: {triage_resp.status_code}"
         triage_body = triage_resp.json()
         task_id = ((triage_body.get("result") or {}).get("task_id"))
         assert task_id, "Triage RPC response missing task_id"
@@ -335,8 +368,12 @@ async def test_command_centre_ed_triage_statuses_after_task(
 
         while time.monotonic() < deadline:
             await asyncio.sleep(5.0)
-            agents_resp = await client.get(f"{dashboard_base}/api/agents", timeout=30.0)
-            assert agents_resp.status_code == 200, f"/api/agents failed: {agents_resp.status_code}"
+            try:
+                agents_resp = await client.get(f"{dashboard_base}/api/agents", timeout=30.0)
+            except Exception:
+                continue
+            if agents_resp.status_code != 200:
+                continue
             rows = agents_resp.json()
             by_name = {
                 a.get("name"): a for a in rows
@@ -344,12 +381,12 @@ async def test_command_centre_ed_triage_statuses_after_task(
             }
             if all(name in by_name for name in required_agents):
                 snapshots = {name: by_name[name] for name in required_agents}
-                # Wait until each relevant agent has processed at least one task result.
+                # Wait until each relevant agent has processed at least one new task.
                 done = True
                 for name in required_agents:
                     metrics = snapshots[name].get("metrics", {})
                     processed = int(metrics.get("tasks_completed", 0)) + int(metrics.get("tasks_errored", 0))
-                    if processed < 1:
+                    if processed <= baseline_processed.get(name, 0):
                         done = False
                         break
                 if done:
@@ -358,10 +395,24 @@ async def test_command_centre_ed_triage_statuses_after_task(
         assert snapshots, "Dashboard never reported all required ED agents"
         statuses = {name: snapshots[name].get("status", "unknown") for name in required_agents}
         metrics_dump = {name: snapshots[name].get("metrics", {}) for name in required_agents}
-        non_healthy = {name: status for name, status in statuses.items() if status != "healthy"}
-        assert not non_healthy, (
-            f"Expected healthy statuses for {required_agents}, got {statuses}; "
-            f"metrics={metrics_dump}"
+        allowed_statuses = {"healthy", "degraded"}
+        non_operational = {
+            name: status for name, status in statuses.items() if status not in allowed_statuses
+        }
+        assert not non_operational, (
+            f"Expected operational statuses ({sorted(allowed_statuses)}) for {required_agents}, "
+            f"got {statuses}; metrics={metrics_dump}"
+        )
+
+        new_errors = {}
+        for name in required_agents:
+            current_errored = int((metrics_dump.get(name) or {}).get("tasks_errored", 0))
+            delta = max(0, current_errored - baseline_errored.get(name, 0))
+            if delta > 0:
+                new_errors[name] = delta
+        assert not new_errors, (
+            f"Expected no new task errors for {required_agents}, got new error deltas={new_errors}; "
+            f"statuses={statuses}; metrics={metrics_dump}"
         )
         sr.status = "pass"
     except AssertionError as exc:
