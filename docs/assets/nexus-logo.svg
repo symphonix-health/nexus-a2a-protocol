@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" width="520" height="120">
+  <defs>
+    <linearGradient id="hexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0D9488"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="crossGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E0F2FE"/>
+    </linearGradient>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0D9488"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="circuitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0D9488" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#2563EB" stop-opacity="0.6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Outer hexagon (border/glow) -->
+  <polygon points="60,4 108,28 108,76 60,100 12,76 12,28"
+           fill="none" stroke="url(#hexGrad)" stroke-width="2.5" opacity="0.3"/>
+
+  <!-- Main hexagon -->
+  <polygon points="60,10 104,32 104,72 60,94 16,72 16,32"
+           fill="url(#hexGrad)" stroke="none"/>
+
+  <!-- Circuit trace lines radiating from hex vertices -->
+  <g stroke="url(#circuitGrad)" stroke-width="1.8" stroke-linecap="round" fill="none">
+    <!-- Top -->
+    <line x1="60" y1="10" x2="60" y2="1"/>
+    <!-- Top-right -->
+    <line x1="104" y1="32" x2="114" y2="26"/>
+    <line x1="114" y1="26" x2="122" y2="26"/>
+    <!-- Bottom-right -->
+    <line x1="104" y1="72" x2="114" y2="78"/>
+    <line x1="114" y1="78" x2="122" y2="78"/>
+    <!-- Bottom -->
+    <line x1="60" y1="94" x2="60" y2="103"/>
+    <!-- Bottom-left -->
+    <line x1="16" y1="72" x2="6" y2="78"/>
+    <line x1="6" y1="78" x2="-2" y2="78"/>
+    <!-- Top-left -->
+    <line x1="16" y1="32" x2="6" y2="26"/>
+    <line x1="6" y1="26" x2="-2" y2="26"/>
+  </g>
+
+  <!-- Node dots at circuit endpoints -->
+  <g fill="url(#hexGrad)" opacity="0.7">
+    <circle cx="60" cy="1" r="2.5"/>
+    <circle cx="122" cy="26" r="2.5"/>
+    <circle cx="122" cy="78" r="2.5"/>
+    <circle cx="60" cy="103" r="2.5"/>
+    <circle cx="-2" cy="78" r="2.5"/>
+    <circle cx="-2" cy="26" r="2.5"/>
+  </g>
+
+  <!-- Medical cross (white) centred in hexagon -->
+  <rect x="52" y="35" width="16" height="34" rx="2" fill="url(#crossGrad)"/>
+  <rect x="43" y="44" width="34" height="16" rx="2" fill="url(#crossGrad)"/>
+
+  <!-- Inner cross detail lines for depth -->
+  <rect x="55" y="38" width="10" height="28" rx="1" fill="none" stroke="#0D9488" stroke-width="0.4" opacity="0.3"/>
+  <rect x="46" y="47" width="28" height="10" rx="1" fill="none" stroke="#0D9488" stroke-width="0.4" opacity="0.3"/>
+
+  <!-- Text: NEXUS -->
+  <text x="142" y="50" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="36" fill="url(#textGrad)" letter-spacing="3">
+    NEXUS
+  </text>
+
+  <!-- Text: A2A Protocol -->
+  <text x="142" y="78" font-family="Arial, Helvetica, sans-serif" font-weight="400" font-size="18" fill="#64748B" letter-spacing="4.5">
+    A2A PROTOCOL
+  </text>
+
+  <!-- Subtle tagline -->
+  <text x="142" y="98" font-family="Arial, Helvetica, sans-serif" font-weight="300" font-size="11" fill="#94A3B8" letter-spacing="1.5">
+    Agent-to-Agent Healthcare Intelligence
+  </text>
+
+  <!-- Decorative connecting line between hex and text -->
+  <line x1="126" y1="52" x2="138" y2="52" stroke="url(#hexGrad)" stroke-width="1.5" opacity="0.4"/>
+  <circle cx="132" cy="52" r="2" fill="url(#hexGrad)" opacity="0.5"/>
+</svg>

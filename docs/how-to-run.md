@@ -2,7 +2,7 @@
 
 ## Overview
 
-HelixCare is a comprehensive AI-powered hospital management system built on the NEXUS-A2A protocol. It features 19 specialized agents working together to provide complete patient care workflows, from emergency triage to chronic disease management.
+HelixCare is a comprehensive AI-powered hospital management system built on the NEXUS-A2A protocol. It features 20 specialized agents working together to provide complete patient care workflows, from emergency triage to chronic disease management, including AI-driven clinician avatar consultations.
 
 This guide covers running the HelixCare system, including individual demos, scenario-based testing, and full system operations.
 

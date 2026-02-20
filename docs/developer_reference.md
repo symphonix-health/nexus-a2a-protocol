@@ -174,6 +174,90 @@ The `demos/` directory contains reference implementations for common patterns.
 *   **Example**: `demos/public-health-surveillance`
 *   **Use Case**: Disease outbreak reporting from offline-first clinics.
 
+### 4. Clinician Avatar (Structured Interview)
+*   **Pattern**: Stateful multi-turn clinical consultation driven by medical interview frameworks.
+*   **Example**: `demos/helixcare/clinician-avatar-agent`
+*   **Use Case**: AI clinician conducts a Calgary-Cambridge, SOCRATES, or ABCDE interview with a patient.
+
+#### Avatar Architecture
+
+```
+shared/clinician_avatar/             # Runtime library
+├── avatar_engine.py                 # Session lifecycle, LLM orchestration
+├── avatar_session.py                # AvatarSession dataclass
+├── avatar_protocol.py               # Protocol helpers
+├── frameworks/
+│   ├── framework_selector.py        # Routes complaint+urgency → framework
+│   ├── calgary_cambridge.py         # 5-stage general consultation
+│   ├── socrates.py                  # 8-dimension pain assessment
+│   └── abcde.py                     # Emergency primary survey
+└── prompts/
+    └── clinician_persona.py         # LLM system prompt builder
+
+demos/helixcare/clinician-avatar-agent/
+├── app/
+│   ├── main.py                      # FastAPI server (port 8039)
+│   ├── agent_card.json              # Agent card with avatar/* methods
+│   └── static/                      # 3D avatar frontend
+│       ├── avatar.html              # Three.js + chat UI
+│       ├── avatar_renderer.js       # WebGL head with lip-sync
+│       ├── lipsync_engine.js        # Viseme timeline player
+│       ├── tts_client.js            # TTS API client
+│       ├── chat_controller.js       # Session lifecycle + RPC calls
+│       └── styles.css               # UI styling
+```
+
+#### Avatar JSON-RPC Methods
+
+**`avatar/start_session`** — Begin a structured consultation.
+
+```json
+{
+  "jsonrpc": "2.0", "id": 1,
+  "method": "avatar/start_session",
+  "params": {
+    "patient_case": {
+      "chief_complaint": "Chest tightness with exertion",
+      "age": 54, "gender": "male", "urgency": "high"
+    },
+    "persona": { "name": "Dr. Alex", "role": "cardiologist", "specialty": "cardiology" }
+  }
+}
+```
+
+Response includes `session_id`, `framework` (e.g. `calgary_cambridge`), and an opening `greeting`.
+
+**`avatar/patient_message`** — Send a patient utterance; receive a clinician response.
+
+```json
+{
+  "jsonrpc": "2.0", "id": 2,
+  "method": "avatar/patient_message",
+  "params": {
+    "session_id": "avatar-xxxxx",
+    "message": "I get chest tightness when climbing stairs."
+  }
+}
+```
+
+Response includes `clinician_response`, `consultation_phase`, and `framework_progress`.
+
+**`POST /api/tts`** — Text-to-speech with viseme timeline (JWT required).
+
+```json
+{ "text": "How long have you had this tightness?", "voice": "alloy" }
+```
+
+Returns `audio_b64` (WAV), `visemes` (timeline array), `voice`, and `mime_type`.
+
+#### Framework Selection Logic
+
+| Condition | Framework |
+|---|---|
+| Urgency is `critical` or `emergency` | ABCDE |
+| Chief complaint contains pain-related keywords (`pain`, `chest`, `ache`) | SOCRATES |
+| All other cases | Calgary-Cambridge |
+
 ---
 
 ## 6. Error Handling

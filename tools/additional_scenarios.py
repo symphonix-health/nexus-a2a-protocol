@@ -72,6 +72,37 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                 "delay": 2,
             },
             {
+                "agent": "clinician_avatar",
+                "method": "avatar/start_session",
+                "params": {
+                    "patient_case": {
+                        "chief_complaint": "Severe chest pain with dyspnea",
+                        "age": 55,
+                        "gender": "male",
+                        "urgency": "high",
+                    },
+                    "persona": "senior_cardiologist",
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["triage"],
+                    "clinical_rationale": "Cardiologist assessment after ED triage for suspected ACS",
+                },
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+                    "message": "The pain hit me like a truck about two hours ago. Crushing feeling right here in my chest with nausea. I smoke a pack a day and my mom had heart problems.",
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Patient describes classic ACS presentation with risk factors",
+                },
+            },
+            {
                 "agent": "diagnosis",
                 "method": "tasks/sendSubscribe",
                 "params": {
@@ -83,6 +114,10 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                     ],
                 },
                 "delay": 2,
+                "handoff_policy": {
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Diagnosis follows cardiologist clinical interview",
+                },
             },
             {
                 "agent": "imaging",
@@ -98,6 +133,10 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                     ]
                 },
                 "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": "Emergent imaging for suspected ACS",
+                },
             },
             {
                 "agent": "pharmacy",
@@ -109,6 +148,10 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                     }
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": "ACS protocol medications based on diagnosis",
+                },
             },
             {
                 "agent": "bed_manager",
@@ -121,9 +164,14 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                     }
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "optional_predecessors": ["imaging"],
+                    "clinical_rationale": "Telemetry bed admission after cardiac workup",
+                },
             },
         ],
-        expected_duration=18,
+        expected_duration=22,
     ),
     PatientScenario(
         name="pediatric_fever_sepsis",
@@ -172,6 +220,43 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                 "delay": 1,
             },
             {
+                "agent": "clinician_avatar",
+                "method": "avatar/start_session",
+                "params": {
+                    "patient_case": {
+                        "chief_complaint": "High fever and poor feeding",
+                        "age": 3,
+                        "gender": "female",
+                        "urgency": "high",
+                    },
+                    "persona": "pediatrician",
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["triage"],
+                    "clinical_rationale": ("Pediatrician evaluates febrile child after triage"),
+                },
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": ("$ctx.agent_outputs.clinician_avatar.session_id"),
+                    "message": (
+                        "She has had a fever for three days and won't"
+                        " eat. She's been very floppy and irritable."
+                        " She goes to daycare and other kids were sick."
+                    ),
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": (
+                        "Parent describes illness trajectory and exposure history"
+                    ),
+                },
+            },
+            {
                 "agent": "diagnosis",
                 "method": "tasks/sendSubscribe",
                 "params": {
@@ -179,6 +264,10 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                     "differential_diagnosis": ["Sepsis", "Pneumonia", "UTI"],
                 },
                 "delay": 2,
+                "handoff_policy": {
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": ("Diagnosis after pediatric clinical interview"),
+                },
             },
             {
                 "agent": "pharmacy",
@@ -190,6 +279,10 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                     }
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": ("Empiric antibiotics after sepsis workup"),
+                },
             },
             {
                 "agent": "bed_manager",
@@ -202,9 +295,14 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                     }
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "optional_predecessors": ["pharmacy"],
+                    "clinical_rationale": ("Pediatric admission for monitoring"),
+                },
             },
         ],
-        expected_duration=14,
+        expected_duration=18,
     ),
     PatientScenario(
         name="orthopedic_fracture",
@@ -249,23 +347,73 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                 "delay": 1,
             },
             {
+                "agent": "clinician_avatar",
+                "method": "avatar/start_session",
+                "params": {
+                    "patient_case": {
+                        "chief_complaint": "Left leg pain after fall",
+                        "age": 28,
+                        "gender": "male",
+                        "urgency": "medium",
+                    },
+                    "persona": "orthopedic_surgeon",
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["triage"],
+                    "clinical_rationale": ("Orthopedist assesses mechanism and deformity"),
+                },
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": ("$ctx.agent_outputs.clinician_avatar.session_id"),
+                    "message": (
+                        "I fell from a three-metre ladder at work"
+                        " and landed on my left leg. I heard a"
+                        " crack and I can't put any weight on it."
+                    ),
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": ("Patient describes mechanism and weight-bearing status"),
+                },
+            },
+            {
                 "agent": "diagnosis",
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "symptoms": "leg pain and inability to bear weight",
-                    "differential_diagnosis": ["Tibia fracture", "Ankle fracture"],
+                    "differential_diagnosis": [
+                        "Tibia fracture",
+                        "Ankle fracture",
+                    ],
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": ("Diagnosis after orthopedic examination"),
+                },
             },
             {
                 "agent": "imaging",
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "orders": [
-                        {"type": "xray_left_leg", "priority": "urgent", "indication": "fracture"}
+                        {
+                            "type": "xray_left_leg",
+                            "priority": "urgent",
+                            "indication": "fracture",
+                        }
                     ]
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": ("X-ray to confirm fracture pattern"),
+                },
             },
             {
                 "agent": "discharge",
@@ -277,6 +425,12 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                     }
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["imaging"],
+                    "clinical_rationale": (
+                        "Discharge after imaging confirms non-operative fracture"
+                    ),
+                },
             },
             {
                 "agent": "followup",
@@ -291,9 +445,13 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                     ]
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["discharge"],
+                    "clinical_rationale": ("Orthopedic follow-up after discharge"),
+                },
             },
         ],
-        expected_duration=12,
+        expected_duration=16,
     ),
     PatientScenario(
         name="geriatric_confusion",
@@ -305,7 +463,12 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "urgency": "high",
         },
         medical_history={
-            "past_medical_history": ["Alzheimer disease (mild)", "Hypertension", "Osteoporosis", "Recurrent UTI"],
+            "past_medical_history": [
+                "Alzheimer disease (mild)",
+                "Hypertension",
+                "Osteoporosis",
+                "Recurrent UTI",
+            ],
             "medications": [
                 "Donepezil 10 mg daily",
                 "Amlodipine 5 mg daily",
@@ -342,34 +505,95 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                 "delay": 1,
             },
             {
+                "agent": "clinician_avatar",
+                "method": "avatar/start_session",
+                "params": {
+                    "patient_case": {
+                        "chief_complaint": "Acute confusion",
+                        "age": 78,
+                        "gender": "female",
+                        "urgency": "high",
+                    },
+                    "persona": "geriatrician",
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["triage"],
+                    "clinical_rationale": ("Geriatrician evaluates delirium after triage"),
+                },
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": ("$ctx.agent_outputs.clinician_avatar.session_id"),
+                    "message": (
+                        "She has been very confused since"
+                        " yesterday. She keeps calling for her"
+                        " late husband and doesn't recognise the"
+                        " staff. She also seems to have a new"
+                        " urine smell."
+                    ),
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": ("Caregiver describes baseline change and new symptoms"),
+                },
+            },
+            {
                 "agent": "diagnosis",
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "symptoms": "delirium and disorientation",
-                    "differential_diagnosis": ["UTI", "Medication toxicity", "Stroke"],
+                    "differential_diagnosis": [
+                        "UTI",
+                        "Medication toxicity",
+                        "Stroke",
+                    ],
                 },
                 "delay": 2,
+                "handoff_policy": {
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": ("Diagnosis after geriatrician interview"),
+                },
             },
             {
                 "agent": "imaging",
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "orders": [
-                        {"type": "ct_head", "priority": "urgent", "indication": "rule out stroke"}
+                        {
+                            "type": "ct_head",
+                            "priority": "urgent",
+                            "indication": "rule out stroke",
+                        }
                     ]
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": ("CT head to exclude acute stroke"),
+                },
             },
             {
                 "agent": "bed_manager",
                 "method": "tasks/sendSubscribe",
                 "params": {
-                    "task": {"admission_type": "emergency", "required_monitoring": "continuous"}
+                    "task": {
+                        "admission_type": "emergency",
+                        "required_monitoring": "continuous",
+                    }
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "optional_predecessors": ["imaging"],
+                    "clinical_rationale": ("Admission for monitoring and delirium workup"),
+                },
             },
         ],
-        expected_duration=13,
+        expected_duration=17,
     ),
     PatientScenario(
         name="obstetric_emergency",
@@ -381,7 +605,10 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "urgency": "critical",
         },
         medical_history={
-            "past_medical_history": ["Gestational diabetes (current pregnancy)", "Previous C-section (2019)"],
+            "past_medical_history": [
+                "Gestational diabetes (current pregnancy)",
+                "Previous C-section (2019)",
+            ],
             "medications": ["Prenatal vitamins", "Insulin aspart per sliding scale"],
             "allergies": ["No known drug allergies"],
             "social_history": {
@@ -408,19 +635,67 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                 "agent": "triage",
                 "method": "tasks/sendSubscribe",
                 "params": {
-                    "symptoms": "heavy vaginal bleeding, abdominal pain",
+                    "symptoms": ("heavy vaginal bleeding, abdominal pain"),
                     "chief_complaint": "obstetric emergency",
                 },
                 "delay": 1,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/start_session",
+                "params": {
+                    "patient_case": {
+                        "chief_complaint": ("Vaginal bleeding at 28 weeks"),
+                        "age": 32,
+                        "gender": "female",
+                        "urgency": "critical",
+                    },
+                    "persona": "obstetrician",
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["triage"],
+                    "clinical_rationale": (
+                        "Obstetrician urgent assessment of antepartum hemorrhage"
+                    ),
+                },
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": ("$ctx.agent_outputs.clinician_avatar.session_id"),
+                    "message": (
+                        "The bleeding started suddenly about"
+                        " an hour ago with no pain. I soaked"
+                        " through two pads. I had a C-section"
+                        " with my first and this pregnancy has"
+                        " been complicated by diabetes."
+                    ),
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": (
+                        "Patient describes onset, volume, and obstetric history"
+                    ),
+                },
             },
             {
                 "agent": "diagnosis",
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "symptoms": "bleeding in 3rd trimester",
-                    "differential_diagnosis": ["Placental abruption", "Placenta previa"],
+                    "differential_diagnosis": [
+                        "Placental abruption",
+                        "Placenta previa",
+                    ],
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": ("Diagnosis after obstetrician clinical assessment"),
+                },
             },
             {
                 "agent": "imaging",
@@ -430,11 +705,15 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                         {
                             "type": "obstetric_ultrasound",
                             "priority": "emergent",
-                            "indication": "placental and fetal assessment",
+                            "indication": ("placental and fetal assessment"),
                         }
                     ]
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": ("Emergent ultrasound for placental localisation"),
+                },
             },
             {
                 "agent": "bed_manager",
@@ -443,13 +722,21 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                     "task": {
                         "admission_type": "emergency",
                         "required_monitoring": "intensive",
-                        "special_requirements": ["Labor and delivery", "fetal monitoring"],
+                        "special_requirements": [
+                            "Labor and delivery",
+                            "fetal monitoring",
+                        ],
                     }
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "optional_predecessors": ["imaging"],
+                    "clinical_rationale": ("L&D admission with continuous fetal monitoring"),
+                },
             },
         ],
-        expected_duration=12,
+        expected_duration=16,
     ),
     PatientScenario(
         name="mental_health_crisis",
@@ -461,7 +748,11 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "urgency": "critical",
         },
         medical_history={
-            "past_medical_history": ["Major depressive disorder", "Generalized anxiety disorder", "Previous suicide attempt (2021)"],
+            "past_medical_history": [
+                "Major depressive disorder",
+                "Generalized anxiety disorder",
+                "Previous suicide attempt (2021)",
+            ],
             "medications": [
                 "Sertraline 150 mg daily",
                 "Lorazepam 0.5 mg PRN",
@@ -492,19 +783,63 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                 "agent": "triage",
                 "method": "tasks/sendSubscribe",
                 "params": {
-                    "symptoms": "suicidal ideation, severe depression",
+                    "symptoms": ("suicidal ideation, severe depression"),
                     "safety_concern": "high",
                 },
                 "delay": 1,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/start_session",
+                "params": {
+                    "patient_case": {
+                        "chief_complaint": "Suicidal ideation",
+                        "age": 35,
+                        "gender": "male",
+                        "urgency": "critical",
+                    },
+                    "persona": "psychiatrist",
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["triage"],
+                    "clinical_rationale": ("Psychiatrist safety assessment after triage"),
+                },
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": ("$ctx.agent_outputs.clinician_avatar.session_id"),
+                    "message": (
+                        "I can't do this any more. My wife"
+                        " left three months ago, I lost my"
+                        " job, and I've been drinking more."
+                        " I have a plan but I came here"
+                        " because I promised my brother."
+                    ),
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": ("Patient discloses risk factors and safety plan"),
+                },
             },
             {
                 "agent": "diagnosis",
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "symptoms": "hopelessness, insomnia",
-                    "differential_diagnosis": ["Major depressive disorder", "Bipolar disorder"],
+                    "differential_diagnosis": [
+                        "Major depressive disorder",
+                        "Bipolar disorder",
+                    ],
                 },
                 "delay": 2,
+                "handoff_policy": {
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": ("Diagnosis after psychiatrist risk assessment"),
+                },
             },
             {
                 "agent": "bed_manager",
@@ -513,13 +848,20 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                     "task": {
                         "admission_type": "involuntary",
                         "required_monitoring": "continuous",
-                        "special_requirements": ["Psych unit", "suicide precautions"],
+                        "special_requirements": [
+                            "Psych unit",
+                            "suicide precautions",
+                        ],
                     }
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": ("Involuntary admission with continuous observation"),
+                },
             },
         ],
-        expected_duration=10,
+        expected_duration=15,
     ),
     PatientScenario(
         name="chronic_diabetes_complication",
@@ -549,7 +891,10 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                 "occupation": "Retired teacher",
                 "mobility": "uses walker, limited sensation in feet",
             },
-            "family_history": ["Mother with type 2 diabetes", "Father with peripheral artery disease"],
+            "family_history": [
+                "Mother with type 2 diabetes",
+                "Father with peripheral artery disease",
+            ],
             "review_of_systems": {
                 "integumentary": "Right plantar ulcer with purulent drainage, surrounding erythema",
                 "musculoskeletal": "Right foot pain on weight-bearing",
@@ -564,13 +909,56 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
         },
         journey_steps=[
             {
+                "agent": "clinician_avatar",
+                "method": "avatar/start_session",
+                "params": {
+                    "patient_case": {
+                        "chief_complaint": ("Infected diabetic foot ulcer"),
+                        "age": 62,
+                        "gender": "female",
+                        "urgency": "medium",
+                    },
+                    "persona": "endocrinologist",
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "clinical_rationale": ("Endocrinologist assesses diabetic foot complication"),
+                },
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": ("$ctx.agent_outputs.clinician_avatar.session_id"),
+                    "message": (
+                        "I noticed the sore on the bottom of"
+                        " my right foot about two weeks ago."
+                        " It started oozing yesterday and my"
+                        " foot is swollen and red. I can barely"
+                        " feel my feet because of the neuropathy."
+                    ),
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": ("Patient describes ulcer timeline and neuropathy"),
+                },
+            },
+            {
                 "agent": "diagnosis",
                 "method": "tasks/sendSubscribe",
                 "params": {
-                    "symptoms": "foot ulcer, drainage, redness",
-                    "differential_diagnosis": ["Diabetic foot infection", "Osteomyelitis"],
+                    "symptoms": ("foot ulcer, drainage, redness"),
+                    "differential_diagnosis": [
+                        "Diabetic foot infection",
+                        "Osteomyelitis",
+                    ],
                 },
                 "delay": 2,
+                "handoff_policy": {
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": ("Diagnosis after endocrinologist clinical review"),
+                },
             },
             {
                 "agent": "imaging",
@@ -580,35 +968,55 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                         {
                             "type": "foot_xray",
                             "priority": "urgent",
-                            "indication": "evaluate bone involvement",
+                            "indication": ("evaluate bone involvement"),
                         }
                     ]
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": ("X-ray to rule out osteomyelitis"),
+                },
             },
             {
                 "agent": "pharmacy",
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "task": {
-                        "med_plan": ["Vancomycin", "Insulin glargine"],
+                        "med_plan": [
+                            "Vancomycin",
+                            "Insulin glargine",
+                        ],
                         "allergies": ["Penicillin"],
                     }
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "optional_predecessors": ["imaging"],
+                    "clinical_rationale": ("IV antibiotics avoiding penicillin allergy"),
+                },
             },
             {
                 "agent": "followup",
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "followup_schedule": [
-                        {"type": "podiatry", "when": _future(7), "purpose": "wound reassessment"}
+                        {
+                            "type": "podiatry",
+                            "when": _future(7),
+                            "purpose": "wound reassessment",
+                        }
                     ]
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["pharmacy"],
+                    "clinical_rationale": ("Podiatry follow-up for wound reassessment"),
+                },
             },
         ],
-        expected_duration=12,
+        expected_duration=17,
     ),
     PatientScenario(
         name="trauma_motor_vehicle_accident",
@@ -648,45 +1056,108 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                 "agent": "triage",
                 "method": "tasks/sendSubscribe",
                 "params": {
-                    "symptoms": "head, chest, abdominal pain",
+                    "symptoms": ("head, chest, abdominal pain"),
                     "trauma_activation": "level_1",
                 },
                 "delay": 1,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/start_session",
+                "params": {
+                    "patient_case": {
+                        "chief_complaint": ("Polytrauma from high-speed MVC"),
+                        "age": 25,
+                        "gender": "male",
+                        "urgency": "critical",
+                    },
+                    "persona": "trauma_surgeon",
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["triage"],
+                    "clinical_rationale": (
+                        "Trauma surgeon leads primary survey after level-1 activation"
+                    ),
+                },
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": ("$ctx.agent_outputs.clinician_avatar.session_id"),
+                    "message": (
+                        "I was driving and another car came"
+                        " straight at me. I wasn't wearing"
+                        " my seatbelt. My head hurts, my"
+                        " chest hurts, and my stomach is"
+                        " really sore."
+                    ),
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": ("Patient describes mechanism and injury pattern"),
+                },
             },
             {
                 "agent": "diagnosis",
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "symptoms": "polytrauma",
-                    "differential_diagnosis": ["TBI", "Hemothorax", "Splenic injury"],
+                    "differential_diagnosis": [
+                        "TBI",
+                        "Hemothorax",
+                        "Splenic injury",
+                    ],
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": ("Diagnosis after trauma surgeon primary survey"),
+                },
             },
             {
                 "agent": "imaging",
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "orders": [
-                        {"type": "ct_head", "priority": "emergent", "indication": "TBI"},
+                        {
+                            "type": "ct_head",
+                            "priority": "emergent",
+                            "indication": "TBI",
+                        },
                         {
                             "type": "ct_chest_abdomen_pelvis",
                             "priority": "emergent",
-                            "indication": "multi-system trauma",
+                            "indication": ("multi-system trauma"),
                         },
                     ]
                 },
                 "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": ("Pan-scan for polytrauma assessment"),
+                },
             },
             {
                 "agent": "bed_manager",
                 "method": "tasks/sendSubscribe",
                 "params": {
-                    "task": {"admission_type": "trauma", "required_monitoring": "intensive_care"}
+                    "task": {
+                        "admission_type": "trauma",
+                        "required_monitoring": ("intensive_care"),
+                    }
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "optional_predecessors": ["imaging"],
+                    "clinical_rationale": ("ICU admission for polytrauma monitoring"),
+                },
             },
         ],
-        expected_duration=13,
+        expected_duration=17,
     ),
     PatientScenario(
         name="infectious_disease_outbreak",
@@ -804,29 +1275,85 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "symptoms": "severe wheeze and dyspnea",
-                    "vital_signs": {"oxygen_saturation": 85, "respiratory_rate": 45},
+                    "vital_signs": {
+                        "oxygen_saturation": 85,
+                        "respiratory_rate": 45,
+                    },
                 },
                 "delay": 1,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/start_session",
+                "params": {
+                    "patient_case": {
+                        "chief_complaint": ("Severe wheezing, accessory muscle use"),
+                        "age": 8,
+                        "gender": "male",
+                        "urgency": "high",
+                    },
+                    "persona": "pediatrician",
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["triage"],
+                    "clinical_rationale": ("Pediatrician assesses severity of asthma exacerbation"),
+                },
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": ("$ctx.agent_outputs.clinician_avatar.session_id"),
+                    "message": (
+                        "He caught a cold at school and his"
+                        " breathing got really bad overnight."
+                        " We used his rescue inhaler four"
+                        " times but it's not helping. He can"
+                        " barely talk right now."
+                    ),
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": (
+                        "Parent reports trigger, rescue inhaler use, and distress"
+                    ),
+                },
             },
             {
                 "agent": "diagnosis",
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "symptoms": "acute asthma symptoms",
-                    "differential_diagnosis": ["Asthma exacerbation", "Pneumonia"],
+                    "differential_diagnosis": [
+                        "Asthma exacerbation",
+                        "Pneumonia",
+                    ],
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": ("Diagnosis after pediatrician assessment"),
+                },
             },
             {
                 "agent": "pharmacy",
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "task": {
-                        "med_plan": ["Albuterol", "Methylprednisolone"],
+                        "med_plan": [
+                            "Albuterol",
+                            "Methylprednisolone",
+                        ],
                         "allergies": [],
                     }
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": ("Bronchodilator and systemic steroid per protocol"),
+                },
             },
             {
                 "agent": "followup",
@@ -836,14 +1363,18 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                         {
                             "type": "pulmonology",
                             "when": _future(7),
-                            "purpose": "asthma control review",
+                            "purpose": ("asthma control review"),
                         }
                     ]
                 },
                 "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["pharmacy"],
+                    "clinical_rationale": ("Pulmonology follow-up for asthma management review"),
+                },
             },
         ],
-        expected_duration=11,
+        expected_duration=16,
     ),
     PatientScenario(
         name="regional_hie_referral_exchange",
@@ -1034,7 +1565,11 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "urgency": "medium",
         },
         medical_history={
-            "past_medical_history": ["Lumbar disc herniation L4-L5", "Hypertension", "Fibromyalgia"],
+            "past_medical_history": [
+                "Lumbar disc herniation L4-L5",
+                "Hypertension",
+                "Fibromyalgia",
+            ],
             "medications": [
                 "Gabapentin 300 mg TID",
                 "Naproxen 500 mg BID",
@@ -1133,7 +1668,10 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
             "urgency": "high",
         },
         medical_history={
-            "past_medical_history": ["Chronic obstructive pulmonary disease", "Former TB (treated 2015)"],
+            "past_medical_history": [
+                "Chronic obstructive pulmonary disease",
+                "Former TB (treated 2015)",
+            ],
             "medications": ["Tiotropium inhaler daily", "Salbutamol inhaler PRN"],
             "allergies": ["No known drug allergies"],
             "social_history": {
@@ -1282,7 +1820,7 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                 "agent": "clinician_avatar",
                 "method": "avatar/patient_message",
                 "params": {
-                    "session_id": "{{avatar_session_id}}",
+                    "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
                     "message": "It started about three weeks ago. I get this tight feeling across my chest when I'm climbing stairs or lifting heavy things at work. It goes away when I sit down for a few minutes.",
                 },
                 "delay": 2,
@@ -1292,7 +1830,7 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                 "agent": "clinician_avatar",
                 "method": "avatar/patient_message",
                 "params": {
-                    "session_id": "{{avatar_session_id}}",
+                    "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
                     "message": "Sometimes it goes into my left arm and jaw. I also feel a bit nauseous when it happens. No sweating though.",
                 },
                 "delay": 2,
@@ -1318,7 +1856,11 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "orders": [
-                        {"type": "ecg", "priority": "urgent", "indication": "exertional chest pain"},
+                        {
+                            "type": "ecg",
+                            "priority": "urgent",
+                            "indication": "exertional chest pain",
+                        },
                         {
                             "type": "stress_echo",
                             "priority": "routine",

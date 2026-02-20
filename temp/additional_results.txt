@@ -1,0 +1,342 @@
+ÔÜÖ Active retry profile: fast
+ÔÜÖ On-demand gateway routing: http://localhost:8100
+­ƒÜÇ Running 15 scenario(s)
+   Mode: Sequential
+   Retry profile: fast
+­ƒÅÑ Starting Scenario: chest_pain_cardiac
+   Description: Adult with severe chest pain and suspected acute coronary syndrome.
+   Patient ID: PAT-1771601355-chest_pain_cardiac
+   Visit ID: VISIT-1771601355-chest_pain_cardiac
+   Trace ID: trace-9987542a-ef51-463f-b04a-5b0d4c66cfed
+   Profile: {'age': 55, 'gender': 'male', 'chief_complaint': 'Severe chest pain with dyspnea', 'urgency': 'high'}
+================================================================================
+
+Step 1/5: TRIAGE
+­ƒô× Calling http://localhost:8100/rpc/triage - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 2/5: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 3/5: IMAGING
+­ƒô× Calling http://localhost:8100/rpc/imaging - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/imaging'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 4/5: PHARMACY
+­ƒô× Calling http://localhost:8100/rpc/pharmacy - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): 
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 5/5: BED_MANAGER
+­ƒô× Calling http://localhost:8100/rpc/bed_manager - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): 
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+   ­ƒôï Trace posted ÔåÆ trace-9987542a-ef51-463f-b04a-5b0d4c66cfed
+
+Ô£à Scenario 'chest_pain_cardiac' completed!
+   Duration: ~18 seconds
+================================================================================
+­ƒÅÑ Starting Scenario: pediatric_fever_sepsis
+   Description: Child with high fever and lethargy requiring sepsis workup.
+   Patient ID: PAT-1771601427-pediatric_fever_sepsis
+   Visit ID: VISIT-1771601427-pediatric_fever_sepsis
+   Trace ID: trace-37479830-ce67-4f3f-9158-423e63b6570a
+   Profile: {'age': 3, 'gender': 'female', 'chief_complaint': 'High fever and poor feeding', 'urgency': 'high'}
+================================================================================
+
+Step 1/4: TRIAGE
+­ƒô× Calling http://localhost:8100/rpc/triage - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): 
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 2/4: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 3/4: PHARMACY
+­ƒô× Calling http://localhost:8100/rpc/pharmacy - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): 
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 4/4: BED_MANAGER
+­ƒô× Calling http://localhost:8100/rpc/bed_manager - Method: tasks/sendSubscribe
+   Ô£à Response received
+   ­ƒôï Trace posted ÔåÆ trace-37479830-ce67-4f3f-9158-423e63b6570a
+
+Ô£à Scenario 'pediatric_fever_sepsis' completed!
+   Duration: ~14 seconds
+================================================================================
+­ƒÅÑ Starting Scenario: orthopedic_fracture
+   Description: Extremity fracture workflow with imaging, pain control, and follow-up.
+   Patient ID: PAT-1771601484-orthopedic_fracture
+   Visit ID: VISIT-1771601484-orthopedic_fracture
+   Trace ID: trace-91fe69df-da4a-46f8-badd-279b3bec7df0
+   Profile: {'age': 28, 'gender': 'male', 'chief_complaint': 'Left leg pain after fall', 'urgency': 'medium'}
+================================================================================
+
+Step 1/5: TRIAGE
+­ƒô× Calling http://localhost:8100/rpc/triage - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): 
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 2/5: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 3/5: IMAGING
+­ƒô× Calling http://localhost:8100/rpc/imaging - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 4/5: DISCHARGE
+­ƒô× Calling http://localhost:8100/rpc/discharge - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/discharge'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 5/5: FOLLOWUP
+­ƒô× Calling http://localhost:8100/rpc/followup - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/followup'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+   ­ƒôï Trace posted ÔåÆ trace-91fe69df-da4a-46f8-badd-279b3bec7df0
+
+Ô£à Scenario 'orthopedic_fracture' completed!
+   Duration: ~12 seconds
+================================================================================
+­ƒÅÑ Starting Scenario: geriatric_confusion
+   Description: Elderly patient with acute confusion and delirium-focused pathway.
+   Patient ID: PAT-1771601549-geriatric_confusion
+   Visit ID: VISIT-1771601549-geriatric_confusion
+   Trace ID: trace-2701cc95-0555-4876-8b34-bffb34e8558c
+   Profile: {'age': 78, 'gender': 'female', 'chief_complaint': 'Sudden confusion and agitation', 'urgency': 'high'}
+================================================================================
+
+Step 1/4: TRIAGE
+­ƒô× Calling http://localhost:8100/rpc/triage - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 2/4: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 3/4: IMAGING
+­ƒô× Calling http://localhost:8100/rpc/imaging - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): 
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 4/4: BED_MANAGER
+­ƒô× Calling http://localhost:8100/rpc/bed_manager - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/bed_manager'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+   ­ƒôï Trace posted ÔåÆ trace-2701cc95-0555-4876-8b34-bffb34e8558c
+
+Ô£à Scenario 'geriatric_confusion' completed!
+   Duration: ~13 seconds
+================================================================================
+­ƒÅÑ Starting Scenario: obstetric_emergency
+   Description: Pregnancy bleeding emergency with urgent maternal/fetal coordination.
+   Patient ID: PAT-1771601603-obstetric_emergency
+   Visit ID: VISIT-1771601603-obstetric_emergency
+   Trace ID: trace-587dd127-ebcf-405e-8db6-c6cc6983d425
+   Profile: {'age': 32, 'gender': 'female', 'chief_complaint': 'Bleeding at 28 weeks gestation', 'urgency': 'critical'}
+================================================================================
+
+Step 1/4: TRIAGE
+­ƒô× Calling http://localhost:8100/rpc/triage - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): 
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 2/4: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 3/4: IMAGING
+­ƒô× Calling http://localhost:8100/rpc/imaging - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 4/4: BED_MANAGER
+­ƒô× Calling http://localhost:8100/rpc/bed_manager - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): 
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+   ­ƒôï Trace posted ÔåÆ trace-587dd127-ebcf-405e-8db6-c6cc6983d425
+
+Ô£à Scenario 'obstetric_emergency' completed!
+   Duration: ~12 seconds
+================================================================================
+­ƒÅÑ Starting Scenario: mental_health_crisis
+   Description: Acute psychiatric crisis with safety and inpatient behavioral health planning.
+   Patient ID: PAT-1771601655-mental_health_crisis
+   Visit ID: VISIT-1771601655-mental_health_crisis
+   Trace ID: trace-a2167849-506a-4515-97f8-f50ecb54e276
+   Profile: {'age': 35, 'gender': 'male', 'chief_complaint': 'Suicidal thoughts', 'urgency': 'critical'}
+================================================================================
+
+Step 1/3: TRIAGE
+­ƒô× Calling http://localhost:8100/rpc/triage - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): 
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 2/3: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): 
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 3/3: BED_MANAGER
+­ƒô× Calling http://localhost:8100/rpc/bed_manager - Method: tasks/sendSubscribe
+   Ô£à Response received
+   ­ƒôï Trace posted ÔåÆ trace-a2167849-506a-4515-97f8-f50ecb54e276
+
+Ô£à Scenario 'mental_health_crisis' completed!
+   Duration: ~10 seconds
+================================================================================
+­ƒÅÑ Starting Scenario: chronic_diabetes_complication
+   Description: Diabetic foot complication needing multidisciplinary inpatient planning.
+   Patient ID: PAT-1771601701-chronic_diabetes_complication
+   Visit ID: VISIT-1771601701-chronic_diabetes_complication
+   Trace ID: trace-1734f389-bdb7-4505-9e85-4e06eb6f2d5e
+   Profile: {'age': 62, 'gender': 'female', 'chief_complaint': 'Foot ulcer with infection', 'urgency': 'medium'}
+================================================================================
+
+Step 1/4: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 2/4: IMAGING
+­ƒô× Calling http://localhost:8100/rpc/imaging - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 3/4: PHARMACY
+­ƒô× Calling http://localhost:8100/rpc/pharmacy - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): 
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 4/4: FOLLOWUP
+­ƒô× Calling http://localhost:8100/rpc/followup - Method: tasks/sendSubscribe
+   Ô£à Response received
+   ­ƒôï Trace posted ÔåÆ trace-1734f389-bdb7-4505-9e85-4e06eb6f2d5e
+
+Ô£à Scenario 'chronic_diabetes_complication' completed!
+   Duration: ~12 seconds
+================================================================================
+­ƒÅÑ Starting Scenario: trauma_motor_vehicle_accident
+   Description: Polytrauma workflow from high-speed MVC.
+   Patient ID: PAT-1771601755-trauma_motor_vehicle_accident
+   Visit ID: VISIT-1771601755-trauma_motor_vehicle_accident
+   Trace ID: trace-1a18f532-d95e-438e-a7db-1db164016076
+   Profile: {'age': 25, 'gender': 'male', 'chief_complaint': 'Multiple traumatic injuries', 'urgency': 'critical'}
+================================================================================
+
+Step 1/4: TRIAGE
+­ƒô× Calling http://localhost:8100/rpc/triage - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): 
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 2/4: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): 
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 3/4: IMAGING
+­ƒô× Calling http://localhost:8100/rpc/imaging - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 4/4: BED_MANAGER
+­ƒô× Calling http://localhost:8100/rpc/bed_manager - Method: tasks/sendSubscribe
+   Ô£à Response received
+   ­ƒôï Trace posted ÔåÆ trace-1a18f532-d95e-438e-a7db-1db164016076
+
+Ô£à Scenario 'trauma_motor_vehicle_accident' completed!
+   Duration: ~13 seconds
+================================================================================
+­ƒÅÑ Starting Scenario: infectious_disease_outbreak
+   Description: Respiratory outbreak case requiring isolation and public health escalation.
+   Patient ID: PAT-1771601812-infectious_disease_outbreak
+   Visit ID: VISIT-1771601812-infectious_disease_outbreak
+   Trace ID: trace-d6399060-0b67-4f00-aa5c-31fdd924ac67
+   Profile: {'age': 45, 'gender': 'female', 'chief_complaint': 'Fever, cough, hypoxia', 'urgency': 'high'}
+================================================================================
+
+Step 1/4: TRIAGE
+­ƒô× Calling http://localhost:8100/rpc/triage - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 2/4: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 3/4: IMAGING
+­ƒô× Calling http://localhost:8100/rpc/imaging - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/imaging'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 4/4: BED_MANAGER
+­ƒô× Calling http://localhost:8100/rpc/bed_manager - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/4 failed (retriable): 
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+   ­ƒôï Trace posted ÔåÆ trace-d6399060-0b67-4f00-aa5c-31fdd924ac67
+
+Ô£à Scenario 'infectious_disease_outbreak' completed!
+   Duration: ~12 seconds
+================================================================================
+­ƒÅÑ Starting Scenario: pediatric_asthma_exacerbation
+   Description: Severe pediatric asthma exacerbation with acute stabilization and follow-up.
+   Patient ID: PAT-1771601867-pediatric_asthma_exacerbation
+   Visit ID: VISIT-1771601867-pediatric_asthma_exacerbation
+   Trace ID: trace-8d7b5401-2275-4e23-8a7a-1114e8a09498
+   Profile: {'age': 8, 'gender': 'male', 'chief_complaint': 'Severe wheeze and shortness of breath', 'urgency': 'high'}
+================================================================================
+
+Step 1/4: TRIAGE
+­ƒô× Calling http://localhost:8100/rpc/triage - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 2/4: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 3/4: PHARMACY
+­ƒô× Calling http://localhost:8100/rpc/pharmacy - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 4/4: FOLLOWUP
+­ƒô× Calling http://localhost:8100/rpc/followup - Method: tasks/sendSubscribe
+   Ô£à Response received
+   ­ƒôï Trace posted ÔåÆ trace-8d7b5401-2275-4e23-8a7a-1114e8a09498
+
+Ô£à Scenario 'pediatric_asthma_exacerbation' completed!
+   Duration: ~11 seconds
+================================================================================
+­ƒÅÑ Starting Scenario: regional_hie_referral_exchange
+   Description: ED-to-regional referral with OpenHIE mediation and coordinator handoff.
+   Patient ID: PAT-1771601903-regional_hie_referral_exchange
+   Visit ID: VISIT-1771601903-regional_hie_referral_exchange

@@ -28,10 +28,7 @@
     // Ruff (Linting & Formatting)
     "ruff.enable": true,
     "ruff.lint.enable": true,
-    "ruff.importStrategy": "fromEnvironment",
-    "ruff.path": [
-        "${workspaceFolder}/.venv/Scripts/ruff.exe"
-    ],
+    "ruff.importStrategy": "useBundled",
     // File Watching & Search
     "files.watcherExclude": {
         "**/.git/objects/**": true,

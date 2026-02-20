@@ -10,9 +10,10 @@ Creates:
   - Patches runner.py with HelixCare matrix support
   - Patches launch_all_agents.py with new agents
 """
+
 from __future__ import annotations
+
 import json
-import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -33,62 +34,119 @@ AGENT_CARDS = {
     "demos/helixcare/imaging-agent/app/agent_card.json": {
         "name": "ImagingAgent",
         "description": "Imaging coordination and AI-assisted analysis",
-        "protocol": "NEXUS-A2A", "protocolVersion": "1.0",
+        "protocol": "NEXUS-A2A",
+        "protocolVersion": "1.0",
         "url": "http://imaging-agent:8024",
         "capabilities": {"streaming": True, "websocket": True, "pushNotifications": False},
         "methods": ["tasks/send", "tasks/sendSubscribe", "imaging/request", "imaging/analyze"],
         "authentication": {"schemes": ["bearer"]},
-        "skills": [{"id": "imaging", "name": "Imaging Coordination", "description": "Request and analyze imaging studies"}]
+        "skills": [
+            {
+                "id": "imaging",
+                "name": "Imaging Coordination",
+                "description": "Request and analyze imaging studies",
+            }
+        ],
     },
     "demos/helixcare/pharmacy-agent/app/agent_card.json": {
         "name": "PharmacyAgent",
         "description": "Medication recommendation with allergy/interaction checking",
-        "protocol": "NEXUS-A2A", "protocolVersion": "1.0",
+        "protocol": "NEXUS-A2A",
+        "protocolVersion": "1.0",
         "url": "http://pharmacy-agent:8025",
         "capabilities": {"streaming": True, "websocket": True, "pushNotifications": False},
-        "methods": ["tasks/send", "tasks/sendSubscribe", "pharmacy/recommend", "pharmacy/check_interactions"],
+        "methods": [
+            "tasks/send",
+            "tasks/sendSubscribe",
+            "pharmacy/recommend",
+            "pharmacy/check_interactions",
+        ],
         "authentication": {"schemes": ["bearer"]},
-        "skills": [{"id": "pharmacy", "name": "Pharmacy Recommendations", "description": "Drug recommendations with allergy/interaction checking"}]
+        "skills": [
+            {
+                "id": "pharmacy",
+                "name": "Pharmacy Recommendations",
+                "description": "Drug recommendations with allergy/interaction checking",
+            }
+        ],
     },
     "demos/helixcare/bed-manager-agent/app/agent_card.json": {
         "name": "BedManagerAgent",
         "description": "Admission management — bed assignment and department notifications",
-        "protocol": "NEXUS-A2A", "protocolVersion": "1.0",
+        "protocol": "NEXUS-A2A",
+        "protocolVersion": "1.0",
         "url": "http://bed-manager-agent:8026",
         "capabilities": {"streaming": True, "websocket": True, "pushNotifications": False},
-        "methods": ["tasks/send", "tasks/sendSubscribe", "admission/assign_bed", "admission/check_availability"],
+        "methods": [
+            "tasks/send",
+            "tasks/sendSubscribe",
+            "admission/assign_bed",
+            "admission/check_availability",
+        ],
         "authentication": {"schemes": ["bearer"]},
-        "skills": [{"id": "admission", "name": "Admission Management", "description": "Bed assignment and department coordination"}]
+        "skills": [
+            {
+                "id": "admission",
+                "name": "Admission Management",
+                "description": "Bed assignment and department coordination",
+            }
+        ],
     },
     "demos/helixcare/discharge-agent/app/agent_card.json": {
         "name": "DischargeAgent",
         "description": "Discharge planning — summary generation, follow-up scheduling",
-        "protocol": "NEXUS-A2A", "protocolVersion": "1.0",
+        "protocol": "NEXUS-A2A",
+        "protocolVersion": "1.0",
         "url": "http://discharge-agent:8027",
         "capabilities": {"streaming": True, "websocket": True, "pushNotifications": False},
-        "methods": ["tasks/send", "tasks/sendSubscribe", "discharge/initiate", "discharge/create_summary"],
+        "methods": [
+            "tasks/send",
+            "tasks/sendSubscribe",
+            "discharge/initiate",
+            "discharge/create_summary",
+        ],
         "authentication": {"schemes": ["bearer"]},
-        "skills": [{"id": "discharge", "name": "Discharge Planning", "description": "Discharge summary generation and follow-up scheduling"}]
+        "skills": [
+            {
+                "id": "discharge",
+                "name": "Discharge Planning",
+                "description": "Discharge summary generation and follow-up scheduling",
+            }
+        ],
     },
     "demos/helixcare/followup-scheduler/app/agent_card.json": {
         "name": "FollowupScheduler",
         "description": "Post-discharge follow-up appointment scheduling",
-        "protocol": "NEXUS-A2A", "protocolVersion": "1.0",
+        "protocol": "NEXUS-A2A",
+        "protocolVersion": "1.0",
         "url": "http://followup-scheduler:8028",
         "capabilities": {"streaming": True, "websocket": True, "pushNotifications": False},
         "methods": ["tasks/send", "tasks/sendSubscribe", "followup/schedule"],
         "authentication": {"schemes": ["bearer"]},
-        "skills": [{"id": "followup", "name": "Follow-up Scheduling", "description": "Schedule post-discharge follow-up appointments"}]
+        "skills": [
+            {
+                "id": "followup",
+                "name": "Follow-up Scheduling",
+                "description": "Schedule post-discharge follow-up appointments",
+            }
+        ],
     },
     "demos/helixcare/care-coordinator/app/agent_card.json": {
         "name": "CareCoordinator",
         "description": "End-to-end patient journey orchestrator across all departments",
-        "protocol": "NEXUS-A2A", "protocolVersion": "1.0",
+        "protocol": "NEXUS-A2A",
+        "protocolVersion": "1.0",
         "url": "http://care-coordinator:8029",
         "capabilities": {"streaming": True, "websocket": True, "pushNotifications": False},
         "methods": ["tasks/send", "tasks/sendSubscribe"],
         "authentication": {"schemes": ["bearer"]},
-        "skills": [{"id": "care-coordination", "name": "Care Coordination", "description": "Orchestrate full patient journey across intake, diagnosis, admission, treatment, and discharge"}]
+        "skills": [
+            {
+                "id": "care-coordination",
+                "name": "Care Coordination",
+                "description": "Orchestrate full patient journey across intake, diagnosis, admission, treatment, and discharge",
+            }
+        ],
     },
 }
 
@@ -190,7 +248,7 @@ METHODS: dict = {{}}
 
 
 def _imaging_body():
-    return '''\
+    return """\
 IMAGING_STUDIES = {
     "CXR": {"modality": "X-ray", "body_part": "Chest", "avg_min": 15},
     "CT_HEAD": {"modality": "CT", "body_part": "Head", "avg_min": 30},
@@ -280,11 +338,11 @@ async def _send_subscribe(params: dict, token: str) -> dict:
     return {"task_id": task_id, "trace_id": trace_id}
 
 METHODS["tasks/sendSubscribe"] = _send_subscribe
-'''
+"""
 
 
 def _pharmacy_body():
-    return '''\
+    return """\
 FORMULARY = {
     "Amoxicillin": {"cls": "Antibiotic", "interactions": ["Warfarin"], "contra": ["Penicillin allergy"]},
     "Ibuprofen": {"cls": "NSAID", "interactions": ["Aspirin", "Warfarin"], "contra": ["GI bleeding"]},
@@ -377,11 +435,11 @@ async def _send_subscribe(params: dict, token: str) -> dict:
     return {"task_id": task_id, "trace_id": trace_id}
 
 METHODS["tasks/sendSubscribe"] = _send_subscribe
-'''
+"""
 
 
 def _bed_manager_body():
-    return '''\
+    return """\
 import random
 
 BED_INVENTORY = {
@@ -482,11 +540,11 @@ async def _send_subscribe(params: dict, token: str) -> dict:
     return {"task_id": task_id, "trace_id": trace_id}
 
 METHODS["tasks/sendSubscribe"] = _send_subscribe
-'''
+"""
 
 
 def _discharge_body():
-    return '''\
+    return """\
 async def _discharge_initiate(params: dict, token: str) -> dict:
     health_monitor.metrics.record_accepted()
     t = asyncio.get_event_loop().time()
@@ -571,11 +629,11 @@ async def _send_subscribe(params: dict, token: str) -> dict:
     return {"task_id": task_id, "trace_id": trace_id}
 
 METHODS["tasks/sendSubscribe"] = _send_subscribe
-'''
+"""
 
 
 def _followup_body():
-    return '''\
+    return """\
 async def _schedule_followup(params: dict, token: str) -> dict:
     health_monitor.metrics.record_accepted()
     t = asyncio.get_event_loop().time()
@@ -621,7 +679,7 @@ async def _send_subscribe(params: dict, token: str) -> dict:
     return {"task_id": task_id, "trace_id": trace_id}
 
 METHODS["tasks/sendSubscribe"] = _send_subscribe
-'''
+"""
 
 
 def _care_coordinator_body():
@@ -672,7 +730,7 @@ METHODS["tasks/sendSubscribe"] = _send_subscribe
 '''
 
 
-AGENT_RPC_BLOCK = '''
+AGENT_RPC_BLOCK = """
 
 @app.post("/rpc")
 async def rpc(request: Request):
@@ -690,15 +748,39 @@ async def rpc(request: Request):
     except Exception as exc:
         err = JsonRpcError(-32000, "Server error", str(exc))
         return JSONResponse(content=response_error(payload.get("id"), err), status_code=200)
-'''
+"""
 
 AGENTS_CODE = {
-    "demos/helixcare/imaging-agent/app/main.py": ("Imaging Agent -- imaging coordination and AI-assisted analysis (FR-4).", "imaging-agent", _imaging_body),
-    "demos/helixcare/pharmacy-agent/app/main.py": ("Pharmacy Agent -- medication recommendations with allergy/interaction checking (FR-5).", "pharmacy-agent", _pharmacy_body),
-    "demos/helixcare/bed-manager-agent/app/main.py": ("Bed Manager Agent -- admission management with bed assignment (FR-6).", "bed-manager-agent", _bed_manager_body),
-    "demos/helixcare/discharge-agent/app/main.py": ("Discharge Agent -- discharge planning with summary generation (FR-7).", "discharge-agent", _discharge_body),
-    "demos/helixcare/followup-scheduler/app/main.py": ("Follow-up Scheduler -- post-discharge appointment scheduling.", "followup-scheduler", _followup_body),
-    "demos/helixcare/care-coordinator/app/main.py": ("Care Coordinator -- end-to-end patient journey orchestrator (FR-8).", "care-coordinator", _care_coordinator_body),
+    "demos/helixcare/imaging-agent/app/main.py": (
+        "Imaging Agent -- imaging coordination and AI-assisted analysis (FR-4).",
+        "imaging-agent",
+        _imaging_body,
+    ),
+    "demos/helixcare/pharmacy-agent/app/main.py": (
+        "Pharmacy Agent -- medication recommendations with allergy/interaction checking (FR-5).",
+        "pharmacy-agent",
+        _pharmacy_body,
+    ),
+    "demos/helixcare/bed-manager-agent/app/main.py": (
+        "Bed Manager Agent -- admission management with bed assignment (FR-6).",
+        "bed-manager-agent",
+        _bed_manager_body,
+    ),
+    "demos/helixcare/discharge-agent/app/main.py": (
+        "Discharge Agent -- discharge planning with summary generation (FR-7).",
+        "discharge-agent",
+        _discharge_body,
+    ),
+    "demos/helixcare/followup-scheduler/app/main.py": (
+        "Follow-up Scheduler -- post-discharge appointment scheduling.",
+        "followup-scheduler",
+        _followup_body,
+    ),
+    "demos/helixcare/care-coordinator/app/main.py": (
+        "Care Coordinator -- end-to-end patient journey orchestrator (FR-8).",
+        "care-coordinator",
+        _care_coordinator_body,
+    ),
 }
 
 
@@ -925,7 +1007,7 @@ TEST_CONFIGS = [
 # 4. RUNNER PATCH
 # ═══════════════════════════════════════════════════════════════
 
-RUNNER_PATCH = '''
+RUNNER_PATCH = """
 
 # ── HelixCare matrix support (auto-generated) ──────────────────
 HELIXCARE_MATRICES_DIR = pathlib.Path(__file__).resolve().parents[2] / "HelixCare"
@@ -976,7 +1058,7 @@ HELIXCARE_URLS: dict[str, str] = {
     "followup-scheduler":  os.environ.get("HC_FOLLOWUP_URL",   "http://localhost:8028"),
     "care-coordinator":    os.environ.get("HC_COORDINATOR_URL","http://localhost:8029"),
 }
-'''
+"""
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -1007,6 +1089,7 @@ LAUNCH_ENV_PATCH = """    # HelixCare inter-agent URLs
 # EXECUTE
 # ═══════════════════════════════════════════════════════════════
 
+
 def main():
     print("=" * 70)
     print("HelixCare Bootstrap — Creating all missing components")
@@ -1025,8 +1108,14 @@ def main():
 
     # 3. __init__.py files
     print("\n[3/6] Creating __init__.py files...")
-    for agent in ["imaging-agent", "pharmacy-agent", "bed-manager-agent",
-                   "discharge-agent", "followup-scheduler", "care-coordinator"]:
+    for agent in [
+        "imaging-agent",
+        "pharmacy-agent",
+        "bed-manager-agent",
+        "discharge-agent",
+        "followup-scheduler",
+        "care-coordinator",
+    ]:
         write(f"demos/helixcare/{agent}/__init__.py", "")
         write(f"demos/helixcare/{agent}/app/__init__.py", "")
 
@@ -1056,7 +1145,8 @@ def main():
         lc = lc.replace(
             '    ("demos/public-health-surveillance/central-surveillance", 8053),\n]',
             '    ("demos/public-health-surveillance/central-surveillance", 8053),\n'
-            + NEW_AGENTS_BLOCK + ']'
+            + NEW_AGENTS_BLOCK
+            + "]",
         )
         # Add inter-agent URLs to env block
         lc = lc.replace(
@@ -1074,7 +1164,7 @@ def main():
     print("""
 Next steps:
   1. Stop existing agents:    python tools/launch_all_agents.py --stop
-  2. Launch all 19 agents:    python tools/launch_all_agents.py
+  2. Launch all 20 agents:    python tools/launch_all_agents.py
   3. Run HelixCare tests:     pytest tests/nexus_harness/test_helixcare_*.py -v
   4. Run full suite:          pytest tests/nexus_harness/ -v
 """)
@@ -1082,4 +1172,3 @@ Next steps:
 
 if __name__ == "__main__":
     main()
-

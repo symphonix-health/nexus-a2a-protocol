@@ -201,7 +201,8 @@ def _is_retriable_error(exc: Exception) -> bool:
         status_code = exc.response.status_code
         return status_code in RETRYABLE_STATUS_CODES
 
-    return isinstance(
+    # httpx-level retryable errors
+    if isinstance(
         exc,
         (
             httpx.ConnectError,
@@ -214,7 +215,15 @@ def _is_retriable_error(exc: Exception) -> bool:
             httpx.NetworkError,
             httpx.TimeoutException,
         ),
-    )
+    ):
+        return True
+
+    # Catch base Python connection errors that may escape httpx wrapping
+    # (e.g., raw httpcore / socket errors)
+    if isinstance(exc, (ConnectionError, OSError, TimeoutError)):
+        return True
+
+    return False
 
 
 @dataclass
@@ -274,64 +283,34 @@ async def make_jsonrpc_call(
     )
 
     ts_start = datetime.now().astimezone().isoformat()
-    async with httpx.AsyncClient(timeout=timeout) as client:
-        last_error = "unknown error"
-        attempts_made = 0
-        start_time = time.perf_counter()
-        limiter = RPC_ENDPOINT_LIMITERS.get(rpc_url)
-        for attempt in range(1, ACTIVE_RETRY_CONFIG.max_rpc_attempts + 1):
-            attempts_made = attempt
-            try:
-                if limiter is None:
-                    response = await client.post(
-                        rpc_url,
-                        json=payload,
-                        headers=headers,
-                    )
-                else:
-                    async with limiter:
+    start_time = time.perf_counter()
+    last_error = "unknown error"
+    attempts_made = 0
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            limiter = RPC_ENDPOINT_LIMITERS.get(rpc_url)
+            for attempt in range(1, ACTIVE_RETRY_CONFIG.max_rpc_attempts + 1):
+                attempts_made = attempt
+                try:
+                    if limiter is None:
                         response = await client.post(
                             rpc_url,
                             json=payload,
                             headers=headers,
                         )
-                response.raise_for_status()
-                result = response.json()
-                if attempt > 1:
-                    print(f"   ✅ Response received (recovered on attempt {attempt})")
-                else:
-                    print("   ✅ Response received")
-                ts_end = datetime.now().astimezone().isoformat()
-                duration_ms = (time.perf_counter() - start_time) * 1000
-                step_event = _build_trace_step(
-                    trace_id=trace_id,
-                    correlation_id=correlation_id,
-                    scenario_name=scenario_name,
-                    patient_id=patient_id,
-                    visit_id=visit_id,
-                    agent=task_id.rsplit("-", 2)[-2] if "-" in task_id else method,
-                    method=method,
-                    step_index=step_index,
-                    ts_start=ts_start,
-                    ts_end=ts_end,
-                    duration_ms=duration_ms,
-                    status="final",
-                    request=payload,
-                    response=result,
-                    retry_count=attempts_made - 1,
-                    headers=headers,
-                )
-                return result, step_event
-            except Exception as exc:
-                last_error = str(exc)
-                retriable = _is_retriable_error(exc)
-                print(
-                    "   ❌ Attempt "
-                    f"{attempt}/{ACTIVE_RETRY_CONFIG.max_rpc_attempts} failed"
-                    f" ({'retriable' if retriable else 'non-retriable'}): {exc}"
-                )
-
-                if not retriable:
+                    else:
+                        async with limiter:
+                            response = await client.post(
+                                rpc_url,
+                                json=payload,
+                                headers=headers,
+                            )
+                    response.raise_for_status()
+                    result = response.json()
+                    if attempt > 1:
+                        print(f"   ✅ Response received (recovered on attempt {attempt})")
+                    else:
+                        print("   ✅ Response received")
                     ts_end = datetime.now().astimezone().isoformat()
                     duration_ms = (time.perf_counter() - start_time) * 1000
                     step_event = _build_trace_step(
@@ -346,28 +325,66 @@ async def make_jsonrpc_call(
                         ts_start=ts_start,
                         ts_end=ts_end,
                         duration_ms=duration_ms,
-                        status="error",
+                        status="final",
                         request=payload,
-                        response={"error": last_error},
+                        response=result,
                         retry_count=attempts_made - 1,
                         headers=headers,
-                        error_message=last_error,
                     )
-                    return {"error": last_error, "attempts": attempts_made}, step_event
+                    return result, step_event
+                except (Exception, asyncio.CancelledError) as exc:
+                    # asyncio.CancelledError is BaseException in Python 3.9+ and can
+                    # leak from httpx/httpcore when connect timeouts fire internally.
+                    last_error = str(exc) or type(exc).__name__
+                    retriable = isinstance(exc, asyncio.CancelledError) or _is_retriable_error(exc)
+                    print(
+                        "   ❌ Attempt "
+                        f"{attempt}/{ACTIVE_RETRY_CONFIG.max_rpc_attempts} failed"
+                        f" ({'retriable' if retriable else 'non-retriable'}): {last_error}"
+                    )
 
-                if attempt >= ACTIVE_RETRY_CONFIG.max_rpc_attempts:
-                    break
+                    if not retriable:
+                        ts_end = datetime.now().astimezone().isoformat()
+                        duration_ms = (time.perf_counter() - start_time) * 1000
+                        step_event = _build_trace_step(
+                            trace_id=trace_id,
+                            correlation_id=correlation_id,
+                            scenario_name=scenario_name,
+                            patient_id=patient_id,
+                            visit_id=visit_id,
+                            agent=task_id.rsplit("-", 2)[-2] if "-" in task_id else method,
+                            method=method,
+                            step_index=step_index,
+                            ts_start=ts_start,
+                            ts_end=ts_end,
+                            duration_ms=duration_ms,
+                            status="error",
+                            request=payload,
+                            response={"error": last_error},
+                            retry_count=attempts_made - 1,
+                            headers=headers,
+                            error_message=last_error,
+                        )
+                        return {"error": last_error, "attempts": attempts_made}, step_event
 
-                elapsed = time.perf_counter() - start_time
-                remaining_budget = ACTIVE_RETRY_CONFIG.max_retry_budget_seconds - elapsed
-                if remaining_budget <= 0:
-                    print("   ⏱ Retry budget exhausted for this call")
-                    break
+                    if attempt >= ACTIVE_RETRY_CONFIG.max_rpc_attempts:
+                        break
 
-                delay = min(_retry_delay_seconds(attempt), remaining_budget)
-                print(f"   ↻ Retrying in {delay:.2f}s")
-                if delay > 0:
-                    await asyncio.sleep(delay)
+                    elapsed = time.perf_counter() - start_time
+                    remaining_budget = ACTIVE_RETRY_CONFIG.max_retry_budget_seconds - elapsed
+                    if remaining_budget <= 0:
+                        print("   ⏱ Retry budget exhausted for this call")
+                        break
+
+                    delay = min(_retry_delay_seconds(attempt), remaining_budget)
+                    print(f"   ↻ Retrying in {delay:.2f}s")
+                    if delay > 0:
+                        await asyncio.sleep(delay)
+    except asyncio.CancelledError:
+        # httpx/httpcore can leak CancelledError (BaseException in 3.9+)
+        # when connect timeouts fire via anyio task groups.
+        last_error = "CancelledError (connect timeout)"
+        print(f"   ❌ Attempt {attempts_made}/{ACTIVE_RETRY_CONFIG.max_rpc_attempts} failed (retriable): {last_error}")
 
     print("   ❌ Error: All connection attempts failed")
     ts_end = datetime.now().astimezone().isoformat()
@@ -449,13 +466,69 @@ def _step(
     method: str,
     params: dict[str, Any],
     delay: int = 1,
+    *,
+    handoff_policy: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return {
+    step: dict[str, Any] = {
         "agent": agent,
         "method": method,
         "params": params,
         "delay": delay,
     }
+    if handoff_policy:
+        step["handoff_policy"] = handoff_policy
+    return step
+
+
+def _avatar_consult(
+    persona: str,
+    chief_complaint: str,
+    age: int,
+    gender: str,
+    urgency: str = "medium",
+    *,
+    delay: int = 2,
+    handoff_policy: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Create a clinician avatar start_session step."""
+    step: dict[str, Any] = {
+        "agent": "clinician_avatar",
+        "method": "avatar/start_session",
+        "params": {
+            "patient_case": {
+                "chief_complaint": chief_complaint,
+                "age": age,
+                "gender": gender,
+                "urgency": urgency,
+            },
+            "persona": persona,
+        },
+        "delay": delay,
+    }
+    if handoff_policy:
+        step["handoff_policy"] = handoff_policy
+    return step
+
+
+def _avatar_msg(
+    message: str,
+    *,
+    delay: int = 2,
+    handoff_policy: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Create a clinician avatar patient_message step."""
+    step: dict[str, Any] = {
+        "agent": "clinician_avatar",
+        "method": "avatar/patient_message",
+        "params": {
+            "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+            "message": message,
+        },
+        "delay": delay,
+    }
+    if handoff_policy:
+        step["handoff_policy"] = handoff_policy
+    return step
 
 
 def _future(days: int) -> str:
@@ -505,6 +578,24 @@ SCENARIOS = [
                 "primary_care/manage_visit",
                 {"visit_mode": "in_person", "complaint": "fatigue and hypertension follow-up"},
             ),
+            _avatar_consult(
+                "senior_internist",
+                "Fatigue and elevated blood pressure follow-up",
+                47,
+                "female",
+                "medium",
+                handoff_policy={
+                    "required_predecessors": ["primary_care"],
+                    "clinical_rationale": "Internist reviews chief complaint after initial intake",
+                },
+            ),
+            _avatar_msg(
+                "I've been so tired the last six weeks. Even small tasks at work exhaust me, and my headaches are getting worse.",
+                handoff_policy={
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Patient describes symptom trajectory during interview",
+                },
+            ),
             _step(
                 "diagnosis",
                 "tasks/sendSubscribe",
@@ -513,6 +604,10 @@ SCENARIOS = [
                     "differential_diagnosis": ["Hypertension", "Anemia", "Thyroid dysfunction"],
                 },
                 2,
+                handoff_policy={
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Diagnosis follows clinician interview findings",
+                },
             ),
             _step(
                 "pharmacy",
@@ -523,6 +618,10 @@ SCENARIOS = [
                         "allergies": [],
                         "current_medications": ["Metformin"],
                     }
+                },
+                handoff_policy={
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": "Medication adjustment based on diagnostic assessment",
                 },
             ),
             _step(
@@ -538,9 +637,14 @@ SCENARIOS = [
                     ]
                 },
                 1,
+                handoff_policy={
+                    "required_predecessors": ["diagnosis"],
+                    "optional_predecessors": ["pharmacy"],
+                    "clinical_rationale": "Follow-up scheduled after diagnosis and treatment plan",
+                },
             ),
         ],
-        expected_duration=12,
+        expected_duration=16,
     ),
     PatientScenario(
         name="specialty_outpatient_clinic",
@@ -579,6 +683,24 @@ SCENARIOS = [
                 "specialty_care/manage_referral",
                 {"specialty": "cardiology", "reason": "exertional angina assessment"},
             ),
+            _avatar_consult(
+                "senior_cardiologist",
+                "Progressive exertional chest discomfort",
+                61,
+                "male",
+                "high",
+                handoff_policy={
+                    "required_predecessors": ["specialty_care"],
+                    "clinical_rationale": "Cardiologist interviews patient after referral intake",
+                },
+            ),
+            _avatar_msg(
+                "The pressure comes on when I walk uphill or carry groceries. It eases after I rest for a few minutes. My brother had the same thing before his stents.",
+                handoff_policy={
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Patient provides exertional symptom history",
+                },
+            ),
             _step(
                 "diagnosis",
                 "tasks/sendSubscribe",
@@ -587,6 +709,10 @@ SCENARIOS = [
                     "differential_diagnosis": ["Stable angina", "GERD", "Aortic stenosis"],
                 },
                 2,
+                handoff_policy={
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Diagnosis informed by cardiologist interview findings",
+                },
             ),
             _step(
                 "imaging",
@@ -602,6 +728,10 @@ SCENARIOS = [
                     ]
                 },
                 2,
+                handoff_policy={
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": "Imaging ordered based on diagnostic assessment",
+                },
             ),
             _step(
                 "coordinator",
@@ -617,9 +747,14 @@ SCENARIOS = [
                     }
                 },
                 2,
+                handoff_policy={
+                    "required_predecessors": ["diagnosis"],
+                    "optional_predecessors": ["imaging"],
+                    "clinical_rationale": "Care coordination after diagnostic workup initiated",
+                },
             ),
         ],
-        expected_duration=14,
+        expected_duration=18,
     ),
     PatientScenario(
         name="telehealth_video_consult",
@@ -659,6 +794,24 @@ SCENARIOS = [
                 "telehealth/consult",
                 {"modality": "video", "location_verified": True, "consent_documented": True},
             ),
+            _avatar_consult(
+                "neurologist",
+                "Migraine follow-up",
+                35,
+                "female",
+                "low",
+                handoff_policy={
+                    "required_predecessors": ["telehealth"],
+                    "clinical_rationale": "Neurologist conducts structured migraine review via video",
+                },
+            ),
+            _avatar_msg(
+                "The migraines are still happening twice a week. Sumatriptan helps but I'm worried about using it too often. My sleep has been terrible with the project deadlines.",
+                handoff_policy={
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Patient reports frequency and medication concerns",
+                },
+            ),
             _step(
                 "diagnosis",
                 "tasks/sendSubscribe",
@@ -667,12 +820,20 @@ SCENARIOS = [
                     "differential_diagnosis": ["Migraine", "Medication overuse headache"],
                 },
                 2,
+                handoff_policy={
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Diagnosis refined by clinician consultation findings",
+                },
             ),
             _step(
                 "pharmacy",
                 "pharmacy/recommend",
                 {"task": {"med_plan": ["Ibuprofen"], "allergies": [], "current_medications": []}},
                 1,
+                handoff_policy={
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": "Medication adjusted based on diagnostic assessment",
+                },
             ),
             _step(
                 "followup",
@@ -687,9 +848,14 @@ SCENARIOS = [
                     ]
                 },
                 1,
+                handoff_policy={
+                    "required_predecessors": ["diagnosis"],
+                    "optional_predecessors": ["pharmacy"],
+                    "clinical_rationale": "Follow-up to assess treatment response",
+                },
             ),
         ],
-        expected_duration=10,
+        expected_duration=14,
     ),
     PatientScenario(
         name="telehealth_audio_only_followup",
@@ -728,13 +894,42 @@ SCENARIOS = [
                 "telehealth/consult",
                 {"modality": "audio_only", "location_verified": True, "consent_documented": True},
             ),
+            _avatar_consult(
+                "senior_internist",
+                "Medication side-effect review",
+                73,
+                "male",
+                "low",
+                handoff_policy={
+                    "required_predecessors": ["telehealth"],
+                    "clinical_rationale": "Internist reviews medication side-effects via audio",
+                },
+            ),
+            _avatar_msg(
+                "I've been feeling dizzy when I stand up since my doctor changed my blood pressure medication last month. It happens mostly in the morning.",
+                handoff_policy={
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Patient describes orthostatic symptoms timeline",
+                },
+            ),
             _step(
                 "primary_care",
                 "primary_care/manage_visit",
                 {"visit_mode": "audio_only", "complaint": "dizziness after medication change"},
+                handoff_policy={
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "PCP assessment informed by avatar interview findings",
+                },
             ),
             _step(
-                "pharmacy", "pharmacy/check_interactions", {"drugs": ["Lisinopril", "Ibuprofen"]}, 1
+                "pharmacy",
+                "pharmacy/check_interactions",
+                {"drugs": ["Lisinopril", "Ibuprofen"]},
+                1,
+                handoff_policy={
+                    "required_predecessors": ["primary_care"],
+                    "clinical_rationale": "Drug interaction check after PCP dosage review",
+                },
             ),
             _step(
                 "followup",
@@ -749,9 +944,14 @@ SCENARIOS = [
                     ]
                 },
                 1,
+                handoff_policy={
+                    "required_predecessors": ["primary_care"],
+                    "optional_predecessors": ["pharmacy"],
+                    "clinical_rationale": "In-person follow-up for orthostatic assessment",
+                },
             ),
         ],
-        expected_duration=9,
+        expected_duration=13,
     ),
     PatientScenario(
         name="home_visit_house_call",
@@ -794,11 +994,33 @@ SCENARIOS = [
                 "home_visit/dispatch",
                 {"home_safety_screen": True, "caregiver_present": True},
             ),
+            _avatar_consult(
+                "geriatrician",
+                "Frailty and recurrent falls",
+                84,
+                "female",
+                "medium",
+                handoff_policy={
+                    "required_predecessors": ["home_visit"],
+                    "clinical_rationale": "Geriatrician assesses fall risk and cognitive status",
+                },
+            ),
+            _avatar_msg(
+                "I fell again last Tuesday getting out of bed. My legs just gave out. My daughter says I seem more confused at night lately.",
+                handoff_policy={
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Patient reports falls and nighttime confusion",
+                },
+            ),
             _step(
                 "primary_care",
                 "primary_care/manage_visit",
                 {"visit_mode": "home", "complaint": "falls and mobility decline"},
                 2,
+                handoff_policy={
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "PCP assessment informed by geriatric consultation",
+                },
             ),
             _step(
                 "pharmacy",
@@ -811,6 +1033,10 @@ SCENARIOS = [
                     }
                 },
                 1,
+                handoff_policy={
+                    "required_predecessors": ["primary_care"],
+                    "clinical_rationale": "Pain management avoiding fall-risk medications",
+                },
             ),
             _step(
                 "coordinator",
@@ -826,9 +1052,14 @@ SCENARIOS = [
                     }
                 },
                 2,
+                handoff_policy={
+                    "required_predecessors": ["primary_care"],
+                    "optional_predecessors": ["pharmacy"],
+                    "clinical_rationale": "Care coordination for home safety and DME",
+                },
             ),
         ],
-        expected_duration=15,
+        expected_duration=19,
     ),
     PatientScenario(
         name="chronic_care_management_monthly",
@@ -876,11 +1107,33 @@ SCENARIOS = [
                 "ccm/monthly_review",
                 {"conditions": ["Diabetes", "CHF"], "monthly_minutes": 25},
             ),
+            _avatar_consult(
+                "senior_internist",
+                "CCM monthly review for diabetes and CHF",
+                69,
+                "male",
+                "low",
+                handoff_policy={
+                    "required_predecessors": ["ccm"],
+                    "clinical_rationale": "Internist check-in after care-plan metrics review",
+                },
+            ),
+            _avatar_msg(
+                "My ankles have been swelling a bit more this week. I've been trying to cut back on salt but it's hard with the processed food my wife buys.",
+                handoff_policy={
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Patient reports fluid retention and dietary challenges",
+                },
+            ),
             _step(
                 "primary_care",
                 "primary_care/manage_visit",
                 {"visit_mode": "care_management", "complaint": "goal and plan review"},
                 1,
+                handoff_policy={
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "PCP adjusts care plan based on avatar interview",
+                },
             ),
             _step(
                 "followup",
@@ -895,15 +1148,23 @@ SCENARIOS = [
                     ]
                 },
                 1,
+                handoff_policy={
+                    "required_predecessors": ["primary_care"],
+                    "clinical_rationale": "Schedule next monthly CCM review cycle",
+                },
             ),
             _step(
                 "pharmacy",
                 "pharmacy/check_interactions",
                 {"drugs": ["Metformin", "Lisinopril", "Aspirin"]},
                 1,
+                handoff_policy={
+                    "required_predecessors": ["primary_care"],
+                    "clinical_rationale": "Verify drug interactions after plan adjustments",
+                },
             ),
         ],
-        expected_duration=11,
+        expected_duration=15,
     ),
     PatientScenario(
         name="emergency_department_treat_and_release",
@@ -946,6 +1207,24 @@ SCENARIOS = [
                     "arrival_time": datetime.now().isoformat(),
                 },
             ),
+            _avatar_consult(
+                "emergency_physician",
+                "Acute asthma exacerbation",
+                29,
+                "male",
+                "high",
+                handoff_policy={
+                    "required_predecessors": ["triage"],
+                    "clinical_rationale": "EM physician assesses severity after triage",
+                },
+            ),
+            _avatar_msg(
+                "I ran out of my maintenance inhaler last week and caught a cold. The wheezing started yesterday and got really bad this morning. I can barely finish a sentence.",
+                handoff_policy={
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Patient describes trigger and severity progression",
+                },
+            ),
             _step(
                 "diagnosis",
                 "tasks/sendSubscribe",
@@ -954,6 +1233,10 @@ SCENARIOS = [
                     "differential_diagnosis": ["Asthma exacerbation", "Pneumonia", "Pneumothorax"],
                 },
                 2,
+                handoff_policy={
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Diagnosis informed by EM physician interview",
+                },
             ),
             _step(
                 "imaging",
@@ -968,12 +1251,20 @@ SCENARIOS = [
                     ]
                 },
                 2,
+                handoff_policy={
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": "CXR ordered to exclude pneumothorax/pneumonia",
+                },
             ),
             _step(
                 "pharmacy",
                 "tasks/sendSubscribe",
                 {"task": {"med_plan": ["Albuterol", "Prednisone"], "allergies": []}},
                 1,
+                handoff_policy={
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": "Bronchodilator and steroid therapy based on diagnosis",
+                },
             ),
             _step(
                 "discharge",
@@ -985,6 +1276,11 @@ SCENARIOS = [
                     }
                 },
                 1,
+                handoff_policy={
+                    "required_predecessors": ["pharmacy"],
+                    "optional_predecessors": ["imaging"],
+                    "clinical_rationale": "Discharge after treatment response and CXR clear",
+                },
             ),
             _step(
                 "followup",
@@ -995,9 +1291,13 @@ SCENARIOS = [
                     ]
                 },
                 1,
+                handoff_policy={
+                    "required_predecessors": ["discharge"],
+                    "clinical_rationale": "Early PCP follow-up after ED discharge",
+                },
             ),
         ],
-        expected_duration=16,
+        expected_duration=20,
     ),
     PatientScenario(
         name="emergency_department_to_inpatient_admission",
@@ -1045,6 +1345,24 @@ SCENARIOS = [
                     "arrival_time": datetime.now().isoformat(),
                 },
             ),
+            _avatar_consult(
+                "emergency_physician",
+                "Chest pain and diaphoresis",
+                57,
+                "female",
+                "critical",
+                handoff_policy={
+                    "required_predecessors": ["triage"],
+                    "clinical_rationale": "EM physician rapid assessment of possible ACS",
+                },
+            ),
+            _avatar_msg(
+                "The pain came on suddenly about two hours ago while I was at work. It's a heavy pressure right in my chest going down my left arm. I'm sweating and feel nauseous.",
+                handoff_policy={
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Patient describes acute onset and radiation pattern",
+                },
+            ),
             _step(
                 "diagnosis",
                 "tasks/sendSubscribe",
@@ -1057,6 +1375,10 @@ SCENARIOS = [
                     ],
                 },
                 2,
+                handoff_policy={
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Urgent differential guided by EM physician assessment",
+                },
             ),
             _step(
                 "imaging",
@@ -1072,6 +1394,10 @@ SCENARIOS = [
                     ]
                 },
                 2,
+                handoff_policy={
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": "Emergent imaging for suspected ACS",
+                },
             ),
             _step(
                 "bed_manager",
@@ -1084,6 +1410,11 @@ SCENARIOS = [
                     }
                 },
                 1,
+                handoff_policy={
+                    "required_predecessors": ["diagnosis"],
+                    "optional_predecessors": ["imaging"],
+                    "clinical_rationale": "Telemetry admission for cardiac monitoring",
+                },
             ),
             _step(
                 "coordinator",
@@ -1095,9 +1426,13 @@ SCENARIOS = [
                     }
                 },
                 1,
+                handoff_policy={
+                    "required_predecessors": ["bed_manager"],
+                    "clinical_rationale": "Cardiology consult and inpatient handoff after admission",
+                },
             ),
         ],
-        expected_duration=14,
+        expected_duration=18,
     ),
     PatientScenario(
         name="inpatient_admission_and_daily_rounds",
@@ -1140,11 +1475,33 @@ SCENARIOS = [
                 "admission/assign_bed",
                 {"task": {"unit_pref": "Ward", "decision": "admit"}},
             ),
+            _avatar_consult(
+                "attending_pulmonologist",
+                "Community acquired pneumonia with hypoxia",
+                72,
+                "male",
+                "high",
+                handoff_policy={
+                    "required_predecessors": ["bed_manager"],
+                    "clinical_rationale": "Attending evaluates patient on admission to ward",
+                },
+            ),
+            _avatar_msg(
+                "I started coughing about five days ago after my grandchild was sick. It got worse and now I can barely breathe. There's some yellowish sputum.",
+                handoff_policy={
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Patient describes symptom onset and respiratory status",
+                },
+            ),
             _step(
                 "pharmacy",
                 "tasks/sendSubscribe",
                 {"task": {"med_plan": ["Amoxicillin", "Oxygen"], "allergies": []}},
                 1,
+                handoff_policy={
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Antibiotic and supplemental O2 per attending assessment",
+                },
             ),
             _step(
                 "coordinator",
@@ -1156,10 +1513,23 @@ SCENARIOS = [
                     }
                 },
                 2,
+                handoff_policy={
+                    "required_predecessors": ["pharmacy"],
+                    "clinical_rationale": "Care coordination after admission orders placed",
+                },
             ),
-            _step("ccm", "ccm/monthly_review", {"conditions": ["COPD"], "monthly_minutes": 20}, 1),
+            _step(
+                "ccm",
+                "ccm/monthly_review",
+                {"conditions": ["COPD"], "monthly_minutes": 20},
+                1,
+                handoff_policy={
+                    "required_predecessors": ["coordinator"],
+                    "clinical_rationale": "CCM review for chronic COPD management during stay",
+                },
+            ),
         ],
-        expected_duration=12,
+        expected_duration=16,
     ),
     PatientScenario(
         name="inpatient_discharge_transition",
@@ -1201,6 +1571,23 @@ SCENARIOS = [
             },
         },
         journey_steps=[
+            _avatar_consult(
+                "attending_cardiologist",
+                "Discharge readiness after CHF admission",
+                66,
+                "female",
+                "medium",
+                handoff_policy={
+                    "clinical_rationale": "Cardiologist reviews discharge readiness with patient",
+                },
+            ),
+            _avatar_msg(
+                "I'm breathing much better now and the swelling in my legs went down. My partner is ready to help me with the daily weight checks at home.",
+                handoff_policy={
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Patient confirms symptom improvement and home support",
+                },
+            ),
             _step(
                 "discharge",
                 "tasks/sendSubscribe",
@@ -1210,6 +1597,10 @@ SCENARIOS = [
                         "discharge_disposition": "home",
                         "followup_instructions": ["Daily weights", "Low sodium diet"],
                     }
+                },
+                handoff_policy={
+                    "optional_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Discharge planned after cardiologist confirms readiness",
                 },
             ),
             _step(
@@ -1223,6 +1614,10 @@ SCENARIOS = [
                     }
                 },
                 1,
+                handoff_policy={
+                    "required_predecessors": ["discharge"],
+                    "clinical_rationale": "Discharge medication reconciliation",
+                },
             ),
             _step(
                 "followup",
@@ -1242,10 +1637,24 @@ SCENARIOS = [
                     ]
                 },
                 1,
+                handoff_policy={
+                    "required_predecessors": ["discharge"],
+                    "optional_predecessors": ["pharmacy"],
+                    "clinical_rationale": "Follow-up scheduling after discharge orders finalized",
+                },
             ),
-            _step("ccm", "ccm/monthly_review", {"conditions": ["CHF"], "monthly_minutes": 22}, 1),
+            _step(
+                "ccm",
+                "ccm/monthly_review",
+                {"conditions": ["CHF"], "monthly_minutes": 22},
+                1,
+                handoff_policy={
+                    "required_predecessors": ["discharge"],
+                    "clinical_rationale": "CCM enrollment for transition of care monitoring",
+                },
+            ),
         ],
-        expected_duration=11,
+        expected_duration=15,
     ),
 ]
 
@@ -1339,34 +1748,107 @@ async def run_scenario(scenario: PatientScenario) -> None:
         },
     }
 
+    # Delegation engine – tracks handoff validation & context chaining
+    try:
+        from tools.delegation import (DelegationMonitor, HandoffResult,
+                                      build_delegation_context,
+                                      validate_handoff)
+    except ImportError:
+        from delegation import (DelegationMonitor, HandoffResult,
+                                build_delegation_context, validate_handoff)
+
+    monitor = DelegationMonitor()
+    completed_agents: set[str] = set()
+    failed_agents: set[str] = set()
+
     final_status = "final"
+    prev_agent = "_start"
     for i, step in enumerate(scenario.journey_steps, 1):
-        print(f"\nStep {i}/{len(scenario.journey_steps)}: {step['agent'].upper()}")
+        agent_alias = step["agent"]
+        print(f"\nStep {i}/{len(scenario.journey_steps)}: {agent_alias.upper()}")
+
+        # ── Handoff validation (Delegation paper §4.5) ──
+        handoff_policy = step.get("handoff_policy")
+        handoff_result: HandoffResult = validate_handoff(
+            handoff_policy,
+            clinical_context,
+            completed_agents,
+            failed_agents,
+        )
+        rationale = ""
+        if isinstance(handoff_policy, dict):
+            rationale = handoff_policy.get("clinical_rationale", "")
+        monitor.record_handoff(
+            prev_agent,
+            agent_alias,
+            i,
+            handoff_result,
+            rationale,
+        )
+
+        if not handoff_result.allowed:
+            if handoff_result.skipped:
+                print(f"   ⏭ {handoff_result.reason}")
+            else:
+                print(f"   🚫 {handoff_result.reason}")
+                final_status = "error"
+            prev_agent = agent_alias
+            if "delay" in step:
+                await asyncio.sleep(step["delay"])
+            continue
+
+        # ── Build delegation context (§4.3 structural transparency) ──
+        delegation_info = build_delegation_context(
+            step,
+            clinical_context,
+            handoff_policy,
+        )
+
         step_params = _resolve_context_template(step["params"], clinical_context)
         step_params["patient_id"] = patient_id
         step_params["visit_id"] = visit_id
         # Inject accumulated clinical context so agents can generate realistic outputs
         # Existing agents that ignore this field remain unaffected
         step_params["clinical_context"] = clinical_context
+        step_params["delegation"] = delegation_info
         task_id = f"{visit_id}-{step['agent']}-{i}"
         rpc_url = resolve_agent_rpc_url(step["agent"])
 
-        result, step_event = await make_jsonrpc_call(
-            rpc_url,
-            step["method"],
-            step_params,
-            task_id,
-            trace_id=trace_id,
-            step_index=i,
-            scenario_name=scenario.name,
-            patient_id=patient_id,
-            visit_id=visit_id,
-        )
+        try:
+            result, step_event = await make_jsonrpc_call(
+                rpc_url,
+                step["method"],
+                step_params,
+                task_id,
+                trace_id=trace_id,
+                step_index=i,
+                scenario_name=scenario.name,
+                patient_id=patient_id,
+                visit_id=visit_id,
+            )
+        except (Exception, asyncio.CancelledError) as exc:
+            # Safety net: catch any unhandled exception (including
+            # asyncio.CancelledError which is BaseException in 3.9+)
+            # so one step failure never crashes the entire scenario run.
+            print(f"   ❌ Unhandled error in step {i}: {exc or type(exc).__name__}")
+            result = {"error": str(exc)}
+            step_event = None
+            failed_agents.add(agent_alias)
+            final_status = "error"
+            prev_agent = agent_alias
+            if "delay" in step:
+                await asyncio.sleep(step["delay"])
+            continue
 
         if step_event is not None:
             trace_run.add_step(step_event)
             if step_event.status == "error":
                 final_status = "error"
+                failed_agents.add(agent_alias)
+            else:
+                completed_agents.add(agent_alias)
+        else:
+            completed_agents.add(agent_alias)
 
         # Merge agent output back into the clinical context for downstream steps
         try:
@@ -1385,14 +1867,21 @@ async def run_scenario(scenario: PatientScenario) -> None:
             # Non-fatal; context threading is best-effort
             pass
 
+        prev_agent = agent_alias
         if "delay" in step:
             await asyncio.sleep(step["delay"])
 
+    # Attach delegation chain to trace for dashboard rendering
+    trace_run.delegation_chain = monitor.to_chain()
     trace_run.finalize(status=final_status)
     await _post_trace_run(trace_run)
 
+    skipped = monitor.skipped_count
+    blocked = monitor.failed_count
     print(f"\n✅ Scenario '{scenario.name}' completed!")
     print(f"   Duration: ~{scenario.expected_duration} seconds")
+    if skipped or blocked:
+        print(f"   Delegation: {skipped} skipped, {blocked} blocked")
     print("=" * 80)
 
 
@@ -1522,4 +2011,5 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
+    asyncio.run(main())
     asyncio.run(main())
