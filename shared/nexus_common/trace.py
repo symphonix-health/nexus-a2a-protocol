@@ -72,6 +72,7 @@ class TraceRun:
     status: str = "working"  # working | final | error
     steps: list[TraceStepEvent] = field(default_factory=list)
     total_duration_ms: float = 0.0
+    delegation_chain: list[dict[str, Any]] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         if not self.trace_id:
@@ -99,4 +100,5 @@ class TraceRun:
             "steps": [s.to_dict() for s in self.steps],
             "total_duration_ms": round(self.total_duration_ms, 2),
             "step_count": len(self.steps),
+            "delegation_chain": self.delegation_chain,
         }

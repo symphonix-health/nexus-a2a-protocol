@@ -1678,3 +1678,136 @@ body {
         max-width: none;
     }
 }
+
+/* ── Avatar conversation bubbles ────────────────────────────── */
+.avatar-step { border-left: 3px solid #6366f1; }
+
+.avatar-badge {
+    display: inline-block;
+    background: rgba(99, 102, 241, 0.15);
+    color: #818cf8;
+    font-size: 0.65rem;
+    padding: 1px 6px;
+    border-radius: 8px;
+    margin-left: 6px;
+    font-weight: 600;
+}
+
+.avatar-conversation {
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    border-radius: 8px;
+    background: rgba(99, 102, 241, 0.04);
+}
+
+.avatar-session-start {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.avatar-persona {
+    font-weight: 700;
+    color: #818cf8;
+    text-transform: capitalize;
+    font-size: 0.8rem;
+}
+
+.avatar-complaint {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.avatar-bubble {
+    padding: 0.5rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    margin-bottom: 0.3rem;
+    max-width: 85%;
+}
+
+.avatar-bubble.patient {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    margin-right: auto;
+    color: var(--text-primary);
+}
+
+.avatar-bubble.clinician {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    margin-left: auto;
+    text-align: right;
+    color: var(--text-primary);
+}
+
+/* ── Delegation chain ───────────────────────────────────────── */
+.delegation-chain {
+    margin: 0.5rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.delegation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-secondary);
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.delegation-toggle {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+}
+
+.delegation-body {
+    padding: 0.5rem;
+}
+
+.delegation-event {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.72rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.delegation-event:last-child { border-bottom: none; }
+
+.delegation-ok { color: var(--status-healthy); }
+.delegation-skipped { color: var(--status-degraded); }
+.delegation-blocked { color: var(--status-unhealthy); }
+
+.deleg-from, .deleg-to {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.deleg-arrow { color: var(--text-secondary); }
+
+.deleg-rationale {
+    font-style: italic;
+    color: var(--text-secondary);
+    margin-left: auto;
+    font-size: 0.68rem;
+}
+
+.deleg-reason {
+    font-size: 0.68rem;
+    color: var(--status-degraded);
+}
+
+.deleg-dur {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    margin-left: 0.3rem;
+}

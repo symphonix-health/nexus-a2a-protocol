@@ -7,18 +7,18 @@ import struct
 import wave
 from io import BytesIO
 
-from fastapi import (FastAPI, HTTPException, Request, WebSocket,
-                     WebSocketDisconnect)
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from shared.clinician_avatar.avatar_engine import AvatarEngine
 from shared.clinician_avatar.avatar_protocol import (
-    normalize_patient_message_params, normalize_start_session_params)
+    normalize_patient_message_params,
+    normalize_start_session_params,
+)
 from shared.nexus_common.auth import AuthError, verify_jwt
 from shared.nexus_common.did import did_verify_enabled, verify_did_signature
-from shared.nexus_common.jsonrpc import (JsonRpcError, parse_request,
-                                         response_error, response_result)
+from shared.nexus_common.jsonrpc import JsonRpcError, parse_request, response_error, response_result
 from shared.nexus_common.sse import TaskEventBus
 
 app = FastAPI(title="clinician-avatar-agent")
@@ -55,17 +55,20 @@ def _simple_viseme_timeline(text: str) -> list[dict[str, float | str]]:
 
 
 def _generate_tone_wav_b64(duration_seconds: float = 0.65, freq: float = 220.0) -> str:
+    _ = freq  # reserved for future waveform generation
     sample_rate = 16000
     n_samples = max(1, int(duration_seconds * sample_rate))
     buffer = BytesIO()
-    with wave.open(buffer, "wb") as wf:
+    wf: wave.Wave_write = wave.open(buffer, "wb")  # type: ignore[assignment]
+    try:
         wf.setnchannels(1)
         wf.setsampwidth(2)
         wf.setframerate(sample_rate)
         for i in range(n_samples):
-            phase = (i / sample_rate) * freq * 6.283185307179586
             amp = int(8000 * (0.5 if (i // 60) % 2 == 0 else -0.5))
             wf.writeframes(struct.pack("<h", amp))
+    finally:
+        wf.close()
     return base64.b64encode(buffer.getvalue()).decode("ascii")
 
 
@@ -178,23 +181,23 @@ async def rpc(request: Request) -> JSONResponse:
             result = engine.handle_patient_message(parsed["session_id"], parsed["message"])
         elif method == "avatar/get_status":
             session_id = str(params.get("session_id") or "").strip()
-            session = engine.get_session(session_id)
-            if not session:
+            found = engine.get_session(session_id)
+            if not found:
                 raise JsonRpcError(-32602, "Invalid params", "unknown session_id")
             result = {
-                "session_id": session.session_id,
-                "consultation_phase": session.consultation_phase,
-                "framework": session.framework,
-                "framework_progress": session.framework_progress,
-                "turns": len(session.conversation_history),
-                "updated_at": session.updated_at,
+                "session_id": found.session_id,
+                "consultation_phase": found.consultation_phase,
+                "framework": found.framework,
+                "framework_progress": found.framework_progress,
+                "turns": len(found.conversation_history),
+                "updated_at": found.updated_at,
             }
         elif method == "avatar/end_session":
             session_id = str(params.get("session_id") or "").strip()
-            session = engine.sessions.pop(session_id, None)
+            ended = engine.sessions.pop(session_id, None) is not None
             result = {
                 "session_id": session_id,
-                "ended": session is not None,
+                "ended": ended,
             }
         else:
             raise JsonRpcError(-32601, "Method not found", method)
@@ -202,6 +205,6 @@ async def rpc(request: Request) -> JSONResponse:
         return JSONResponse(content=response_result(id_, result, method=method, params=params))
     except JsonRpcError as exc:
         return JSONResponse(content=response_error(payload.get("id"), exc), status_code=200)
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001
         err = JsonRpcError(-32000, "Server error", str(exc))
         return JSONResponse(content=response_error(payload.get("id"), err), status_code=200)

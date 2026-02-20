@@ -1,8 +1,8 @@
 # HelixCare Requirements → Matrices → Implementation → Test Traceability Report
 
-**Date:** 2026-02-10 (UPDATED: 100% Compliance Achieved)  
-**Scope:** Full gap analysis of HelixCare AI Hospital requirements specification  
-**Method:** Automated cross-referencing of PDF spec, JSON matrices, demo agents, test harness  
+**Date:** 2026-02-10 (UPDATED: 100% Compliance Achieved)
+**Scope:** Full gap analysis of HelixCare AI Hospital requirements specification
+**Method:** Automated cross-referencing of PDF spec, JSON matrices, demo agents, test harness
 
 ---
 
@@ -259,7 +259,7 @@ The HelixCare matrices define preconditions that are NOT satisfied by the curren
 | `imaging_agent_available` | Diagnosis/imaging | ✅ imaging-agent on port 8024 |
 | `ehr_writer_available` | Discharge | ✅ ehr-writer-agent on port 8033 |
 | `followup_scheduler_available` | Discharge | ✅ followup-scheduler on port 8028 |
-| `command_centre_available` | All monitoring scenarios | ✅ Command Centre on port 8099 monitors all 19 agents |
+| `command_centre_available` | All monitoring scenarios | ✅ Command Centre on port 8099 monitors all 20 agents |
 
 ---
 

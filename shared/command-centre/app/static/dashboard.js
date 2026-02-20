@@ -2286,6 +2286,7 @@ function renderTraceStepTimeline(run) {
                 ${uLabel ? `<span class="urgency-pill" style="background:${uColor}">${uLabel}</span>` : ''}
             </div>
         </div>
+        ${renderDelegationChain(run)}
         <div class="timeline-steps">
         ${steps.map((step, idx) => {
             const stepOk = step.status === 'final' || step.status === 'success' || step.status === 'completed';
@@ -2306,13 +2307,20 @@ function renderTraceStepTimeline(run) {
             const statusIcon = stepOk ? '&#10003;' : stepErr ? '&#10007;' : '&#9679;';
             const statusColor = stepOk ? 'var(--status-healthy)' : stepErr ? 'var(--status-unhealthy)' : 'var(--status-degraded)';
 
+            // Detect if this is an avatar step and render conversation-style
+            const isAvatar = step.agent === 'clinician_avatar';
+            const avatarBadge = isAvatar ? '<span class="avatar-badge">🩺 Avatar</span>' : '';
+
             // Extract the clinical inputs/outputs
             const reqParams = step.request_redacted?.params?.task || step.request_redacted?.params || {};
             const resResult = step.response_redacted?.result?.status
                 ? step.response_redacted.result
                 : step.response_redacted?.result?.artifacts?.[0]?.parts?.[0]?.data || step.response_redacted?.result || {};
 
-            return `<div class="trace-step-card ${stepCss}" data-step-index="${idx}">
+            // Avatar conversation rendering
+            const avatarConv = isAvatar ? renderAvatarConversation(step, reqParams, resResult) : '';
+
+            return `<div class="trace-step-card ${stepCss} ${isAvatar ? 'avatar-step' : ''}" data-step-index="${idx}">
                 <div class="step-header" onclick="toggleTraceStep(this)">
                     <div class="step-number" style="color:${statusColor}">
                         <span class="step-icon">${statusIcon}</span> ${idx + 1}
@@ -2320,6 +2328,7 @@ function renderTraceStepTimeline(run) {
                     <div class="step-info">
                         <span class="step-agent">${escapeHtml(humanizeAgentName(step.agent))}</span>
                         <span class="step-method">${escapeHtml(step.method || '')}</span>
+                        ${avatarBadge}
                     </div>
                     <div class="step-timing">
                         <span class="duration ${durClass}">${durLabel}</span>
@@ -2336,6 +2345,7 @@ function renderTraceStepTimeline(run) {
                         <button class="trace-copy-btn" onclick="event.stopPropagation();copyToClipboard('${escapeHtml(step.correlation_id || '')}')">Copy</button>
                     </div>
                     ${errorInfo}
+                    ${avatarConv}
                     <div class="step-payloads expanded">
                         <h4>Clinical Input</h4>
                         <pre class="trace-json-block">${escapeHtml(JSON.stringify(reqParams, null, 2) || '{}')}</pre>
@@ -2347,6 +2357,75 @@ function renderTraceStepTimeline(run) {
         }).join('')}
         </div>
     `;
+}
+
+function renderAvatarConversation(step, reqParams, resResult) {
+    const method = step.method || '';
+    if (method.includes('start_session')) {
+        const persona = reqParams.persona || 'clinician';
+        const complaint = reqParams.patient_case?.chief_complaint || '';
+        const reply = resResult.greeting || resResult.message || resResult.response || '';
+        return `<div class="avatar-conversation">
+            <div class="avatar-session-start">
+                <span class="avatar-persona">🩺 ${escapeHtml(persona.replace(/_/g, ' '))}</span>
+                ${complaint ? `<span class="avatar-complaint">${escapeHtml(complaint)}</span>` : ''}
+            </div>
+            ${reply ? `<div class="avatar-bubble clinician">${escapeHtml(reply)}</div>` : ''}
+        </div>`;
+    }
+    if (method.includes('patient_message')) {
+        const patientMsg = reqParams.message || '';
+        const clinicianReply = resResult.response || resResult.message
+            || resResult.follow_up_question || resResult.reply || '';
+        return `<div class="avatar-conversation">
+            ${patientMsg ? `<div class="avatar-bubble patient">${escapeHtml(patientMsg)}</div>` : ''}
+            ${clinicianReply ? `<div class="avatar-bubble clinician">${escapeHtml(clinicianReply)}</div>` : ''}
+        </div>`;
+    }
+    return '';
+}
+
+function renderDelegationChain(run) {
+    const chain = run.delegation_chain || [];
+    if (chain.length === 0) return '';
+
+    const skipped = chain.filter(e => e.skipped).length;
+    const blocked = chain.filter(e => !e.allowed && !e.skipped).length;
+    const total = chain.length;
+
+    return `<div class="delegation-chain">
+        <div class="delegation-header" onclick="toggleDelegationChain(this)">
+            <span>🔗 Delegation Chain (${total} handoffs${skipped ? `, ${skipped} skipped` : ''}${blocked ? `, ${blocked} blocked` : ''})</span>
+            <span class="delegation-toggle">&#9654;</span>
+        </div>
+        <div class="delegation-body" style="display:none;">
+            ${chain.map(e => {
+                const cls = e.skipped ? 'delegation-skipped'
+                    : !e.allowed ? 'delegation-blocked'
+                    : 'delegation-ok';
+                return `<div class="delegation-event ${cls}">
+                    <span class="deleg-from">${escapeHtml(e.from || '')}</span>
+                    <span class="deleg-arrow">→</span>
+                    <span class="deleg-to">${escapeHtml(e.to || '')}</span>
+                    ${e.rationale ? `<span class="deleg-rationale">${escapeHtml(e.rationale)}</span>` : ''}
+                    ${e.reason ? `<span class="deleg-reason">${escapeHtml(e.reason)}</span>` : ''}
+                    ${e.duration_ms ? `<span class="deleg-dur">${e.duration_ms.toFixed(0)}ms</span>` : ''}
+                </div>`;
+            }).join('')}
+        </div>
+    </div>`;
+}
+
+function toggleDelegationChain(headerEl) {
+    const body = headerEl.nextElementSibling;
+    const toggle = headerEl.querySelector('.delegation-toggle');
+    if (body.style.display === 'none') {
+        body.style.display = 'block';
+        if (toggle) toggle.innerHTML = '&#9660;';
+    } else {
+        body.style.display = 'none';
+        if (toggle) toggle.innerHTML = '&#9654;';
+    }
 }
 
 function toggleTraceStep(headerEl) {

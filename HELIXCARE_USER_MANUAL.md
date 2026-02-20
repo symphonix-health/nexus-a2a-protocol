@@ -64,9 +64,9 @@ python tools/monitor_command_centre.py
 
 ### Architecture
 
-HelixCare consists of **19 specialized AI agents** working together:
+HelixCare consists of **20 specialized AI agents** working together:
 
-#### Core Medical Agents (8)
+#### Core Medical Agents (9)
 - **Triage Agent** (Port 8021) - Initial patient assessment
 - **Diagnosis Agent** (Port 8022) - Medical diagnosis and differential diagnosis
 - **Imaging Agent** (Port 8024) - Radiology order coordination
@@ -75,6 +75,7 @@ HelixCare consists of **19 specialized AI agents** working together:
 - **Discharge Agent** (Port 8027) - Discharge planning
 - **Follow-up Agent** (Port 8028) - Post-discharge care scheduling
 - **Care Coordinator Agent** (Port 8029) - End-to-end journey orchestration
+- **Clinician Avatar Agent** (Port 8039) - AI-driven structured clinical interview with 3D avatar
 
 #### Supporting Infrastructure (11)
 - Command Centre (Port 8099) - Real-time monitoring dashboard
@@ -92,6 +93,7 @@ HelixCare consists of **19 specialized AI agents** working together:
 - 📊 **Real-time Monitoring**: Command Centre provides live system visibility
 - 🛡️ **Secure**: JWT-based authentication with role-based access control
 - 📈 **Scalable**: Microservices architecture supports horizontal scaling
+- 🧑‍⚕️ **Clinician Avatar**: 3D avatar-driven structured clinical interviews (Calgary-Cambridge, SOCRATES, ABCDE)
 - ✅ **Tested**: Comprehensive test suite with 7,000+ scenarios
 
 [← Back to Table of Contents](#table-of-contents)
@@ -242,25 +244,42 @@ Each agent has a `config.json` file in its directory:
 
 ### Available Scenarios
 
-HelixCare includes **10 comprehensive patient journey scenarios**:
+HelixCare includes **25 patient journey scenarios** organised into 10 canonical and 15 additional variants. Every scenario carries a full `medical_history` block with past medical history, medications, allergies, social/family history, review of systems, and vital signs.
 
-#### Emergency Cases
-- **chest_pain_cardiac**: Adult cardiac chest pain
-- **pediatric_fever_sepsis**: Child with sepsis
-- **obstetric_emergency**: Pregnancy complications
+#### Canonical Scenarios (10)
 
-#### Trauma & Surgery
-- **orthopedic_fracture**: Bone fractures
-- **trauma_motor_vehicle_accident**: Multi-trauma
+| Scenario | Description |
+|---|---|
+| `primary_care_outpatient_in_person` | In-person primary care visit with assessment, treatment, and checkout |
+| `specialty_outpatient_clinic` | Specialty clinic workflow with referral triage and diagnostics |
+| `telehealth_video_consult` | Video telehealth consultation with documentation chain |
+| `telehealth_audio_only_followup` | Audio-only chronic condition follow-up |
+| `home_visit_house_call` | Home-based visit for mobility-impaired patients |
+| `chronic_care_management_monthly` | Monthly chronic care management coordination |
+| `emergency_department_treat_and_release` | ED treat-and-release for moderate presentation |
+| `emergency_department_to_inpatient_admission` | ED to inpatient admission for complex cases |
+| `inpatient_admission_and_daily_rounds` | Inpatient admission with daily clinical rounds |
+| `inpatient_discharge_transition` | Discharge planning with transition-of-care coordination |
 
-#### Chronic & Complex
-- **geriatric_confusion**: Elderly delirium
-- **chronic_diabetes_complication**: Diabetic complications
-- **mental_health_crisis**: Psychiatric emergencies
+#### Additional Scenarios (15)
 
-#### Respiratory
-- **pediatric_asthma_exacerbation**: Severe asthma
-- **infectious_disease_outbreak**: Respiratory infections
+| Scenario | Description |
+|---|---|
+| `chest_pain_cardiac` | Adult cardiac chest pain with ACS workup |
+| `pediatric_fever_sepsis` | Child with sepsis and isolation |
+| `orthopedic_fracture` | Extremity fracture with imaging and follow-up |
+| `geriatric_confusion` | Elderly delirium with CT workup |
+| `obstetric_emergency` | Pregnancy bleeding at 28 weeks |
+| `mental_health_crisis` | Acute psychiatric crisis with safety planning |
+| `chronic_diabetes_complication` | Diabetic foot ulcer with multidisciplinary care |
+| `trauma_motor_vehicle_accident` | Polytrauma from high-speed MVC |
+| `infectious_disease_outbreak` | Respiratory outbreak with isolation |
+| `pediatric_asthma_exacerbation` | Severe paediatric asthma stabilisation |
+| `regional_hie_referral_exchange` | Cross-network referral via OpenHIE mediation |
+| `telemed_scribe_documentation_chain` | Telemedicine with transcriber → summariser → EHR writer |
+| `consent_and_payer_authorization` | Prior-auth with consent verification and HITL adjudication |
+| `notifiable_outbreak_public_health_loop` | Public health escalation with OSINT corroboration |
+| `clinician_avatar_consultation` | **NEW** — Clinician avatar structured interview (Calgary-Cambridge) with diagnosis, imaging, and follow-up |
 
 ### Running Scenarios
 
@@ -269,33 +288,43 @@ HelixCare includes **10 comprehensive patient journey scenarios**:
 # List available scenarios
 python tools/helixcare_scenarios.py --list
 
-# Run specific scenario
-python tools/helixcare_scenarios.py --run chest_pain_cardiac
+# Run a canonical scenario
+python tools/helixcare_scenarios.py --run primary_care_outpatient_in_person
+
+# Run an additional scenario (including the avatar scenario)
+python tools/helixcare_scenarios.py --run clinician_avatar_consultation
 ```
 
 #### Multiple Scenarios
 ```bash
-# Run all scenarios
+# Run all scenarios (canonical + additional)
 python tools/run_helixcare_scenarios.py
 
-# Run with monitoring
+# Run with Command Centre monitoring
 python tools/monitor_command_centre.py &
 python tools/run_helixcare_scenarios.py
 ```
 
-#### Custom Scenarios
-```bash
-# Create your own scenario
-python tools/create_scenario.py --template chest_pain_cardiac --output my_scenario.json
-```
-
 ### Scenario Structure
 
-Each scenario includes:
-- **Patient Profile**: Demographics and chief complaint
-- **Journey Steps**: Sequential agent interactions
-- **Expected Duration**: Timeline for completion
-- **Success Criteria**: Validation checkpoints
+Each scenario is a `PatientScenario` dataclass with:
+- **Patient Profile**: Demographics, chief complaint, and urgency level
+- **Medical History**: Past medical history, current medications, allergies, social history, family history, review of systems, and vital signs
+- **Journey Steps**: Sequential agent interactions (triage → diagnosis → imaging → pharmacy → discharge/follow-up)
+- **Expected Duration**: Estimated seconds for the complete journey
+
+Example `medical_history` block:
+```json
+{
+  "past_medical_history": ["Hypertension", "Type 2 diabetes"],
+  "medications": ["Metformin 1000 mg BID", "Lisinopril 10 mg daily"],
+  "allergies": ["Penicillin (hives)"],
+  "social_history": { "tobacco": "never", "alcohol": "occasional" },
+  "family_history": ["Mother with hypertension"],
+  "review_of_systems": { "constitutional": "Fatigue over 6 weeks" },
+  "vital_signs": { "blood_pressure": "152/92", "heart_rate": 82, "oxygen_saturation": 98 }
+}
+```
 
 ### Monitoring Scenarios
 
@@ -311,12 +340,68 @@ python tools/scenario_tracker.py --scenario chest_pain_cardiac
 
 ---
 
+## 5a. Clinician Avatar
+
+The **Clinician Avatar Agent** (port 8039) provides AI-driven structured clinical interviews backed by established medical consultation frameworks.
+
+### Clinical Frameworks
+
+| Framework | Selected When | Structure |
+|---|---|---|
+| **Calgary-Cambridge** | Default for general consultations | Initiating → Gathering information → Physical examination → Explanation & planning → Closing |
+| **SOCRATES** | Pain-related chief complaints (chest pain, abdominal pain, etc.) | Site → Onset → Character → Radiation → Associations → Time course → Exacerbating/relieving → Severity |
+| **ABCDE** | Critical/emergency urgency | Airway → Breathing → Circulation → Disability → Exposure |
+
+The framework is automatically selected based on the patient's chief complaint and urgency level.
+
+### 3D Avatar Interface
+
+Access the web-based avatar at: **http://localhost:8039/avatar**
+
+Features:
+- **Three.js 3D head** with real-time lip-sync driven by viseme timelines
+- **Chat panel** for text-based patient–clinician dialogue
+- **TTS API** (`POST /api/tts`) generating audio with viseme synchronisation
+- **Session lifecycle** — start, converse, end — via JSON-RPC
+
+### Avatar API (JSON-RPC)
+
+| Method | Description |
+|---|---|
+| `avatar/start_session` | Start a structured interview; returns session ID, selected framework, and opening greeting |
+| `avatar/patient_message` | Send a patient message; returns clinician response and updated consultation phase |
+| `avatar/get_status` | Get current session state including framework progress and findings |
+| `avatar/end_session` | End the consultation and retrieve the session summary |
+
+### Example: Running the Avatar Scenario
+
+```bash
+# Via the on-demand gateway (starts dependencies automatically)
+python tools/helixcare_scenarios.py --gateway http://localhost:8100 --retry-mode fast --run clinician_avatar_consultation
+
+# Or start the avatar agent directly first
+python -m uvicorn demos.helixcare.clinician-avatar-agent.app.main:app --host 127.0.0.1 --port 8039
+```
+
+The `clinician_avatar_consultation` scenario walks through:
+1. **Triage** — establishes urgency for exertional chest tightness
+2. **Avatar start_session** — Calgary-Cambridge interview begins
+3. **Patient messages** (×2) — patient describes onset, radiation, and associated symptoms
+4. **Diagnosis** — differential based on gathered findings
+5. **Imaging** — ECG + stress echocardiogram
+6. **Pharmacy** — aspirin + nitroglycerin
+7. **Follow-up** — cardiology review in 7 days
+
+[← Back to Table of Contents](#table-of-contents)
+
+---
+
 ## 6. Command Centre Operations
 
 ### Dashboard Overview
 
 The Command Centre provides real-time visibility into:
-- **Agent Status**: Health and activity of all 19 agents
+- **Agent Status**: Health and activity of all 20 agents
 - **Patient Journeys**: Live tracking of active scenarios
 - **System Metrics**: Performance and error monitoring
 - **Alert Management**: Critical event notifications
@@ -574,11 +659,25 @@ from tools.helixcare_scenarios import PatientScenario
 my_scenario = PatientScenario(
     name="my_custom_case",
     description="Custom medical scenario",
-    patient_profile={"age": 45, "gender": "female", ...},
+    patient_profile={"age": 45, "gender": "female",
+                     "chief_complaint": "Persistent headache",
+                     "urgency": "medium"},
+    medical_history={
+        "past_medical_history": ["Migraine", "Hypertension"],
+        "medications": ["Sumatriptan 50 mg PRN"],
+        "allergies": ["No known drug allergies"],
+        "social_history": {"tobacco": "never", "alcohol": "occasional"},
+        "family_history": ["Mother with migraine"],
+        "review_of_systems": {"neurologic": "Throbbing left-sided headache"},
+        "vital_signs": {"blood_pressure": "128/80", "heart_rate": 76},
+    },
     journey_steps=[...],
-    expected_duration=30
+    expected_duration=30,
 )
 ```
+
+> **Note**: All scenarios must include a `medical_history` block. This data is threaded
+> through the journey as clinical context for each agent interaction.
 
 [← Back to Table of Contents](#table-of-contents)
 
@@ -641,13 +740,14 @@ python tools/security_scan.py
 - **Discussions**: Community Q&A and collaboration
 
 ### Training & Certification
-- **Scenario Library**: 10 comprehensive patient journeys
+- **Scenario Library**: 25 comprehensive patient journeys (10 canonical + 15 additional)
+- **Clinician Avatar**: Interactive clinical interview with Calgary-Cambridge, SOCRATES, and ABCDE frameworks
 - **Test Suite**: 7,000+ validation scenarios
 - **Performance Benchmarks**: Latency and throughput metrics
 
 ---
 
-*This manual is continuously updated. Last updated: February 10, 2026*
+*This manual is continuously updated. Last updated: February 20, 2026*
 
 For the latest version, visit: [HelixCare Documentation](docs/)
 
