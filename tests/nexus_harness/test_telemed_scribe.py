@@ -17,7 +17,7 @@ _positive = scenarios_for(MATRIX, scenario_type="positive")
 _negative = scenarios_for(MATRIX, scenario_type="negative")
 
 
-@pytest.mark.parametrize("scenario", _positive[:10], ids=pytest_ids(_positive[:10]))
+@pytest.mark.parametrize("scenario", _positive, ids=pytest_ids(_positive))
 @pytest.mark.asyncio
 async def test_scribe_positive(scenario: dict, client: httpx.AsyncClient, auth_headers: dict):
     sr = ScenarioResult(
@@ -72,7 +72,7 @@ async def test_scribe_positive(scenario: dict, client: httpx.AsyncClient, auth_h
         get_report().add(sr)
 
 
-@pytest.mark.parametrize("scenario", _negative[:10], ids=pytest_ids(_negative[:10]))
+@pytest.mark.parametrize("scenario", _negative, ids=pytest_ids(_negative))
 @pytest.mark.asyncio
 async def test_scribe_negative(scenario: dict, client: httpx.AsyncClient, auth_headers: dict):
     sr = ScenarioResult(

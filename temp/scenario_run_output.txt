@@ -1,0 +1,1426 @@
+ÔÜÖ Active retry profile: balanced
+ÔÜÖ On-demand gateway routing: http://localhost:8100
+­ƒÜÇ Running 10 scenario(s)
+   Mode: Sequential
+   Retry profile: balanced
+­ƒÅÑ Starting Scenario: primary_care_outpatient_in_person
+   Description: In-person primary care visit with assessment, treatment, and checkout.
+   Patient ID: PAT-1771625983-primary_care_outpatient_in_person
+   Visit ID: VISIT-1771625983-primary_care_outpatient_in_person
+   Trace ID: trace-9daf023b-7fe5-4712-b15b-65d83d0dbacf
+   Profile: {'age': 47, 'gender': 'female', 'chief_complaint': 'Fatigue and elevated blood pressure follow-up', 'urgency': 'medium'}
+================================================================================
+
+Step 1/6: PRIMARY_CARE
+­ƒô× Calling http://localhost:8100/rpc/primary_care - Method: primary_care/manage_visit
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.17s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.31s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.50s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.14s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 2/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: primary_care
+
+Step 3/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: clinician_avatar
+
+Step 4/6: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.13s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.48s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.51s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.15s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 5/6: PHARMACY
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+
+Step 6/6: FOLLOWUP
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+   ­ƒôï Trace posted ÔåÆ trace-9daf023b-7fe5-4712-b15b-65d83d0dbacf
+
+Ô£à Scenario 'primary_care_outpatient_in_person' completed!
+   Duration: ~16 seconds
+   Delegation: 4 skipped, 0 blocked
+================================================================================
+­ƒÅÑ Starting Scenario: specialty_outpatient_clinic
+   Description: Specialty clinic workflow with referral triage and diagnostics.
+   Patient ID: PAT-1771626024-specialty_outpatient_clinic
+   Visit ID: VISIT-1771626024-specialty_outpatient_clinic
+   Trace ID: trace-328a8dda-b8b8-4704-9998-9f630f06c7f5
+   Profile: {'age': 61, 'gender': 'male', 'chief_complaint': 'Progressive exertional chest discomfort', 'urgency': 'high'}
+================================================================================
+
+Step 1/6: SPECIALTY_CARE
+­ƒô× Calling http://localhost:8100/rpc/specialty_care - Method: specialty_care/manage_referral
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/specialty_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.23s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/specialty_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.38s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/specialty_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.53s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/specialty_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.03s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/specialty_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/specialty_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/specialty_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 2/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: specialty_care
+
+Step 3/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: clinician_avatar
+
+Step 4/6: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.17s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.36s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.59s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.03s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 5/6: IMAGING
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+
+Step 6/6: COORDINATOR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+   ­ƒôï Trace posted ÔåÆ trace-328a8dda-b8b8-4704-9998-9f630f06c7f5
+
+Ô£à Scenario 'specialty_outpatient_clinic' completed!
+   Duration: ~18 seconds
+   Delegation: 4 skipped, 0 blocked
+================================================================================
+­ƒÅÑ Starting Scenario: telehealth_video_consult
+   Description: Video telehealth consult with identity/location verification and remote plan.
+   Patient ID: PAT-1771626066-telehealth_video_consult
+   Visit ID: VISIT-1771626066-telehealth_video_consult
+   Trace ID: trace-48e67ec5-face-4f72-9015-ac533b216c08
+   Profile: {'age': 35, 'gender': 'female', 'chief_complaint': 'Migraine follow-up', 'urgency': 'low'}
+================================================================================
+
+Step 1/6: TELEHEALTH
+­ƒô× Calling http://localhost:8100/rpc/telehealth - Method: telehealth/consult
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.19s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.43s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.51s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.04s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 2/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: telehealth
+
+Step 3/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: clinician_avatar
+
+Step 4/6: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.20s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.38s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.70s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.13s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 5/6: PHARMACY
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+
+Step 6/6: FOLLOWUP
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+   ­ƒôï Trace posted ÔåÆ trace-48e67ec5-face-4f72-9015-ac533b216c08
+
+Ô£à Scenario 'telehealth_video_consult' completed!
+   Duration: ~14 seconds
+   Delegation: 4 skipped, 0 blocked
+================================================================================
+­ƒÅÑ Starting Scenario: telehealth_audio_only_followup
+   Description: Audio-only telehealth follow-up with escalation guardrails.
+   Patient ID: PAT-1771626099-telehealth_audio_only_followup
+   Visit ID: VISIT-1771626099-telehealth_audio_only_followup
+   Trace ID: trace-d8b5fcba-fdc1-4ced-b735-9a5aab65dd46
+   Profile: {'age': 73, 'gender': 'male', 'chief_complaint': 'Medication side-effect review', 'urgency': 'low'}
+================================================================================
+
+Step 1/6: TELEHEALTH
+­ƒô× Calling http://localhost:8100/rpc/telehealth - Method: telehealth/consult
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.20s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.38s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.54s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.09s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 2/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: telehealth
+
+Step 3/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: clinician_avatar
+
+Step 4/6: PRIMARY_CARE
+­ƒô× Calling http://localhost:8100/rpc/primary_care - Method: primary_care/manage_visit
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.16s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.35s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.61s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.13s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 5/6: PHARMACY
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: primary_care
+
+Step 6/6: FOLLOWUP
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: primary_care
+   ­ƒôï Trace posted ÔåÆ trace-d8b5fcba-fdc1-4ced-b735-9a5aab65dd46
+
+Ô£à Scenario 'telehealth_audio_only_followup' completed!
+   Duration: ~13 seconds
+   Delegation: 4 skipped, 0 blocked
+================================================================================
+­ƒÅÑ Starting Scenario: home_visit_house_call
+   Description: Home-based primary care visit including environment and safety assessment.
+   Patient ID: PAT-1771626128-home_visit_house_call
+   Visit ID: VISIT-1771626128-home_visit_house_call
+   Trace ID: trace-bcd49cb3-dd8a-4723-99ee-25566d842e63
+   Profile: {'age': 84, 'gender': 'female', 'chief_complaint': 'Frailty and recurrent falls', 'urgency': 'medium'}
+================================================================================
+
+Step 1/6: HOME_VISIT
+­ƒô× Calling http://localhost:8100/rpc/home_visit - Method: home_visit/dispatch
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/home_visit'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.24s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/home_visit'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.38s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/home_visit'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.59s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/home_visit'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.98s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/home_visit'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/home_visit'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/home_visit'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 2/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: home_visit
+
+Step 3/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: clinician_avatar
+
+Step 4/6: PRIMARY_CARE
+­ƒô× Calling http://localhost:8100/rpc/primary_care - Method: primary_care/manage_visit
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.18s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.37s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.49s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.12s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 5/6: PHARMACY
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: primary_care
+
+Step 6/6: COORDINATOR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: primary_care
+   ­ƒôï Trace posted ÔåÆ trace-bcd49cb3-dd8a-4723-99ee-25566d842e63
+
+Ô£à Scenario 'home_visit_house_call' completed!
+   Duration: ~19 seconds
+   Delegation: 4 skipped, 0 blocked
+================================================================================
+­ƒÅÑ Starting Scenario: chronic_care_management_monthly
+   Description: Longitudinal CCM monthly cycle with care-plan update and coordination.
+   Patient ID: PAT-1771626161-chronic_care_management_monthly
+   Visit ID: VISIT-1771626161-chronic_care_management_monthly
+   Trace ID: trace-d102482b-01a1-4f09-8aea-74ae4e85d666
+   Profile: {'age': 69, 'gender': 'male', 'chief_complaint': 'CCM monthly review for diabetes and CHF', 'urgency': 'low'}
+================================================================================
+
+Step 1/6: CCM
+­ƒô× Calling http://localhost:8100/rpc/ccm - Method: ccm/monthly_review
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.22s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.45s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.61s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.05s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 2/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: ccm
+
+Step 3/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: clinician_avatar
+
+Step 4/6: PRIMARY_CARE
+­ƒô× Calling http://localhost:8100/rpc/primary_care - Method: primary_care/manage_visit
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.17s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.41s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.59s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.15s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 5/6: FOLLOWUP
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: primary_care
+
+Step 6/6: PHARMACY
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: primary_care
+   ­ƒôï Trace posted ÔåÆ trace-d102482b-01a1-4f09-8aea-74ae4e85d666
+
+Ô£à Scenario 'chronic_care_management_monthly' completed!
+   Duration: ~15 seconds
+   Delegation: 4 skipped, 0 blocked
+================================================================================
+­ƒÅÑ Starting Scenario: emergency_department_treat_and_release
+   Description: ED flow resulting in treatment and safe discharge.
+   Patient ID: PAT-1771626196-emergency_department_treat_and_release
+   Visit ID: VISIT-1771626196-emergency_department_treat_and_release
+   Trace ID: trace-490b0ffe-88a9-4170-a004-ddb12f569e23
+   Profile: {'age': 29, 'gender': 'male', 'chief_complaint': 'Acute asthma exacerbation', 'urgency': 'high'}
+================================================================================
+
+Step 1/8: TRIAGE
+­ƒô× Calling http://localhost:8100/rpc/triage - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/triage'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.13s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/triage'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.40s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/triage'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.66s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/triage'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.14s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/triage'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/triage'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/triage'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 2/8: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: triage
+
+Step 3/8: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: clinician_avatar
+
+Step 4/8: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.17s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.28s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.58s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.10s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 5/8: IMAGING
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+
+Step 6/8: PHARMACY
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+
+Step 7/8: DISCHARGE
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: pharmacy
+
+Step 8/8: FOLLOWUP
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: discharge
+   ­ƒôï Trace posted ÔåÆ trace-490b0ffe-88a9-4170-a004-ddb12f569e23
+
+Ô£à Scenario 'emergency_department_treat_and_release' completed!
+   Duration: ~20 seconds
+   Delegation: 6 skipped, 0 blocked
+================================================================================
+­ƒÅÑ Starting Scenario: emergency_department_to_inpatient_admission
+   Description: ED flow that escalates to inpatient admission.
+   Patient ID: PAT-1771626233-emergency_department_to_inpatient_admission
+   Visit ID: VISIT-1771626233-emergency_department_to_inpatient_admission
+   Trace ID: trace-d78f5379-37b4-4e55-8119-0e110edc1404
+   Profile: {'age': 57, 'gender': 'female', 'chief_complaint': 'Chest pain and diaphoresis', 'urgency': 'critical'}
+================================================================================
+
+Step 1/7: TRIAGE
+­ƒô× Calling http://localhost:8100/rpc/triage - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/triage'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.23s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/triage'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.38s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/triage'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.53s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/triage'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.05s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/triage'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/triage'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/triage'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 2/7: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: triage
+
+Step 3/7: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: clinician_avatar
+
+Step 4/7: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.18s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.46s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.61s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.04s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 5/7: IMAGING
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+
+Step 6/7: BED_MANAGER
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+
+Step 7/7: COORDINATOR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: bed_manager
+   ­ƒôï Trace posted ÔåÆ trace-d78f5379-37b4-4e55-8119-0e110edc1404
+
+Ô£à Scenario 'emergency_department_to_inpatient_admission' completed!
+   Duration: ~18 seconds
+   Delegation: 5 skipped, 0 blocked
+================================================================================
+­ƒÅÑ Starting Scenario: inpatient_admission_and_daily_rounds
+   Description: Inpatient episode focusing on admission, medication safety, and daily review.
+   Patient ID: PAT-1771626265-inpatient_admission_and_daily_rounds
+   Visit ID: VISIT-1771626265-inpatient_admission_and_daily_rounds
+   Trace ID: trace-a0eb510d-260e-4bbc-8bb9-a8275e31d2c1
+   Profile: {'age': 72, 'gender': 'male', 'chief_complaint': 'Community acquired pneumonia with hypoxia', 'urgency': 'high'}
+================================================================================
+
+Step 1/6: BED_MANAGER
+­ƒô× Calling http://localhost:8100/rpc/bed_manager - Method: admission/assign_bed
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/bed_manager'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.15s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/bed_manager'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.45s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/bed_manager'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.72s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/bed_manager'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.01s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/bed_manager'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/bed_manager'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/bed_manager'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 2/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: bed_manager
+
+Step 3/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: clinician_avatar
+
+Step 4/6: PHARMACY
+­ƒô× Calling http://localhost:8100/rpc/pharmacy - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 5/6: COORDINATOR
+­ƒô× Calling http://localhost:8100/rpc/coordinator - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 6/6: CCM
+­ƒô× Calling http://localhost:8100/rpc/ccm - Method: ccm/monthly_review
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.16s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.32s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.67s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.14s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+   ­ƒôï Trace posted ÔåÆ trace-a0eb510d-260e-4bbc-8bb9-a8275e31d2c1
+
+Ô£à Scenario 'inpatient_admission_and_daily_rounds' completed!
+   Duration: ~16 seconds
+   Delegation: 2 skipped, 0 blocked
+================================================================================
+­ƒÅÑ Starting Scenario: inpatient_discharge_transition
+   Description: Discharge and transition-of-care workflow to outpatient follow-up.
+   Patient ID: PAT-1771626310-inpatient_discharge_transition
+   Visit ID: VISIT-1771626310-inpatient_discharge_transition
+   Trace ID: trace-e4b1a2ee-a54a-4fc0-8331-ac1a1b4e985a
+   Profile: {'age': 66, 'gender': 'female', 'chief_complaint': 'Discharge readiness after CHF admission', 'urgency': 'medium'}
+================================================================================
+
+Step 1/6: CLINICIAN_AVATAR
+­ƒô× Calling http://localhost:8100/rpc/clinician_avatar - Method: avatar/start_session
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/clinician_avatar'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.14s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/clinician_avatar'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.37s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/clinician_avatar'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.73s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/clinician_avatar'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.14s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/clinician_avatar'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/clinician_avatar'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/clinician_avatar'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 2/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: clinician_avatar
+
+Step 3/6: DISCHARGE
+­ƒô× Calling http://localhost:8100/rpc/discharge - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 4/6: PHARMACY
+­ƒô× Calling http://localhost:8100/rpc/pharmacy - Method: pharmacy/recommend
+   Ô£à Response received
+
+Step 5/6: FOLLOWUP
+­ƒô× Calling http://localhost:8100/rpc/followup - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 6/6: CCM
+­ƒô× Calling http://localhost:8100/rpc/ccm - Method: ccm/monthly_review
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.19s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.35s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.66s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.03s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+   ­ƒôï Trace posted ÔåÆ trace-e4b1a2ee-a54a-4fc0-8331-ac1a1b4e985a
+
+Ô£à Scenario 'inpatient_discharge_transition' completed!
+   Duration: ~15 seconds
+   Delegation: 1 skipped, 0 blocked
+================================================================================
+ÔÜÖ Active retry profile: balanced
+ÔÜÖ On-demand gateway routing: http://localhost:8100
+­ƒÜÇ Running 10 scenario(s)
+   Mode: Sequential
+   Retry profile: balanced
+­ƒÅÑ Starting Scenario: primary_care_outpatient_in_person
+   Description: In-person primary care visit with assessment, treatment, and checkout.
+   Patient ID: PAT-1771626353-primary_care_outpatient_in_person
+   Visit ID: VISIT-1771626353-primary_care_outpatient_in_person
+   Trace ID: trace-82ce4bcb-bbd1-4ff0-b392-3aac25dc0ca4
+   Profile: {'age': 47, 'gender': 'female', 'chief_complaint': 'Fatigue and elevated blood pressure follow-up', 'urgency': 'medium'}
+================================================================================
+
+Step 1/6: PRIMARY_CARE
+­ƒô× Calling http://localhost:8100/rpc/primary_care - Method: primary_care/manage_visit
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.19s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.38s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.64s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.07s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 2/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: primary_care
+
+Step 3/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: clinician_avatar
+
+Step 4/6: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.15s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.45s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.53s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.11s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 5/6: PHARMACY
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+
+Step 6/6: FOLLOWUP
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+   ­ƒôï Trace posted ÔåÆ trace-82ce4bcb-bbd1-4ff0-b392-3aac25dc0ca4
+
+Ô£à Scenario 'primary_care_outpatient_in_person' completed!
+   Duration: ~16 seconds
+   Delegation: 4 skipped, 0 blocked
+================================================================================
+­ƒÅÑ Starting Scenario: specialty_outpatient_clinic
+   Description: Specialty clinic workflow with referral triage and diagnostics.
+   Patient ID: PAT-1771626378-specialty_outpatient_clinic
+   Visit ID: VISIT-1771626378-specialty_outpatient_clinic
+   Trace ID: trace-7263e170-12a3-4e73-b22f-3af86afd8713
+   Profile: {'age': 61, 'gender': 'male', 'chief_complaint': 'Progressive exertional chest discomfort', 'urgency': 'high'}
+================================================================================
+
+Step 1/6: SPECIALTY_CARE
+­ƒô× Calling http://localhost:8100/rpc/specialty_care - Method: specialty_care/manage_referral
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/specialty_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.15s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/specialty_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.43s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/specialty_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.70s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/specialty_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.18s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/specialty_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/specialty_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/specialty_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 2/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: specialty_care
+
+Step 3/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: clinician_avatar
+
+Step 4/6: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.16s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.30s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.60s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.09s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 5/6: IMAGING
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+
+Step 6/6: COORDINATOR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+   ­ƒôï Trace posted ÔåÆ trace-7263e170-12a3-4e73-b22f-3af86afd8713
+
+Ô£à Scenario 'specialty_outpatient_clinic' completed!
+   Duration: ~18 seconds
+   Delegation: 4 skipped, 0 blocked
+================================================================================
+­ƒÅÑ Starting Scenario: telehealth_video_consult
+   Description: Video telehealth consult with identity/location verification and remote plan.
+   Patient ID: PAT-1771626404-telehealth_video_consult
+   Visit ID: VISIT-1771626404-telehealth_video_consult
+   Trace ID: trace-2ac9b92a-0fa4-4f82-9bd5-0b7ceac8189f
+   Profile: {'age': 35, 'gender': 'female', 'chief_complaint': 'Migraine follow-up', 'urgency': 'low'}
+================================================================================
+
+Step 1/6: TELEHEALTH
+­ƒô× Calling http://localhost:8100/rpc/telehealth - Method: telehealth/consult
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.18s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.29s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.70s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.98s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 2/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: telehealth
+
+Step 3/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: clinician_avatar
+
+Step 4/6: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.18s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.24s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.54s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.13s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/diagnosis'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 5/6: PHARMACY
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+
+Step 6/6: FOLLOWUP
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+   ­ƒôï Trace posted ÔåÆ trace-2ac9b92a-0fa4-4f82-9bd5-0b7ceac8189f
+
+Ô£à Scenario 'telehealth_video_consult' completed!
+   Duration: ~14 seconds
+   Delegation: 4 skipped, 0 blocked
+================================================================================
+­ƒÅÑ Starting Scenario: telehealth_audio_only_followup
+   Description: Audio-only telehealth follow-up with escalation guardrails.
+   Patient ID: PAT-1771626432-telehealth_audio_only_followup
+   Visit ID: VISIT-1771626432-telehealth_audio_only_followup
+   Trace ID: trace-49fe15d7-d675-46c7-b781-d4d69a019ce2
+   Profile: {'age': 73, 'gender': 'male', 'chief_complaint': 'Medication side-effect review', 'urgency': 'low'}
+================================================================================
+
+Step 1/6: TELEHEALTH
+­ƒô× Calling http://localhost:8100/rpc/telehealth - Method: telehealth/consult
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.20s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.46s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.60s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.16s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/telehealth'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 2/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: telehealth
+
+Step 3/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: clinician_avatar
+
+Step 4/6: PRIMARY_CARE
+­ƒô× Calling http://localhost:8100/rpc/primary_care - Method: primary_care/manage_visit
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.20s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.35s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.58s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.98s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 5/6: PHARMACY
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: primary_care
+
+Step 6/6: FOLLOWUP
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: primary_care
+   ­ƒôï Trace posted ÔåÆ trace-49fe15d7-d675-46c7-b781-d4d69a019ce2
+
+Ô£à Scenario 'telehealth_audio_only_followup' completed!
+   Duration: ~13 seconds
+   Delegation: 4 skipped, 0 blocked
+================================================================================
+­ƒÅÑ Starting Scenario: home_visit_house_call
+   Description: Home-based primary care visit including environment and safety assessment.
+   Patient ID: PAT-1771626475-home_visit_house_call
+   Visit ID: VISIT-1771626475-home_visit_house_call
+   Trace ID: trace-14a00d51-126c-420d-abdf-27786b8f12bb
+   Profile: {'age': 84, 'gender': 'female', 'chief_complaint': 'Frailty and recurrent falls', 'urgency': 'medium'}
+================================================================================
+
+Step 1/6: HOME_VISIT
+­ƒô× Calling http://localhost:8100/rpc/home_visit - Method: home_visit/dispatch
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/home_visit'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.12s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/home_visit'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.28s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/home_visit'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.55s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/home_visit'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.11s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/home_visit'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/home_visit'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/home_visit'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 2/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: home_visit
+
+Step 3/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: clinician_avatar
+
+Step 4/6: PRIMARY_CARE
+­ƒô× Calling http://localhost:8100/rpc/primary_care - Method: primary_care/manage_visit
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.13s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.48s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.50s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.03s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/primary_care'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 5/6: PHARMACY
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: primary_care
+
+Step 6/6: COORDINATOR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: primary_care
+   ­ƒôï Trace posted ÔåÆ trace-14a00d51-126c-420d-abdf-27786b8f12bb
+
+Ô£à Scenario 'home_visit_house_call' completed!
+   Duration: ~19 seconds
+   Delegation: 4 skipped, 0 blocked
+================================================================================
+­ƒÅÑ Starting Scenario: chronic_care_management_monthly
+   Description: Longitudinal CCM monthly cycle with care-plan update and coordination.
+   Patient ID: PAT-1771626513-chronic_care_management_monthly
+   Visit ID: VISIT-1771626513-chronic_care_management_monthly
+   Trace ID: trace-89b7a786-c731-45d4-8c45-2fd736ac3efc
+   Profile: {'age': 69, 'gender': 'male', 'chief_complaint': 'CCM monthly review for diabetes and CHF', 'urgency': 'low'}
+================================================================================
+
+Step 1/6: CCM
+­ƒô× Calling http://localhost:8100/rpc/ccm - Method: ccm/monthly_review
+   ÔØî Attempt 1/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.24s
+   ÔØî Attempt 2/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.26s
+   ÔØî Attempt 3/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 0.65s
+   ÔØî Attempt 4/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.05s
+   ÔØî Attempt 5/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): Server error '503 Service Unavailable' for url 'http://localhost:8100/rpc/ccm'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+   ÔØî Error: All connection attempts failed
+
+Step 2/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: ccm
+
+Step 3/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: clinician_avatar
+
+Step 4/6: PRIMARY_CARE
+­ƒô× Calling http://localhost:8100/rpc/primary_care - Method: primary_care/manage_visit
+   ÔØî Attempt 1/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.16s
+   ÔØî Attempt 2/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.47s
+   ÔØî Attempt 3/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.58s
+   ÔØî Attempt 4/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.00s
+   ÔØî Attempt 5/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): All connection attempts failed
+   ÔØî Error: All connection attempts failed
+
+Step 5/6: FOLLOWUP
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: primary_care
+
+Step 6/6: PHARMACY
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: primary_care
+   ­ƒôï Trace posted ÔåÆ trace-89b7a786-c731-45d4-8c45-2fd736ac3efc
+
+Ô£à Scenario 'chronic_care_management_monthly' completed!
+   Duration: ~15 seconds
+   Delegation: 4 skipped, 0 blocked
+================================================================================
+­ƒÅÑ Starting Scenario: emergency_department_treat_and_release
+   Description: ED flow resulting in treatment and safe discharge.
+   Patient ID: PAT-1771626556-emergency_department_treat_and_release
+   Visit ID: VISIT-1771626556-emergency_department_treat_and_release
+   Trace ID: trace-b9a9159b-a6c9-4c13-abae-fd5d14030d26
+   Profile: {'age': 29, 'gender': 'male', 'chief_complaint': 'Acute asthma exacerbation', 'urgency': 'high'}
+================================================================================
+
+Step 1/8: TRIAGE
+­ƒô× Calling http://localhost:8100/rpc/triage - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.14s
+   ÔØî Attempt 2/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.47s
+   ÔØî Attempt 3/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.65s
+   ÔØî Attempt 4/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.19s
+   ÔØî Attempt 5/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): All connection attempts failed
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 2/8: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: triage
+
+Step 3/8: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: clinician_avatar
+
+Step 4/8: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.13s
+   ÔØî Attempt 2/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.45s
+   ÔØî Attempt 3/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.60s
+   ÔØî Attempt 4/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.98s
+   ÔØî Attempt 5/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): All connection attempts failed
+   ÔØî Error: All connection attempts failed
+
+Step 5/8: IMAGING
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+
+Step 6/8: PHARMACY
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+
+Step 7/8: DISCHARGE
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: pharmacy
+
+Step 8/8: FOLLOWUP
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: discharge
+   ­ƒôï Trace posted ÔåÆ trace-b9a9159b-a6c9-4c13-abae-fd5d14030d26
+
+Ô£à Scenario 'emergency_department_treat_and_release' completed!
+   Duration: ~20 seconds
+   Delegation: 6 skipped, 0 blocked
+================================================================================
+­ƒÅÑ Starting Scenario: emergency_department_to_inpatient_admission
+   Description: ED flow that escalates to inpatient admission.
+   Patient ID: PAT-1771626615-emergency_department_to_inpatient_admission
+   Visit ID: VISIT-1771626615-emergency_department_to_inpatient_admission
+   Trace ID: trace-32a36505-3fc9-48a5-99d2-6a68d72e52da
+   Profile: {'age': 57, 'gender': 'female', 'chief_complaint': 'Chest pain and diaphoresis', 'urgency': 'critical'}
+================================================================================
+
+Step 1/7: TRIAGE
+­ƒô× Calling http://localhost:8100/rpc/triage - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.15s
+   ÔØî Attempt 2/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.44s
+   ÔØî Attempt 3/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.58s
+   ÔØî Attempt 4/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.13s
+   ÔØî Attempt 5/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): All connection attempts failed
+   ÔØî Error: All connection attempts failed
+
+Step 2/7: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: triage
+
+Step 3/7: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: clinician_avatar
+
+Step 4/7: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.22s
+   ÔØî Attempt 2/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.39s
+   ÔØî Attempt 3/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.56s
+   ÔØî Attempt 4/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.16s
+   ÔØî Attempt 5/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 7/7 failed (retriable): All connection attempts failed
+   ÔØî Error: All connection attempts failed
+
+Step 5/7: IMAGING
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+
+Step 6/7: BED_MANAGER
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: diagnosis
+
+Step 7/7: COORDINATOR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: bed_manager
+   ­ƒôï Trace posted ÔåÆ trace-32a36505-3fc9-48a5-99d2-6a68d72e52da
+
+Ô£à Scenario 'emergency_department_to_inpatient_admission' completed!
+   Duration: ~18 seconds
+   Delegation: 5 skipped, 0 blocked
+================================================================================
+­ƒÅÑ Starting Scenario: inpatient_admission_and_daily_rounds
+   Description: Inpatient episode focusing on admission, medication safety, and daily review.
+   Patient ID: PAT-1771626678-inpatient_admission_and_daily_rounds
+   Visit ID: VISIT-1771626678-inpatient_admission_and_daily_rounds
+   Trace ID: trace-3e6f5fe7-e541-4f03-95b4-c2b4d37610be
+   Profile: {'age': 72, 'gender': 'male', 'chief_complaint': 'Community acquired pneumonia with hypoxia', 'urgency': 'high'}
+================================================================================
+
+Step 1/6: BED_MANAGER
+­ƒô× Calling http://localhost:8100/rpc/bed_manager - Method: admission/assign_bed
+   ÔØî Attempt 1/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.24s
+   ÔØî Attempt 2/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.42s
+   ÔØî Attempt 3/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.58s
+   ÔØî Attempt 4/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.05s
+   ÔØî Attempt 5/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): All connection attempts failed
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 2/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: bed_manager
+
+Step 3/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: clinician_avatar
+
+Step 4/6: PHARMACY
+­ƒô× Calling http://localhost:8100/rpc/pharmacy - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.20s
+   ÔØî Attempt 2/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.33s
+   ÔØî Attempt 3/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.54s
+   ÔØî Attempt 4/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.07s
+   ÔØî Attempt 5/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.46s
+   ÔØî Attempt 7/7 failed (retriable): All connection attempts failed
+   ÔØî Error: All connection attempts failed
+
+Step 5/6: COORDINATOR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: pharmacy
+
+Step 6/6: CCM
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) not yet completed: coordinator
+   ­ƒôï Trace posted ÔåÆ trace-3e6f5fe7-e541-4f03-95b4-c2b4d37610be
+
+Ô£à Scenario 'inpatient_admission_and_daily_rounds' completed!
+   Duration: ~16 seconds
+   Delegation: 4 skipped, 0 blocked
+================================================================================
+­ƒÅÑ Starting Scenario: inpatient_discharge_transition
+   Description: Discharge and transition-of-care workflow to outpatient follow-up.
+   Patient ID: PAT-1771626738-inpatient_discharge_transition
+   Visit ID: VISIT-1771626738-inpatient_discharge_transition
+   Trace ID: trace-0a4ebd89-8ba1-4bc2-8650-062d467c765a
+   Profile: {'age': 66, 'gender': 'female', 'chief_complaint': 'Discharge readiness after CHF admission', 'urgency': 'medium'}
+================================================================================
+
+Step 1/6: CLINICIAN_AVATAR
+­ƒô× Calling http://localhost:8100/rpc/clinician_avatar - Method: avatar/start_session
+   ÔØî Attempt 1/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.23s
+   ÔØî Attempt 2/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.27s
+   ÔØî Attempt 3/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.69s
+   ÔØî Attempt 4/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.04s
+   ÔØî Attempt 5/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): All connection attempts failed
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 2/6: CLINICIAN_AVATAR
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: clinician_avatar
+
+Step 3/6: DISCHARGE
+­ƒô× Calling http://localhost:8100/rpc/discharge - Method: tasks/sendSubscribe
+   ÔØî Attempt 1/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.14s
+   ÔØî Attempt 2/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.36s
+   ÔØî Attempt 3/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 0.56s
+   ÔØî Attempt 4/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.16s
+   ÔØî Attempt 5/7 failed (retriable): All connection attempts failed
+   Ôå╗ Retrying in 1.20s
+   ÔØî Attempt 6/7 failed (retriable): All connection attempts failed
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 4/6: PHARMACY
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: discharge
+
+Step 5/6: FOLLOWUP
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: discharge
+
+Step 6/6: CCM
+   ÔÅ¡ Step skipped ÔÇö Required predecessor(s) failed: discharge
+   ­ƒôï Trace posted ÔåÆ trace-0a4ebd89-8ba1-4bc2-8650-062d467c765a
+
+Ô£à Scenario 'inpatient_discharge_transition' completed!
+   Duration: ~15 seconds
+   Delegation: 4 skipped, 0 blocked
+================================================================================

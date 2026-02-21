@@ -38,7 +38,7 @@ def _is_agent_card_test(scenario: dict) -> bool:
 
 
 # ── positive scenarios ──────────────────────────────────────────────
-@pytest.mark.parametrize("scenario", _positive[:10], ids=pytest_ids(_positive[:10]))
+@pytest.mark.parametrize("scenario", _positive, ids=pytest_ids(_positive))
 @pytest.mark.asyncio
 async def test_core_positive(scenario: dict, client: httpx.AsyncClient, auth_headers: dict):
     sr = ScenarioResult(
@@ -75,7 +75,7 @@ async def test_core_positive(scenario: dict, client: httpx.AsyncClient, auth_hea
 
 
 # ── negative scenarios ──────────────────────────────────────────────
-@pytest.mark.parametrize("scenario", _negative[:10], ids=pytest_ids(_negative[:10]))
+@pytest.mark.parametrize("scenario", _negative, ids=pytest_ids(_negative))
 @pytest.mark.asyncio
 async def test_core_negative(scenario: dict, client: httpx.AsyncClient, auth_headers: dict):
     sr = ScenarioResult(

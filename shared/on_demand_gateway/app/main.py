@@ -193,6 +193,7 @@ class OnDemandProcessManager:
         self._lock = asyncio.Lock()
         self._processes: dict[str, subprocess.Popen] = {}
         self._last_used: dict[str, float] = {}
+        self._externally_managed: set[str] = set()  # agents started outside gateway
         self._shutdown_event = asyncio.Event()
         self._reaper_task: asyncio.Task | None = None
         self._specs_by_id: dict[str, AgentSpec] = {}
@@ -230,6 +231,8 @@ class OnDemandProcessManager:
         return spec
 
     def _is_running(self, spec: AgentSpec) -> bool:
+        if spec.spec_id in self._externally_managed:
+            return True
         proc = self._processes.get(spec.spec_id)
         return proc is not None and proc.poll() is None
 
@@ -261,9 +264,25 @@ class OnDemandProcessManager:
 
         raise RuntimeError(f"{spec.alias} did not become healthy on :{spec.port}")
 
+    async def _is_externally_healthy(self, spec: AgentSpec) -> bool:
+        """Check if an agent is already listening (started by launcher or externally)."""
+        health_url = f"http://127.0.0.1:{spec.port}/.well-known/agent-card.json"
+        try:
+            async with httpx.AsyncClient(timeout=2.0) as client:
+                resp = await client.get(health_url)
+                return resp.status_code == 200
+        except Exception:
+            return False
+
     async def _start_spec(self, spec: AgentSpec) -> None:
         async with self._lock:
             if self._is_running(spec):
+                self._touch(spec)
+                return
+
+            # Check if agent was started externally (e.g. by launcher)
+            if await self._is_externally_healthy(spec):
+                self._externally_managed.add(spec.spec_id)
                 self._touch(spec)
                 return
 
