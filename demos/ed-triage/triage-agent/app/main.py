@@ -43,15 +43,26 @@ def _build_idempotency_store() -> IdempotencyStore | RedisIdempotencyStore:
 idempotency_store = _build_idempotency_store()
 
 
-async def _idempotency_check_or_register(key: str, dedup_window_ms: int) -> object:
-    result = idempotency_store.check_or_register(key, dedup_window_ms)
+async def _idempotency_check_or_register(
+    key: str,
+    dedup_window_ms: int,
+    *,
+    scope: str | None,
+    payload_hash: str | None,
+) -> object:
+    result = idempotency_store.check_or_register(
+        key=key,
+        dedup_window_ms=dedup_window_ms,
+        scope=scope,
+        payload_hash=payload_hash,
+    )
     if isawaitable(result):
         return await result
     return result
 
 
-async def _idempotency_save_response(key: str, response: dict) -> None:
-    result = idempotency_store.save_response(key, response)
+async def _idempotency_save_response(key: str, response: dict, *, scope: str | None) -> None:
+    result = idempotency_store.save_response(key=key, response=response, scope=scope)
     if isawaitable(result):
         await result
 
@@ -138,18 +149,27 @@ async def _send_subscribe(params: dict, token: str) -> dict:
     idempotency = params.get("idempotency") if isinstance(params.get("idempotency"), dict) else {}
     scenario_context = params.get("scenario_context") if isinstance(params.get("scenario_context"), dict) else {}
 
-    idempotency_key = idempotency.get("idempotency_key")
+    idempotency_key = str(idempotency.get("idempotency_key") or "").strip()
     dedup_window_ms = int(idempotency.get("dedup_window_ms", 60000)) if idempotency else 60000
+    scope = str(idempotency.get("scope") or "").strip() or None
+    payload_hash = str(idempotency.get("payload_hash") or "").strip() or None
 
     if idempotency_key:
-        dedup = await _idempotency_check_or_register(idempotency_key, dedup_window_ms)
+        dedup = await _idempotency_check_or_register(
+            idempotency_key,
+            dedup_window_ms,
+            scope=scope,
+            payload_hash=payload_hash,
+        )
         if getattr(dedup, "is_duplicate", False) and getattr(dedup, "cached_response", None):
             return {
                 **dedup.cached_response,
                 "dedup": {
                     "duplicate": True,
                     "idempotency_key": idempotency_key,
+                    "scope": scope,
                     "dedup_window_ms": dedup.dedup_window_ms,
+                    "payload_mismatch": bool(getattr(dedup, "payload_mismatch", False)),
                 },
             }
 
@@ -171,7 +191,7 @@ async def _send_subscribe(params: dict, token: str) -> dict:
     }
 
     if idempotency_key:
-        await _idempotency_save_response(idempotency_key, response)
+        await _idempotency_save_response(idempotency_key, response, scope=scope)
 
     health_monitor.metrics.record_accepted()
     inflight_tasks += 1
@@ -288,10 +308,38 @@ async def _tasks_cancel(params: dict, token: str) -> dict:
     return {"task_id": task_id, "cancelled": False, "reason": "cancel_not_supported"}
 
 
+async def _tasks_resubscribe(params: dict, token: str) -> dict:
+    cursor = params.get("cursor")
+    max_catchup_events = params.get("max_catchup_events")
+    try:
+        task_id, replay = bus.replay_from_cursor(
+            str(cursor),
+            max_events=max_catchup_events,
+        )
+    except Exception as exc:
+        raise JsonRpcError(
+            -32002,
+            "Task not found",
+            {
+                "reason": "invalid_or_stale_cursor",
+                "field": "cursor",
+                "detail": str(exc),
+                "failure_domain": "validation",
+            },
+        ) from exc
+    return {
+        "task_id": task_id,
+        "replayed_count": len(replay),
+        "replayed_events": replay,
+        "resume_cursor": bus.build_resume_cursor(task_id),
+    }
+
+
 METHODS["tasks/sendSubscribe"] = _send_subscribe
 METHODS["tasks/send"] = _send_subscribe
 METHODS["tasks/get"] = _tasks_get
 METHODS["tasks/cancel"] = _tasks_cancel
+METHODS["tasks/resubscribe"] = _tasks_resubscribe
 
 
 @app.post("/rpc")

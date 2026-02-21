@@ -10,6 +10,7 @@ import json
 import os
 import time
 import uuid
+from collections import deque
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -213,11 +214,15 @@ class TaskEventBus:
         self._queues: dict[str, list[asyncio.Queue[SseEvent]]] = {}
         self._stream_seq: dict[str, int] = {}
         self._stream_epoch: dict[str, str] = {}
+        self._history: dict[str, deque[SseEvent]] = {}
+        self._history_last_ts: dict[str, int] = {}
         self._agent_name = agent_name or "unknown-agent"
         self._redis_url = redis_url or os.getenv("REDIS_URL")
         self._redis_client: Any | None = None
         self._redis_enabled = False
         self._cursor_secret = _cursor_secret_from_env()
+        self._history_max_events = max(1, int(os.getenv("NEXUS_STREAM_HISTORY_MAX_EVENTS", "1024")))
+        self._history_retention_ms = _cursor_retention_ms_from_env()
 
         # Initialize Redis if available
         if REDIS_AVAILABLE and self._redis_url:
@@ -259,22 +264,24 @@ class TaskEventBus:
         progress: dict[str, Any] | None = None,
     ) -> None:
         """Publish an event to all subscribers for a task and optionally to Redis."""
+        self._prune_history()
         if task_id not in self._queues:
             self._queues[task_id] = []
-            self._queues[task_id].append(asyncio.Queue())
         seq = self._next_seq(task_id)
         epoch = self._stream_epoch[task_id]
         ts_unix_ms = int(time.time() * 1000)
+        event_obj = SseEvent(
+            event=event,
+            data=data,
+            seq=seq,
+            stream_epoch=epoch,
+            ts_unix_ms=ts_unix_ms,
+        )
+        history = self._history.setdefault(task_id, deque(maxlen=self._history_max_events))
+        history.append(event_obj)
+        self._history_last_ts[task_id] = ts_unix_ms
         for q in self._queues[task_id]:
-            await q.put(
-                SseEvent(
-                    event=event,
-                    data=data,
-                    seq=seq,
-                    stream_epoch=epoch,
-                    ts_unix_ms=ts_unix_ms,
-                )
-            )
+            await q.put(event_obj)
 
         # Also publish to Redis for cross-agent monitoring
         await self._publish_to_redis(
@@ -388,40 +395,44 @@ class TaskEventBus:
     async def stream(self, task_id: str) -> AsyncIterator[str]:
         """Yield SSE-formatted strings for a task until final or error."""
         q = self.subscribe(task_id)
-        while True:
-            evt = await q.get()
-            data = evt.data if isinstance(evt.data, str) else json.dumps(evt.data)
-            if evt.seq is not None:
-                yield f"id: {evt.seq}\nevent: {evt.event}\ndata: {data}\n\n"
-            else:
-                yield f"event: {evt.event}\ndata: {data}\n\n"
-            if evt.event in ("nexus.task.final", "nexus.task.error"):
-                break
+        try:
+            while True:
+                evt = await q.get()
+                data = evt.data if isinstance(evt.data, str) else json.dumps(evt.data)
+                if evt.seq is not None:
+                    yield f"id: {evt.seq}\nevent: {evt.event}\ndata: {data}\n\n"
+                else:
+                    yield f"event: {evt.event}\ndata: {data}\n\n"
+                if evt.event in ("nexus.task.final", "nexus.task.error"):
+                    break
+        finally:
+            self._unsubscribe(task_id, q)
 
     async def stream_ws(self, task_id: str) -> AsyncIterator[dict[str, Any]]:
         """Yield structured event dicts for WebSocket consumers."""
         q = self.subscribe(task_id)
-        while True:
-            evt = await q.get()
-            data = evt.data if isinstance(evt.data, str) else json.dumps(evt.data)
-            yield {
-                "event": evt.event,
-                "data": data,
-                "stream": {
-                    "stream_id": task_id,
-                    "stream_epoch": evt.stream_epoch,
-                    "seq": evt.seq,
-                    "ts_unix_ms": evt.ts_unix_ms,
-                },
-            }
-            if evt.event in ("nexus.task.final", "nexus.task.error"):
-                break
+        try:
+            while True:
+                evt = await q.get()
+                data = evt.data if isinstance(evt.data, str) else json.dumps(evt.data)
+                yield {
+                    "event": evt.event,
+                    "data": data,
+                    "stream": {
+                        "stream_id": task_id,
+                        "stream_epoch": evt.stream_epoch,
+                        "seq": evt.seq,
+                        "ts_unix_ms": evt.ts_unix_ms,
+                    },
+                }
+                if evt.event in ("nexus.task.final", "nexus.task.error"):
+                    break
+        finally:
+            self._unsubscribe(task_id, q)
 
     def cleanup(self, task_id: str) -> None:
-        """Remove all queues for a completed task."""
+        """Remove live subscriber queues while preserving replay history."""
         self._queues.pop(task_id, None)
-        self._stream_seq.pop(task_id, None)
-        self._stream_epoch.pop(task_id, None)
 
     async def close(self) -> None:
         """Close Redis connection if active."""
@@ -461,3 +472,89 @@ class TaskEventBus:
 
     def parse_resume_cursor(self, cursor: str) -> dict[str, Any]:
         return parse_signed_resume_cursor(cursor, cursor_secret=self._cursor_secret)
+
+    def replay_from_cursor(
+        self,
+        cursor: str,
+        *,
+        max_events: int | None = None,
+    ) -> tuple[str, list[dict[str, Any]]]:
+        """Replay stream events after a validated signed resume cursor."""
+        self._prune_history()
+        parsed = self.parse_resume_cursor(cursor)
+        task_id = parsed["stream_id"]
+        expected_epoch = parsed["stream_epoch"]
+        current_epoch = self._stream_epoch.get(task_id)
+        if current_epoch is None:
+            raise ValueError("task stream not found")
+        if current_epoch != expected_epoch:
+            raise ValueError("cursor stream_epoch mismatch")
+
+        since_seq = int(parsed["seq"])
+        limit = None
+        if max_events is not None:
+            try:
+                limit = max(1, int(max_events))
+            except Exception as exc:
+                raise ValueError("max_events must be positive integer") from exc
+
+        history = self._history.get(task_id, deque())
+        replay: list[dict[str, Any]] = []
+        for evt in history:
+            seq = int(evt.seq or 0)
+            if seq <= since_seq:
+                continue
+            replay.append(self._event_to_payload(task_id, evt))
+            if limit is not None and len(replay) >= limit:
+                break
+        return task_id, replay
+
+    def _unsubscribe(self, task_id: str, queue: asyncio.Queue[SseEvent]) -> None:
+        queues = self._queues.get(task_id)
+        if not queues:
+            return
+        try:
+            queues.remove(queue)
+        except ValueError:
+            return
+        if not queues:
+            self._queues.pop(task_id, None)
+
+    def _event_to_payload(self, task_id: str, evt: SseEvent) -> dict[str, Any]:
+        data: Any
+        if isinstance(evt.data, str):
+            stripped = evt.data.strip()
+            if stripped and stripped[:1] in {"{", "["}:
+                try:
+                    data = json.loads(stripped)
+                except Exception:
+                    data = evt.data
+            else:
+                data = evt.data
+        else:
+            data = evt.data
+        return {
+            "event": evt.event,
+            "data": data,
+            "stream": {
+                "stream_id": task_id,
+                "stream_epoch": evt.stream_epoch,
+                "seq": evt.seq,
+                "ts_unix_ms": evt.ts_unix_ms,
+            },
+        }
+
+    def _prune_history(self, now_unix_ms: int | None = None) -> None:
+        now_ms = int(time.time() * 1000) if now_unix_ms is None else int(now_unix_ms)
+        expired: list[str] = []
+        for task_id, last_ts in self._history_last_ts.items():
+            if now_ms - int(last_ts) <= self._history_retention_ms:
+                continue
+            if task_id in self._queues and self._queues.get(task_id):
+                continue
+            expired.append(task_id)
+        for task_id in expired:
+            self._history.pop(task_id, None)
+            self._history_last_ts.pop(task_id, None)
+            self._stream_seq.pop(task_id, None)
+            self._stream_epoch.pop(task_id, None)

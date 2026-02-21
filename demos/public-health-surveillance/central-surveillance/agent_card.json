@@ -1,20 +1,42 @@
 {
   "name": "central-surveillance",
-  "description": "Orchestrating surveillance agent.  Receives tasks/sendSubscribe, fans out to hospital-reporter and osint-agent (preferring MQTT, falling back to HTTP), synthesises an alert via LLM.",
+  "description": "Orchestrating surveillance agent. Receives tasks/sendSubscribe, fans out to hospital-reporter and osint-agent (preferring MQTT, falling back to HTTP), and synthesizes a surveillance alert.",
   "url": "http://central-surveillance:8053",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
   "version": "0.1.0",
   "capabilities": {
     "streaming": true,
     "pushNotifications": true,
-    "multiTransport": true
+    "multiTransport": true,
+    "websocket": true
   },
+  "authentication": {
+    "type": "bearer",
+    "scheme": "JWT",
+    "requiredScopes": [
+      "nexus:invoke"
+    ]
+  },
+  "methods": [
+    "tasks/send",
+    "tasks/sendSubscribe",
+    "tasks/get",
+    "tasks/cancel",
+    "tasks/resubscribe",
+    "surveillance/synthesize"
+  ],
   "skills": [
     {
       "id": "outbreak-alert",
       "name": "Outbreak Alert Synthesis",
-      "description": "Collects hospital stats and OSINT headlines, produces a synthesised public-health alert."
+      "description": "Collects hospital stats and OSINT headlines, produces a synthesized public-health alert."
     }
   ],
-  "defaultInputModes": ["application/json"],
-  "defaultOutputModes": ["application/json"]
+  "defaultInputModes": [
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "application/json"
+  ]
 }

@@ -1,13 +1,31 @@
 {
   "name": "hospital-reporter",
-  "description": "Reports weekly disease-count statistics from a hospital.  Returns counts for a requested pathogen and region via JSON-RPC method surveillance/report.",
+  "description": "Reports weekly disease-count statistics from a hospital. Returns counts for a requested pathogen and region.",
   "url": "http://hospital-reporter:8051",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
   "version": "0.1.0",
   "capabilities": {
     "streaming": true,
     "pushNotifications": false,
-    "multiTransport": false
+    "multiTransport": false,
+    "websocket": true
   },
+  "authentication": {
+    "type": "bearer",
+    "scheme": "JWT",
+    "requiredScopes": [
+      "nexus:invoke"
+    ]
+  },
+  "methods": [
+    "tasks/send",
+    "tasks/sendSubscribe",
+    "tasks/get",
+    "tasks/cancel",
+    "tasks/resubscribe",
+    "surveillance/report"
+  ],
   "skills": [
     {
       "id": "surveillance-report",
@@ -15,6 +33,10 @@
       "description": "Returns mock weekly case counts for a given pathogen and region."
     }
   ],
-  "defaultInputModes": ["application/json"],
-  "defaultOutputModes": ["application/json"]
+  "defaultInputModes": [
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "application/json"
+  ]
 }

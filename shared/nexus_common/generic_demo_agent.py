@@ -6,6 +6,7 @@ import asyncio
 import json
 import logging
 import os
+from inspect import isawaitable
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +17,7 @@ from .auth import AuthError, verify_jwt
 from .did import did_verify_enabled, verify_did_signature
 from .health import HealthMonitor, apply_backpressure_to_agent_card
 from .ids import make_task_id, make_trace_id
+from .idempotency import IdempotencyStore, RedisIdempotencyStore
 from .jsonrpc import JsonRpcError, parse_request, response_error, response_result
 from .llm_agent_handler import try_llm_result
 from .sse import TaskEventBus
@@ -106,6 +108,47 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
     required_scope = os.getenv("NEXUS_REQUIRED_SCOPE", "nexus:invoke")
     card_path = Path(app_dir) / "agent_card.json"
 
+    def _build_idempotency_store() -> IdempotencyStore | RedisIdempotencyStore:
+        backend = os.getenv("NEXUS_IDEMPOTENCY_BACKEND", "memory").strip().lower()
+        if backend == "redis":
+            try:
+                return RedisIdempotencyStore(redis_url=os.getenv("REDIS_URL"))
+            except Exception as exc:
+                LOGGER.warning(
+                    "Redis idempotency unavailable (%s); falling back to memory store",
+                    exc,
+                )
+        return IdempotencyStore()
+
+    idempotency_store = _build_idempotency_store()
+
+    async def _idempotency_check_or_register(
+        key: str,
+        dedup_window_ms: int,
+        *,
+        scope: str | None,
+        payload_hash: str | None,
+    ) -> object:
+        result = idempotency_store.check_or_register(
+            key=key,
+            dedup_window_ms=dedup_window_ms,
+            scope=scope,
+            payload_hash=payload_hash,
+        )
+        if isawaitable(result):
+            return await result
+        return result
+
+    async def _idempotency_save_response(
+        key: str,
+        response: dict[str, Any],
+        *,
+        scope: str | None,
+    ) -> None:
+        result = idempotency_store.save_response(key=key, response=response, scope=scope)
+        if isawaitable(result):
+            await result
+
     def _build_result(
         method: str, params: dict[str, Any], task_id: str | None = None
     ) -> dict[str, Any]:
@@ -126,25 +169,51 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
         return merged
 
     def _load_card() -> dict[str, Any]:
-        if card_path.is_file():
+        candidate_paths = [
+            card_path,
+            card_path.parent.parent / "agent_card.json",
+        ]
+        for candidate in candidate_paths:
+            if not candidate.is_file():
+                continue
             try:
-                return json.loads(card_path.read_text(encoding="utf-8"))
+                return json.loads(candidate.read_text(encoding="utf-8"))
             except Exception as exc:
-                LOGGER.warning("Failed to parse agent card at %s: %s", card_path, exc)
+                LOGGER.warning("Failed to parse agent card at %s: %s", candidate, exc)
         return {
             "name": default_name,
             "protocol": "NEXUS-A2A",
             "protocolVersion": "1.0",
-            "methods": ["tasks/send", "tasks/sendSubscribe", "tasks/get", "tasks/cancel"],
+            "methods": [
+                "tasks/send",
+                "tasks/sendSubscribe",
+                "tasks/get",
+                "tasks/cancel",
+                "tasks/resubscribe",
+            ],
         }
 
     def _declared_methods() -> set[str]:
         card = _load_card()
         methods = card.get("methods", [])
         if not isinstance(methods, list):
-            return {"tasks/send", "tasks/sendSubscribe", "tasks/get", "tasks/cancel"}
+            return {
+                "tasks/send",
+                "tasks/sendSubscribe",
+                "tasks/get",
+                "tasks/cancel",
+                "tasks/resubscribe",
+            }
         out = {m for m in methods if isinstance(m, str) and m}
-        out.update({"tasks/send", "tasks/sendSubscribe", "tasks/get", "tasks/cancel"})
+        out.update(
+            {
+                "tasks/send",
+                "tasks/sendSubscribe",
+                "tasks/get",
+                "tasks/cancel",
+                "tasks/resubscribe",
+            }
+        )
         return out
 
     def _require_auth(req: Request) -> str:
@@ -199,6 +268,29 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
         idempotency = (
             params.get("idempotency") if isinstance(params.get("idempotency"), dict) else {}
         )
+        idempotency_key = str(idempotency.get("idempotency_key") or "").strip()
+        scope = str(idempotency.get("scope") or "").strip() or None
+        payload_hash = str(idempotency.get("payload_hash") or "").strip() or None
+        dedup_window_ms = int(idempotency.get("dedup_window_ms", 60000)) if idempotency else 60000
+        if dedup_window_ms <= 0:
+            raise JsonRpcError(-32602, "Invalid params", "idempotency.dedup_window_ms must be > 0")
+        if idempotency_key:
+            dedup = await _idempotency_check_or_register(
+                idempotency_key,
+                dedup_window_ms,
+                scope=scope,
+                payload_hash=payload_hash,
+            )
+            if getattr(dedup, "is_duplicate", False) and getattr(dedup, "cached_response", None):
+                duplicate_response = dict(dedup.cached_response)
+                duplicate_response["dedup"] = {
+                    "duplicate": True,
+                    "idempotency_key": idempotency_key,
+                    "scope": scope,
+                    "dedup_window_ms": int(getattr(dedup, "dedup_window_ms", dedup_window_ms)),
+                    "payload_mismatch": bool(getattr(dedup, "payload_mismatch", False)),
+                }
+                return duplicate_response
         scenario_context = (
             params.get("scenario_context")
             if isinstance(params.get("scenario_context"), dict)
@@ -221,6 +313,7 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
             correlation=correlation or None,
             idempotency=idempotency or None,
         )
+        resume_cursor = bus.build_resume_cursor(task_id)
 
         async def run() -> None:
             nonlocal inflight_tasks
@@ -262,11 +355,15 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
                 health_monitor.set_backpressure(queue_depth=inflight_tasks)
 
         asyncio.create_task(run())
-        return {
+        response = {
             "task_id": task_id,
             "trace_id": trace_id,
+            "resume_cursor": resume_cursor,
             **_build_result("tasks/sendSubscribe", params, task_id=task_id),
         }
+        if idempotency_key:
+            await _idempotency_save_response(idempotency_key, response, scope=scope)
+        return response
 
     async def _tasks_get(params: dict[str, Any], token: str) -> dict[str, Any]:
         task_id = params.get("task_id")
@@ -284,11 +381,38 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
         health_monitor.metrics.record_completed(1.0)
         return {"task_id": task_id, "cancelled": False, "reason": "cancel_not_supported"}
 
+    async def _tasks_resubscribe(params: dict[str, Any], token: str) -> dict[str, Any]:
+        cursor = params.get("cursor")
+        max_catchup_events = params.get("max_catchup_events")
+        try:
+            task_id, replay = bus.replay_from_cursor(
+                str(cursor),
+                max_events=max_catchup_events,
+            )
+        except Exception as exc:
+            raise JsonRpcError(
+                -32002,
+                "Task not found",
+                {
+                    "reason": "invalid_or_stale_cursor",
+                    "field": "cursor",
+                    "detail": str(exc),
+                    "failure_domain": "validation",
+                },
+            ) from exc
+        return {
+            "task_id": task_id,
+            "replayed_count": len(replay),
+            "replayed_events": replay,
+            "resume_cursor": bus.build_resume_cursor(task_id),
+        }
+
     methods: dict[str, Any] = {
         "tasks/sendSubscribe": _tasks_send_subscribe,
         "tasks/send": _tasks_send_subscribe,
         "tasks/get": _tasks_get,
         "tasks/cancel": _tasks_cancel,
+        "tasks/resubscribe": _tasks_resubscribe,
     }
 
     async def _invoke_declared_method(method: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -321,8 +445,11 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
 
     @app.on_event("shutdown")
     async def _shutdown() -> None:
+        close_method = getattr(idempotency_store, "close", None)
+        if callable(close_method):
+            result = close_method()
+            if isawaitable(result):
+                await result
         await bus.close()
-
-    return app
 
     return app
