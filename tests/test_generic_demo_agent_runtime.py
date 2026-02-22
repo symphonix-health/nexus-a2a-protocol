@@ -17,22 +17,25 @@ if shared_path not in sys.path:
 from nexus_common.auth import mint_jwt  # noqa: E402
 from nexus_common.generic_demo_agent import build_generic_demo_app  # noqa: E402
 
+JWT_SECRET = "unit-test-secret"
+REQUIRED_SCOPE = "nexus:invoke"
+
 
 @pytest.fixture
-def auth_token(monkeypatch: pytest.MonkeyPatch) -> str:
-    monkeypatch.setenv("NEXUS_JWT_SECRET", "unit-test-secret")
-    monkeypatch.setenv("NEXUS_REQUIRED_SCOPE", "nexus:invoke")
-    monkeypatch.setenv("NEXUS_IDEMPOTENCY_BACKEND", "memory")
+def auth_token() -> str:
     return mint_jwt(
         "unit-test",
-        "unit-test-secret",
+        JWT_SECRET,
         ttl_seconds=3600,
-        scope="nexus:invoke",
+        scope=REQUIRED_SCOPE,
     )
 
 
 @pytest.fixture
-def app(tmp_path: Path) -> object:
+def app(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> object:
+    monkeypatch.setenv("NEXUS_JWT_SECRET", JWT_SECRET)
+    monkeypatch.setenv("NEXUS_REQUIRED_SCOPE", REQUIRED_SCOPE)
+    monkeypatch.setenv("NEXUS_IDEMPOTENCY_BACKEND", "memory")
     card = {
         "name": "unit-generic-agent",
         "protocol": "NEXUS-A2A",
@@ -212,4 +215,3 @@ async def test_agent_card_parent_fallback_path_loads_card(
         card = resp.json()
         assert card.get("name") == "parent-card-agent"
         assert "x-nexus-backpressure" in card
-

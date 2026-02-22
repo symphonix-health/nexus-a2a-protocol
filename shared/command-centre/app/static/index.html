@@ -262,6 +262,20 @@
                 </aside>
             </div>
         </section>
+
+        <section class="panel live-avatar-panel">
+            <h2>
+                Live Clinician
+                <button id="live-avatar-refresh" class="trace-export-btn" type="button">Refresh</button>
+            </h2>
+            <div class="live-avatar-body">
+                <iframe id="live-avatar-frame" class="live-avatar-frame" title="Live clinician" src="about:blank"
+                    loading="lazy" referrerpolicy="no-referrer"></iframe>
+                <p class="live-avatar-note">
+                    If blank, ensure <code>clinician-avatar-agent</code> is running on port <code>8039</code>.
+                </p>
+            </div>
+        </section>
     </div>
     <div id="toast-container"></div>
 

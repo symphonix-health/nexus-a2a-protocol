@@ -1160,6 +1160,34 @@ body {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
+.live-avatar-panel {
+    margin: 0.75rem 1rem 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.live-avatar-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.live-avatar-frame {
+    width: 100%;
+    min-height: 560px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-primary);
+}
+
+.live-avatar-note {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.live-avatar-note code {
+    color: var(--text-primary);
+}
+
 .trace-panel h2 {
     display: flex;
     align-items: center;

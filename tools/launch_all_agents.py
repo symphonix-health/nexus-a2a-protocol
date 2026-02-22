@@ -524,6 +524,24 @@ def start_all(
         "false",
         "no",
     }
+    gateway_final_health_attempts = int(
+        os.getenv(
+            "NEXUS_GATEWAY_FINAL_HEALTHCHECK_ATTEMPTS",
+            os.getenv("NEXUS_GATEWAY_HEALTHCHECK_ATTEMPTS", "15"),
+        )
+    )
+    gateway_final_health_timeout_s = float(
+        os.getenv(
+            "NEXUS_GATEWAY_FINAL_HEALTHCHECK_TIMEOUT_SECONDS",
+            os.getenv("NEXUS_GATEWAY_HEALTHCHECK_TIMEOUT_SECONDS", "3"),
+        )
+    )
+    gateway_final_health_interval_s = float(
+        os.getenv(
+            "NEXUS_GATEWAY_FINAL_HEALTHCHECK_INTERVAL_SECONDS",
+            os.getenv("NEXUS_GATEWAY_HEALTHCHECK_INTERVAL_SECONDS", "1"),
+        )
+    )
 
     if backend_pids:
         print("\nBackend Services:")
@@ -551,16 +569,22 @@ def start_all(
             pass
         else:
             for entry in gateway_pids:
-                if entry.get("ready"):
+                # Final readiness pass (important when gateway starts slowly)
+                healthy_now, detail_now = probe_http_health(
+                    f"http://localhost:{entry['port']}/readyz",
+                    attempts=gateway_final_health_attempts,
+                    timeout_s=gateway_final_health_timeout_s,
+                    interval_s=gateway_final_health_interval_s,
+                )
+                entry["ready"] = healthy_now
+                entry["ready_detail"] = detail_now
+
+                if healthy_now:
                     print(
-                        f"  [ok] On-demand Gateway :{entry['port']} running "
-                        f"(readyz={entry.get('ready_detail')})"
+                        f"  [ok] On-demand Gateway :{entry['port']} running (readyz={detail_now})"
                     )
                 else:
-                    failure = (
-                        f"On-demand Gateway :{entry['port']} readiness failed "
-                        f"({entry.get('ready_detail', 'unknown')})"
-                    )
+                    failure = f"On-demand Gateway :{entry['port']} readiness failed ({detail_now})"
                     backend_failures.append(failure)
                     print(f"  [fail] {failure}")
 
