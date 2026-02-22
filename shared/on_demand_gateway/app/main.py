@@ -321,7 +321,12 @@ class OnDemandProcessManager:
     async def ensure_started(self, alias: str) -> AgentSpec:
         """Ensure target alias and its dependencies are running."""
         normalized = normalize_alias(alias)
-        order = expand_dependency_order(normalized, self._dependency_graph)
+        try:
+            order = expand_dependency_order(normalized, self._dependency_graph)
+        except ValueError:
+            # Defensive fallback for misconfigured/cyclic dependency graphs.
+            # Start only the requested alias rather than failing the RPC route.
+            order = [normalized]
         for dep_alias in order:
             dep_spec = self.resolve_spec(dep_alias)
             await self._start_spec(dep_spec)

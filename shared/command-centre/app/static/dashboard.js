@@ -80,7 +80,24 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeToggleButtons();
     loadTraceRuns();
     initializeTracePanel();
+    initializeLiveAvatarPanel();
 });
+
+function initializeLiveAvatarPanel() {
+    const frame = document.getElementById('live-avatar-frame');
+    const refreshBtn = document.getElementById('live-avatar-refresh');
+    if (!frame) return;
+
+    const avatarUrl = `${window.location.protocol}//${window.location.hostname}:8039/avatar?live=1&readonly=1`;
+    frame.src = avatarUrl;
+
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+            frame.src = `${avatarUrl}&r=${Date.now()}`;
+            showToast('Live avatar panel refreshed', 'success');
+        });
+    }
+}
 
 const popoverState = {
     element: null,
