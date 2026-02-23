@@ -5,7 +5,7 @@
   "protocolVersion": "1.0",
   "url": "http://insurer-agent:8041",
   "capabilities": {"streaming": true, "websocket": true, "humanInTheLoop": true, "pushNotifications": false},
-  "methods": ["tasks/send", "tasks/sendSubscribe", "tasks/get", "tasks/cancel"],
+  "methods": ["tasks/send", "tasks/sendSubscribe", "tasks/get", "tasks/cancel", "tasks/resubscribe"],
   "authentication": {"schemes": ["bearer"]},
   "skills": [{"id": "consent-request", "name": "Consent-Gated Record Request", "description": "Request patient records with AI consent analysis and human approval gate"}]
 }

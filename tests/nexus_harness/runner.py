@@ -171,3 +171,78 @@ HELIXCARE_URLS: dict[str, str] = {
     "followup-scheduler":  os.environ.get("HC_FOLLOWUP_URL",   "http://localhost:8028"),
     "care-coordinator":    os.environ.get("HC_COORDINATOR_URL","http://localhost:8029"),
 }
+
+
+AUTH_FAILURE_MODES = (
+    "jwt_missing",
+    "jwt_expired",
+    "jwt_invalid",
+    "jwt_missing_scope",
+    "mtls_missing",
+    "none",
+    "did_fail",
+    "oidc_invalid",
+)
+
+
+def auth_headers_for_negative_scenario(
+    scenario: dict[str, Any],
+    auth_headers: dict[str, str],
+) -> dict[str, str]:
+    """Return deterministic auth headers for matrix negative scenarios."""
+    headers = dict(auth_headers)
+    mode = str(scenario.get("auth_mode", "")).strip().lower()
+    if any(marker in mode for marker in AUTH_FAILURE_MODES):
+        # Matrix negatives currently model auth failure; omit bearer token deterministically.
+        headers.pop("Authorization", None)
+    return headers
+
+
+def assert_deterministic_negative_rpc(
+    scenario: dict[str, Any],
+    *,
+    status_code: int,
+    body: dict[str, Any],
+) -> None:
+    """Validate negative RPC outcomes with explicit status and error.code/reason checks."""
+    expected_result = scenario.get("expected_result", {})
+    expected_error = str(expected_result.get("error") or "").strip().upper()
+    expected_status_raw = scenario.get("expected_http_status")
+
+    if expected_status_raw in (None, ""):
+        expected_status = 401 if expected_error == "AUTH_FAILED" else 400
+    else:
+        expected_status = int(expected_status_raw)
+
+    assert status_code == expected_status, (
+        f"{scenario.get('use_case_id')}: expected HTTP {expected_status}, got {status_code}; body={body}"
+    )
+
+    assert isinstance(body, dict), (
+        f"{scenario.get('use_case_id')}: expected JSON object response body, got {type(body).__name__}"
+    )
+    assert "error" in body, (
+        f"{scenario.get('use_case_id')}: negative response must include error envelope; body={body}"
+    )
+    error = body.get("error")
+    assert isinstance(error, dict), (
+        f"{scenario.get('use_case_id')}: error payload must be object; body={body}"
+    )
+    code = error.get("code")
+    data = error.get("data")
+    reason = data.get("reason") if isinstance(data, dict) else None
+    assert isinstance(code, int), (
+        f"{scenario.get('use_case_id')}: error.code must be int; body={body}"
+    )
+    assert isinstance(reason, str) and reason.strip(), (
+        f"{scenario.get('use_case_id')}: error.data.reason must be non-empty; body={body}"
+    )
+
+    auth_failure_expected = expected_error == "AUTH_FAILED" or expected_status == 401
+    if auth_failure_expected:
+        assert code == -32001, (
+            f"{scenario.get('use_case_id')}: expected auth error.code -32001, got {code}; body={body}"
+        )
+        assert reason == "auth_failed", (
+            f"{scenario.get('use_case_id')}: expected auth reason 'auth_failed', got '{reason}'; body={body}"
+        )

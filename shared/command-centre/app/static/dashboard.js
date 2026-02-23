@@ -153,8 +153,12 @@ function initializeWebSocket() {
     };
 
     state.ws.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        handleWebSocketMessage(message);
+        try {
+            const message = JSON.parse(event.data);
+            handleWebSocketMessage(message);
+        } catch (error) {
+            console.warn('Dropped malformed WebSocket JSON payload:', error);
+        }
     };
 
     state.ws.onerror = (error) => {
@@ -1326,7 +1330,13 @@ function loadObserverActions() {
             state.observerActions = parsed;
         }
     } catch (error) {
-        console.warn('Unable to load observer actions:', error);
+        console.warn('Unable to load observer actions; clearing corrupted local state:', error);
+        try {
+            window.localStorage.removeItem(FLOW_OBSERVER_STORAGE_KEY);
+        } catch (storageError) {
+            // Ignore storage permission errors.
+        }
+        state.observerActions = {};
     }
 }
 

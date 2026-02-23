@@ -31,6 +31,7 @@ _CONFIG_TO_RUNTIME_AGENT = {
     "telehealth_agent": "telehealth",
     "home_visit_agent": "home_visit",
     "ccm_agent": "ccm",
+    "clinician_avatar_agent": "clinician_avatar",
     "transcriber_agent": "transcriber",
     "summariser_agent": "summariser",
     "ehr_writer_agent": "ehr_writer",

@@ -8,6 +8,7 @@ import pathlib
 import httpx
 import pytest
 import pytest_asyncio
+
 from tests.nexus_harness.runner import get_report
 
 
@@ -28,15 +29,34 @@ def jwt_token() -> str:
         pytest.skip(f"Cannot obtain JWT token – set NEXUS_JWT_TOKEN or NEXUS_JWT_SECRET ({exc})")
 
     required_scope = os.environ.get("NEXUS_REQUIRED_SCOPE", "nexus:invoke")
+    env_secret = os.environ.get("NEXUS_JWT_SECRET", "").strip()
+    # Prefer launcher default first for deterministic local runs,
+    # then env/legacy fallback.
     candidate_secrets = [
-        os.environ.get("NEXUS_JWT_SECRET", "").strip(),
         "dev-secret-change-me",
+        env_secret,
         "super-secret-test-key-change-me",
     ]
     # Preserve order while removing blanks/duplicates.
     candidate_secrets = list(dict.fromkeys([s for s in candidate_secrets if s]))
 
-    probe_url = os.environ.get("NEXUS_JWT_PROBE_URL", "http://localhost:8021/rpc")
+    triage_base = os.environ.get("ED_TRIAGE_URL", "http://localhost:8021")
+    diagnosis_base = os.environ.get(
+        "ED_DIAGNOSIS_URL",
+        "http://localhost:8022",
+    )
+    mediator_base = os.environ.get(
+        "ED_MEDIATOR_URL",
+        "http://localhost:8023",
+    )
+    probe_urls = [
+        os.environ.get("NEXUS_JWT_PROBE_URL", "").strip(),
+        f"{triage_base.rstrip('/')}/rpc",
+        f"{diagnosis_base.rstrip('/')}/rpc",
+        f"{mediator_base.rstrip('/')}/rpc",
+    ]
+    probe_urls = list(dict.fromkeys([u for u in probe_urls if u]))
+
     probe_payload = {
         "jsonrpc": "2.0",
         "id": "harness-auth-probe",
@@ -44,37 +64,48 @@ def jwt_token() -> str:
         "params": {},
     }
 
-    first_token = ""
-    for secret in candidate_secrets:
-        candidate = mint_jwt(
-            "test-harness",
-            secret,
-            ttl_seconds=3600,
-            scope=required_scope,
-        )
-        if not first_token:
-            first_token = candidate
+    # Try for a short bounded window to avoid races with local service startup.
+    startup_attempts = int(os.environ.get("NEXUS_JWT_PROBE_ATTEMPTS", "12"))
+    startup_sleep_s = float(os.environ.get("NEXUS_JWT_PROBE_SLEEP_SECONDS", "1.0"))
 
-        try:
-            with httpx.Client(timeout=2.0) as sync_client:
-                resp = sync_client.post(
-                    probe_url,
-                    headers={
-                        "Authorization": f"Bearer {candidate}",
-                        "Content-Type": "application/json",
-                    },
-                    json=probe_payload,
+    with httpx.Client(timeout=2.0) as sync_client:
+        for _ in range(startup_attempts):
+            for secret in candidate_secrets:
+                candidate = mint_jwt(
+                    "test-harness",
+                    secret,
+                    ttl_seconds=3600,
+                    scope=required_scope,
                 )
-            if resp.status_code != 401:
-                return candidate
-        except Exception:
-            # Probe might be unavailable in some runs; continue trying known secrets.
-            continue
+                for probe_url in probe_urls:
+                    try:
+                        resp = sync_client.post(
+                            probe_url,
+                            headers={
+                                "Authorization": f"Bearer {candidate}",
+                                "Content-Type": "application/json",
+                            },
+                            json=probe_payload,
+                        )
+                        # Any non-401 means signature+scope were accepted.
+                        if resp.status_code != 401:
+                            return candidate
+                    except Exception:
+                        continue
 
-    token = first_token
-    if not token:
+            import time as _time
+
+            _time.sleep(startup_sleep_s)
+
+    # Deterministic local fallback when probes are unavailable.
+    if not candidate_secrets:
         pytest.skip("Cannot obtain JWT token – no usable secret candidates")
-    return token
+    return mint_jwt(
+        "test-harness",
+        "dev-secret-change-me",
+        ttl_seconds=3600,
+        scope=required_scope,
+    )
 
 
 # ── Async HTTP client ──────────────────────────────────────────────
@@ -99,4 +130,6 @@ def _save_report(tmp_path_factory):
     report = get_report()
     out = pathlib.Path(__file__).resolve().parents[2] / "docs" / "conformance-report.json"
     out.parent.mkdir(parents=True, exist_ok=True)
+    report.save(out)
+    report.save(out)
     report.save(out)

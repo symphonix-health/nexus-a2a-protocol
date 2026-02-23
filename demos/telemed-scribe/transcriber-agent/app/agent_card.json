@@ -5,7 +5,7 @@
   "protocolVersion": "1.0",
   "url": "http://transcriber-agent:8031",
   "capabilities": {"streaming": true, "websocket": true, "pushNotifications": false},
-  "methods": ["tasks/send", "tasks/sendSubscribe", "tasks/get", "tasks/cancel"],
+  "methods": ["tasks/send", "tasks/sendSubscribe", "tasks/get", "tasks/cancel", "tasks/resubscribe"],
   "authentication": {"schemes": ["bearer"]},
   "skills": [{"id": "telemed-scribe", "name": "Telemedicine Scribe", "description": "Transcribe, summarise, and persist clinical encounters"}]
 }

@@ -169,3 +169,21 @@ async def test_ring_buffer_evicts_oldest():
     ids = {i["trace_id"] for i in items}
     for i in range(5):
         assert f"trace-{i:04d}" not in ids
+
+
+@pytest.mark.asyncio
+async def test_reset_traces_clears_store():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url=BASE) as client:
+        await client.post("/api/traces", json=_sample_trace_body("trace-reset-1"))
+        await client.post("/api/traces", json=_sample_trace_body("trace-reset-2"))
+
+        reset_resp = await client.delete("/api/traces")
+        assert reset_resp.status_code == 200
+        payload = reset_resp.json()
+        assert payload["cleared"] is True
+        assert payload["cleared_count"] == 2
+
+        list_resp = await client.get("/api/traces")
+        assert list_resp.status_code == 200
+        assert list_resp.json() == []

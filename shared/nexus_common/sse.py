@@ -14,6 +14,7 @@ from collections import deque
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 from .protocol import ProgressState
@@ -223,10 +224,178 @@ class TaskEventBus:
         self._cursor_secret = _cursor_secret_from_env()
         self._history_max_events = max(1, int(os.getenv("NEXUS_STREAM_HISTORY_MAX_EVENTS", "1024")))
         self._history_retention_ms = _cursor_retention_ms_from_env()
+        self._persist_path = self._resolve_persist_path()
+        self._load_persisted_history()
 
         # Initialize Redis if available
         if REDIS_AVAILABLE and self._redis_url:
             asyncio.create_task(self._init_redis())
+
+    def _resolve_persist_path(self) -> Path | None:
+        raw_path = (
+            os.getenv("NEXUS_TASK_EVENT_STORE_PATH", "").strip()
+            or os.getenv("NEXUS_STREAM_PERSIST_PATH", "").strip()
+        )
+        if not raw_path:
+            default_enabled = os.getenv("NEXUS_TASK_EVENT_STORE_ENABLE_DEFAULT", "true").strip().lower()
+            if default_enabled not in {"0", "false", "no", "off"}:
+                raw_path = "temp/task_event_store/{agent}.jsonl"
+        if not raw_path:
+            return None
+        agent = self._agent_name.replace("/", "-")
+        resolved = Path(raw_path.format(agent=agent)).expanduser()
+        if not resolved.is_absolute():
+            resolved = Path.cwd() / resolved
+        resolved.parent.mkdir(parents=True, exist_ok=True)
+        return resolved
+
+    def _load_persisted_history(self) -> None:
+        if self._persist_path is None or not self._persist_path.exists():
+            return
+        try:
+            with self._persist_path.open("r", encoding="utf-8") as f:
+                for line in f:
+                    raw = line.strip()
+                    if not raw:
+                        continue
+                    try:
+                        item = json.loads(raw)
+                        task_id = str(item.get("task_id") or "").strip()
+                        event = str(item.get("event") or "").strip()
+                        if not task_id or not event:
+                            continue
+                        seq = int(item.get("seq"))
+                        epoch = str(item.get("stream_epoch") or "").strip()
+                        ts_unix_ms = int(item.get("ts_unix_ms"))
+                        data = item.get("data")
+                    except Exception:
+                        continue
+                    if not epoch:
+                        continue
+                    self._stream_epoch[task_id] = epoch
+                    self._stream_seq[task_id] = max(self._stream_seq.get(task_id, 0), seq)
+                    evt = SseEvent(
+                        event=event,
+                        data=data,
+                        seq=seq,
+                        stream_epoch=epoch,
+                        ts_unix_ms=ts_unix_ms,
+                    )
+                    history = self._history.setdefault(task_id, deque(maxlen=self._history_max_events))
+                    history.append(evt)
+                    self._history_last_ts[task_id] = max(
+                        int(self._history_last_ts.get(task_id, 0)),
+                        ts_unix_ms,
+                    )
+        except Exception:
+            # Persistence is optional; ignore load failures.
+            return
+
+    def _persist_event(self, task_id: str, evt: SseEvent) -> None:
+        if self._persist_path is None:
+            return
+        try:
+            payload = {
+                "task_id": task_id,
+                "event": evt.event,
+                "data": evt.data,
+                "seq": evt.seq,
+                "stream_epoch": evt.stream_epoch,
+                "ts_unix_ms": evt.ts_unix_ms,
+            }
+            with self._persist_path.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(payload, separators=(",", ":")))
+                f.write("\n")
+        except Exception:
+            # Persistence is optional; ignore write failures.
+            return
+
+    def _persisted_stream_state(self, task_id: str) -> tuple[str, int] | None:
+        if self._persist_path is None or not self._persist_path.exists():
+            return None
+        latest_epoch = ""
+        latest_seq = -1
+        try:
+            with self._persist_path.open("r", encoding="utf-8") as f:
+                for line in f:
+                    raw = line.strip()
+                    if not raw:
+                        continue
+                    try:
+                        item = json.loads(raw)
+                    except Exception:
+                        continue
+                    if str(item.get("task_id") or "").strip() != task_id:
+                        continue
+                    try:
+                        seq = int(item.get("seq"))
+                    except Exception:
+                        continue
+                    epoch = str(item.get("stream_epoch") or "").strip()
+                    if not epoch:
+                        continue
+                    if seq > latest_seq:
+                        latest_epoch = epoch
+                        latest_seq = seq
+        except Exception:
+            return None
+        if latest_seq < 0 or not latest_epoch:
+            return None
+        return latest_epoch, latest_seq
+
+    def _replay_from_persisted_log(
+        self,
+        task_id: str,
+        *,
+        expected_epoch: str,
+        since_seq: int,
+        limit: int | None,
+    ) -> list[dict[str, Any]] | None:
+        if self._persist_path is None or not self._persist_path.exists():
+            return None
+        replay: list[dict[str, Any]] = []
+        now_ms = int(time.time() * 1000)
+        min_ts = now_ms - self._history_retention_ms
+        try:
+            with self._persist_path.open("r", encoding="utf-8") as f:
+                for line in f:
+                    raw = line.strip()
+                    if not raw:
+                        continue
+                    try:
+                        item = json.loads(raw)
+                    except Exception:
+                        continue
+                    if str(item.get("task_id") or "").strip() != task_id:
+                        continue
+                    if str(item.get("stream_epoch") or "").strip() != expected_epoch:
+                        continue
+                    try:
+                        seq = int(item.get("seq"))
+                        ts_unix_ms = int(item.get("ts_unix_ms"))
+                    except Exception:
+                        continue
+                    if seq <= since_seq:
+                        continue
+                    if ts_unix_ms < min_ts:
+                        continue
+                    replay.append(
+                        {
+                            "event": str(item.get("event") or ""),
+                            "data": item.get("data"),
+                            "stream": {
+                                "stream_id": task_id,
+                                "stream_epoch": expected_epoch,
+                                "seq": seq,
+                                "ts_unix_ms": ts_unix_ms,
+                            },
+                        }
+                    )
+                    if limit is not None and len(replay) >= limit:
+                        break
+        except Exception:
+            return None
+        return replay
 
     async def _init_redis(self) -> None:
         """Initialize Redis connection for pub/sub."""
@@ -280,6 +449,7 @@ class TaskEventBus:
         history = self._history.setdefault(task_id, deque(maxlen=self._history_max_events))
         history.append(event_obj)
         self._history_last_ts[task_id] = ts_unix_ms
+        self._persist_event(task_id, event_obj)
         for q in self._queues[task_id]:
             await q.put(event_obj)
 
@@ -449,6 +619,12 @@ class TaskEventBus:
         return epoch
 
     def _next_seq(self, task_id: str) -> int:
+        if task_id not in self._stream_seq:
+            persisted = self._persisted_stream_state(task_id)
+            if persisted is not None:
+                epoch, seq = persisted
+                self._stream_epoch[task_id] = epoch
+                self._stream_seq[task_id] = max(self._stream_seq.get(task_id, 0), int(seq))
         self._stream_seq[task_id] = self._stream_seq.get(task_id, 0) + 1
         if task_id not in self._stream_epoch:
             self._new_stream_epoch(task_id)
@@ -486,6 +662,12 @@ class TaskEventBus:
         expected_epoch = parsed["stream_epoch"]
         current_epoch = self._stream_epoch.get(task_id)
         if current_epoch is None:
+            persisted = self._persisted_stream_state(task_id)
+            if persisted is not None:
+                current_epoch, seq = persisted
+                self._stream_epoch[task_id] = current_epoch
+                self._stream_seq[task_id] = max(self._stream_seq.get(task_id, 0), int(seq))
+        if current_epoch is None:
             raise ValueError("task stream not found")
         if current_epoch != expected_epoch:
             raise ValueError("cursor stream_epoch mismatch")
@@ -497,6 +679,15 @@ class TaskEventBus:
                 limit = max(1, int(max_events))
             except Exception as exc:
                 raise ValueError("max_events must be positive integer") from exc
+
+        persisted_replay = self._replay_from_persisted_log(
+            task_id,
+            expected_epoch=expected_epoch,
+            since_seq=since_seq,
+            limit=limit,
+        )
+        if persisted_replay is not None:
+            return task_id, persisted_replay
 
         history = self._history.get(task_id, deque())
         replay: list[dict[str, Any]] = []

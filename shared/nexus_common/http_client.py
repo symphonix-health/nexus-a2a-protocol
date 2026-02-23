@@ -12,7 +12,10 @@ from typing import Any
 
 import httpx
 
+from .a2a_http import build_outbound_headers
+from .otel import start_span
 from .protocol import CorrelationContext, IdempotencyContext, ScenarioContext
+from .trace_context import inject_trace_context
 
 ClientKey = tuple[float, int, int, float, bool]
 _clients_lock = threading.Lock()
@@ -90,6 +93,7 @@ async def jsonrpc_call(
 ) -> dict[str, Any]:
     """Make an async JSON-RPC 2.0 call to another NEXUS agent."""
     request_params: dict[str, Any] = dict(params)
+    correlation_payload: dict[str, Any] | None = None
 
     if scenario_context is not None:
         request_params["scenario_context"] = (
@@ -98,24 +102,46 @@ async def jsonrpc_call(
             else dict(scenario_context)
         )
     if correlation is not None:
-        request_params["correlation"] = (
+        correlation_payload = (
             correlation.to_dict() if hasattr(correlation, "to_dict") else dict(correlation)
         )
+        request_params["correlation"] = correlation_payload
     if idempotency is not None:
         request_params["idempotency"] = (
             idempotency.to_dict() if hasattr(idempotency, "to_dict") else dict(idempotency)
         )
 
     payload = {"jsonrpc": "2.0", "id": id_, "method": method, "params": request_params}
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {token}",
-    }
-    trace_id = request_params.get("correlation", {}).get("trace_id")
+    trace_id = None
+    traceparent = None
+    tracestate = None
+    if isinstance(correlation_payload, dict):
+        trace_id = str(correlation_payload.get("trace_id") or "").strip() or None
+        traceparent = str(correlation_payload.get("traceparent") or "").strip() or None
+        tracestate = str(correlation_payload.get("tracestate") or "").strip() or None
+
+    headers = build_outbound_headers(
+        token=token,
+        traceparent=traceparent,
+        tracestate=tracestate,
+    )
+    if not traceparent:
+        inject_trace_context(
+            headers,
+            trace_id=trace_id,
+            tracestate=tracestate,
+        )
     if trace_id:
         headers["X-Nexus-Trace-Id"] = str(trace_id)
 
     client = _get_client(timeout)
-    r = await client.post(url, json=payload, headers=headers)
+    with start_span(
+        "nexus.http.jsonrpc_call",
+        {
+            "jsonrpc.method": method,
+            "server.address": url,
+        },
+    ):
+        r = await client.post(url, json=payload, headers=headers)
     r.raise_for_status()
     return r.json()

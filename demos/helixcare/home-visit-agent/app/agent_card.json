@@ -5,7 +5,7 @@
   "protocolVersion": "1.0",
   "url": "http://home-visit-agent:8037",
   "capabilities": {"streaming": true, "websocket": true, "pushNotifications": false},
-  "methods": ["tasks/sendSubscribe", "home_visit/dispatch"],
+  "methods": ["tasks/send", "tasks/sendSubscribe", "tasks/get", "tasks/cancel", "tasks/resubscribe", "home_visit/dispatch"],
   "authentication": {"schemes": ["bearer"]},
   "skills": [{"id": "home-visit", "name": "Home Visit", "description": "Home visit dispatch and environmental risk checks"}]
 }

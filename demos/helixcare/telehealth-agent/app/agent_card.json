@@ -5,7 +5,7 @@
   "protocolVersion": "1.0",
   "url": "http://telehealth-agent:8036",
   "capabilities": {"streaming": true, "websocket": true, "pushNotifications": false},
-  "methods": ["tasks/sendSubscribe", "telehealth/consult"],
+  "methods": ["tasks/send", "tasks/sendSubscribe", "tasks/get", "tasks/cancel", "tasks/resubscribe", "telehealth/consult"],
   "authentication": {"schemes": ["bearer"]},
   "skills": [{"id": "telehealth", "name": "Telehealth", "description": "Video and audio-only consult workflow support"}]
 }

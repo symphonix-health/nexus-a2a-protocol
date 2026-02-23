@@ -12,6 +12,9 @@
   "methods": [
     "tasks/send",
     "tasks/sendSubscribe",
+    "tasks/get",
+    "tasks/cancel",
+    "tasks/resubscribe",
     "admission/assign_bed",
     "admission/check_availability"
   ],

@@ -8,6 +8,7 @@ import httpx
 
 from tests.nexus_harness.runner import (
     scenarios_for, pytest_ids, DEMO_URLS, get_report, ScenarioResult,
+    assert_deterministic_negative_rpc, auth_headers_for_negative_scenario,
 )
 
 MATRIX = "nexus_telemed_scribe_matrix.json"
@@ -87,16 +88,15 @@ async def test_scribe_negative(scenario: dict, client: httpx.AsyncClient, auth_h
         payload = scenario.get("input_payload", {})
         base = URLS["transcriber-agent"]
         if payload.get("jsonrpc"):
-            headers = dict(auth_headers)
-            if scenario.get("auth_mode") == "none":
-                headers.pop("Authorization", None)
+            headers = auth_headers_for_negative_scenario(scenario, auth_headers)
             resp = await client.post(f"{base}/rpc", headers=headers, content=json.dumps(payload))
-            body = resp.json()
-            if resp.status_code >= 400 or "error" in body:
-                sr.status = "pass"
-            else:
-                sr.status = "fail"
-                sr.message = f"Expected error, got {resp.status_code}"
+            body = resp.json() if "application/json" in resp.headers.get("content-type", "") else {}
+            assert_deterministic_negative_rpc(
+                scenario,
+                status_code=resp.status_code,
+                body=body if isinstance(body, dict) else {},
+            )
+            sr.status = "pass"
         else:
             sr.status = "skip"
     except Exception as exc:

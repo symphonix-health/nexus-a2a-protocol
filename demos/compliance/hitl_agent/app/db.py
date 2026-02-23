@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import sqlite3
+import os
 from datetime import datetime
 from typing import Any
 
-DB_PATH = "hitl_tasks.db"
+DB_PATH = os.environ.get("HITL_DB_PATH", "hitl_tasks.db")
 
 
 def _connect() -> sqlite3.Connection:

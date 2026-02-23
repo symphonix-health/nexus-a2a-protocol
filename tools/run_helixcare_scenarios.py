@@ -7,8 +7,11 @@ Simple script to run patient journey scenarios for testing and demonstration.
 
 import argparse
 import asyncio
+import json
 import os
 import subprocess
+import urllib.error
+import urllib.request
 from urllib.parse import urlparse
 
 from additional_scenarios import ADDITIONAL_SCENARIOS
@@ -55,7 +58,12 @@ def check_agents_running(gateway_url: str | None = None):
 
     for port in required_ports:
         try:
-            result = subprocess.run(["netstat", "-an"], capture_output=True, text=True, timeout=5)
+            result = subprocess.run(
+                ["netstat", "-an"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
             if f":{port} " in result.stdout:
                 running.append(port)
         except Exception:
@@ -67,14 +75,44 @@ def check_agents_running(gateway_url: str | None = None):
 def start_command_centre_monitor():
     """Start the Command Centre monitor in background."""
     try:
-        monitor_cmd = [r".\.venv\Scripts\python.exe", "tools/monitor_command_centre.py"]
+        monitor_cmd = [
+            r".\.venv\Scripts\python.exe",
+            "tools/monitor_command_centre.py",
+        ]
         print("📊 Starting Command Centre monitor...")
         return subprocess.Popen(
-            monitor_cmd, cwd=r"C:\nexus-a2a-protocol", creationflags=subprocess.CREATE_NEW_CONSOLE
+            monitor_cmd,
+            cwd=r"C:\nexus-a2a-protocol",
+            creationflags=subprocess.CREATE_NEW_CONSOLE,
         )
     except Exception as e:
         print(f"⚠️  Could not start monitor: {e}")
         return None
+
+
+def reset_trace_store(
+    base_url: str = "http://localhost:8099",
+    timeout: float = 10.0,
+) -> int:
+    """Reset Command Centre trace store and return cleared item count."""
+    target = f"{base_url.rstrip('/')}/api/traces"
+    request = urllib.request.Request(
+        target,
+        method="DELETE",
+        headers={"Content-Type": "application/json"},
+    )
+
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            raw = response.read().decode("utf-8")
+            payload = json.loads(raw) if raw else {}
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"trace reset failed ({exc.code}): {detail}") from exc
+    except Exception as exc:
+        raise RuntimeError(f"trace reset failed: {exc}") from exc
+
+    return int(payload.get("cleared_count", 0))
 
 
 async def run_scenario(
@@ -83,7 +121,12 @@ async def run_scenario(
     gateway_url: str | None = None,
 ):
     """Run a specific scenario."""
-    cmd = [r".\.venv\Scripts\python.exe", "tools/helixcare_scenarios.py", "--run", scenario_name]
+    cmd = [
+        r".\.venv\Scripts\python.exe",
+        "tools/helixcare_scenarios.py",
+        "--run",
+        scenario_name,
+    ]
     if retry_mode:
         cmd.extend(["--retry-mode", retry_mode])
     if gateway_url:
@@ -129,6 +172,11 @@ async def main():
         const="http://localhost:8100",
         help="Route scenario RPC via on-demand gateway URL.",
     )
+    parser.add_argument(
+        "--reset-traces-first",
+        action="store_true",
+        help="Reset Command Centre trace store before executing scenarios.",
+    )
     args = parser.parse_args()
     gateway_url = _resolve_gateway_url(args.gateway)
 
@@ -138,6 +186,8 @@ async def main():
         print(f"⚙ Passthrough retry profile: {args.retry_mode}")
     if gateway_url:
         print(f"⚙ On-demand gateway mode: {gateway_url}")
+    if args.reset_traces_first:
+        print("⚙ Trace reset enabled: true")
 
     # Check if agents are running
     running_ports = check_agents_running(gateway_url=gateway_url)
@@ -174,6 +224,15 @@ async def main():
             print("💡 Start agents with: .\\.venv\\Scripts\\python.exe tools/launch_all_agents.py")
         input("Press Enter to continue anyway, or Ctrl+C to exit...")
 
+    if args.reset_traces_first:
+        print("🧹 Resetting trace store before scenario run...")
+        try:
+            cleared = reset_trace_store(base_url="http://localhost:8099")
+            print(f"✅ Trace store reset complete ({cleared} cleared)")
+        except RuntimeError as exc:
+            print(f"❌ Could not reset trace store: {exc}")
+            raise SystemExit(3) from exc
+
     # Start Command Centre monitor
     monitor_process = start_command_centre_monitor()
     if monitor_process:
@@ -205,7 +264,11 @@ async def main():
     print("=" * 50)
 
     for scenario in scenarios:
-        await run_scenario(scenario, retry_mode=args.retry_mode, gateway_url=gateway_url)
+        await run_scenario(
+            scenario,
+            retry_mode=args.retry_mode,
+            gateway_url=gateway_url,
+        )
         print()  # Blank line between scenarios
 
     print("🎉 All scenarios completed!")

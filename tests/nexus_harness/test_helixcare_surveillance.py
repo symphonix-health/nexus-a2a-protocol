@@ -13,6 +13,7 @@ import httpx
 from tests.nexus_harness.runner import (
     load_helixcare_matrix, scenarios_for_helixcare,
     pytest_ids, get_report, ScenarioResult, HELIXCARE_URLS,
+    assert_deterministic_negative_rpc, auth_headers_for_negative_scenario,
 )
 
 MATRIX = "helixcare_public_health_surveillance_matrix.json"
@@ -35,12 +36,6 @@ def _pick_url(payload: dict) -> str:
         if key in method:
             return url
     return next(iter(URLS.values()))
-
-
-def _is_auth_failure(scenario: dict) -> bool:
-    mode = scenario.get("auth_mode", "")
-    return any(x in mode for x in ["jwt_missing", "jwt_expired", "jwt_invalid",
-               "mtls_missing", "none", "did_fail", "oidc_invalid"])
 
 
 @pytest.mark.parametrize("scenario", _positive, ids=pytest_ids(_positive))
@@ -133,39 +128,59 @@ async def test_helixcare_surveillance_negative(scenario: dict, client: httpx.Asy
     t0 = time.monotonic()
     try:
         payload = scenario.get("input_payload", {})
-        is_af = _is_auth_failure(scenario)
         url = next(iter(URLS.values()))
 
-        if payload.get("protocol_step") in ("mqtt_subscribe", "agent_card_get"):
+        if scenario.get("scenario_type") == "edge":
+            if payload.get("jsonrpc"):
+                url = _pick_url(payload)
+                resp = await client.post(f"{url}/rpc", headers=auth_headers,
+                                         content=json.dumps(payload), timeout=15.0)
+                exp_status = scenario.get("expected_http_status")
+                if exp_status not in (None, ""):
+                    assert resp.status_code == int(exp_status), f"Expected {exp_status} got {resp.status_code}"
+                else:
+                    assert resp.status_code < 500, f"Edge scenario returned {resp.status_code}"
+                if "application/json" in resp.headers.get("content-type", ""):
+                    body = resp.json()
+                    assert isinstance(body, dict), "Expected JSON object body"
+                    assert ("result" in body) or ("error" in body), "Expected JSON-RPC envelope"
             sr.status = "pass"
+            return
+
+        if payload.get("protocol_step") in ("mqtt_subscribe", "mqtt_publish", "agent_card_get"):
+            sr.status = "skip"
+            sr.message = "Non-RPC negative scenario; deterministic JSON-RPC assertion not applicable"
         elif payload.get("protocol_step") == "call_rpc":
             rpc_body = {"jsonrpc": "2.0", "id": "req",
                         "method": "tasks/sendSubscribe", "params": {"task": {}}}
-            headers = dict(auth_headers)
-            if is_af:
-                headers.pop("Authorization", None)
+            headers = auth_headers_for_negative_scenario(scenario, auth_headers)
             resp = await client.post(f"{url}/rpc", headers=headers,
                                      content=json.dumps(rpc_body), timeout=10.0)
-            # negative: any response is acceptable (error or auth failure)
+            body = resp.json() if "application/json" in resp.headers.get("content-type", "") else {}
+            assert_deterministic_negative_rpc(
+                scenario,
+                status_code=resp.status_code,
+                body=body if isinstance(body, dict) else {},
+            )
             sr.status = "pass"
         elif payload.get("jsonrpc"):
-            headers = dict(auth_headers)
-            if is_af:
-                headers.pop("Authorization", None)
+            headers = auth_headers_for_negative_scenario(scenario, auth_headers)
             url = _pick_url(payload)
             resp = await client.post(f"{url}/rpc", headers=headers,
                                      content=json.dumps(payload), timeout=10.0)
-            body = resp.json() if resp.status_code == 200 else {}
-            if resp.status_code >= 400 or "error" in body:
-                sr.status = "pass"
-            else:
-                sr.status = "pass"
-                sr.message = "Accepted; downstream may error"
-        else:
+            body = resp.json() if "application/json" in resp.headers.get("content-type", "") else {}
+            assert_deterministic_negative_rpc(
+                scenario,
+                status_code=resp.status_code,
+                body=body if isinstance(body, dict) else {},
+            )
             sr.status = "pass"
+        else:
+            sr.status = "skip"
+            sr.message = "Unsupported negative scenario shape"
     except Exception as exc:
-        sr.status = "pass"
-        sr.message = f"Expected failure: {exc}"
+        sr.status = "fail"
+        sr.message = str(exc)
     finally:
         sr.duration_ms = (time.monotonic() - t0) * 1000
         get_report().add(sr)

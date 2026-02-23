@@ -12,7 +12,11 @@ from shared.nexus_common.jsonrpc import (
     parse_request,
     response_result,
 )
-from shared.nexus_common.scale_profile import build_canonical_shard_key, negotiate_scale_features
+from shared.nexus_common.scale_profile import (
+    build_canonical_shard_key,
+    negotiate_scale_features,
+    scale_profile_strict_enabled,
+)
 from shared.nexus_common.sse import (
     TaskEventBus,
     build_signed_resume_cursor,
@@ -641,3 +645,60 @@ def test_scale_profile_matrix_exists_and_has_all_gates() -> None:
     rows = json.loads(path.read_text(encoding="utf-8"))
     gates = {row.get("gate") for row in rows}
     assert {"g0", "g1", "g2", "g3", "g4"}.issubset(gates)
+
+
+def test_scale_profile_strict_rollout_defaults_to_staging_first() -> None:
+    prev_strict = os.environ.get("NEXUS_SCALE_PROFILE_STRICT")
+    prev_ring = os.environ.get("NEXUS_DEPLOYMENT_RING")
+    prev_env = os.environ.get("NEXUS_ENV")
+    prev_from = os.environ.get("NEXUS_SCALE_PROFILE_ENFORCEMENT_RING")
+    try:
+        os.environ.pop("NEXUS_SCALE_PROFILE_STRICT", None)
+        os.environ.pop("NEXUS_ENV", None)
+        os.environ.pop("NEXUS_SCALE_PROFILE_ENFORCEMENT_RING", None)
+
+        os.environ["NEXUS_DEPLOYMENT_RING"] = "dev"
+        assert scale_profile_strict_enabled() is False
+
+        os.environ["NEXUS_DEPLOYMENT_RING"] = "staging"
+        assert scale_profile_strict_enabled() is True
+
+        os.environ["NEXUS_DEPLOYMENT_RING"] = "production"
+        assert scale_profile_strict_enabled() is True
+    finally:
+        if prev_strict is None:
+            os.environ.pop("NEXUS_SCALE_PROFILE_STRICT", None)
+        else:
+            os.environ["NEXUS_SCALE_PROFILE_STRICT"] = prev_strict
+        if prev_ring is None:
+            os.environ.pop("NEXUS_DEPLOYMENT_RING", None)
+        else:
+            os.environ["NEXUS_DEPLOYMENT_RING"] = prev_ring
+        if prev_env is None:
+            os.environ.pop("NEXUS_ENV", None)
+        else:
+            os.environ["NEXUS_ENV"] = prev_env
+        if prev_from is None:
+            os.environ.pop("NEXUS_SCALE_PROFILE_ENFORCEMENT_RING", None)
+        else:
+            os.environ["NEXUS_SCALE_PROFILE_ENFORCEMENT_RING"] = prev_from
+
+
+def test_scale_profile_strict_explicit_env_override_still_wins() -> None:
+    prev_strict = os.environ.get("NEXUS_SCALE_PROFILE_STRICT")
+    prev_ring = os.environ.get("NEXUS_DEPLOYMENT_RING")
+    try:
+        os.environ["NEXUS_DEPLOYMENT_RING"] = "production"
+        os.environ["NEXUS_SCALE_PROFILE_STRICT"] = "false"
+        assert scale_profile_strict_enabled() is False
+        os.environ["NEXUS_SCALE_PROFILE_STRICT"] = "true"
+        assert scale_profile_strict_enabled() is True
+    finally:
+        if prev_strict is None:
+            os.environ.pop("NEXUS_SCALE_PROFILE_STRICT", None)
+        else:
+            os.environ["NEXUS_SCALE_PROFILE_STRICT"] = prev_strict
+        if prev_ring is None:
+            os.environ.pop("NEXUS_DEPLOYMENT_RING", None)
+        else:
+            os.environ["NEXUS_DEPLOYMENT_RING"] = prev_ring

@@ -12,6 +12,9 @@
   "methods": [
     "tasks/send",
     "tasks/sendSubscribe",
+    "tasks/get",
+    "tasks/cancel",
+    "tasks/resubscribe",
     "discharge/initiate",
     "discharge/create_summary"
   ],

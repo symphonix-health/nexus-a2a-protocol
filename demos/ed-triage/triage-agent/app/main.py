@@ -9,14 +9,21 @@ from inspect import isawaitable
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from shared.nexus_common.auth import AuthError, verify_jwt
+from shared.nexus_common.a2a_http import (
+    canonicalize_payload_method,
+    negotiate_http_request,
+    response_headers as a2a_response_headers,
+)
 from shared.nexus_common.did import did_verify_enabled, verify_did_signature
 from shared.nexus_common.health import HealthMonitor, apply_backpressure_to_agent_card
 from shared.nexus_common.http_client import jsonrpc_call
 from shared.nexus_common.idempotency import IdempotencyStore, RedisIdempotencyStore
 from shared.nexus_common.ids import make_task_id, make_trace_id
 from shared.nexus_common.jsonrpc import JsonRpcError, parse_request, response_error, response_result
+from shared.nexus_common.otel import start_span
+from shared.nexus_common.service_auth import AuthError, extract_bearer_token, verify_service_auth
 from shared.nexus_common.sse import TaskEventBus
+from shared.nexus_common.trace_context import build_traceparent, extract_trace_context
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 logger = logging.getLogger("nexus.triage-agent")
@@ -26,7 +33,6 @@ bus = TaskEventBus(agent_name="triage-agent")
 health_monitor = HealthMonitor("triage-agent")
 inflight_tasks = 0
 
-JWT_SECRET = os.getenv("NEXUS_JWT_SECRET", "dev-secret-change-me")
 REQUIRED_SCOPE = os.getenv("NEXUS_REQUIRED_SCOPE", "nexus:invoke")
 
 
@@ -68,12 +74,13 @@ async def _idempotency_save_response(key: str, response: dict, *, scope: str | N
 
 
 def _require_auth(req: Request) -> str:
-    auth = req.headers.get("authorization", "")
-    if not auth.lower().startswith("bearer "):
-        raise HTTPException(status_code=401, detail="Missing bearer token")
-    token = auth.split(" ", 1)[1].strip()
     try:
-        verify_jwt(token, JWT_SECRET, required_scope=REQUIRED_SCOPE)
+        token = extract_bearer_token(req.headers.get("authorization", ""))
+        verify_service_auth(
+            token,
+            headers=req.headers,
+            required_scope=REQUIRED_SCOPE,
+        )
     except AuthError as exc:
         raise HTTPException(status_code=401, detail=str(exc)) from exc
     if did_verify_enabled() and not verify_did_signature():
@@ -104,7 +111,11 @@ async def events(task_id: str, request: Request):
 async def ws_stream(websocket: WebSocket, task_id: str):
     token = websocket.query_params.get("token", "")
     try:
-        verify_jwt(token, JWT_SECRET, required_scope=REQUIRED_SCOPE)
+        verify_service_auth(
+            token,
+            headers=websocket.headers,
+            required_scope=REQUIRED_SCOPE,
+        )
     except AuthError:
         await websocket.close(code=4001, reason="Unauthorized")
         return
@@ -344,20 +355,126 @@ METHODS["tasks/resubscribe"] = _tasks_resubscribe
 
 @app.post("/rpc")
 async def rpc(request: Request):
-    token = _require_auth(request)
-    payload = await request.json()
     try:
-        req = parse_request(payload)
-        method, params, id_ = req["method"], req["params"], req["id"]
-        if method not in METHODS:
-            raise JsonRpcError(-32601, "Method not found", method)
-        result = await METHODS[method](params, token)
-        return JSONResponse(content=response_result(id_, result, method=method, params=params))
+        payload = await request.json()
+    except Exception:
+        payload = {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        negotiation = negotiate_http_request(request, payload)
+    except HTTPException as exc:
+        err = JsonRpcError(
+            -32600,
+            "Invalid Request",
+            exc.detail if isinstance(exc.detail, dict) else {"reason": "invalid_negotiation"},
+        )
+        return JSONResponse(
+            content=response_error(payload.get("id"), err),
+            status_code=exc.status_code,
+            media_type="application/a2a+json",
+        )
+    payload = canonicalize_payload_method(payload, negotiation)
+    traceparent_in, tracestate_in = extract_trace_context(request.headers)
+    response_traceparent = traceparent_in
+    try:
+        try:
+            token = _require_auth(request)
+        except HTTPException as exc:
+            if not response_traceparent:
+                response_traceparent = build_traceparent(str(payload.get("id") or "auth"))
+            return JSONResponse(
+                content=response_error(
+                    payload.get("id"),
+                    JsonRpcError(
+                        -32001,
+                        "Unauthorized",
+                        {
+                            "reason": "auth_failed",
+                            "detail": str(exc.detail),
+                            "failure_domain": "auth",
+                        },
+                    ),
+                ),
+                status_code=exc.status_code,
+                media_type=negotiation.response_media_type,
+                headers=a2a_response_headers(
+                    negotiation,
+                    traceparent=response_traceparent,
+                    tracestate=tracestate_in,
+                ),
+            )
+        with start_span("nexus.rpc.handle", {"agent": "triage-agent"}):
+            req = parse_request(payload)
+            method, params, id_ = req["method"], req["params"], req["id"]
+
+            if traceparent_in or tracestate_in:
+                corr = params.get("correlation") if isinstance(params.get("correlation"), dict) else {}
+                corr = dict(corr)
+                if traceparent_in and "traceparent" not in corr:
+                    corr["traceparent"] = traceparent_in
+                if tracestate_in and "tracestate" not in corr:
+                    corr["tracestate"] = tracestate_in
+                if corr:
+                    params["correlation"] = corr
+
+            if method not in METHODS:
+                raise JsonRpcError(-32601, "Method not found", method)
+            result = await METHODS[method](params, token)
+
+            if negotiation.compatibility_mode and isinstance(result, dict):
+                result = dict(result)
+                compat = (
+                    result.get("compatibility")
+                    if isinstance(result.get("compatibility"), dict)
+                    else {}
+                )
+                compat = dict(compat)
+                compat["legacy_method"] = negotiation.original_method
+                compat["canonical_method"] = negotiation.canonical_method
+                compat["mode"] = negotiation.compatibility_mode
+                result["compatibility"] = compat
+
+            if not response_traceparent:
+                response_traceparent = build_traceparent(str(result.get("trace_id") if isinstance(result, dict) else id_))
+
+            return JSONResponse(
+                content=response_result(id_, result, method=method, params=params),
+                status_code=200,
+                media_type=negotiation.response_media_type,
+                headers=a2a_response_headers(
+                    negotiation,
+                    traceparent=response_traceparent,
+                    tracestate=tracestate_in,
+                ),
+            )
     except JsonRpcError as exc:
-        return JSONResponse(content=response_error(payload.get("id"), exc), status_code=200)
+        if not response_traceparent:
+            response_traceparent = build_traceparent(str(payload.get("id")))
+        return JSONResponse(
+            content=response_error(payload.get("id"), exc),
+            status_code=200,
+            media_type=negotiation.response_media_type,
+            headers=a2a_response_headers(
+                negotiation,
+                traceparent=response_traceparent,
+                tracestate=tracestate_in,
+            ),
+        )
     except Exception as exc:
         err = JsonRpcError(-32000, "Server error", str(exc))
-        return JSONResponse(content=response_error(payload.get("id"), err), status_code=200)
+        if not response_traceparent:
+            response_traceparent = build_traceparent(str(payload.get("id")))
+        return JSONResponse(
+            content=response_error(payload.get("id"), err),
+            status_code=200,
+            media_type=negotiation.response_media_type,
+            headers=a2a_response_headers(
+                negotiation,
+                traceparent=response_traceparent,
+                tracestate=tracestate_in,
+            ),
+        )
 
 
 @app.on_event("shutdown")

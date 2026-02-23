@@ -2,13 +2,22 @@ import json
 import pytest
 import os
 from fastapi.testclient import TestClient
+
+_WORKER = os.environ.get("PYTEST_XDIST_WORKER", "gw0")
+_DB_FILE = f"hitl_tasks_{_WORKER}.db"
+_LOG_FILE = f"compliance_results_{_WORKER}.log"
+os.environ.setdefault("HITL_DB_PATH", _DB_FILE)
+
 from demos.compliance.hitl_agent.app.main import app
 from demos.compliance.hitl_agent.app.db import init_db
 from shared.nexus_common.auth import mint_jwt
 
 # Initialize DB for tests
-if os.path.exists("hitl_tasks.db"):
-    os.remove("hitl_tasks.db")
+if os.path.exists(_DB_FILE):
+    try:
+        os.remove(_DB_FILE)
+    except PermissionError:
+        pass
 init_db()
 
 client = TestClient(app)
@@ -30,7 +39,7 @@ def load_scenarios():
     with open(matrix_path, "r") as f:
         return json.load(f)
 
-LOG_FILE = "compliance_results.log"
+LOG_FILE = _LOG_FILE
 
 @pytest.mark.parametrize("scenario", load_scenarios())
 def test_hitl_compliance_matrix(scenario):

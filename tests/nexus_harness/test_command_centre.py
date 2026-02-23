@@ -179,7 +179,7 @@ async def test_command_centre_negative(scenario: dict, client: httpx.AsyncClient
         get_report().add(sr)
 
 
-@pytest.mark.parametrize("scenario", _edge[:5], ids=pytest_ids(_edge[:5]))
+@pytest.mark.parametrize("scenario", _edge, ids=pytest_ids(_edge))
 @pytest.mark.asyncio
 async def test_command_centre_edge(scenario: dict, client: httpx.AsyncClient):
     """Test edge case scenarios for command centre."""

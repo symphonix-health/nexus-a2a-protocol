@@ -14,6 +14,7 @@ import httpx
 
 from tests.nexus_harness.runner import (
     scenarios_for, pytest_ids, entry_url, get_report, ScenarioResult,
+    assert_deterministic_negative_rpc, auth_headers_for_negative_scenario,
 )
 
 MATRIX = "nexus_protocol_core_matrix.json"
@@ -89,21 +90,15 @@ async def test_core_negative(scenario: dict, client: httpx.AsyncClient, auth_hea
     try:
         payload = scenario.get("input_payload", {})
         if payload.get("jsonrpc"):
-            # For negative tests, send the bad payload and expect an error
-            headers = dict(auth_headers)
-            if scenario.get("auth_mode") == "none":
-                headers.pop("Authorization", None)
+            headers = auth_headers_for_negative_scenario(scenario, auth_headers)
             resp = await client.post(f"{CORE_BASE}/rpc", headers=headers, content=json.dumps(payload))
-            expected_status = scenario.get("expected_http_status", 400)
-            # Accept either the expected status or 200 with JSON-RPC error
-            body = resp.json()
-            if resp.status_code == expected_status:
-                sr.status = "pass"
-            elif "error" in body:
-                sr.status = "pass"
-            else:
-                sr.status = "fail"
-                sr.message = f"Expected status {expected_status}, got {resp.status_code}"
+            body = resp.json() if "application/json" in resp.headers.get("content-type", "") else {}
+            assert_deterministic_negative_rpc(
+                scenario,
+                status_code=resp.status_code,
+                body=body if isinstance(body, dict) else {},
+            )
+            sr.status = "pass"
         else:
             sr.status = "skip"
             sr.message = "Non-RPC negative scenario"
