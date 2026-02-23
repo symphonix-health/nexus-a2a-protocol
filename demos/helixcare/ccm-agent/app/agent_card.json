@@ -5,7 +5,7 @@
   "protocolVersion": "1.0",
   "url": "http://ccm-agent:8038",
   "capabilities": {"streaming": true, "websocket": true, "pushNotifications": false},
-  "methods": ["tasks/sendSubscribe", "ccm/monthly_review"],
+  "methods": ["tasks/send", "tasks/sendSubscribe", "tasks/get", "tasks/cancel", "tasks/resubscribe", "ccm/monthly_review"],
   "authentication": {"schemes": ["bearer"]},
   "skills": [{"id": "ccm", "name": "Chronic Care Management", "description": "Monthly care-plan and coordination workflow support"}]
 }

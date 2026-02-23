@@ -10,7 +10,11 @@
     "pushNotifications": false
   },
   "methods": [
+    "tasks/send",
     "tasks/sendSubscribe",
+    "tasks/get",
+    "tasks/cancel",
+    "tasks/resubscribe",
     "primary_care/manage_visit"
   ],
   "authentication": {

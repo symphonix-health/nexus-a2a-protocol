@@ -22,14 +22,60 @@ SUPPORTED_FEATURE_FLAGS = {
     "consistency.vectorclock.v1",
 }
 
+_RING_ALIASES = {
+    "dev": "dev",
+    "development": "dev",
+    "local": "dev",
+    "test": "test",
+    "qa": "test",
+    "staging": "staging",
+    "stage": "staging",
+    "preprod": "staging",
+    "production": "production",
+    "prod": "production",
+}
+_RING_RANK = {
+    "dev": 0,
+    "test": 1,
+    "staging": 2,
+    "production": 3,
+}
+
+
+def _normalize_ring(value: str) -> str:
+    token = str(value or "").strip().lower()
+    if not token:
+        return "dev"
+    return _RING_ALIASES.get(token, "dev")
+
+
+def _resolve_current_ring() -> str:
+    ring = os.getenv("NEXUS_DEPLOYMENT_RING", "").strip()
+    if ring:
+        return _normalize_ring(ring)
+    return _normalize_ring(os.getenv("NEXUS_ENV", "dev"))
+
+
+def _ring_rank(value: str) -> int:
+    return _RING_RANK.get(_normalize_ring(value), 0)
+
 
 def scale_profile_strict_enabled() -> bool:
-    return os.getenv("NEXUS_SCALE_PROFILE_STRICT", "false").strip().lower() in {
-        "1",
-        "true",
-        "yes",
-        "on",
-    }
+    explicit = os.getenv("NEXUS_SCALE_PROFILE_STRICT")
+    if explicit is not None and str(explicit).strip():
+        return str(explicit).strip().lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
+
+    # Staging-first rollout: strict scale/idempotency defaults on from staging upward.
+    current_ring = _resolve_current_ring()
+    enforce_from = _normalize_ring(
+        os.getenv("NEXUS_SCALE_PROFILE_ENFORCEMENT_RING", "staging")
+    )
+    return _ring_rank(current_ring) >= _ring_rank(enforce_from)
 
 
 def should_enforce_scale_profile(method: str, params: dict[str, Any]) -> bool:

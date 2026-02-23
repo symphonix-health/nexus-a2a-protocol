@@ -407,6 +407,14 @@ python tools/generate_traceability_matrix.py
 | **Slow responses** | Resource contention | `python tools/system_monitor.py` — check CPU/memory |
 | **Gateway timeout** | Agent startup delay | Retry with `--retry-mode fast` or increase timeout |
 
+### VS Code Ruff `EPIPE` / "Server process exited with code 1"
+
+If VS Code shows Ruff language-server crashes like `write EPIPE` or `Stopping server timed out`:
+
+Open workspace settings (`.vscode/settings.json`), set `"ruff.importStrategy": "fromEnvironment"`, then reload the VS Code window and restart the Ruff server.
+
+Why this helps: in this repo, Ruff runs correctly from `.venv`, and using the same binary in the editor avoids bundled-runtime mismatch crashes.
+
 ### Error Codes
 
 | Code | Description | Solution |

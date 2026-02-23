@@ -9,7 +9,14 @@
     "websocket": true,
     "pushNotifications": false
   },
-  "methods": ["diagnosis/assess"],
+  "methods": [
+    "tasks/send",
+    "tasks/sendSubscribe",
+    "tasks/get",
+    "tasks/cancel",
+    "tasks/resubscribe",
+    "diagnosis/assess"
+  ],
   "authentication": {
     "schemes": ["bearer"]
   },

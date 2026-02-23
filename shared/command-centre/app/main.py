@@ -479,6 +479,25 @@ async def list_traces():
         return JSONResponse(content=summaries)
 
 
+@app.delete("/api/traces")
+async def reset_traces():
+    """Clear all stored trace runs (in-memory + persisted file)."""
+    async with trace_lock:
+        cleared_count = len(trace_store)
+        trace_store.clear()
+        _persist_trace_store_to_disk()
+
+    await _broadcast_ws(
+        {
+            "type": "trace.reset",
+            "payload": {"cleared_count": cleared_count},
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+    )
+
+    return JSONResponse(content={"cleared": True, "cleared_count": cleared_count})
+
+
 @app.get("/api/traces/{trace_id}")
 async def get_trace(trace_id: str):
     """Return full trace run with all steps."""

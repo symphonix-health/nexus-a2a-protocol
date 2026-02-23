@@ -11,7 +11,10 @@
   },
   "methods": [
     "tasks/send",
-    "tasks/sendSubscribe"
+    "tasks/sendSubscribe",
+    "tasks/get",
+    "tasks/cancel",
+    "tasks/resubscribe"
   ],
   "authentication": {
     "schemes": [

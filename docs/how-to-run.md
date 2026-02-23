@@ -372,7 +372,12 @@ python tools/nexus_mint_jwt.py
 # Verify NEXUS_JWT_SECRET in .env matches token generation
 ```
 
-**LLM Mock Responses**
+**VS Code Ruff `EPIPE` / language-server crash**
+
+If VS Code shows Ruff errors like `write EPIPE` or `Stopping server timed out`, set `"ruff.importStrategy": "fromEnvironment"` in `.vscode/settings.json`, then reload the VS Code window and restart Ruff. This keeps the editor on the same working Ruff binary used by the project `.venv`.
+
+#### LLM Mock Responses
+
 - Set `OPENAI_API_KEY` in environment for real responses
 - Check API key validity and quota
 

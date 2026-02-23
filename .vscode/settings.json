@@ -28,7 +28,7 @@
     // Ruff (Linting & Formatting)
     "ruff.enable": true,
     "ruff.lint.enable": true,
-    "ruff.importStrategy": "useBundled",
+    "ruff.importStrategy": "fromEnvironment",
     // File Watching & Search
     "files.watcherExclude": {
         "**/.git/objects/**": true,

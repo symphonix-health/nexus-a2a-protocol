@@ -9,7 +9,7 @@
     "websocket": true,
     "pushNotifications": false
   },
-  "methods": ["tasks/send", "tasks/sendSubscribe", "tasks/get", "tasks/cancel"],
+  "methods": ["tasks/send", "tasks/sendSubscribe", "tasks/get", "tasks/cancel", "tasks/resubscribe"],
   "authentication": {
     "schemes": ["bearer"]
   },
