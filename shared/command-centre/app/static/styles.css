@@ -1814,6 +1814,8 @@ body {
 .delegation-ok { color: var(--status-healthy); }
 .delegation-skipped { color: var(--status-degraded); }
 .delegation-blocked { color: var(--status-unhealthy); }
+.delegation-retry { color: #b45309; }
+.delegation-rerouted { color: #0369a1; }
 
 .deleg-from, .deleg-to {
     font-weight: 600;
@@ -1832,6 +1834,19 @@ body {
 .deleg-reason {
     font-size: 0.68rem;
     color: var(--status-degraded);
+}
+
+.deleg-state {
+    font-size: 0.64rem;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    padding: 0.05rem 0.35rem;
+    color: var(--text-secondary);
+}
+
+.deleg-escalation {
+    font-size: 0.66rem;
+    color: var(--status-unhealthy);
 }
 
 .deleg-dur {

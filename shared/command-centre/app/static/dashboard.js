@@ -49,12 +49,16 @@ const FLOW_SYNTHETIC_DELAY_MS = 8000;
 const FLOW_LIVE_STALE_MS = 15000;
 const FLOW_RETRY_BLOCK_THRESHOLD = 2;
 const FLOW_ALERT_DEDUP_MS = 60 * 1000;
+const FLOW_ALERT_HISTORY_RETENTION_MS = 30 * 60 * 1000;
 const FLOW_SLA_DEFAULT_MS = 45 * 1000;
 const FLOW_SLA_URGENT_MS = 30 * 1000;
 const FLOW_SLA_CRITICAL_MS = 20 * 1000;
 const FLOW_OBSERVER_STORAGE_KEY = 'command-centre.flow-observer-actions.v1';
 const FLOW_ALERT_WEBHOOK_KEY = 'command-centre.flow-alert-webhook-url';
 const TOPOLOGY_HINT_DISMISSED_KEY = 'command-centre.topology-hint-dismissed';
+const FLOW_OBSERVER_ACTION_RETENTION_MS = 2 * FLOW_EXPIRE_MS;
+const FLOW_OBSERVER_AUDIT_MAX = 400;
+const TRACE_RUN_MAX = 200;
 
 const topologyView = {
     scale: 1,
@@ -1295,6 +1299,9 @@ function ackScenario(scenarioId) {
     const now = Date.now();
     setObserverAction(scenarioId, { ackAt: now });
     state.observerAudit.unshift({ type: 'ack', scenarioId, timestamp: now });
+    if (state.observerAudit.length > FLOW_OBSERVER_AUDIT_MAX) {
+        state.observerAudit = state.observerAudit.slice(0, FLOW_OBSERVER_AUDIT_MAX);
+    }
 }
 
 function escalateScenario(scenarioId) {
@@ -1304,6 +1311,9 @@ function escalateScenario(scenarioId) {
 
     setObserverAction(scenarioId, { escalated: true, escalatedAt: now });
     state.observerAudit.unshift({ type: 'escalate', scenarioId, timestamp: now });
+    if (state.observerAudit.length > FLOW_OBSERVER_AUDIT_MAX) {
+        state.observerAudit = state.observerAudit.slice(0, FLOW_OBSERVER_AUDIT_MAX);
+    }
 
     triggerFlowAlert({
         kind: 'observer-escalation',
@@ -1317,8 +1327,11 @@ function escalateScenario(scenarioId) {
 
 function assignScenario(scenarioId, assignee) {
     const now = Date.now();
-    setObserverAction(scenarioId, { assignee });
+    setObserverAction(scenarioId, { assignee, assignAt: now });
     state.observerAudit.unshift({ type: 'assign', scenarioId, assignee, timestamp: now });
+    if (state.observerAudit.length > FLOW_OBSERVER_AUDIT_MAX) {
+        state.observerAudit = state.observerAudit.slice(0, FLOW_OBSERVER_AUDIT_MAX);
+    }
 }
 
 function loadObserverActions() {
@@ -1349,6 +1362,8 @@ function persistObserverActions() {
 }
 
 function refreshFlowAlerts(scenarios, now = Date.now()) {
+    pruneAlertHistory(now);
+
     scenarios.forEach((scenario) => {
         const shouldAlert = scenario.lane === 'blocked' || scenario.risk.severity === 'critical';
         if (!shouldAlert) return;
@@ -1367,6 +1382,43 @@ function refreshFlowAlerts(scenarios, now = Date.now()) {
             timestamp: now,
         });
     });
+}
+
+function pruneAlertHistory(now = Date.now()) {
+    Object.keys(state.alertHistory).forEach((dedupKey) => {
+        const timestamp = Number(state.alertHistory[dedupKey] || 0);
+        if (!Number.isFinite(timestamp) || now - timestamp > FLOW_ALERT_HISTORY_RETENTION_MS) {
+            delete state.alertHistory[dedupKey];
+        }
+    });
+}
+
+function pruneObserverState(now = Date.now()) {
+    const activeScenarioIds = new Set(Object.keys(state.scenarios));
+    let changed = false;
+
+    Object.entries(state.observerActions).forEach(([scenarioId, action]) => {
+        const ackAt = Number(action?.ackAt || 0);
+        const escalatedAt = Number(action?.escalatedAt || 0);
+        const assignAt = Number(action?.assignAt || 0);
+        const lastActionAt = Math.max(ackAt, escalatedAt, assignAt);
+        const stale = !activeScenarioIds.has(scenarioId)
+            && lastActionAt > 0
+            && now - lastActionAt > FLOW_OBSERVER_ACTION_RETENTION_MS;
+
+        if (stale) {
+            delete state.observerActions[scenarioId];
+            changed = true;
+        }
+    });
+
+    if (state.observerAudit.length > FLOW_OBSERVER_AUDIT_MAX) {
+        state.observerAudit = state.observerAudit.slice(0, FLOW_OBSERVER_AUDIT_MAX);
+    }
+
+    if (changed) {
+        persistObserverActions();
+    }
 }
 
 function triggerFlowAlert(alert) {
@@ -1662,6 +1714,7 @@ function pruneStaleScenarios() {
             delete state.scenarios[id];
         }
     });
+    pruneObserverState(now);
 }
 
 function escapeHtml(value) {
@@ -2187,7 +2240,8 @@ async function loadTraceRuns() {
     try {
         const response = await fetch('/api/traces');
         if (!response.ok) return;
-        state.traceRuns = await response.json();
+        const payload = await response.json();
+        state.traceRuns = Array.isArray(payload) ? payload.slice(0, TRACE_RUN_MAX) : [];
         renderTraceRunList();
         const badge = document.getElementById('trace-count-badge');
         if (badge) badge.textContent = `${state.traceRuns.length} runs`;
@@ -2203,6 +2257,9 @@ async function loadTraceRuns() {
 function handleTraceRunEvent(payload) {
     // Prepend new run to the list (most recent first)
     state.traceRuns = [payload, ...state.traceRuns.filter(r => r.trace_id !== payload.trace_id)];
+    if (state.traceRuns.length > TRACE_RUN_MAX) {
+        state.traceRuns = state.traceRuns.slice(0, TRACE_RUN_MAX);
+    }
     renderTraceRunList();
     const badge = document.getElementById('trace-count-badge');
     if (badge) badge.textContent = `${state.traceRuns.length} runs`;
@@ -2417,25 +2474,31 @@ function renderDelegationChain(run) {
     if (chain.length === 0) return '';
 
     const skipped = chain.filter(e => e.skipped).length;
-    const blocked = chain.filter(e => !e.allowed && !e.skipped).length;
+    const blocked = chain.filter(e => e.state === 'blocked_escalated' || (!e.allowed && !e.skipped)).length;
+    const retryPending = chain.filter(e => e.state === 'retry_pending').length;
+    const rerouted = chain.filter(e => e.state === 'rerouted').length;
     const total = chain.length;
 
     return `<div class="delegation-chain">
         <div class="delegation-header" onclick="toggleDelegationChain(this)">
-            <span>🔗 Delegation Chain (${total} handoffs${skipped ? `, ${skipped} skipped` : ''}${blocked ? `, ${blocked} blocked` : ''})</span>
+            <span>🔗 Delegation Chain (${total} handoffs${skipped ? `, ${skipped} skipped` : ''}${blocked ? `, ${blocked} blocked` : ''}${retryPending ? `, ${retryPending} retry` : ''}${rerouted ? `, ${rerouted} rerouted` : ''})</span>
             <span class="delegation-toggle">&#9654;</span>
         </div>
         <div class="delegation-body" style="display:none;">
             ${chain.map(e => {
                 const cls = e.skipped ? 'delegation-skipped'
+                    : e.state === 'retry_pending' ? 'delegation-retry'
+                    : e.state === 'rerouted' ? 'delegation-rerouted'
                     : !e.allowed ? 'delegation-blocked'
                     : 'delegation-ok';
                 return `<div class="delegation-event ${cls}">
                     <span class="deleg-from">${escapeHtml(e.from || '')}</span>
                     <span class="deleg-arrow">→</span>
                     <span class="deleg-to">${escapeHtml(e.to || '')}</span>
+                    ${e.state ? `<span class="deleg-state">${escapeHtml(e.state)}</span>` : ''}
                     ${e.rationale ? `<span class="deleg-rationale">${escapeHtml(e.rationale)}</span>` : ''}
                     ${e.reason ? `<span class="deleg-reason">${escapeHtml(e.reason)}</span>` : ''}
+                    ${e.escalation_target ? `<span class="deleg-escalation">Escalate: ${escapeHtml(e.escalation_target)}</span>` : ''}
                     ${e.duration_ms ? `<span class="deleg-dur">${e.duration_ms.toFixed(0)}ms</span>` : ''}
                 </div>`;
             }).join('')}

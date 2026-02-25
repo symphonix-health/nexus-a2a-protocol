@@ -73,6 +73,11 @@ class TraceRun:
     steps: list[TraceStepEvent] = field(default_factory=list)
     total_duration_ms: float = 0.0
     delegation_chain: list[dict[str, Any]] = field(default_factory=list)
+    guideline_refs: list[str] = field(default_factory=list)
+    handover_contract_status: str = "unknown"
+    escalation_trigger: str | None = None
+    senior_review_deadline: str | None = None
+    safe_fallback_taken: bool = False
 
     def __post_init__(self) -> None:
         if not self.trace_id:
@@ -101,4 +106,9 @@ class TraceRun:
             "total_duration_ms": round(self.total_duration_ms, 2),
             "step_count": len(self.steps),
             "delegation_chain": self.delegation_chain,
+            "guideline_refs": self.guideline_refs,
+            "handover_contract_status": self.handover_contract_status,
+            "escalation_trigger": self.escalation_trigger,
+            "senior_review_deadline": self.senior_review_deadline,
+            "safe_fallback_taken": self.safe_fallback_taken,
         }
