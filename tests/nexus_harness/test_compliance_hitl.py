@@ -53,7 +53,7 @@ def test_hitl_compliance_matrix(scenario):
 
     # Send Request
     response = client.post("/rpc", json=payload, headers=_build_headers(scenario.get("auth_mode")))
-    
+
     # Assertions
     if scen_type == "positive":
         assert response.status_code in {200, expected_status}, (
@@ -67,7 +67,7 @@ def test_hitl_compliance_matrix(scenario):
             assert data["result"].get("status") in {"ok", "paused"}, (
                 f"Unexpected result status in {case_id}: {data['result']}"
             )
-        
+
     elif scen_type == "negative":
         # Negative scenarios may either be rejected (HTTP 4xx) by strict handlers,
         # or accepted with JSON-RPC envelope by startup-safe generic handlers.
@@ -90,7 +90,7 @@ def test_hitl_compliance_matrix(scenario):
             assert ("result" in data) or ("error" in data), (
                 f"Edge scenario {case_id} should return result or error envelope"
             )
-    
+
     # Simple logging (Optional)
     with open(LOG_FILE, "a") as log:
         log.write(f"{case_id}: PASSED\n")

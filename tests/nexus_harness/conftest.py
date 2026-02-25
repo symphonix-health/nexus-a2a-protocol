@@ -132,4 +132,3 @@ def _save_report(tmp_path_factory):
     out.parent.mkdir(parents=True, exist_ok=True)
     report.save(out)
     report.save(out)
-    report.save(out)

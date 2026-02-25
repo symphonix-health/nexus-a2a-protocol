@@ -1,0 +1,155 @@
+{
+  "label": "baseline",
+  "generated_at": "2026-02-24T12:11:13Z",
+  "ports": {
+    "command_centre": 8099,
+    "triage": 8021,
+    "gateway": 8100
+  },
+  "pids": {
+    "command_centre": 27740,
+    "triage": 9432,
+    "gateway": null
+  },
+  "summary": {
+    "overall": {
+      "total_python_rss_mb": {
+        "max": 598.164,
+        "avg": 524.831,
+        "p95": 597.913
+      },
+      "command_centre_rss_mb": {
+        "max": 17.129,
+        "avg": 16.699,
+        "p95": 17.099
+      },
+      "triage_rss_mb": {
+        "max": 76.227,
+        "avg": 45.203,
+        "p95": 75.132
+      },
+      "gateway_rss_mb": {
+        "max": NaN,
+        "avg": NaN,
+        "p95": NaN
+      },
+      "traffic_rss_mb": {
+        "max": 4.023,
+        "avg": 3.64,
+        "p95": 4.02
+      }
+    },
+    "by_phase": {
+      "burst": {
+        "total_python_rss_mb": {
+          "max": 557.039,
+          "avg": 506.312,
+          "p95": 554.39
+        },
+        "command_centre_rss_mb": {
+          "max": 16.836,
+          "avg": 16.521,
+          "p95": 16.836
+        },
+        "triage_rss_mb": {
+          "max": 45.691,
+          "avg": 32.001,
+          "p95": 44.337
+        },
+        "gateway_rss_mb": {
+          "max": NaN,
+          "avg": NaN,
+          "p95": NaN
+        },
+        "traffic_rss_mb": {
+          "max": 4.023,
+          "avg": 3.571,
+          "p95": 3.752
+        }
+      },
+      "cooldown": {
+        "total_python_rss_mb": {
+          "max": 502.387,
+          "avg": 502.008,
+          "p95": 502.349
+        },
+        "command_centre_rss_mb": {
+          "max": 17.129,
+          "avg": 17.121,
+          "p95": 17.128
+        },
+        "triage_rss_mb": {
+          "max": 74.145,
+          "avg": 74.145,
+          "p95": 74.145
+        },
+        "gateway_rss_mb": {
+          "max": NaN,
+          "avg": NaN,
+          "p95": NaN
+        },
+        "traffic_rss_mb": {
+          "max": NaN,
+          "avg": NaN,
+          "p95": NaN
+        }
+      },
+      "sustained": {
+        "total_python_rss_mb": {
+          "max": 598.164,
+          "avg": 561.887,
+          "p95": 597.989
+        },
+        "command_centre_rss_mb": {
+          "max": 17.098,
+          "avg": 16.927,
+          "p95": 17.095
+        },
+        "triage_rss_mb": {
+          "max": 76.227,
+          "avg": 59.199,
+          "p95": 75.827
+        },
+        "gateway_rss_mb": {
+          "max": NaN,
+          "avg": NaN,
+          "p95": NaN
+        },
+        "traffic_rss_mb": {
+          "max": 4.02,
+          "avg": 3.708,
+          "p95": 4.02
+        }
+      },
+      "warmup": {
+        "total_python_rss_mb": {
+          "max": 399.629,
+          "avg": 399.34,
+          "p95": 399.6
+        },
+        "command_centre_rss_mb": {
+          "max": 16.031,
+          "avg": 15.945,
+          "p95": 16.022
+        },
+        "triage_rss_mb": {
+          "max": 16.105,
+          "avg": 16.104,
+          "p95": 16.105
+        },
+        "gateway_rss_mb": {
+          "max": NaN,
+          "avg": NaN,
+          "p95": NaN
+        },
+        "traffic_rss_mb": {
+          "max": NaN,
+          "avg": NaN,
+          "p95": NaN
+        }
+      }
+    },
+    "samples": 39
+  },
+  "csv": "C:\\nexus-a2a-protocol\\temp\\memory_bench\\memory_curve_baseline.csv"
+}

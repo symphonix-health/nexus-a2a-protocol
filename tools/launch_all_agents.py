@@ -21,6 +21,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import platform
+import re
 import signal
 import subprocess
 import sys
@@ -35,6 +37,99 @@ PID_FILE = os.path.join(ROOT, ".agent_pids.json")
 
 GATEWAY_MODULE = "shared.on_demand_gateway.app.main:app"
 GATEWAY_PORT = int(os.getenv("NEXUS_ON_DEMAND_GATEWAY_PORT", "8100"))
+
+
+def _load_pid_entries() -> list[dict]:
+    """Load tracked PID entries from disk, tolerating missing/corrupt files."""
+    if not os.path.exists(PID_FILE):
+        return []
+    try:
+        with open(PID_FILE) as f:
+            data = json.load(f)
+        if isinstance(data, list):
+            return [e for e in data if isinstance(e, dict)]
+    except Exception:
+        return []
+    return []
+
+
+def _kill_pid(pid: int) -> bool:
+    """Best-effort terminate a process by PID."""
+    try:
+        os.kill(pid, signal.SIGTERM)
+        return True
+    except (ProcessLookupError, OSError):
+        return False
+
+
+def _find_listening_pid_windows(port: int) -> int | None:
+    """Return PID listening on TCP port (Windows), if any."""
+    try:
+        proc = subprocess.run(
+            ["netstat", "-ano", "-p", "tcp"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if proc.returncode != 0:
+            return None
+        needle = f":{port}"
+        for line in proc.stdout.splitlines():
+            line = line.strip()
+            if not line.startswith("TCP"):
+                continue
+            if needle not in line:
+                continue
+            parts = re.split(r"\s+", line)
+            # Expected format: TCP local foreign LISTENING pid
+            if len(parts) >= 5 and parts[3].upper() == "LISTENING":
+                try:
+                    return int(parts[4])
+                except ValueError:
+                    continue
+    except Exception:
+        return None
+    return None
+
+
+def _cleanup_stale_services(ports: list[int]) -> None:
+    """Stop stale managed/demo listeners before launching a new stack.
+
+    This prevents process buildup (and memory pressure) across repeated launches.
+    """
+    stopped: set[int] = set()
+
+    # 1) Stop previously tracked managed processes.
+    prior = _load_pid_entries()
+    if prior:
+        print(f"Found {len(prior)} previously tracked service process(es); cleaning up...")
+        for entry in prior:
+            pid = entry.get("pid")
+            if not isinstance(pid, int):
+                continue
+            if pid in stopped:
+                continue
+            if _kill_pid(pid):
+                stopped.add(pid)
+                print(f"  Stopped tracked process pid {pid}")
+        try:
+            os.remove(PID_FILE)
+        except OSError:
+            pass
+
+    # 2) Safety sweep by reserved ports (covers stale/orphan listeners not in PID_FILE).
+    if platform.system().lower().startswith("win"):
+        for port in sorted(set(ports)):
+            pid = _find_listening_pid_windows(port)
+            if not pid or pid in stopped or pid == os.getpid():
+                continue
+            if _kill_pid(pid):
+                stopped.add(pid)
+                print(f"  Freed port {port} by stopping pid {pid}")
+
+    # Brief settle period for socket release.
+    if stopped:
+        time.sleep(0.6)
 
 
 def load_agent_config():
@@ -284,6 +379,19 @@ def start_all(
 ):
     """Start all agents and the backend Command Centre (default)."""
     agents, backend, llm_profiles = load_agent_config()
+
+    cleanup_enabled = os.getenv("NEXUS_CLEAN_START", "true").lower() not in {
+        "0",
+        "false",
+        "no",
+    }
+    if cleanup_enabled:
+        reserved_ports = [p for _, p, _, _, _ in agents]
+        if include_backend:
+            reserved_ports.extend([p for _, p, _ in backend])
+        if include_gateway:
+            reserved_ports.append(int(gateway_port or GATEWAY_PORT))
+        _cleanup_stale_services(reserved_ports)
 
     env = os.environ.copy()
     env["PYTHONPATH"] = ROOT
@@ -613,11 +721,10 @@ def start_all(
 
 
 def stop_all():
-    if not os.path.exists(PID_FILE):
+    pids = _load_pid_entries()
+    if not pids:
         print("No PID file found.")
         return
-    with open(PID_FILE) as f:
-        pids = json.load(f)
     for entry in pids:
         try:
             os.kill(entry["pid"], signal.SIGTERM)

@@ -11,9 +11,17 @@ import asyncio
 from datetime import datetime, timedelta
 
 try:
-    from helixcare_scenarios import PatientScenario, run_scenario
+    from helixcare_scenarios import (
+        PatientScenario,
+        enrich_scenario_handoff_contracts,
+        run_scenario,
+    )
 except Exception:
-    from tools.helixcare_scenarios import PatientScenario, run_scenario
+    from tools.helixcare_scenarios import (
+        PatientScenario,
+        enrich_scenario_handoff_contracts,
+        run_scenario,
+    )
 
 
 def _future(days: int) -> str:
@@ -1902,6 +1910,8 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
         expected_duration=18,
     ),
 ]
+
+enrich_scenario_handoff_contracts(ADDITIONAL_SCENARIOS)
 
 
 async def run_additional_scenarios() -> None:

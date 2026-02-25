@@ -18,6 +18,16 @@ from additional_scenarios import ADDITIONAL_SCENARIOS
 from helixcare_scenarios import RETRY_MODE_CONFIGS, SCENARIOS
 from scenario_coverage import build_coverage_report
 
+try:
+    from clinical_negative_scenarios import CLINICAL_NEGATIVE_SCENARIOS
+except Exception:
+    CLINICAL_NEGATIVE_SCENARIOS = []
+
+try:
+    from representative_scenarios import REPRESENTATIVE_SCENARIOS
+except Exception:
+    REPRESENTATIVE_SCENARIOS = []
+
 
 def _resolve_gateway_url(gateway_arg: str | None) -> str | None:
     value = gateway_arg if gateway_arg is not None else os.getenv("NEXUS_ON_DEMAND_GATEWAY_URL")
@@ -119,6 +129,9 @@ async def run_scenario(
     scenario_name: str,
     retry_mode: str | None = None,
     gateway_url: str | None = None,
+    *,
+    include_clinical_negatives: bool = False,
+    include_representative_expansion: bool = False,
 ):
     """Run a specific scenario."""
     cmd = [
@@ -131,6 +144,10 @@ async def run_scenario(
         cmd.extend(["--retry-mode", retry_mode])
     if gateway_url:
         cmd.extend(["--gateway", gateway_url])
+    if include_clinical_negatives:
+        cmd.append("--include-clinical-negatives")
+    if include_representative_expansion:
+        cmd.append("--include-representative-expansion")
 
     print(f"🏥 Running scenario: {scenario_name}")
     print(f"   ↳ Command: {' '.join(cmd)}")
@@ -177,6 +194,16 @@ async def main():
         action="store_true",
         help="Reset Command Centre trace store before executing scenarios.",
     )
+    parser.add_argument(
+        "--include-clinical-negatives",
+        action="store_true",
+        help="Include clinical handoff negative journey library in run set.",
+    )
+    parser.add_argument(
+        "--include-representative-expansion",
+        action="store_true",
+        help="Include expanded representative scenario corpus in run set.",
+    )
     args = parser.parse_args()
     gateway_url = _resolve_gateway_url(args.gateway)
 
@@ -188,6 +215,8 @@ async def main():
         print(f"⚙ On-demand gateway mode: {gateway_url}")
     if args.reset_traces_first:
         print("⚙ Trace reset enabled: true")
+    if args.include_representative_expansion:
+        print("⚙ Representative expansion enabled: true")
 
     # Check if agents are running
     running_ports = check_agents_running(gateway_url=gateway_url)
@@ -240,6 +269,10 @@ async def main():
 
     # Run canonical + additive variant scenarios
     combined_scenarios = SCENARIOS + ADDITIONAL_SCENARIOS
+    if args.include_clinical_negatives:
+        combined_scenarios = combined_scenarios + list(CLINICAL_NEGATIVE_SCENARIOS)
+    if args.include_representative_expansion:
+        combined_scenarios = combined_scenarios + list(REPRESENTATIVE_SCENARIOS)
     coverage = build_coverage_report(combined_scenarios)
     if coverage.missing_agents:
         missing = sorted(coverage.missing_agents)
@@ -268,6 +301,8 @@ async def main():
             scenario,
             retry_mode=args.retry_mode,
             gateway_url=gateway_url,
+            include_clinical_negatives=args.include_clinical_negatives,
+            include_representative_expansion=args.include_representative_expansion,
         )
         print()  # Blank line between scenarios
 

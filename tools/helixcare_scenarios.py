@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import os
 import random
@@ -238,6 +239,12 @@ class PatientScenario:
     # Optional enriched clinical context for more realistic simulations.
     # Backward-compatible: scenarios without this field remain valid.
     medical_history: dict[str, Any] = field(default_factory=dict)
+    # Bounded stochastic simulation controls.
+    simulation_profile: dict[str, Any] = field(default_factory=dict)
+    # Optional metadata for negative clinical journeys.
+    negative_class: str | None = None
+    expected_escalation: str | None = None
+    expected_safe_outcome: str | None = None
 
 
 def create_jwt_token(subject: str = "test-patient-scenario") -> str:
@@ -533,6 +540,248 @@ def _avatar_msg(
 
 def _future(days: int) -> str:
     return (datetime.now() + timedelta(days=days)).isoformat()
+
+
+def _stable_seed(text: str) -> int:
+    digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
+    return int(digest[:8], 16)
+
+
+def _default_simulation_profile(name: str) -> dict[str, Any]:
+    return {
+        "seed": _stable_seed(name),
+        "variance_band": "low",
+        "allowed_branches": ["nominal", "handoff_delay", "context_gap"],
+    }
+
+
+def _is_transfer_step(step: dict[str, Any]) -> bool:
+    agent = str(step.get("agent", "")).strip().lower()
+    method = str(step.get("method", "")).strip().lower()
+    if agent in {"bed_manager", "discharge", "followup", "coordinator"}:
+        return True
+    transfer_tokens = ("handoff", "transfer", "admission", "discharge", "followup")
+    return any(token in method for token in transfer_tokens)
+
+
+def _infer_criticality(step: dict[str, Any]) -> str:
+    agent = str(step.get("agent", "")).strip().lower()
+    if agent in {
+        "triage",
+        "diagnosis",
+        "imaging",
+        "pharmacy",
+        "bed_manager",
+        "discharge",
+        "followup",
+        "coordinator",
+        "primary_care",
+        "specialty_care",
+        "telehealth",
+        "home_visit",
+        "ccm",
+        "clinician_avatar",
+        "transcriber",
+        "summariser",
+        "ehr_writer",
+        "provider_agent",
+        "insurer_agent",
+        "consent_analyser",
+        "hospital_reporter",
+        "central_surveillance",
+    }:
+        return "clinical"
+    return "administrative"
+
+
+def _default_required_handover_fields(step: dict[str, Any]) -> list[str]:
+    if not _is_transfer_step(step):
+        return []
+    return [
+        "handover.situation",
+        "handover.background",
+        "handover.assessment",
+        "handover.recommendation",
+        "handover.plan",
+        "handover.outstanding_tasks",
+        "handover.communication_needs",
+    ]
+
+
+def _default_escalation_path(step: dict[str, Any]) -> list[str]:
+    agent = str(step.get("agent", "")).strip().lower()
+    if agent in {"discharge", "bed_manager"}:
+        return ["care_coordinator", "senior_clinician", "hitl_ui"]
+    return ["care_coordinator", "hitl_ui"]
+
+
+def _default_max_wait_seconds(step: dict[str, Any]) -> int:
+    agent = str(step.get("agent", "")).strip().lower()
+    if agent in {"triage", "diagnosis", "discharge"}:
+        return 900
+    if _is_transfer_step(step):
+        return 1200
+    return 600
+
+
+def _default_safe_fallback_branch(step: dict[str, Any]) -> str | None:
+    agent = str(step.get("agent", "")).strip().lower()
+    if agent == "discharge":
+        return "admit_for_senior_review"
+    if agent == "followup":
+        return "manual_followup_queue"
+    if agent == "imaging":
+        return "diagnostic_reassessment"
+    return None
+
+
+def _normalize_handoff_policy(
+    step: dict[str, Any],
+    predecessor_agent: str | None,
+) -> dict[str, Any]:
+    policy = step.get("handoff_policy") if isinstance(step.get("handoff_policy"), dict) else {}
+    policy = dict(policy)
+
+    # Backward compatibility for legacy field name.
+    if "fallback_mode" not in policy and "fallback_action" in policy:
+        action = str(policy.get("fallback_action", "")).strip().lower()
+        mapping = {"fail": "block_escalate", "stub": "degraded_allow", "skip": "skip"}
+        policy["fallback_mode"] = mapping.get(action, "block_escalate")
+
+    policy.setdefault("criticality", _infer_criticality(step))
+    policy.setdefault("fallback_mode", "block_escalate")
+    policy.setdefault("required_predecessors", [])
+    policy.setdefault("optional_predecessors", [])
+    policy.setdefault("required_context_keys", [])
+    policy.setdefault("required_handover_fields", _default_required_handover_fields(step))
+    policy.setdefault("escalation_path", _default_escalation_path(step))
+    policy.setdefault("max_wait_seconds", _default_max_wait_seconds(step))
+    policy.setdefault("safe_fallback_branch", _default_safe_fallback_branch(step))
+    policy.setdefault(
+        "guideline_refs",
+        [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm",
+        ],
+    )
+
+    if predecessor_agent and not policy["required_predecessors"] and not policy["optional_predecessors"]:
+        policy["required_predecessors"] = [predecessor_agent]
+
+    # Only explicitly administrative steps may skip.
+    if policy.get("fallback_mode") == "skip" and policy.get("criticality") not in {
+        "administrative",
+        "admin",
+    }:
+        policy["fallback_mode"] = "block_escalate"
+
+    return policy
+
+
+def _apply_transition_ownership(step: dict[str, Any]) -> None:
+    params = step.get("params")
+    if not isinstance(params, dict):
+        return
+
+    if not _is_transfer_step(step):
+        return
+
+    agent = str(step.get("agent", "")).strip().lower()
+    owner_map = {
+        "bed_manager": "admitting_registrar",
+        "discharge": "discharging_clinician",
+        "followup": "discharge_coordinator",
+        "coordinator": "care_coordinator",
+    }
+    team_map = {
+        "bed_manager": "inpatient_team",
+        "discharge": "community_care_team",
+        "followup": "primary_care_team",
+        "coordinator": "multidisciplinary_team",
+    }
+    care_transition = params.get("care_transition")
+    if not isinstance(care_transition, dict):
+        care_transition = {}
+        params["care_transition"] = care_transition
+
+    care_transition.setdefault("handover_owner", owner_map.get(agent, "care_team"))
+    care_transition.setdefault("receiving_team", team_map.get(agent, "receiving_team"))
+    care_transition.setdefault("followup_responsibility", "primary_care_team")
+    care_transition.setdefault("receiving_provider_notified", True)
+
+    handover = care_transition.get("handover")
+    if not isinstance(handover, dict):
+        handover = {}
+        care_transition["handover"] = handover
+
+    handover.setdefault("situation", str(params.get("symptoms") or params.get("chief_complaint") or ""))
+    handover.setdefault("background", "Relevant history and context shared.")
+    handover.setdefault("assessment", "Clinical assessment documented.")
+    handover.setdefault("recommendation", "Proceed with receiving-team plan.")
+    handover.setdefault("plan", "Follow local pathway and monitor response.")
+    handover.setdefault("outstanding_tasks", ["Confirm plan ownership"])
+    handover.setdefault("communication_needs", "No specific communication barriers documented.")
+
+
+def enrich_scenario_handoff_contracts(scenarios: list[PatientScenario]) -> None:
+    """Normalize scenario contracts so each step has explicit safety metadata."""
+    for scenario in scenarios:
+        profile = _default_simulation_profile(scenario.name)
+        for key, value in profile.items():
+            scenario.simulation_profile.setdefault(key, value)
+
+        previous_agent: str | None = None
+        for step in scenario.journey_steps:
+            if not isinstance(step, dict):
+                continue
+            step["handoff_policy"] = _normalize_handoff_policy(step, previous_agent)
+            _apply_transition_ownership(step)
+            previous_agent = str(step.get("agent", "")).strip().lower() or previous_agent
+
+
+def _scenario_simulation_profile(scenario: PatientScenario) -> dict[str, Any]:
+    profile = dict(_default_simulation_profile(scenario.name))
+    profile.update(dict(getattr(scenario, "simulation_profile", {}) or {}))
+    env_seed = os.getenv("HELIXCARE_SIMULATION_SEED", "").strip()
+    if env_seed:
+        try:
+            profile["seed"] = int(env_seed)
+        except Exception:
+            profile["seed"] = _stable_seed(env_seed)
+    env_band = os.getenv("HELIXCARE_VARIANCE_BAND", "").strip().lower()
+    if env_band in {"low", "medium", "high"}:
+        profile["variance_band"] = env_band
+    return profile
+
+
+def _branch_probability(variance_band: str) -> float:
+    band = variance_band.strip().lower()
+    if band == "high":
+        return 0.35
+    if band == "medium":
+        return 0.2
+    return 0.08
+
+
+def _choose_simulation_branch(
+    *,
+    rng: random.Random,
+    profile: dict[str, Any],
+) -> str:
+    branches = list(profile.get("allowed_branches") or ["nominal"])
+    if "nominal" not in branches:
+        branches.insert(0, "nominal")
+    if len(branches) == 1:
+        return "nominal"
+
+    p_non_nominal = _branch_probability(str(profile.get("variance_band", "low")))
+    if rng.random() >= p_non_nominal:
+        return "nominal"
+
+    non_nominal = [b for b in branches if b != "nominal"]
+    return str(rng.choice(non_nominal)) if non_nominal else "nominal"
 
 
 SCENARIOS = [
@@ -1658,18 +1907,62 @@ SCENARIOS = [
     ),
 ]
 
+enrich_scenario_handoff_contracts(SCENARIOS)
+
 
 def _load_additional_scenarios() -> list[PatientScenario]:
     """Lazily load additive variants to avoid eager circular imports."""
     try:
         from additional_scenarios import ADDITIONAL_SCENARIOS
 
-        return list(ADDITIONAL_SCENARIOS)
+        loaded = list(ADDITIONAL_SCENARIOS)
+        enrich_scenario_handoff_contracts(loaded)
+        return loaded
     except Exception:
         try:
             from tools.additional_scenarios import ADDITIONAL_SCENARIOS
 
-            return list(ADDITIONAL_SCENARIOS)
+            loaded = list(ADDITIONAL_SCENARIOS)
+            enrich_scenario_handoff_contracts(loaded)
+            return loaded
+        except Exception:
+            return []
+
+
+def _load_clinical_negative_scenarios() -> list[PatientScenario]:
+    """Load explicit clinical-negative handoff scenarios (optional suite)."""
+    try:
+        from clinical_negative_scenarios import CLINICAL_NEGATIVE_SCENARIOS
+
+        loaded = list(CLINICAL_NEGATIVE_SCENARIOS)
+        enrich_scenario_handoff_contracts(loaded)
+        return loaded
+    except Exception:
+        try:
+            from tools.clinical_negative_scenarios import CLINICAL_NEGATIVE_SCENARIOS
+
+            loaded = list(CLINICAL_NEGATIVE_SCENARIOS)
+            enrich_scenario_handoff_contracts(loaded)
+            return loaded
+        except Exception:
+            return []
+
+
+def _load_representative_scenarios() -> list[PatientScenario]:
+    """Load expanded representative journeys (positive + clinical negatives)."""
+    try:
+        from representative_scenarios import REPRESENTATIVE_SCENARIOS
+
+        loaded = list(REPRESENTATIVE_SCENARIOS)
+        enrich_scenario_handoff_contracts(loaded)
+        return loaded
+    except Exception:
+        try:
+            from tools.representative_scenarios import REPRESENTATIVE_SCENARIOS
+
+            loaded = list(REPRESENTATIVE_SCENARIOS)
+            enrich_scenario_handoff_contracts(loaded)
+            return loaded
         except Exception:
             return []
 
@@ -1757,15 +2050,29 @@ async def run_scenario(scenario: PatientScenario) -> None:
         from delegation import (DelegationMonitor, HandoffResult,
                                 build_delegation_context, validate_handoff)
 
+    try:
+        from shared.nexus_common.clinical_handoff_rules import apply_nhs_guardrails
+    except Exception:
+        from clinical_handoff_rules import apply_nhs_guardrails  # type: ignore
+
+    profile = _scenario_simulation_profile(scenario)
+    rng = random.Random(int(profile.get("seed", _stable_seed(scenario.name))))
+
     monitor = DelegationMonitor()
     completed_agents: set[str] = set()
     failed_agents: set[str] = set()
+    guideline_refs_seen: set[str] = set()
 
     final_status = "final"
     prev_agent = "_start"
     for i, step in enumerate(scenario.journey_steps, 1):
         agent_alias = step["agent"]
         print(f"\nStep {i}/{len(scenario.journey_steps)}: {agent_alias.upper()}")
+
+        branch = _choose_simulation_branch(rng=rng, profile=profile)
+        if branch != "nominal":
+            print(f"   🎲 Simulation branch: {branch}")
+        clinical_context["_meta"]["simulation_branch"] = branch
 
         # ── Handoff validation (Delegation paper §4.5) ──
         handoff_policy = step.get("handoff_policy")
@@ -1786,9 +2093,77 @@ async def run_scenario(scenario: PatientScenario) -> None:
             rationale,
         )
 
+        if handoff_result.state == "retry_pending":
+            retry_after = handoff_result.retry_after_seconds or 0.0
+            wait_seconds = max(0.0, min(30.0, retry_after))
+            if wait_seconds > 0:
+                print(f"   ⏳ Retry hold for {wait_seconds:.1f}s before escalation check")
+                await asyncio.sleep(wait_seconds)
+            handoff_result = validate_handoff(
+                handoff_policy,
+                clinical_context,
+                completed_agents,
+                failed_agents,
+            )
+            monitor.record_handoff(
+                prev_agent,
+                agent_alias,
+                i,
+                handoff_result,
+                f"{rationale} (post-retry check)".strip(),
+            )
+
+        guardrail = apply_nhs_guardrails(
+            step=step,
+            handoff_policy=handoff_policy if isinstance(handoff_policy, dict) else None,
+            clinical_context=clinical_context,
+        )
+        guideline_refs_seen.update(guardrail.guideline_refs)
+        if handoff_result.allowed and not guardrail.allowed:
+            escalation_target = None
+            if isinstance(handoff_policy, dict):
+                escalation_path = handoff_policy.get("escalation_path")
+                if isinstance(escalation_path, list) and escalation_path:
+                    escalation_target = str(escalation_path[0])
+            if not escalation_target:
+                escalation_target = "care_coordinator"
+            handoff_result = HandoffResult(
+                allowed=False,
+                skipped=False,
+                state="blocked_escalated",
+                reason_code=guardrail.reason_code or "senior_review_required",
+                reason=guardrail.reason or "Safety guardrail blocked this handoff",
+                escalation_required=True,
+                escalation_target=escalation_target,
+                deadline_at=guardrail.senior_review_deadline,
+                guideline_refs=guardrail.guideline_refs,
+            )
+            monitor.record_handoff(
+                prev_agent,
+                agent_alias,
+                i,
+                handoff_result,
+                f"{rationale} (NHS guardrail)".strip(),
+            )
+
         if not handoff_result.allowed:
             if handoff_result.skipped:
                 print(f"   ⏭ {handoff_result.reason}")
+            elif handoff_result.state == "rerouted":
+                branch_name = ""
+                if isinstance(handoff_policy, dict):
+                    branch_name = str(handoff_policy.get("safe_fallback_branch") or "")
+                print(f"   ↪ {handoff_result.reason}")
+                if branch_name:
+                    clinical_context.setdefault("safe_fallback_branches", []).append(
+                        {
+                            "step": i,
+                            "agent": agent_alias,
+                            "branch": branch_name,
+                            "reason": handoff_result.reason,
+                        }
+                    )
+                    trace_run.safe_fallback_taken = True
             else:
                 print(f"   🚫 {handoff_result.reason}")
                 final_status = "error"
@@ -1811,6 +2186,12 @@ async def run_scenario(scenario: PatientScenario) -> None:
         # Existing agents that ignore this field remain unaffected
         step_params["clinical_context"] = clinical_context
         step_params["delegation"] = delegation_info
+        step_params["simulation"] = {
+            "seed": profile.get("seed"),
+            "variance_band": profile.get("variance_band"),
+            "allowed_branches": profile.get("allowed_branches"),
+            "selected_branch": branch,
+        }
         task_id = f"{visit_id}-{step['agent']}-{i}"
         rpc_url = resolve_agent_rpc_url(step["agent"])
 
@@ -1863,6 +2244,13 @@ async def run_scenario(scenario: PatientScenario) -> None:
                 "result": payload,
                 "index": i,
             }
+            params = step.get("params") if isinstance(step.get("params"), dict) else {}
+            transition = (
+                params.get("care_transition") if isinstance(params.get("care_transition"), dict) else {}
+            )
+            handover = transition.get("handover") if isinstance(transition.get("handover"), dict) else {}
+            if handover:
+                clinical_context["handover"] = handover
         except Exception:
             # Non-fatal; context threading is best-effort
             pass
@@ -1873,27 +2261,70 @@ async def run_scenario(scenario: PatientScenario) -> None:
 
     # Attach delegation chain to trace for dashboard rendering
     trace_run.delegation_chain = monitor.to_chain()
+    all_refs = set(guideline_refs_seen)
+    for item in trace_run.delegation_chain:
+        for ref in item.get("guideline_refs", []):
+            if ref:
+                all_refs.add(str(ref))
+    trace_run.guideline_refs = sorted(all_refs)
+    blocked_events = [e for e in trace_run.delegation_chain if e.get("state") == "blocked_escalated"]
+    degraded_events = [
+        e
+        for e in trace_run.delegation_chain
+        if e.get("state") in {"degraded_allowed", "rerouted", "retry_pending"}
+    ]
+    if blocked_events:
+        trace_run.handover_contract_status = "blocked"
+    elif degraded_events:
+        trace_run.handover_contract_status = "degraded"
+    else:
+        trace_run.handover_contract_status = "complete"
+    trigger_event = next((e for e in trace_run.delegation_chain if e.get("escalation_required")), None)
+    if trigger_event:
+        trace_run.escalation_trigger = str(trigger_event.get("reason_code") or "escalation_required")
+        trace_run.senior_review_deadline = trigger_event.get("deadline_at")
+    trace_run.safe_fallback_taken = bool(
+        trace_run.safe_fallback_taken
+        or any(bool(e.get("safe_fallback_taken")) for e in trace_run.delegation_chain)
+    )
     trace_run.finalize(status=final_status)
     await _post_trace_run(trace_run)
 
     skipped = monitor.skipped_count
     blocked = monitor.failed_count
+    retries = sum(1 for e in trace_run.delegation_chain if e.get("state") == "retry_pending")
+    rerouted = sum(1 for e in trace_run.delegation_chain if e.get("state") == "rerouted")
     print(f"\n✅ Scenario '{scenario.name}' completed!")
     print(f"   Duration: ~{scenario.expected_duration} seconds")
-    if skipped or blocked:
-        print(f"   Delegation: {skipped} skipped, {blocked} blocked")
+    if skipped or blocked or retries or rerouted:
+        print(
+            "   Delegation: "
+            f"{skipped} skipped, {blocked} blocked, {retries} retry-pending, {rerouted} rerouted"
+        )
     print("=" * 80)
 
 
 async def run_multiple_scenarios(
     scenario_names: list[str] | None = None,
     parallel: bool = False,
+    *,
+    include_clinical_negative: bool = False,
+    include_representative_expansion: bool = False,
 ) -> None:
     if scenario_names is None:
-        scenarios_to_run = SCENARIOS
+        scenarios_to_run = SCENARIOS + _load_additional_scenarios()
+        if include_clinical_negative:
+            scenarios_to_run = scenarios_to_run + _load_clinical_negative_scenarios()
+        if include_representative_expansion:
+            scenarios_to_run = scenarios_to_run + _load_representative_scenarios()
     else:
         combined = SCENARIOS + _load_additional_scenarios()
-        scenarios_to_run = [s for s in combined if s.name in scenario_names]
+        if include_clinical_negative:
+            combined = combined + _load_clinical_negative_scenarios()
+        if include_representative_expansion:
+            combined = combined + _load_representative_scenarios()
+        wanted = set(scenario_names)
+        scenarios_to_run = [s for s in combined if s.name in wanted]
 
     if not scenarios_to_run:
         print("❌ No matching scenarios found")
@@ -1940,6 +2371,10 @@ def save_scenarios_to_file() -> None:
                 "expected_duration": scenario.expected_duration,
                 # Include optional enriched history when present
                 "medical_history": getattr(scenario, "medical_history", {}),
+                "simulation_profile": getattr(scenario, "simulation_profile", {}),
+                "negative_class": getattr(scenario, "negative_class", None),
+                "expected_escalation": getattr(scenario, "expected_escalation", None),
+                "expected_safe_outcome": getattr(scenario, "expected_safe_outcome", None),
             }
         )
 
@@ -1973,6 +2408,26 @@ async def main() -> None:
             "Route agent RPC via on-demand gateway. Optional URL (default: http://localhost:8100)."
         ),
     )
+    parser.add_argument(
+        "--simulation-seed",
+        type=int,
+        help="Deterministic seed for bounded stochastic branch selection.",
+    )
+    parser.add_argument(
+        "--variance-band",
+        choices=["low", "medium", "high"],
+        help="Stochastic variance band (default from scenario profile).",
+    )
+    parser.add_argument(
+        "--include-clinical-negatives",
+        action="store_true",
+        help="Include explicit clinical-handoff negative journeys.",
+    )
+    parser.add_argument(
+        "--include-representative-expansion",
+        action="store_true",
+        help="Include expanded representative scenario corpus.",
+    )
 
     args = parser.parse_args()
 
@@ -1980,12 +2435,22 @@ async def main() -> None:
         configure_retry_mode(args.retry_mode)
     if args.gateway is not None:
         configure_gateway_url(args.gateway)
+    if args.simulation_seed is not None:
+        os.environ["HELIXCARE_SIMULATION_SEED"] = str(args.simulation_seed)
+    if args.variance_band:
+        os.environ["HELIXCARE_VARIANCE_BAND"] = args.variance_band
 
     print(f"⚙ Active retry profile: {ACTIVE_RETRY_MODE}")
     if ON_DEMAND_GATEWAY_URL:
         print(f"⚙ On-demand gateway routing: {ON_DEMAND_GATEWAY_URL}")
     else:
         print("⚙ On-demand gateway routing: disabled (direct agent ports)")
+    if os.getenv("HELIXCARE_SIMULATION_SEED"):
+        print(f"⚙ Simulation seed: {os.getenv('HELIXCARE_SIMULATION_SEED')}")
+    if os.getenv("HELIXCARE_VARIANCE_BAND"):
+        print(f"⚙ Variance band: {os.getenv('HELIXCARE_VARIANCE_BAND')}")
+    if args.include_representative_expansion:
+        print("⚙ Representative expansion: enabled")
 
     if args.save:
         save_scenarios_to_file()
@@ -1998,10 +2463,20 @@ async def main() -> None:
     if args.run:
         scenarios_to_run = args.run
     elif args.all:
-        scenarios_to_run = [s.name for s in SCENARIOS]
+        combined = SCENARIOS + _load_additional_scenarios()
+        if args.include_clinical_negatives:
+            combined.extend(_load_clinical_negative_scenarios())
+        if args.include_representative_expansion:
+            combined.extend(_load_representative_scenarios())
+        scenarios_to_run = [s.name for s in combined]
 
     if scenarios_to_run:
-        await run_multiple_scenarios(scenarios_to_run, args.parallel)
+        await run_multiple_scenarios(
+            scenarios_to_run,
+            args.parallel,
+            include_clinical_negative=args.include_clinical_negatives,
+            include_representative_expansion=args.include_representative_expansion,
+        )
         return
 
     print("Use --list to see available scenarios")
@@ -2011,5 +2486,4 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
     asyncio.run(main())
