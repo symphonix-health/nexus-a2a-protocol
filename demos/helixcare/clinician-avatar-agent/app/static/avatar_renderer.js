@@ -35,7 +35,13 @@ window.AvatarRenderer = (() => {
 
   let _currentSources = AVATAR_SOURCES.male_black;
 
-  // No hardcoded mouth position — morph only fires once landmarks are detected.
+  // Fallback mouth position used until MediaPipe detects real landmarks.
+  // Proportional to canvas size so it works at any resolution.
+  // Calibrated for the standard head-shot clinician videos (face centred,
+  // mouth at ~65 % of canvas height, ~10 % half-width).
+  function _fallbackMouthLm(w, h) {
+    return { cx: w * 0.50, cy: h * 0.655, halfW: w * 0.100 };
+  }
 
   // ── Core state ─────────────────────────────────────────────────────────────
   let videoEl  = null;
@@ -262,20 +268,21 @@ window.AvatarRenderer = (() => {
     }
 
     const intensity = _speaking;
+    const activeLm  = _mouthLm || _fallbackMouthLm(w, h);
 
-    // ── Layer 2: driven jaw morph (only when landmarks are known) ────────────
-    if (intensity > 0.02 && _mouthLm) {
-      _applyJawMorph(_mouthLm.cx, _mouthLm.cy, _mouthLm.halfW, w, h, intensity);
+    // ── Layer 2: driven jaw morph ─────────────────────────────────────────────
+    if (intensity > 0.02) {
+      _applyJawMorph(activeLm.cx, activeLm.cy, activeLm.halfW, w, h, intensity);
     }
 
-    // ── Layer 3a: thinking — pulsing cyan ellipse (only if mouth known) ─────
-    if (_state === 'thinking' && _mouthLm) {
+    // ── Layer 3a: thinking — pulsing cyan ellipse ─────────────────────────────
+    if (_state === 'thinking') {
       const pulse = 0.5 + 0.5 * Math.sin(_blinkT / 400);
       ctx.save();
       ctx.strokeStyle = `rgba(56,189,248,${(0.65 * pulse).toFixed(3)})`;
       ctx.lineWidth   = 2.5;
       ctx.beginPath();
-      ctx.ellipse(_mouthLm.cx, _mouthLm.cy, 30 + pulse * 9, 13 + pulse * 5, 0, 0, Math.PI * 2);
+      ctx.ellipse(activeLm.cx, activeLm.cy, 30 + pulse * 9, 13 + pulse * 5, 0, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
     }
