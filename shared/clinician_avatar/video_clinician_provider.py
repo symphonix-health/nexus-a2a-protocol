@@ -13,7 +13,7 @@ from io import BytesIO
 from typing import Any
 
 
-def _simple_viseme_timeline(text: str) -> list[dict[str, float | str]]:
+def simple_viseme_timeline(text: str) -> list[dict[str, float | str]]:
     words = [w for w in text.split() if w.strip()]
     if not words:
         return [{"time_ms": 0.0, "viseme": "sil", "weight": 0.0}]
@@ -35,6 +35,11 @@ def _simple_viseme_timeline(text: str) -> list[dict[str, float | str]]:
         t += 190.0
     timeline.append({"time_ms": t + 120.0, "viseme": "sil", "weight": 0.0})
     return timeline
+
+
+def has_openai_tts() -> bool:
+    """Return True if OPENAI_API_KEY is set and real TTS synthesis is available."""
+    return bool(os.getenv("OPENAI_API_KEY"))
 
 
 def _generate_fallback_speech_wav_b64(text: str, duration_seconds: float = 1.4) -> str:
@@ -147,9 +152,10 @@ class LocalGpuVideoClinicianProvider(VideoClinicianProvider):
                 "video": {"mode": "audio_only", "renderer": "local"},
             }
 
-        audio_b64 = _synthesize_openai_tts_wav_b64(clean_text, voice)
-        if not audio_b64:
-            audio_b64 = _generate_fallback_speech_wav_b64(clean_text)
+        # When OPENAI_API_KEY is absent, audio_b64 is intentionally empty.
+        # The /api/tts/stream WebSocket sends synthetic_fallback so the browser
+        # uses its own SpeechSynthesis — no robotic sine-wave fallback.
+        audio_b64 = _synthesize_openai_tts_wav_b64(clean_text, voice) or ""
 
         return {
             "provider": self.provider_id,
@@ -158,7 +164,7 @@ class LocalGpuVideoClinicianProvider(VideoClinicianProvider):
                 "mime_type": "audio/wav",
                 "audio_b64": audio_b64,
                 "text": clean_text,
-                "visemes": _simple_viseme_timeline(clean_text),
+                "visemes": simple_viseme_timeline(clean_text),
             },
             "video": {
                 "mode": "audio_only",
@@ -206,7 +212,7 @@ class _RemoteJsonVideoClinicianProvider(VideoClinicianProvider):
             else data.get("visemes")
         )
         if not isinstance(visemes, list):
-            visemes = _simple_viseme_timeline(speech_text)
+            visemes = simple_viseme_timeline(speech_text)
 
         video = data.get("video") if isinstance(data.get("video"), dict) else {}
         if not video:
@@ -293,6 +299,39 @@ class SyncVideoClinicianProvider(_RemoteJsonVideoClinicianProvider):
     provider_id = "sync"
     endpoint_env = "SYNC_VIDEO_CLINICIAN_ENDPOINT"
     api_key_env = "SYNC_API_KEY"
+
+
+async def stream_tts_chunks(text: str, voice: str = "alloy"):
+    """Async generator yielding raw PCM chunks (24 kHz, 16-bit, mono, little-endian).
+
+    Yields nothing when OPENAI_API_KEY is absent or the API call fails.
+    The caller (WebSocket handler) detects zero chunks and sends a
+    ``synthetic_fallback`` message so the browser uses SpeechSynthesis instead.
+    """
+    clean = str(text or "").strip()
+    if not clean:
+        return
+
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        return  # no key — WebSocket handler will send synthetic_fallback
+
+    try:
+        from openai import AsyncOpenAI
+
+        client = AsyncOpenAI(api_key=api_key)
+        model = os.getenv("OPENAI_TTS_MODEL", "gpt-4o-mini-tts")
+        chosen_voice = voice or os.getenv("OPENAI_TTS_VOICE", "alloy")
+        async with client.audio.speech.with_streaming_response.create(
+            model=model,
+            voice=chosen_voice,
+            input=clean,
+            response_format="pcm",  # raw 24 kHz 16-bit mono PCM
+        ) as response:
+            async for chunk in response.iter_bytes(chunk_size=4800):
+                yield chunk
+    except Exception:  # noqa: BLE001
+        return  # API failure — WebSocket handler detects zero chunks → synthetic_fallback
 
 
 def get_video_clinician_provider() -> VideoClinicianProvider:

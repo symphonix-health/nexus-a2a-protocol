@@ -1,0 +1,774 @@
+{
+  "$schema": "nexus:agent-personas:v1",
+  "description": "Maps each NEXUS agent to its clinical persona and IAM identity configuration. Agents are modelled as Entra ID Service Principals (or equivalent in other identity providers) assigned to security groups that control access delegation.",
+  "iam_groups": {
+    "nexus-clinical-high": {
+      "description": "High-privilege clinical agents — direct patient care, prescribing, diagnosis. Entra role: clinician_service / RBAC level High.",
+      "bulletrain_role": "clinician_service",
+      "rbac_level": "High",
+      "members": ["triage_agent", "diagnosis_agent", "imaging_agent", "pharmacy_agent", "discharge_agent", "primary_care_agent", "specialty_care_agent", "telehealth_agent", "clinician_avatar_agent"]
+    },
+    "nexus-clinical-medium": {
+      "description": "Standard clinical support agents — observations, care coordination, home visits.",
+      "bulletrain_role": "clinician_service",
+      "rbac_level": "Medium",
+      "members": ["bed_manager_agent", "followup_scheduler", "care_coordinator", "home_visit_agent", "ccm_agent", "transcriber_agent"]
+    },
+    "nexus-operations": {
+      "description": "Operational and administrative agents — scheduling, records, bed management.",
+      "bulletrain_role": "patient_service",
+      "rbac_level": "Restricted",
+      "members": ["followup_scheduler", "bed_manager_agent", "summariser_agent", "ehr_writer_agent"]
+    },
+    "nexus-governance": {
+      "description": "Audit, consent, and compliance agents — read-only clinical data access.",
+      "bulletrain_role": "auditor",
+      "rbac_level": "High",
+      "members": ["consent_analyser", "hospital_reporter", "central_surveillance"]
+    },
+    "nexus-connector": {
+      "description": "Integration bridge agents — FHIR/HL7 mediators, external gateways.",
+      "bulletrain_role": "connector",
+      "rbac_level": "High",
+      "members": ["openhie_mediator", "insurer_agent", "provider_agent"]
+    },
+    "nexus-intelligence": {
+      "description": "Intelligence and surveillance agents — OSINT, public health reporting.",
+      "bulletrain_role": "auditor",
+      "rbac_level": "Restricted",
+      "members": ["osint_agent"]
+    }
+  },
+  "agents": {
+    "triage_agent": {
+      "port": 8021,
+      "primary_persona_id": "P004",
+      "persona_name": "Triage Nurse",
+      "alternate_personas": {
+        "usa": "P016",
+        "kenya": "P028"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS Triage Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-clinical-high"],
+        "delegated_scopes": ["patient.read", "encounter.write", "observation.write", "servicerequest.write"],
+        "can_delegate_to": ["diagnosis_agent", "care_coordinator"],
+        "can_receive_delegation_from": ["clinician_avatar_agent", "care_coordinator"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": false,
+          "receive_sms": false,
+          "receive_email": false
+        },
+        "purpose_of_use": "Treatment",
+        "autonomous_actions": ["triage_assessment", "priority_assignment", "lab_order_trigger"]
+      },
+      "avatar_style": {
+        "communication_style": "calm, efficient, and reassuring",
+        "specialty": "emergency triage"
+      },
+      "scenario_roles": {
+        "primary": ["chest_pain_cardiac", "sepsis_deterioration", "trauma_multiinjury", "stroke_thrombolysis", "paediatric_respiratory", "mental_health_crisis", "obstetric_emergency", "renal_failure"],
+        "secondary": []
+      }
+    },
+    "diagnosis_agent": {
+      "port": 8022,
+      "primary_persona_id": "P001",
+      "persona_name": "Consultant Physician",
+      "alternate_personas": {
+        "usa": "P014",
+        "kenya": "P026"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS Diagnosis Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-clinical-high"],
+        "delegated_scopes": ["patient.read", "encounter.read", "observation.read", "diagnosticreport.read", "medicationrequest.read", "consent.read", "encounter.write", "observation.write", "medicationrequest.write"],
+        "can_delegate_to": ["imaging_agent", "pharmacy_agent", "care_coordinator", "discharge_agent"],
+        "can_receive_delegation_from": ["triage_agent", "clinician_avatar_agent", "care_coordinator"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": true,
+          "receive_sms": false,
+          "receive_email": true,
+          "email_scope": "Referral letters, clinical summaries to secondary care"
+        },
+        "purpose_of_use": "Treatment",
+        "autonomous_actions": ["differential_diagnosis", "investigation_ordering", "treatment_plan_creation", "specialist_referral"]
+      },
+      "avatar_style": {
+        "communication_style": "authoritative, empathetic, and precise",
+        "specialty": "general internal medicine"
+      },
+      "scenario_roles": {
+        "primary": ["chest_pain_cardiac", "sepsis_deterioration", "stroke_thrombolysis", "renal_failure", "oncology_emergencies"],
+        "secondary": ["trauma_multiinjury", "paediatric_respiratory", "mental_health_crisis", "obstetric_emergency", "frailty_discharge"]
+      }
+    },
+    "openhie_mediator": {
+      "port": 8023,
+      "primary_persona_id": "P056",
+      "persona_name": "Integration Engine Operator",
+      "alternate_personas": {},
+      "iam": {
+        "entra_display_name": "NEXUS OpenHIE Mediator",
+        "entra_app_id": null,
+        "groups": ["nexus-connector"],
+        "delegated_scopes": ["system/*.read", "system/*.write"],
+        "can_delegate_to": [],
+        "can_receive_delegation_from": ["triage_agent", "diagnosis_agent"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": false,
+          "receive_sms": false,
+          "receive_email": false
+        },
+        "purpose_of_use": "System",
+        "autonomous_actions": ["hl7v2_routing", "fhir_transform", "message_acknowledgement"]
+      },
+      "scenario_roles": {
+        "primary": [],
+        "secondary": ["chest_pain_cardiac", "sepsis_deterioration", "trauma_multiinjury"]
+      }
+    },
+    "imaging_agent": {
+      "port": 8024,
+      "primary_persona_id": "P005",
+      "persona_name": "Radiologist",
+      "alternate_personas": {
+        "usa": "P020",
+        "kenya": "P032"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS Imaging Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-clinical-high"],
+        "delegated_scopes": ["patient.read", "diagnosticreport.read", "imagingstudy.read", "servicerequest.read", "diagnosticreport.write"],
+        "can_delegate_to": ["diagnosis_agent", "care_coordinator"],
+        "can_receive_delegation_from": ["diagnosis_agent", "triage_agent"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": true,
+          "receive_sms": false,
+          "receive_email": false,
+          "email_scope": "Radiological report delivery to requesting clinician"
+        },
+        "purpose_of_use": "Treatment",
+        "autonomous_actions": ["imaging_report_creation", "critical_finding_escalation"]
+      },
+      "avatar_style": {
+        "communication_style": "analytical and detail-oriented",
+        "specialty": "diagnostic radiology"
+      },
+      "scenario_roles": {
+        "primary": ["chest_pain_cardiac", "stroke_thrombolysis", "trauma_multiinjury"],
+        "secondary": ["sepsis_deterioration", "renal_failure", "oncology_emergencies"]
+      }
+    },
+    "pharmacy_agent": {
+      "port": 8025,
+      "primary_persona_id": "P007",
+      "persona_name": "Pharmacist",
+      "alternate_personas": {
+        "usa": "P018",
+        "kenya": "P030"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS Pharmacy Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-clinical-high"],
+        "delegated_scopes": ["patient.read", "medicationrequest.read", "medicationdispense.read", "medicationdispense.write"],
+        "can_delegate_to": ["diagnosis_agent", "care_coordinator"],
+        "can_receive_delegation_from": ["diagnosis_agent", "discharge_agent"],
+        "communication_permissions": {
+          "send_sms": true,
+          "send_email": false,
+          "receive_sms": false,
+          "receive_email": false,
+          "sms_scope": "Medication ready / collection notification to patient"
+        },
+        "purpose_of_use": "Treatment",
+        "autonomous_actions": ["medication_dispensing", "interaction_check", "allergy_alert", "reconciliation"]
+      },
+      "avatar_style": {
+        "communication_style": "thorough, safety-focused, and friendly",
+        "specialty": "clinical pharmacy"
+      },
+      "scenario_roles": {
+        "primary": ["renal_failure", "oncology_emergencies", "frailty_discharge"],
+        "secondary": ["chest_pain_cardiac", "sepsis_deterioration", "mental_health_crisis"]
+      }
+    },
+    "bed_manager_agent": {
+      "port": 8026,
+      "primary_persona_id": "P045",
+      "persona_name": "Bed Manager",
+      "alternate_personas": {},
+      "iam": {
+        "entra_display_name": "NEXUS Bed Manager Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-clinical-medium", "nexus-operations"],
+        "delegated_scopes": ["patient.read", "appointment.read", "appointment.write"],
+        "can_delegate_to": ["care_coordinator", "discharge_agent"],
+        "can_receive_delegation_from": ["triage_agent", "diagnosis_agent", "care_coordinator"],
+        "communication_permissions": {
+          "send_sms": true,
+          "send_email": true,
+          "receive_sms": false,
+          "receive_email": true,
+          "sms_scope": "Bed availability alerts to ward staff",
+          "email_scope": "Capacity reports to management"
+        },
+        "purpose_of_use": "Healthcare Operations",
+        "autonomous_actions": ["bed_allocation", "capacity_reporting", "transfer_coordination"]
+      },
+      "scenario_roles": {
+        "primary": ["frailty_discharge", "sepsis_deterioration", "trauma_multiinjury"],
+        "secondary": ["chest_pain_cardiac", "obstetric_emergency", "renal_failure"]
+      }
+    },
+    "discharge_agent": {
+      "port": 8027,
+      "primary_persona_id": "P001",
+      "persona_name": "Consultant Physician",
+      "alternate_personas": {
+        "usa": "P043",
+        "kenya": "P026"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS Discharge Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-clinical-high"],
+        "delegated_scopes": ["patient.read", "encounter.read", "encounter.write", "medicationrequest.read", "consent.read"],
+        "can_delegate_to": ["followup_scheduler", "pharmacy_agent", "care_coordinator"],
+        "can_receive_delegation_from": ["diagnosis_agent", "care_coordinator"],
+        "communication_permissions": {
+          "send_sms": true,
+          "send_email": true,
+          "receive_sms": false,
+          "receive_email": false,
+          "sms_scope": "Discharge notification to patient",
+          "email_scope": "Discharge summary to GP / primary care"
+        },
+        "purpose_of_use": "Treatment",
+        "autonomous_actions": ["discharge_planning", "gp_referral_letter", "medication_reconciliation", "patient_notification"]
+      },
+      "scenario_roles": {
+        "primary": ["frailty_discharge", "chest_pain_cardiac", "sepsis_deterioration"],
+        "secondary": ["stroke_thrombolysis", "renal_failure", "oncology_emergencies"]
+      }
+    },
+    "followup_scheduler": {
+      "port": 8028,
+      "primary_persona_id": "P021",
+      "persona_name": "Care Coordinator",
+      "alternate_personas": {
+        "uk": "P011",
+        "kenya": "P036"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS Follow-up Scheduler",
+        "entra_app_id": null,
+        "groups": ["nexus-clinical-medium", "nexus-operations"],
+        "delegated_scopes": ["patient.read", "appointment.read", "appointment.write"],
+        "can_delegate_to": [],
+        "can_receive_delegation_from": ["discharge_agent", "care_coordinator", "diagnosis_agent"],
+        "communication_permissions": {
+          "send_sms": true,
+          "send_email": true,
+          "receive_sms": true,
+          "receive_email": true,
+          "sms_scope": "Appointment reminders, confirmations, cancellation links",
+          "email_scope": "Appointment letters, pre-appointment instructions"
+        },
+        "purpose_of_use": "Healthcare Operations",
+        "autonomous_actions": ["appointment_booking", "reminder_dispatch", "waitlist_management", "no_show_rescheduling"]
+      },
+      "scenario_roles": {
+        "primary": ["frailty_discharge", "oncology_emergencies", "renal_failure"],
+        "secondary": ["chest_pain_cardiac", "stroke_thrombolysis", "paediatric_respiratory"]
+      }
+    },
+    "care_coordinator": {
+      "port": 8029,
+      "primary_persona_id": "P021",
+      "persona_name": "Care Coordinator",
+      "alternate_personas": {
+        "uk": "P066",
+        "usa": "P043",
+        "kenya": "P036"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS Care Coordinator",
+        "entra_app_id": null,
+        "groups": ["nexus-clinical-medium"],
+        "delegated_scopes": ["patient.read", "encounter.read", "observation.read", "careplan.read", "careplan.write", "appointment.write"],
+        "can_delegate_to": ["triage_agent", "diagnosis_agent", "imaging_agent", "pharmacy_agent", "bed_manager_agent", "discharge_agent", "followup_scheduler"],
+        "can_receive_delegation_from": ["clinician_avatar_agent", "diagnosis_agent"],
+        "communication_permissions": {
+          "send_sms": true,
+          "send_email": true,
+          "receive_sms": true,
+          "receive_email": true,
+          "sms_scope": "Care plan updates, urgent alerts to patient/carer",
+          "email_scope": "Multi-disciplinary team (MDT) coordination, care plan sharing"
+        },
+        "purpose_of_use": "Treatment",
+        "autonomous_actions": ["care_plan_orchestration", "mdt_coordination", "referral_management", "escalation", "delegation_to_specialist"]
+      },
+      "scenario_roles": {
+        "primary": ["frailty_discharge", "oncology_emergencies", "renal_failure", "mental_health_crisis"],
+        "secondary": ["chest_pain_cardiac", "sepsis_deterioration", "paediatric_respiratory", "obstetric_emergency"]
+      }
+    },
+    "transcriber_agent": {
+      "port": 8031,
+      "primary_persona_id": "P050",
+      "persona_name": "Clinical Documentation Improvement Specialist",
+      "alternate_personas": {},
+      "iam": {
+        "entra_display_name": "NEXUS Transcriber Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-clinical-medium", "nexus-operations"],
+        "delegated_scopes": ["patient.read", "encounter.read", "documentreference.write"],
+        "can_delegate_to": ["summariser_agent", "ehr_writer_agent"],
+        "can_receive_delegation_from": ["clinician_avatar_agent"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": false,
+          "receive_sms": false,
+          "receive_email": false
+        },
+        "purpose_of_use": "Healthcare Operations",
+        "autonomous_actions": ["audio_transcription", "clinical_coding_suggestion"]
+      },
+      "scenario_roles": {
+        "primary": [],
+        "secondary": ["chest_pain_cardiac", "sepsis_deterioration", "mental_health_crisis"]
+      }
+    },
+    "summariser_agent": {
+      "port": 8032,
+      "primary_persona_id": "P050",
+      "persona_name": "Clinical Documentation Improvement Specialist",
+      "alternate_personas": {},
+      "iam": {
+        "entra_display_name": "NEXUS Summariser Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-operations"],
+        "delegated_scopes": ["patient.read", "encounter.read", "documentreference.read", "documentreference.write"],
+        "can_delegate_to": ["ehr_writer_agent"],
+        "can_receive_delegation_from": ["transcriber_agent", "diagnosis_agent"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": false,
+          "receive_sms": false,
+          "receive_email": false
+        },
+        "purpose_of_use": "Healthcare Operations",
+        "autonomous_actions": ["note_summarisation", "clinical_handover_generation"]
+      },
+      "scenario_roles": {
+        "primary": [],
+        "secondary": ["chest_pain_cardiac", "frailty_discharge"]
+      }
+    },
+    "ehr_writer_agent": {
+      "port": 8033,
+      "primary_persona_id": "P010",
+      "persona_name": "Health Records Officer",
+      "alternate_personas": {
+        "usa": "P023",
+        "kenya": "P033"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS EHR Writer Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-operations"],
+        "delegated_scopes": ["patient.read", "documentreference.read", "documentreference.write", "encounter.write"],
+        "can_delegate_to": [],
+        "can_receive_delegation_from": ["summariser_agent", "transcriber_agent", "diagnosis_agent"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": false,
+          "receive_sms": false,
+          "receive_email": false
+        },
+        "purpose_of_use": "Healthcare Operations",
+        "autonomous_actions": ["ehr_record_write", "document_indexing", "amendment_logging"]
+      },
+      "scenario_roles": {
+        "primary": [],
+        "secondary": ["chest_pain_cardiac", "frailty_discharge", "mental_health_crisis"]
+      }
+    },
+    "primary_care_agent": {
+      "port": 8034,
+      "primary_persona_id": "P002",
+      "persona_name": "GP (General Practitioner)",
+      "alternate_personas": {
+        "usa": "P017",
+        "kenya": "P027"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS Primary Care Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-clinical-high"],
+        "delegated_scopes": ["patient.read", "encounter.read", "observation.read", "medicationrequest.read", "consent.read", "encounter.write", "observation.write", "medicationrequest.write"],
+        "can_delegate_to": ["specialty_care_agent", "imaging_agent", "pharmacy_agent"],
+        "can_receive_delegation_from": ["discharge_agent", "telehealth_agent"],
+        "communication_permissions": {
+          "send_sms": true,
+          "send_email": true,
+          "receive_sms": false,
+          "receive_email": true,
+          "sms_scope": "Test results, appointment notifications to patient",
+          "email_scope": "GP referral letters, discharge summaries received from hospital"
+        },
+        "purpose_of_use": "Treatment",
+        "autonomous_actions": ["consultation_recording", "prescribing", "specialist_referral", "repeat_prescription"]
+      },
+      "scenario_roles": {
+        "primary": ["frailty_discharge", "renal_failure", "oncology_emergencies"],
+        "secondary": ["chest_pain_cardiac", "mental_health_crisis"]
+      }
+    },
+    "specialty_care_agent": {
+      "port": 8035,
+      "primary_persona_id": "P001",
+      "persona_name": "Consultant Physician",
+      "alternate_personas": {
+        "usa": "P037",
+        "kenya": "P026"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS Specialty Care Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-clinical-high"],
+        "delegated_scopes": ["patient.read", "encounter.read", "observation.read", "diagnosticreport.read", "medicationrequest.read", "consent.read", "encounter.write", "observation.write", "medicationrequest.write"],
+        "can_delegate_to": ["imaging_agent", "pharmacy_agent", "care_coordinator"],
+        "can_receive_delegation_from": ["primary_care_agent", "diagnosis_agent"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": true,
+          "receive_sms": false,
+          "receive_email": true,
+          "email_scope": "Specialist letters, second opinion communications"
+        },
+        "purpose_of_use": "Treatment",
+        "autonomous_actions": ["specialist_consultation", "subspecialty_referral", "multidisciplinary_opinion"]
+      },
+      "scenario_roles": {
+        "primary": ["chest_pain_cardiac", "stroke_thrombolysis", "oncology_emergencies"],
+        "secondary": ["sepsis_deterioration", "renal_failure", "mental_health_crisis"]
+      }
+    },
+    "telehealth_agent": {
+      "port": 8036,
+      "primary_persona_id": "P048",
+      "persona_name": "Telehealth Clinician",
+      "alternate_personas": {
+        "usa": "P017",
+        "kenya": "P048"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS Telehealth Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-clinical-high"],
+        "delegated_scopes": ["patient.read", "encounter.read", "observation.read", "medicationrequest.read", "encounter.write", "observation.write"],
+        "can_delegate_to": ["primary_care_agent", "specialty_care_agent", "imaging_agent"],
+        "can_receive_delegation_from": ["care_coordinator", "clinician_avatar_agent"],
+        "communication_permissions": {
+          "send_sms": true,
+          "send_email": true,
+          "receive_sms": false,
+          "receive_email": true,
+          "sms_scope": "Video call link, post-consultation summary",
+          "email_scope": "Consultation notes, follow-up instructions"
+        },
+        "purpose_of_use": "Treatment",
+        "autonomous_actions": ["remote_consultation", "e_prescription", "video_call_initiation", "async_messaging"]
+      },
+      "scenario_roles": {
+        "primary": ["frailty_discharge"],
+        "secondary": ["renal_failure", "mental_health_crisis", "oncology_emergencies"]
+      }
+    },
+    "home_visit_agent": {
+      "port": 8037,
+      "primary_persona_id": "P049",
+      "persona_name": "Home Care Nurse",
+      "alternate_personas": {
+        "uk": "P003",
+        "kenya": "P028"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS Home Visit Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-clinical-medium"],
+        "delegated_scopes": ["patient.read", "observation.read", "encounter.read", "observation.write", "encounter.write"],
+        "can_delegate_to": ["care_coordinator", "primary_care_agent"],
+        "can_receive_delegation_from": ["care_coordinator", "discharge_agent"],
+        "communication_permissions": {
+          "send_sms": true,
+          "send_email": false,
+          "receive_sms": true,
+          "receive_email": false,
+          "sms_scope": "Visit confirmation, clinical alerts to supervising clinician"
+        },
+        "purpose_of_use": "Treatment",
+        "autonomous_actions": ["home_assessment", "vital_recording", "escalation_alert", "wound_care_documentation"]
+      },
+      "scenario_roles": {
+        "primary": ["frailty_discharge"],
+        "secondary": ["renal_failure", "oncology_emergencies"]
+      }
+    },
+    "ccm_agent": {
+      "port": 8038,
+      "primary_persona_id": "P043",
+      "persona_name": "Case Manager",
+      "alternate_personas": {
+        "uk": "P021",
+        "kenya": "P036"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS CCM Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-clinical-medium"],
+        "delegated_scopes": ["patient.read", "encounter.read", "careplan.read", "careplan.write", "observation.read"],
+        "can_delegate_to": ["primary_care_agent", "specialty_care_agent", "followup_scheduler"],
+        "can_receive_delegation_from": ["care_coordinator", "discharge_agent"],
+        "communication_permissions": {
+          "send_sms": true,
+          "send_email": true,
+          "receive_sms": true,
+          "receive_email": true,
+          "sms_scope": "Chronic condition check-in, medication adherence reminders",
+          "email_scope": "Monthly care summaries, condition management updates"
+        },
+        "purpose_of_use": "Treatment",
+        "autonomous_actions": ["chronic_condition_monitoring", "medication_adherence_tracking", "care_plan_update", "proactive_outreach"]
+      },
+      "scenario_roles": {
+        "primary": ["renal_failure", "oncology_emergencies", "frailty_discharge"],
+        "secondary": ["mental_health_crisis"]
+      }
+    },
+    "clinician_avatar_agent": {
+      "port": 8039,
+      "primary_persona_id": "P001",
+      "persona_name": "Consultant Physician",
+      "alternate_personas": {
+        "uk_primary_care": "P002",
+        "uk_telehealth": "P048",
+        "usa": "P014",
+        "usa_emergency": "P037",
+        "kenya": "P026",
+        "mental_health": "P065",
+        "midwifery": "P009"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS Clinician Avatar",
+        "entra_app_id": null,
+        "groups": ["nexus-clinical-high"],
+        "delegated_scopes": ["patient.read", "encounter.read", "observation.read", "encounter.write", "observation.write"],
+        "can_delegate_to": ["triage_agent", "diagnosis_agent", "care_coordinator", "telehealth_agent"],
+        "can_receive_delegation_from": [],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": false,
+          "receive_sms": false,
+          "receive_email": false,
+          "note": "Avatar is patient-facing only; communication is via embedded UI, not external channels"
+        },
+        "purpose_of_use": "Treatment",
+        "autonomous_actions": ["patient_consultation", "clinical_history_taking", "framework_guided_interview", "session_handover_to_agent"]
+      },
+      "avatar_style": {
+        "communication_style": "warm, empathetic, and precise",
+        "specialty": "general medicine",
+        "media_assets": {
+          "video": ["Black male clinician.mp4", "Black male clinician 2.mp4"],
+          "image": ["Black male clinicianx4 b.png"]
+        }
+      },
+      "scenario_roles": {
+        "primary": ["chest_pain_cardiac", "sepsis_deterioration", "stroke_thrombolysis", "paediatric_respiratory", "mental_health_crisis", "obstetric_emergency", "renal_failure", "oncology_emergencies", "frailty_discharge", "trauma_multiinjury"],
+        "secondary": []
+      }
+    },
+    "insurer_agent": {
+      "port": 8041,
+      "primary_persona_id": "P022",
+      "persona_name": "Billing / Claims Specialist",
+      "alternate_personas": {},
+      "iam": {
+        "entra_display_name": "NEXUS Insurer Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-connector"],
+        "delegated_scopes": ["patient.read", "medicationrequest.read", "diagnosticreport.read", "consent.read"],
+        "can_delegate_to": [],
+        "can_receive_delegation_from": ["provider_agent"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": true,
+          "receive_sms": false,
+          "receive_email": true,
+          "email_scope": "Prior authorisation responses, claims adjudication notices"
+        },
+        "purpose_of_use": "Payment",
+        "autonomous_actions": ["prior_auth_review", "claims_processing", "coverage_verification"]
+      },
+      "scenario_roles": {
+        "primary": [],
+        "secondary": ["chest_pain_cardiac", "renal_failure", "oncology_emergencies"]
+      }
+    },
+    "provider_agent": {
+      "port": 8042,
+      "primary_persona_id": "P001",
+      "persona_name": "Consultant Physician",
+      "alternate_personas": {
+        "usa": "P014"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS Provider Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-connector"],
+        "delegated_scopes": ["patient.read", "encounter.read", "medicationrequest.read", "consent.read"],
+        "can_delegate_to": ["insurer_agent"],
+        "can_receive_delegation_from": ["diagnosis_agent"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": true,
+          "receive_sms": false,
+          "receive_email": true,
+          "email_scope": "Prior auth requests, clinical justification to payer"
+        },
+        "purpose_of_use": "Payment",
+        "autonomous_actions": ["prior_auth_request", "clinical_necessity_documentation"]
+      },
+      "scenario_roles": {
+        "primary": [],
+        "secondary": ["chest_pain_cardiac", "renal_failure"]
+      }
+    },
+    "consent_analyser": {
+      "port": 8043,
+      "primary_persona_id": "P013",
+      "persona_name": "Caldicott Guardian / Privacy Officer",
+      "alternate_personas": {
+        "usa": "P024",
+        "uk_consent": "P053"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS Consent Analyser",
+        "entra_app_id": null,
+        "groups": ["nexus-governance"],
+        "delegated_scopes": ["consent.read", "audit.read", "patient.read"],
+        "can_delegate_to": [],
+        "can_receive_delegation_from": ["provider_agent", "insurer_agent"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": false,
+          "receive_sms": false,
+          "receive_email": false
+        },
+        "purpose_of_use": "Healthcare Operations",
+        "autonomous_actions": ["consent_policy_evaluation", "purpose_of_use_check", "disclosure_authorisation"]
+      },
+      "scenario_roles": {
+        "primary": [],
+        "secondary": ["chest_pain_cardiac", "mental_health_crisis", "renal_failure"]
+      }
+    },
+    "hospital_reporter": {
+      "port": 8051,
+      "primary_persona_id": "P058",
+      "persona_name": "Chief Medical Officer (CMO)",
+      "alternate_personas": {
+        "kenya": "P035",
+        "uk_auditor": "P057"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS Hospital Reporter",
+        "entra_app_id": null,
+        "groups": ["nexus-governance"],
+        "delegated_scopes": ["audit.read", "patient.read", "consent.read"],
+        "can_delegate_to": ["central_surveillance"],
+        "can_receive_delegation_from": [],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": true,
+          "receive_sms": false,
+          "receive_email": false,
+          "email_scope": "Public health notifiable disease reports to UKHSA / CDC / DHSC"
+        },
+        "purpose_of_use": "Public Health",
+        "autonomous_actions": ["notifiable_disease_reporting", "aggregate_statistics_export", "outbreak_alert"]
+      },
+      "scenario_roles": {
+        "primary": ["sepsis_deterioration"],
+        "secondary": ["paediatric_respiratory"]
+      }
+    },
+    "osint_agent": {
+      "port": 8052,
+      "primary_persona_id": "P059",
+      "persona_name": "Public Health Surveillance Officer",
+      "alternate_personas": {},
+      "iam": {
+        "entra_display_name": "NEXUS OSINT Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-intelligence"],
+        "delegated_scopes": ["audit.read"],
+        "can_delegate_to": ["central_surveillance"],
+        "can_receive_delegation_from": [],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": false,
+          "receive_sms": false,
+          "receive_email": false
+        },
+        "purpose_of_use": "Public Health",
+        "autonomous_actions": ["open_source_signal_collection", "threat_pattern_analysis"]
+      },
+      "scenario_roles": {
+        "primary": [],
+        "secondary": ["sepsis_deterioration", "paediatric_respiratory"]
+      }
+    },
+    "central_surveillance": {
+      "port": 8053,
+      "primary_persona_id": "P058",
+      "persona_name": "Chief Medical Officer (CMO)",
+      "alternate_personas": {
+        "kenya": "P035"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS Central Surveillance",
+        "entra_app_id": null,
+        "groups": ["nexus-governance"],
+        "delegated_scopes": ["audit.read", "patient.read"],
+        "can_delegate_to": [],
+        "can_receive_delegation_from": ["hospital_reporter", "osint_agent"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": true,
+          "receive_sms": false,
+          "receive_email": false,
+          "email_scope": "Epidemic intelligence alerts to national health authorities"
+        },
+        "purpose_of_use": "Public Health",
+        "autonomous_actions": ["cross_facility_signal_correlation", "national_alert_generation"]
+      },
+      "scenario_roles": {
+        "primary": ["sepsis_deterioration"],
+        "secondary": ["paediatric_respiratory"]
+      }
+    }
+  }
+}

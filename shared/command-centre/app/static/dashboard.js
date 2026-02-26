@@ -2231,9 +2231,31 @@ function clinicalStatus(status) {
     return status || 'Unknown';
 }
 
+// Map agent identifiers to their job-profile display names.
+// Keys are normalised (lower-case, underscored, no trailing "agent").
+const AGENT_JOB_PROFILES = {
+    'clinician_avatar': 'Consultant Physician',
+    'clinicianavatagent': 'Consultant Physician',
+    'triage': 'Triage Nurse',
+    'diagnosis': 'Diagnosing Physician',
+    'imaging': 'Radiologist',
+    'pharmacy': 'Pharmacist',
+    'bed_manager': 'Bed Manager',
+    'bed': 'Bed Manager',
+    'discharge': 'Discharge Coordinator',
+    'follow_up_scheduler': 'GP (Follow-up)',
+    'followup': 'GP (Follow-up)',
+    'care_coordinator': 'Care Coordinator',
+    'command_centre': 'Command Centre',
+};
+
 function humanizeAgentName(agent) {
     if (!agent) return 'Unknown';
-    return agent.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    // Normalise: lower-case, replace hyphens/spaces with underscores, strip trailing "_agent"
+    const key = agent.toLowerCase().replace(/[-\s]+/g, '_').replace(/_agent$/, '');
+    if (AGENT_JOB_PROFILES[key]) return AGENT_JOB_PROFILES[key];
+    // Fallback: title-case the identifier
+    return agent.replace(/[_-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
 async function loadTraceRuns() {
@@ -2391,9 +2413,9 @@ function renderTraceStepTimeline(run) {
             const statusIcon = stepOk ? '&#10003;' : stepErr ? '&#10007;' : '&#9679;';
             const statusColor = stepOk ? 'var(--status-healthy)' : stepErr ? 'var(--status-unhealthy)' : 'var(--status-degraded)';
 
-            // Detect if this is an avatar step and render conversation-style
+            // Detect if this is a clinician avatar step and render conversation-style
             const isAvatar = step.agent === 'clinician_avatar';
-            const avatarBadge = isAvatar ? '<span class="avatar-badge">🩺 Avatar</span>' : '';
+            const avatarBadge = isAvatar ? `<span class="avatar-badge">🩺 ${escapeHtml(humanizeAgentName(step.agent))}</span>` : '';
 
             // Extract the clinical inputs/outputs
             const reqParams = step.request_redacted?.params?.task || step.request_redacted?.params || {};
