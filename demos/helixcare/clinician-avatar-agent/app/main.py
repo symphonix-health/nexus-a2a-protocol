@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from shared.clinician_avatar.avatar_engine import AvatarEngine
 from shared.clinician_avatar.avatar_protocol import (
@@ -185,8 +185,23 @@ async def get_identity(request: Request) -> JSONResponse:
     })
 
 
+_NO_CACHE_HEADERS = {
+    "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+    "Pragma": "no-cache",
+    "Expires": "0",
+}
+
+
+class _NoCacheStaticFiles(StaticFiles):
+    async def get_response(self, path: str, scope: dict) -> Response:
+        response = await super().get_response(path, scope)
+        if response.status_code == 200:
+            response.headers.update(_NO_CACHE_HEADERS)
+        return response
+
+
 if os.path.isdir(STATIC_DIR):
-    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="avatar-static")
+    app.mount("/static", _NoCacheStaticFiles(directory=STATIC_DIR), name="avatar-static")
 
 
 @app.get("/avatar")
@@ -194,7 +209,9 @@ async def avatar_page() -> FileResponse:
     html = os.path.join(STATIC_DIR, "avatar.html")
     if not os.path.isfile(html):
         raise HTTPException(status_code=404, detail="avatar UI not found")
-    return FileResponse(html)
+    response = FileResponse(html)
+    response.headers.update(_NO_CACHE_HEADERS)
+    return response
 
 
 @app.post("/api/tts")
