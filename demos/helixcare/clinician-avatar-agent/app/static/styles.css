@@ -122,6 +122,15 @@ input, select, button {
 
 button { cursor: pointer; }
 
+button:disabled { opacity: 0.55; cursor: default; }
+
+#start-btn.session-active {
+  background: #14532d;
+  border-color: #16a34a;
+  color: #86efac;
+  cursor: default;
+}
+
 pre {
   white-space: pre-wrap;
   word-wrap: break-word;

@@ -155,6 +155,9 @@
 
     if (!await _ensureToken()) return;
 
+    startBtn.disabled = true;
+    startBtn.textContent = 'Starting…';
+
     window.AvatarRenderer.setAvatar(avatarSelect.value);
     _setAvatarState('thinking', 'Starting…');
 
@@ -176,6 +179,8 @@
     });
 
     sessionId = result.session_id;
+    startBtn.textContent = 'Session Active';
+    startBtn.classList.add('session-active');
     if (statusPill) statusPill.textContent = `Session: ${sessionId}`;
     if (frameworkEl) frameworkEl.textContent = JSON.stringify(result.framework_progress, null, 2);
 
@@ -298,7 +303,11 @@
 
   // ── Event wiring ─────────────────────────────────────────────────────────
 
-  startBtn.addEventListener('click', () => startSession().catch((e) => alert(e.message)));
+  startBtn.addEventListener('click', () => startSession().catch((e) => {
+    startBtn.disabled = false;
+    startBtn.textContent = 'Start Session';
+    alert(e.message);
+  }));
   sendBtn.addEventListener('click',  () => sendMessage().catch((e) => alert(e.message)));
   if (audioEnableBtn) {
     audioEnableBtn.addEventListener('click', () =>
