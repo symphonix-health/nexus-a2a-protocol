@@ -255,7 +255,7 @@ function renderTopology() {
     // Draw dependency edges between agents (outer ring)
     state.agents.forEach((agent) => {
         const sourcePos = positions.find(p => p.agent.name === agent.name);
-        agent.dependencies.forEach((depName) => {
+        (agent.dependencies || []).forEach((depName) => {
             const targetPos = positions.find(p => p.agent.name === depName);
             if (sourcePos && targetPos) {
                 drawEdge(viewport, sourcePos.x, sourcePos.y, targetPos.x, targetPos.y, 'edge-line edge-agent');
