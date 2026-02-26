@@ -1,0 +1,447 @@
+[
+  {
+    "use_case_id": "HC-AVATAR-00001",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "Avatar agent card is discoverable",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-1", "NFR-7"],
+    "preconditions": ["clinician_avatar_agent_running"],
+    "input_payload": { "protocol_step": "agent_card_get" },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": { "ok": true, "contains": [] },
+    "error_condition": "none",
+    "test_tags": ["avatar", "helixcare", "positive", "protocol-discovery"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-00002",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "Avatar health endpoint returns healthy",
+    "scenario_type": "positive",
+    "requirement_ids": ["NFR-7"],
+    "preconditions": ["clinician_avatar_agent_running"],
+    "input_payload": { "protocol_step": "health_check" },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": { "ok": true, "contains": ["status", "video_provider"] },
+    "error_condition": "none",
+    "test_tags": ["avatar", "helixcare", "positive", "health"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-00003",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "Start avatar session — cardiac emergency persona",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-15", "FR-16", "NFR-3"],
+    "preconditions": ["clinician_avatar_agent_running", "access_token_available"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "req",
+      "method": "avatar/start_session",
+      "params": {
+        "patient_case": {
+          "patient_profile": {
+            "age": 62,
+            "gender": "male",
+            "chief_complaint": "Chest pain and shortness of breath",
+            "urgency": "critical"
+          }
+        },
+        "persona": {
+          "name": "Dr. Marcus",
+          "specialty": "emergency medicine",
+          "role": "physician",
+          "style": "calm and precise"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["session_id", "greeting", "consultation_phase", "framework"]
+    },
+    "error_condition": "none",
+    "test_tags": ["avatar", "helixcare", "positive", "rpc", "session"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-00004",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "Patient message — clinician responds with SOCRATES assessment",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-16", "FR-17", "NFR-3"],
+    "preconditions": ["clinician_avatar_agent_running", "access_token_available"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "req",
+      "method": "avatar/patient_message",
+      "params": {
+        "session_id": "__dynamic__",
+        "message": "The pain is crushing, 9 out of 10, radiating to my left arm, started 20 minutes ago."
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["clinician_response", "framework_progress"]
+    },
+    "error_condition": "none",
+    "test_tags": ["avatar", "helixcare", "positive", "rpc", "message"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-00005",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "Get avatar session status returns accurate framework progress",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-18", "NFR-3"],
+    "preconditions": ["clinician_avatar_agent_running", "access_token_available"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "req",
+      "method": "avatar/get_status",
+      "params": { "session_id": "__dynamic__" }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["session_id", "framework", "turns"]
+    },
+    "error_condition": "none",
+    "test_tags": ["avatar", "helixcare", "positive", "rpc", "status"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-00006",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "End session removes it from active session pool",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-19"],
+    "preconditions": ["clinician_avatar_agent_running", "access_token_available"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "req",
+      "method": "avatar/end_session",
+      "params": { "session_id": "__dynamic__" }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": { "ok": true, "contains": ["ended"] },
+    "error_condition": "none",
+    "test_tags": ["avatar", "helixcare", "positive", "rpc", "session"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-00007",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "TTS WebSocket stream delivers meta + visemes + end frames",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-20", "NFR-2", "NFR-3"],
+    "preconditions": ["clinician_avatar_agent_running", "access_token_available"],
+    "input_payload": {
+      "protocol_step": "tts_stream",
+      "text": "Good morning. Can you describe the pain you are experiencing?",
+      "voice": "alloy"
+    },
+    "transport": "wss",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["meta", "visemes", "end"]
+    },
+    "error_condition": "none",
+    "test_tags": ["avatar", "helixcare", "positive", "streaming", "tts"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-00008",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "TTS stream visemes list is non-empty and structurally valid",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-21"],
+    "preconditions": ["clinician_avatar_agent_running", "access_token_available"],
+    "input_payload": {
+      "protocol_step": "tts_stream_visemes",
+      "text": "Where exactly does it hurt and does it radiate anywhere?",
+      "voice": "alloy"
+    },
+    "transport": "wss",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["visemes", "time_ms", "weight"]
+    },
+    "error_condition": "none",
+    "test_tags": ["avatar", "helixcare", "positive", "streaming", "visemes"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-00009",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "Media endpoint serves avatar reference video",
+    "scenario_type": "positive",
+    "requirement_ids": ["NFR-8"],
+    "preconditions": ["clinician_avatar_agent_running", "avatar_media_present"],
+    "input_payload": {
+      "protocol_step": "media_get",
+      "filename": "Black male clinician.mp4"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": { "ok": true, "contains": [] },
+    "error_condition": "none",
+    "test_tags": ["avatar", "helixcare", "positive", "media"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-00010",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "Start session — diabetic foot ulcer, medium urgency",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-15", "FR-16"],
+    "preconditions": ["clinician_avatar_agent_running", "access_token_available"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "req",
+      "method": "avatar/start_session",
+      "params": {
+        "patient_case": {
+          "patient_profile": {
+            "age": 68,
+            "gender": "female",
+            "chief_complaint": "Infected foot ulcer",
+            "urgency": "medium"
+          }
+        },
+        "persona": {
+          "name": "Dr. Okafor",
+          "specialty": "endocrinology",
+          "role": "physician"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["session_id", "greeting"]
+    },
+    "error_condition": "none",
+    "test_tags": ["avatar", "helixcare", "positive", "rpc", "chronic"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-N001",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "RPC without auth token returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SPR-1", "CR-5"],
+    "preconditions": ["clinician_avatar_agent_running"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "req",
+      "method": "avatar/start_session",
+      "params": { "patient_case": {}, "persona": {} },
+      "protocol_step": "call_rpc"
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": { "error": "AUTH_FAILED" },
+    "error_condition": "missing_token",
+    "test_tags": ["avatar", "helixcare", "negative", "auth", "security"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-N002",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "Unknown RPC method returns JSON-RPC -32601",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-22", "CR-3"],
+    "preconditions": ["clinician_avatar_agent_running", "access_token_available"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "req",
+      "method": "avatar/nonexistent_method",
+      "params": {}
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": { "error": "METHOD_NOT_FOUND", "code": -32601 },
+    "error_condition": "method_not_found",
+    "test_tags": ["avatar", "helixcare", "negative", "rpc"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-N003",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "patient_message with empty session_id returns error",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-17", "CR-3"],
+    "preconditions": ["clinician_avatar_agent_running", "access_token_available"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "req",
+      "method": "avatar/patient_message",
+      "params": { "session_id": "", "message": "Hello" }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": { "error": "INVALID_PARAMS" },
+    "error_condition": "missing_session_id",
+    "test_tags": ["avatar", "helixcare", "negative", "rpc", "validation"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-N004",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "get_status with unknown session returns error",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-18"],
+    "preconditions": ["clinician_avatar_agent_running", "access_token_available"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "req",
+      "method": "avatar/get_status",
+      "params": { "session_id": "avatar-does-not-exist-xyz" }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": { "error": "INVALID_PARAMS" },
+    "error_condition": "unknown_session",
+    "test_tags": ["avatar", "helixcare", "negative", "rpc", "session"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-N005",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "Media endpoint returns 404 for non-existent file",
+    "scenario_type": "negative",
+    "requirement_ids": ["NFR-8"],
+    "preconditions": ["clinician_avatar_agent_running"],
+    "input_payload": {
+      "protocol_step": "media_get",
+      "filename": "does_not_exist_xyz.mp4"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 404,
+    "expected_result": { "ok": false },
+    "error_condition": "media_not_found",
+    "test_tags": ["avatar", "helixcare", "negative", "media"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-N006",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "Media path traversal attack is blocked (404)",
+    "scenario_type": "negative",
+    "requirement_ids": ["SPR-3", "CR-5"],
+    "preconditions": ["clinician_avatar_agent_running"],
+    "input_payload": {
+      "protocol_step": "media_get",
+      "filename": "../.env"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 404,
+    "expected_result": { "ok": false },
+    "error_condition": "path_traversal_blocked",
+    "test_tags": ["avatar", "helixcare", "negative", "media", "security"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-N007",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "TTS WebSocket rejects connection without token",
+    "scenario_type": "negative",
+    "requirement_ids": ["SPR-1", "CR-5"],
+    "preconditions": ["clinician_avatar_agent_running"],
+    "input_payload": { "protocol_step": "tts_stream_no_auth" },
+    "transport": "wss",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 4001,
+    "expected_result": { "error": "AUTH_FAILED" },
+    "error_condition": "missing_token",
+    "test_tags": ["avatar", "helixcare", "negative", "streaming", "auth", "security"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-E001",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "Empty speak message is silently skipped; subsequent message succeeds",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-20"],
+    "preconditions": ["clinician_avatar_agent_running", "access_token_available"],
+    "input_payload": {
+      "protocol_step": "tts_stream_empty_then_real",
+      "first_text": "",
+      "second_text": "Please describe your symptoms.",
+      "voice": "alloy"
+    },
+    "transport": "wss",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": { "ok": true, "contains": ["end"] },
+    "error_condition": "none",
+    "test_tags": ["avatar", "helixcare", "edge", "streaming", "tts"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-E002",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "Multiple independent sessions do not share state",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-15", "NFR-5"],
+    "preconditions": ["clinician_avatar_agent_running", "access_token_available"],
+    "input_payload": {
+      "protocol_step": "multi_session",
+      "cases": [
+        {"chief_complaint": "Chest pain", "urgency": "critical"},
+        {"chief_complaint": "Back pain", "urgency": "low"}
+      ]
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": { "ok": true, "contains": ["independent_sessions"] },
+    "error_condition": "none",
+    "test_tags": ["avatar", "helixcare", "edge", "session", "concurrency"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-E003",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "avatar/end_session is idempotent — second call returns ended=false",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-19"],
+    "preconditions": ["clinician_avatar_agent_running", "access_token_available"],
+    "input_payload": {
+      "protocol_step": "double_end_session"
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": { "ok": true, "contains": ["ended"] },
+    "error_condition": "none",
+    "test_tags": ["avatar", "helixcare", "edge", "rpc", "idempotency"]
+  },
+  {
+    "use_case_id": "HC-AVATAR-E004",
+    "poc_demo": "helixcare-clinician-avatar",
+    "scenario_title": "Cancel message mid-stream does not crash server",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-20", "NFR-4"],
+    "preconditions": ["clinician_avatar_agent_running", "access_token_available"],
+    "input_payload": {
+      "protocol_step": "tts_stream_cancel",
+      "text": "This is a somewhat longer sentence designed to exercise the barge-in path.",
+      "voice": "alloy"
+    },
+    "transport": "wss",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": { "ok": true, "contains": [] },
+    "error_condition": "none",
+    "test_tags": ["avatar", "helixcare", "edge", "streaming", "barge-in"]
+  }
+]

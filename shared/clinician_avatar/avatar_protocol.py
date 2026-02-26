@@ -10,7 +10,17 @@ def normalize_start_session_params(params: dict[str, Any]) -> dict[str, Any]:
         params.get("patient_case") if isinstance(params.get("patient_case"), dict) else {}
     )
     persona = params.get("persona") if isinstance(params.get("persona"), dict) else {}
-    return {"patient_case": patient_case, "persona": persona}
+    # Optional registry-based persona selection fields
+    persona_id = str(params.get("persona_id") or "").strip()
+    country = str(params.get("country") or "").strip().lower()
+    care_setting = str(params.get("care_setting") or "").strip().lower()
+    return {
+        "patient_case": patient_case,
+        "persona": persona,
+        "persona_id": persona_id,
+        "country": country,
+        "care_setting": care_setting,
+    }
 
 
 def normalize_patient_message_params(params: dict[str, Any]) -> dict[str, Any]:

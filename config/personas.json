@@ -1,0 +1,4201 @@
+{
+  "$schema": "nexus:personas:v1",
+  "description": "Persona registry extracted from BulletTrain_personas_rbac_config_70plus_v2.xlsx \u2014 68 clinical, operational, and IAM personas across UK, USA, and Kenya contexts",
+  "bulletrain_rbac_roles": {
+    "system": {
+      "default_scopes": [
+        "system/*.read",
+        "system/*.write"
+      ],
+      "allowed_sensitivity": "High",
+      "intended_use": "Internal services and orchestration"
+    },
+    "connector": {
+      "default_scopes": [
+        "system/*.read",
+        "system/*.write"
+      ],
+      "allowed_sensitivity": "High",
+      "intended_use": "External integrations (FHIR/HL7)"
+    },
+    "clinician_service": {
+      "default_scopes": [
+        "patient.read",
+        "patient.write",
+        "encounter.read",
+        "encounter.write",
+        "observation.read",
+        "observation.write"
+      ],
+      "allowed_sensitivity": "Medium-High",
+      "intended_use": "Clinical workflows"
+    },
+    "patient_service": {
+      "default_scopes": [
+        "patient.read",
+        "appointment.read",
+        "appointment.write"
+      ],
+      "allowed_sensitivity": "Low-Medium",
+      "intended_use": "Patient/administrative services with limited PHI"
+    },
+    "auditor": {
+      "default_scopes": [
+        "audit.read",
+        "consent.read"
+      ],
+      "allowed_sensitivity": "High",
+      "intended_use": "Audit and compliance review"
+    },
+    "admin": {
+      "default_scopes": [
+        "*.*"
+      ],
+      "allowed_sensitivity": "High",
+      "intended_use": "Platform administration"
+    }
+  },
+  "purpose_of_use_codes": {
+    "Treatment": "Direct care delivery",
+    "Payment": "Billing/claims",
+    "Healthcare Operations": "Operations, quality, risk management",
+    "Public Health": "Surveillance/reporting",
+    "Research": "Research with governance controls",
+    "System": "Non-human/system operations"
+  },
+  "data_sensitivity_tiers": {
+    "Low": "De-identified, directory, non-clinical metadata",
+    "Medium": "Demographics, appointments, limited clinical",
+    "High": "Clinical notes, diagnoses, medications, sensitive results"
+  },
+  "personas": [
+    {
+      "persona_id": "P001",
+      "name": "Consultant Physician",
+      "country_context": "UK",
+      "care_setting": "Acute Trust / Hospital",
+      "domain": "Clinical",
+      "role_description": "Senior doctor responsible for diagnosis and treatment plans.",
+      "integration_use_cases": [
+        "Review history",
+        "create/update care plan",
+        "order labs/imaging",
+        "document encounter",
+        "check consent/purpose of use."
+      ],
+      "primary_systems": [
+        "EPR/EHR",
+        "LIS",
+        "RIS",
+        "Integration Engine"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "DiagnosticReport",
+        "MedicationRequest",
+        "Consent",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORM",
+        "ORU",
+        "ADT"
+      ],
+      "data_access_level": "Read/Write/Update",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "diagnosticreport.read",
+          "medicationrequest.read",
+          "consent.read",
+          "audit.read",
+          "observation.write",
+          "encounter.write",
+          "medicationrequest.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/DiagnosticReport.read",
+          "user/MedicationRequest.read",
+          "user/Consent.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/MedicationRequest.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "NHS Smartcard + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR; NHS policies",
+        "audit_expectation": "Full audit for clinical actions",
+        "segregation_of_duties": "No admin role; separate from audit-only staff",
+        "uk_nhs_nrbac_notes": "Map intent to NRBAC clinical practitioner patterns",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Prefer least-privilege scopes per specialty"
+      }
+    },
+    {
+      "persona_id": "P002",
+      "name": "GP (General Practitioner)",
+      "country_context": "UK",
+      "care_setting": "Primary Care",
+      "domain": "Clinical",
+      "role_description": "Primary care clinician providing ongoing care and referrals.",
+      "integration_use_cases": [
+        "View/record consultations",
+        "prescribe",
+        "refer to secondary care",
+        "reconcile meds",
+        "communicate via integration engine."
+      ],
+      "primary_systems": [
+        "GP EHR",
+        "eReferrals",
+        "Integration Engine"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "MedicationRequest",
+        "ReferralRequest",
+        "Consent",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ADT",
+        "ORM",
+        "ORU",
+        "SIU"
+      ],
+      "data_access_level": "Read/Write/Update",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "medicationrequest.read",
+          "consent.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write",
+          "medicationrequest.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/MedicationRequest.read",
+          "user/Consent.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/MedicationRequest.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "NHS Smartcard + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR; NHS policies",
+        "audit_expectation": "Audit prescriptions and referrals",
+        "segregation_of_duties": "Separate from system admin",
+        "uk_nhs_nrbac_notes": "Primary care NRBAC mapping; activities for demographics/consultation",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Include referral scopes if supported"
+      }
+    },
+    {
+      "persona_id": "P003",
+      "name": "Ward Nurse",
+      "country_context": "UK",
+      "care_setting": "Hospital Ward",
+      "domain": "Clinical",
+      "role_description": "Registered nurse providing bedside care and observations.",
+      "integration_use_cases": [
+        "Record vitals",
+        "administer meds",
+        "document nursing notes",
+        "handover via integration."
+      ],
+      "primary_systems": [
+        "EPR/EHR",
+        "Ward system"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Observation",
+        "MedicationAdministration",
+        "Encounter",
+        "Consent",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORU",
+        "ADT"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "observation.read",
+          "encounter.read",
+          "consent.read",
+          "audit.read",
+          "observation.write",
+          "encounter.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Observation.read",
+          "user/Encounter.read",
+          "user/Consent.read",
+          "user/Observation.write",
+          "user/Encounter.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "Medium",
+        "authentication_requirements": "NHS Smartcard + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR; NHS policies",
+        "audit_expectation": "Audit meds admin and observations",
+        "segregation_of_duties": "No prescription write",
+        "uk_nhs_nrbac_notes": "Nursing roles in NRBAC are distinct from prescribers",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Limit write to Observation/Encounter"
+      }
+    },
+    {
+      "persona_id": "P004",
+      "name": "Triage Nurse",
+      "country_context": "UK",
+      "care_setting": "Emergency Department",
+      "domain": "Clinical",
+      "role_description": "Performs initial assessment and triage categorisation.",
+      "integration_use_cases": [
+        "Capture presenting complaint",
+        "record vitals",
+        "start triage encounter",
+        "trigger lab orders through workflow."
+      ],
+      "primary_systems": [
+        "ED System",
+        "EPR/EHR",
+        "Integration Engine"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "ServiceRequest",
+        "Consent",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ADT",
+        "ORM",
+        "ORU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "servicerequest.read",
+          "consent.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write",
+          "servicerequest.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/ServiceRequest.read",
+          "user/Consent.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/ServiceRequest.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "Medium",
+        "authentication_requirements": "NHS Smartcard + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR; NHS policies",
+        "audit_expectation": "Audit triage changes",
+        "segregation_of_duties": "No discharge authority",
+        "uk_nhs_nrbac_notes": "ED triage activities mapped to NRBAC triage-related roles",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Limit to ED encounter context"
+      }
+    },
+    {
+      "persona_id": "P005",
+      "name": "Radiologist",
+      "country_context": "UK",
+      "care_setting": "Hospital Imaging",
+      "domain": "Imaging",
+      "role_description": "Interprets imaging studies and reports findings.",
+      "integration_use_cases": [
+        "View imaging orders",
+        "update diagnostic report",
+        "share results to EHR."
+      ],
+      "primary_systems": [
+        "RIS/PACS",
+        "EHR"
+      ],
+      "fhir_resources": [
+        "DiagnosticReport",
+        "ImagingStudy",
+        "ServiceRequest",
+        "Patient",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORM",
+        "ORU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "diagnosticreport.read",
+          "imagingstudy.read",
+          "servicerequest.read",
+          "audit.read",
+          "diagnosticreport.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/DiagnosticReport.read",
+          "user/ImagingStudy.read",
+          "user/ServiceRequest.read",
+          "user/DiagnosticReport.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "NHS Smartcard + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR; NHS policies",
+        "audit_expectation": "Audit report finalisation",
+        "segregation_of_duties": "No demographic edits unless granted",
+        "uk_nhs_nrbac_notes": "Imaging roles in NRBAC; separate from admin",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Scope to ImagingStudy/DiagnosticReport"
+      }
+    },
+    {
+      "persona_id": "P006",
+      "name": "Biomedical Scientist (Lab)",
+      "country_context": "UK",
+      "care_setting": "Hospital Laboratory",
+      "domain": "Laboratory",
+      "role_description": "Processes lab specimens and releases results.",
+      "integration_use_cases": [
+        "Receive orders",
+        "update specimen status",
+        "release results",
+        "QC checks."
+      ],
+      "primary_systems": [
+        "LIS",
+        "EHR"
+      ],
+      "fhir_resources": [
+        "ServiceRequest",
+        "Specimen",
+        "Observation",
+        "DiagnosticReport",
+        "Patient",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORM",
+        "ORU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "servicerequest.read",
+          "specimen.read",
+          "observation.read",
+          "diagnosticreport.read",
+          "audit.read",
+          "specimen.write",
+          "observation.write",
+          "diagnosticreport.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/ServiceRequest.read",
+          "user/Specimen.read",
+          "user/Observation.read",
+          "user/DiagnosticReport.read",
+          "user/Specimen.write",
+          "user/Observation.write",
+          "user/DiagnosticReport.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "NHS Smartcard + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR; NHS policies",
+        "audit_expectation": "Audit result release",
+        "segregation_of_duties": "No prescribing",
+        "uk_nhs_nrbac_notes": "Lab roles distinct from clinicians; activity codes for results",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Limit write to lab resources"
+      }
+    },
+    {
+      "persona_id": "P007",
+      "name": "Pharmacist",
+      "country_context": "UK",
+      "care_setting": "Hospital/Community Pharmacy",
+      "domain": "Pharmacy",
+      "role_description": "Dispenses medication and performs clinical checks.",
+      "integration_use_cases": [
+        "View prescriptions",
+        "dispense",
+        "reconciliation",
+        "check interactions."
+      ],
+      "primary_systems": [
+        "Pharmacy System",
+        "EHR"
+      ],
+      "fhir_resources": [
+        "MedicationRequest",
+        "MedicationDispense",
+        "MedicationStatement",
+        "Patient",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "RDE",
+        "ORU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "medicationrequest.read",
+          "medicationdispense.read",
+          "audit.read",
+          "medicationdispense.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/MedicationRequest.read",
+          "user/MedicationDispense.read",
+          "user/MedicationDispense.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "NHS Smartcard + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR; NHS policies",
+        "audit_expectation": "Audit dispense events",
+        "segregation_of_duties": "Separate from prescribing rights",
+        "uk_nhs_nrbac_notes": "Pharmacy roles have specific NRBAC patterns",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Avoid MedicationRequest.write unless prescriber"
+      }
+    },
+    {
+      "persona_id": "P008",
+      "name": "Physiotherapist",
+      "country_context": "UK",
+      "care_setting": "Outpatient / Rehab",
+      "domain": "Allied Health",
+      "role_description": "Provides rehabilitation assessment and treatment.",
+      "integration_use_cases": [
+        "Record assessments",
+        "update care plan notes",
+        "refer for imaging as needed."
+      ],
+      "primary_systems": [
+        "EHR",
+        "Rehab system"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "CarePlan",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "careplan.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write",
+          "careplan.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/CarePlan.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/CarePlan.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "Medium",
+        "authentication_requirements": "NHS Smartcard + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR; NHS policies",
+        "audit_expectation": "Audit care plan changes",
+        "segregation_of_duties": "No meds write",
+        "uk_nhs_nrbac_notes": "Allied health roles map to specific NRBAC job roles",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Limit to CarePlan/Observation"
+      }
+    },
+    {
+      "persona_id": "P009",
+      "name": "Midwife",
+      "country_context": "UK",
+      "care_setting": "Maternity",
+      "domain": "Clinical",
+      "role_description": "Provides antenatal, intrapartum, and postnatal care.",
+      "integration_use_cases": [
+        "Record maternity observations",
+        "manage encounters",
+        "coordinate referrals."
+      ],
+      "primary_systems": [
+        "Maternity system",
+        "EHR"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "CarePlan",
+        "Consent",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ADT",
+        "ORU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "careplan.read",
+          "consent.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write",
+          "careplan.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/CarePlan.read",
+          "user/Consent.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/CarePlan.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "NHS Smartcard + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR; NHS policies",
+        "audit_expectation": "Audit maternity record updates",
+        "segregation_of_duties": "Separate from admin",
+        "uk_nhs_nrbac_notes": "Maternity NRBAC mappings exist; add local codes",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Use high sensitivity due to maternity data"
+      }
+    },
+    {
+      "persona_id": "P010",
+      "name": "Health Records Officer",
+      "country_context": "UK",
+      "care_setting": "Hospital Administration",
+      "domain": "Records",
+      "role_description": "Manages medical records, filing, release, and indexing.",
+      "integration_use_cases": [
+        "Index documents",
+        "release records under policy",
+        "manage record corrections."
+      ],
+      "primary_systems": [
+        "Records system",
+        "EHR",
+        "Document repository"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "DocumentReference",
+        "AuditEvent",
+        "Consent"
+      ],
+      "hl7v2_messages": [
+        "MDM",
+        "ADT"
+      ],
+      "data_access_level": "Read/Write (Records)",
+      "iam": {
+        "bulletrain_role": "patient_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "documentreference.read",
+          "consent.read",
+          "audit.read",
+          "documentreference.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/DocumentReference.read",
+          "user/Consent.read",
+          "user/DocumentReference.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "Restricted",
+        "authentication_requirements": "NHS Smartcard + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR; NHS policies",
+        "audit_expectation": "Audit disclosures/releases",
+        "segregation_of_duties": "Must not edit clinical content",
+        "uk_nhs_nrbac_notes": "Align with NRBAC records/admin roles",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Enforce disclosure workflows"
+      }
+    },
+    {
+      "persona_id": "P011",
+      "name": "Receptionist / Registrar",
+      "country_context": "UK",
+      "care_setting": "Primary Care / Hospital Front Desk",
+      "domain": "Administrative",
+      "role_description": "Registers patients and manages appointments.",
+      "integration_use_cases": [
+        "Create demographics",
+        "schedule",
+        "update contact info",
+        "verify identity."
+      ],
+      "primary_systems": [
+        "Registration",
+        "Scheduling"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Appointment",
+        "RelatedPerson",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ADT",
+        "SIU"
+      ],
+      "data_access_level": "Read/Write (Demographics/Appts)",
+      "iam": {
+        "bulletrain_role": "patient_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "appointment.read",
+          "audit.read",
+          "patient.write",
+          "appointment.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Appointment.read",
+          "user/Patient.write",
+          "user/Appointment.write"
+        ],
+        "data_sensitivity": "Low",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "Restricted",
+        "authentication_requirements": "NHS Smartcard (limited) + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR; NHS policies",
+        "audit_expectation": "Audit demographic changes",
+        "segregation_of_duties": "No access to clinical notes",
+        "uk_nhs_nrbac_notes": "Map to NRBAC demographic admin/receptionist activities",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Restrict to demographics and scheduling"
+      }
+    },
+    {
+      "persona_id": "P012",
+      "name": "NHS Registration Authority (RA) Agent",
+      "country_context": "UK",
+      "care_setting": "NHS Identity & Access",
+      "domain": "IAM",
+      "role_description": "Manages smartcard identities and role assignments.",
+      "integration_use_cases": [
+        "Issue identities",
+        "assign roles",
+        "unlock cards",
+        "audit access provisioning."
+      ],
+      "primary_systems": [
+        "IAM",
+        "Directory services"
+      ],
+      "fhir_resources": [
+        "N/A"
+      ],
+      "hl7v2_messages": [
+        "N/A"
+      ],
+      "data_access_level": "Admin (IAM only)",
+      "iam": {
+        "bulletrain_role": "admin",
+        "bulletrain_scopes": [
+          "iam.*",
+          "audit.read"
+        ],
+        "smart_fhir_scopes": [
+          "N/A"
+        ],
+        "data_sensitivity": "Low",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "High",
+        "authentication_requirements": "Smartcard + MFA + Privileged Access"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK NHS IAM policies",
+        "audit_expectation": "Full audit of provisioning actions",
+        "segregation_of_duties": "No clinical access",
+        "uk_nhs_nrbac_notes": "Directly relevant to NRBAC positioning",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Separate IAM admin scopes from clinical"
+      }
+    },
+    {
+      "persona_id": "P013",
+      "name": "Caldicott Guardian / Privacy Officer",
+      "country_context": "UK",
+      "care_setting": "Governance",
+      "domain": "Governance",
+      "role_description": "Senior person responsible for patient information governance.",
+      "integration_use_cases": [
+        "Review access patterns",
+        "approve disclosures",
+        "oversee consent policies."
+      ],
+      "primary_systems": [
+        "Audit service",
+        "Consent management"
+      ],
+      "fhir_resources": [
+        "Consent",
+        "AuditEvent",
+        "Patient"
+      ],
+      "hl7v2_messages": [
+        "N/A"
+      ],
+      "data_access_level": "Read (Audit/Consent)",
+      "iam": {
+        "bulletrain_role": "auditor",
+        "bulletrain_scopes": [
+          "consent.read",
+          "audit.read",
+          "patient.read"
+        ],
+        "smart_fhir_scopes": [
+          "user/Consent.read",
+          "user/AuditEvent.read",
+          "user/Patient.read"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "High",
+        "authentication_requirements": "MFA + Elevated Role"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR; NHS IG",
+        "audit_expectation": "Audit access reviews",
+        "segregation_of_duties": "No role granting; separate from RA agent",
+        "uk_nhs_nrbac_notes": "Use NRBAC privacy roles/alerts where applicable",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Keep read-only to audit/consent"
+      }
+    },
+    {
+      "persona_id": "P014",
+      "name": "Attending Physician",
+      "country_context": "USA",
+      "care_setting": "Hospital",
+      "domain": "Clinical",
+      "role_description": "Lead physician for inpatient care.",
+      "integration_use_cases": [
+        "Document encounters",
+        "order labs/imaging",
+        "prescribe",
+        "review results."
+      ],
+      "primary_systems": [
+        "EHR",
+        "CPOE",
+        "LIS",
+        "RIS"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "DiagnosticReport",
+        "MedicationRequest",
+        "Consent",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORM",
+        "ORU",
+        "ADT"
+      ],
+      "data_access_level": "Read/Write/Update",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "diagnosticreport.read",
+          "medicationrequest.read",
+          "consent.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write",
+          "medicationrequest.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/DiagnosticReport.read",
+          "user/MedicationRequest.read",
+          "user/Consent.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/MedicationRequest.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA Privacy Rule; HIPAA Security Rule",
+        "audit_expectation": "Audit all clinical actions",
+        "segregation_of_duties": "No admin privileges",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary by duty and patient relationship",
+        "kenya_notes": null,
+        "config_notes": "Separate prescribing vs documentation scopes where possible"
+      }
+    },
+    {
+      "persona_id": "P015",
+      "name": "Resident Physician",
+      "country_context": "USA",
+      "care_setting": "Hospital",
+      "domain": "Clinical",
+      "role_description": "Physician in training with supervised privileges.",
+      "integration_use_cases": [
+        "Draft notes",
+        "propose orders",
+        "update observations under supervision."
+      ],
+      "primary_systems": [
+        "EHR",
+        "LIS",
+        "RIS"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "ServiceRequest",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORM",
+        "ORU",
+        "ADT"
+      ],
+      "data_access_level": "Read/Write (limited)",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "servicerequest.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write",
+          "servicerequest.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/ServiceRequest.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/ServiceRequest.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "Medium",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit drafts and sign-offs",
+        "segregation_of_duties": "Requires co-signature workflows",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Constrain to minimum necessary; require attestation",
+        "kenya_notes": null,
+        "config_notes": "Use workflow flags for supervision"
+      }
+    },
+    {
+      "persona_id": "P016",
+      "name": "Registered Nurse",
+      "country_context": "USA",
+      "care_setting": "Hospital",
+      "domain": "Clinical",
+      "role_description": "Provides nursing care and documentation.",
+      "integration_use_cases": [
+        "Record vitals",
+        "administer meds",
+        "care coordination updates."
+      ],
+      "primary_systems": [
+        "EHR",
+        "Nursing system"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Observation",
+        "MedicationAdministration",
+        "Encounter",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORU",
+        "ADT"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "observation.read",
+          "encounter.read",
+          "audit.read",
+          "observation.write",
+          "encounter.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Observation.read",
+          "user/Encounter.read",
+          "user/Observation.write",
+          "user/Encounter.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "Medium",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit medication administration",
+        "segregation_of_duties": "No medication prescribing",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary: no psychotherapy notes",
+        "kenya_notes": null,
+        "config_notes": "Limit high-sensitivity resources"
+      }
+    },
+    {
+      "persona_id": "P017",
+      "name": "Nurse Practitioner / PA",
+      "country_context": "USA",
+      "care_setting": "Clinic/Hospital",
+      "domain": "Clinical",
+      "role_description": "Advanced practice clinician with prescribing privileges.",
+      "integration_use_cases": [
+        "Document visits",
+        "order",
+        "prescribe",
+        "coordinate follow-up."
+      ],
+      "primary_systems": [
+        "EHR",
+        "eRx"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "MedicationRequest",
+        "ServiceRequest",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORM",
+        "ORU"
+      ],
+      "data_access_level": "Read/Write/Update",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "medicationrequest.read",
+          "servicerequest.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write",
+          "medicationrequest.write",
+          "servicerequest.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/MedicationRequest.read",
+          "user/ServiceRequest.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/MedicationRequest.write",
+          "user/ServiceRequest.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit prescribing",
+        "segregation_of_duties": "Separate from billing admin",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary: role-based access by clinic",
+        "kenya_notes": null,
+        "config_notes": "Include eRx workflow validation"
+      }
+    },
+    {
+      "persona_id": "P018",
+      "name": "Pharmacist",
+      "country_context": "USA",
+      "care_setting": "Hospital/Pharmacy",
+      "domain": "Pharmacy",
+      "role_description": "Dispenses and reconciles medications.",
+      "integration_use_cases": [
+        "Verify orders",
+        "dispense",
+        "medication reconciliation",
+        "alerts."
+      ],
+      "primary_systems": [
+        "Pharmacy system",
+        "EHR"
+      ],
+      "fhir_resources": [
+        "MedicationRequest",
+        "MedicationDispense",
+        "MedicationStatement",
+        "Patient",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "RDE",
+        "ORU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "medicationrequest.read",
+          "medicationdispense.read",
+          "audit.read",
+          "medicationdispense.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/MedicationRequest.read",
+          "user/MedicationDispense.read",
+          "user/MedicationDispense.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit dispense events",
+        "segregation_of_duties": "No user admin",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Apply minimum necessary; segregate narcotics workflows",
+        "kenya_notes": null,
+        "config_notes": "Consider controlled substances flags"
+      }
+    },
+    {
+      "persona_id": "P019",
+      "name": "Medical Laboratory Scientist",
+      "country_context": "USA",
+      "care_setting": "Hospital Lab",
+      "domain": "Laboratory",
+      "role_description": "Performs lab testing and releases results.",
+      "integration_use_cases": [
+        "Process specimens",
+        "record results",
+        "verify abnormal values",
+        "QC."
+      ],
+      "primary_systems": [
+        "LIS",
+        "EHR"
+      ],
+      "fhir_resources": [
+        "ServiceRequest",
+        "Specimen",
+        "Observation",
+        "DiagnosticReport",
+        "Patient",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORM",
+        "ORU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "servicerequest.read",
+          "specimen.read",
+          "observation.read",
+          "diagnosticreport.read",
+          "audit.read",
+          "specimen.write",
+          "observation.write",
+          "diagnosticreport.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/ServiceRequest.read",
+          "user/Specimen.read",
+          "user/Observation.read",
+          "user/DiagnosticReport.read",
+          "user/Specimen.write",
+          "user/Observation.write",
+          "user/DiagnosticReport.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit result release",
+        "segregation_of_duties": "No demographic edits",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Restrict to lab workflows per minimum necessary",
+        "kenya_notes": null,
+        "config_notes": "Limit to lab resources"
+      }
+    },
+    {
+      "persona_id": "P020",
+      "name": "Radiology Technologist",
+      "country_context": "USA",
+      "care_setting": "Imaging",
+      "domain": "Imaging",
+      "role_description": "Performs imaging procedures and uploads studies.",
+      "integration_use_cases": [
+        "Receive orders",
+        "capture imaging study metadata",
+        "route to radiologist."
+      ],
+      "primary_systems": [
+        "RIS/PACS"
+      ],
+      "fhir_resources": [
+        "ImagingStudy",
+        "ServiceRequest",
+        "Patient",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORM",
+        "ORU"
+      ],
+      "data_access_level": "Read/Write (Imaging)",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "imagingstudy.read",
+          "servicerequest.read",
+          "audit.read",
+          "imagingstudy.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/ImagingStudy.read",
+          "user/ServiceRequest.read",
+          "user/ImagingStudy.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "Medium",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit study creation",
+        "segregation_of_duties": "No report finalisation",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary; restrict viewing full chart",
+        "kenya_notes": null,
+        "config_notes": "No DiagnosticReport.write"
+      }
+    },
+    {
+      "persona_id": "P021",
+      "name": "Care Coordinator",
+      "country_context": "USA",
+      "care_setting": "Hospital/ACO",
+      "domain": "Care Coordination",
+      "role_description": "Coordinates referrals and transitions of care.",
+      "integration_use_cases": [
+        "Manage discharge follow-up",
+        "referrals",
+        "update care plan",
+        "messaging."
+      ],
+      "primary_systems": [
+        "Care management platform",
+        "EHR"
+      ],
+      "fhir_resources": [
+        "CarePlan",
+        "Task",
+        "Patient",
+        "Encounter",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "SIU",
+        "ADT"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "careplan.read",
+          "task.read",
+          "encounter.read",
+          "audit.read",
+          "careplan.write",
+          "task.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/CarePlan.read",
+          "user/Task.read",
+          "user/Encounter.read",
+          "user/CarePlan.write",
+          "user/Task.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "Medium",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit care plan updates",
+        "segregation_of_duties": "No prescribing",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary; limit to assigned panel",
+        "kenya_notes": null,
+        "config_notes": "Use patient-panel constraints"
+      }
+    },
+    {
+      "persona_id": "P022",
+      "name": "Billing / Claims Specialist",
+      "country_context": "USA",
+      "care_setting": "Revenue Cycle",
+      "domain": "Billing",
+      "role_description": "Creates claims and manages billing data.",
+      "integration_use_cases": [
+        "Generate billing events",
+        "submit claims",
+        "reconcile payments."
+      ],
+      "primary_systems": [
+        "Billing system",
+        "EHR"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Coverage",
+        "Claim",
+        "ExplanationOfBenefit",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "DFT"
+      ],
+      "data_access_level": "Read/Write (Billing)",
+      "iam": {
+        "bulletrain_role": "patient_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "coverage.read",
+          "claim.read",
+          "explanationofbenefit.read",
+          "audit.read",
+          "claim.write",
+          "explanationofbenefit.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Coverage.read",
+          "user/Claim.read",
+          "user/Claim.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "Payment",
+        "rbac_level": "Restricted",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit claim changes",
+        "segregation_of_duties": "No clinical note access",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary: avoid clinical details beyond billing",
+        "kenya_notes": null,
+        "config_notes": "Restrict to billing resources"
+      }
+    },
+    {
+      "persona_id": "P023",
+      "name": "Health Information Management (HIM) Release of Information",
+      "country_context": "USA",
+      "care_setting": "HIM Department",
+      "domain": "Records",
+      "role_description": "Manages ROI, record corrections, and document handling.",
+      "integration_use_cases": [
+        "Process requests",
+        "apply consent",
+        "release documents",
+        "log disclosures."
+      ],
+      "primary_systems": [
+        "Document management",
+        "EHR"
+      ],
+      "fhir_resources": [
+        "DocumentReference",
+        "Consent",
+        "Patient",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "MDM",
+        "ADT"
+      ],
+      "data_access_level": "Read/Write (Docs)",
+      "iam": {
+        "bulletrain_role": "patient_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "documentreference.read",
+          "consent.read",
+          "audit.read",
+          "documentreference.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/DocumentReference.read",
+          "user/Consent.read",
+          "user/DocumentReference.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "Restricted",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit disclosures",
+        "segregation_of_duties": "No clinical edits",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary; track disclosures",
+        "kenya_notes": null,
+        "config_notes": "Enforce disclosure workflows"
+      }
+    },
+    {
+      "persona_id": "P024",
+      "name": "Privacy Officer / Compliance",
+      "country_context": "USA",
+      "care_setting": "Governance",
+      "domain": "Governance",
+      "role_description": "Investigates incidents and oversees privacy compliance.",
+      "integration_use_cases": [
+        "Review audit logs",
+        "investigate access",
+        "approve policy exceptions."
+      ],
+      "primary_systems": [
+        "Audit service",
+        "IAM"
+      ],
+      "fhir_resources": [
+        "AuditEvent",
+        "Consent",
+        "Patient"
+      ],
+      "hl7v2_messages": [
+        "N/A"
+      ],
+      "data_access_level": "Read (Audit/Consent)",
+      "iam": {
+        "bulletrain_role": "auditor",
+        "bulletrain_scopes": [
+          "audit.read",
+          "consent.read",
+          "patient.read"
+        ],
+        "smart_fhir_scopes": [
+          "user/AuditEvent.read",
+          "user/Consent.read",
+          "user/Patient.read"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "High",
+        "authentication_requirements": "MFA + Privileged Access"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit access reviews and incidents",
+        "segregation_of_duties": "Separate from IAM provisioning",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Strongly tied to HIPAA audit controls",
+        "kenya_notes": null,
+        "config_notes": "Keep read-only to audit/consent"
+      }
+    },
+    {
+      "persona_id": "P025",
+      "name": "Security Administrator (Health IT)",
+      "country_context": "USA",
+      "care_setting": "IT/Security",
+      "domain": "IT Operations",
+      "role_description": "Manages IAM, access policies, and security monitoring.",
+      "integration_use_cases": [
+        "Provision accounts",
+        "manage RBAC",
+        "rotate keys",
+        "incident response."
+      ],
+      "primary_systems": [
+        "IAM",
+        "SIEM",
+        "Integration Engine"
+      ],
+      "fhir_resources": [
+        "N/A"
+      ],
+      "hl7v2_messages": [
+        "N/A"
+      ],
+      "data_access_level": "Admin (IT)",
+      "iam": {
+        "bulletrain_role": "admin",
+        "bulletrain_scopes": [
+          "iam.*",
+          "audit.read"
+        ],
+        "smart_fhir_scopes": [
+          "N/A"
+        ],
+        "data_sensitivity": "Low",
+        "purpose_of_use": "System",
+        "rbac_level": "High",
+        "authentication_requirements": "MFA + PAM"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA Security Rule",
+        "audit_expectation": "Audit provisioning and privileged actions",
+        "segregation_of_duties": "Separate from clinical roles",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Ensure least privilege and PAM",
+        "kenya_notes": null,
+        "config_notes": "Split admin vs auditor personas"
+      }
+    },
+    {
+      "persona_id": "P026",
+      "name": "Medical Officer",
+      "country_context": "Kenya",
+      "care_setting": "County Hospital",
+      "domain": "Clinical",
+      "role_description": "Doctor providing diagnosis and treatment in facility care.",
+      "integration_use_cases": [
+        "Document visits",
+        "order tests",
+        "prescribe",
+        "referrals",
+        "consent checks."
+      ],
+      "primary_systems": [
+        "EHR/EMR",
+        "LIS",
+        "Integration Engine"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "MedicationRequest",
+        "ServiceRequest",
+        "Consent",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ADT",
+        "ORM",
+        "ORU"
+      ],
+      "data_access_level": "Read/Write/Update",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "medicationrequest.read",
+          "servicerequest.read",
+          "consent.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write",
+          "medicationrequest.write",
+          "servicerequest.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/MedicationRequest.read",
+          "user/ServiceRequest.read",
+          "user/Consent.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/MedicationRequest.write",
+          "user/ServiceRequest.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "Username + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "Kenya Health Act 2017; Kenya Data Protection Act",
+        "audit_expectation": "Audit clinical actions",
+        "segregation_of_duties": "Separate from system admin",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": null,
+        "kenya_notes": "Align with Kenyan confidentiality duties",
+        "config_notes": "Include purpose-of-use defaults"
+      }
+    },
+    {
+      "persona_id": "P027",
+      "name": "Clinical Officer",
+      "country_context": "Kenya",
+      "care_setting": "Health Centre",
+      "domain": "Clinical",
+      "role_description": "Mid-level clinician providing primary care.",
+      "integration_use_cases": [
+        "Record consultations",
+        "order basic labs",
+        "treat",
+        "refer as needed."
+      ],
+      "primary_systems": [
+        "EMR",
+        "Integration Engine"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "ServiceRequest",
+        "Consent",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ADT",
+        "ORM",
+        "ORU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "servicerequest.read",
+          "consent.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write",
+          "servicerequest.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/ServiceRequest.read",
+          "user/Consent.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/ServiceRequest.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "Medium",
+        "authentication_requirements": "Username + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "Kenya Health Act 2017; Kenya Data Protection Act",
+        "audit_expectation": "Audit clinical actions",
+        "segregation_of_duties": "No IAM admin",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": null,
+        "kenya_notes": "Common cadre in Kenya facilities",
+        "config_notes": "Consider supervision constraints where applicable"
+      }
+    },
+    {
+      "persona_id": "P028",
+      "name": "Nursing Officer",
+      "country_context": "Kenya",
+      "care_setting": "County Hospital",
+      "domain": "Clinical",
+      "role_description": "Registered nurse responsible for inpatient nursing care.",
+      "integration_use_cases": [
+        "Record vitals",
+        "medication admin",
+        "nursing notes",
+        "discharge prep."
+      ],
+      "primary_systems": [
+        "EMR",
+        "Ward system"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Observation",
+        "MedicationAdministration",
+        "Encounter",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORU",
+        "ADT"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "observation.read",
+          "encounter.read",
+          "audit.read",
+          "observation.write",
+          "encounter.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Observation.read",
+          "user/Encounter.read",
+          "user/Observation.write",
+          "user/Encounter.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "Medium",
+        "authentication_requirements": "Username + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "Kenya Health Act 2017; Kenya Data Protection Act",
+        "audit_expectation": "Audit observations/med admin",
+        "segregation_of_duties": "No prescribing",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": null,
+        "kenya_notes": "Ensure confidentiality; restrict sensitive notes",
+        "config_notes": "Keep write to observations"
+      }
+    },
+    {
+      "persona_id": "P029",
+      "name": "Midwife",
+      "country_context": "Kenya",
+      "care_setting": "Maternity",
+      "domain": "Clinical",
+      "role_description": "Provides maternity and newborn care.",
+      "integration_use_cases": [
+        "Record maternity visits",
+        "update care plans",
+        "refer complications."
+      ],
+      "primary_systems": [
+        "EMR",
+        "Maternity register"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "CarePlan",
+        "Consent",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ADT",
+        "ORU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "careplan.read",
+          "consent.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write",
+          "careplan.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/CarePlan.read",
+          "user/Consent.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/CarePlan.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "Username + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "Kenya Health Act 2017; Kenya Data Protection Act",
+        "audit_expectation": "Audit maternity updates",
+        "segregation_of_duties": "No IAM admin",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": null,
+        "kenya_notes": "Maternity data treated as high sensitivity",
+        "config_notes": "Set sensitivity high"
+      }
+    },
+    {
+      "persona_id": "P030",
+      "name": "Pharmacist",
+      "country_context": "Kenya",
+      "care_setting": "County Hospital",
+      "domain": "Pharmacy",
+      "role_description": "Dispenses medication and manages inventory.",
+      "integration_use_cases": [
+        "Verify prescription",
+        "dispense",
+        "update stock",
+        "report consumption."
+      ],
+      "primary_systems": [
+        "Pharmacy system",
+        "EMR"
+      ],
+      "fhir_resources": [
+        "MedicationRequest",
+        "MedicationDispense",
+        "Patient",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "RDE",
+        "ORU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "medicationrequest.read",
+          "medicationdispense.read",
+          "audit.read",
+          "medicationdispense.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/MedicationRequest.read",
+          "user/MedicationDispense.read",
+          "user/MedicationDispense.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "Username + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "Kenya Health Act 2017; Kenya Data Protection Act",
+        "audit_expectation": "Audit dispense events",
+        "segregation_of_duties": "Separate narcotics approvals",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": null,
+        "kenya_notes": "Use inventory restrictions",
+        "config_notes": "No medicationrequest.write unless prescriber"
+      }
+    },
+    {
+      "persona_id": "P031",
+      "name": "Lab Technologist",
+      "country_context": "Kenya",
+      "care_setting": "County Hospital Lab",
+      "domain": "Laboratory",
+      "role_description": "Runs tests and enters results into LIS/EMR.",
+      "integration_use_cases": [
+        "Receive orders",
+        "record results",
+        "verify critical values."
+      ],
+      "primary_systems": [
+        "LIS",
+        "EMR"
+      ],
+      "fhir_resources": [
+        "ServiceRequest",
+        "Specimen",
+        "Observation",
+        "DiagnosticReport",
+        "Patient",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORM",
+        "ORU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "servicerequest.read",
+          "specimen.read",
+          "observation.read",
+          "diagnosticreport.read",
+          "audit.read",
+          "specimen.write",
+          "observation.write",
+          "diagnosticreport.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/ServiceRequest.read",
+          "user/Specimen.read",
+          "user/Observation.read",
+          "user/DiagnosticReport.read",
+          "user/Specimen.write",
+          "user/Observation.write",
+          "user/DiagnosticReport.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "Username + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "Kenya Health Act 2017; Kenya Data Protection Act",
+        "audit_expectation": "Audit result release",
+        "segregation_of_duties": "No demographic edits",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": null,
+        "kenya_notes": "Align to KenyaEMR-style lab roles (where used)",
+        "config_notes": "Limit write to lab resources"
+      }
+    },
+    {
+      "persona_id": "P032",
+      "name": "Radiographer",
+      "country_context": "Kenya",
+      "care_setting": "Imaging",
+      "domain": "Imaging",
+      "role_description": "Performs imaging procedures and manages study capture.",
+      "integration_use_cases": [
+        "Schedule imaging",
+        "capture imaging study",
+        "route to clinician."
+      ],
+      "primary_systems": [
+        "RIS/PACS"
+      ],
+      "fhir_resources": [
+        "ImagingStudy",
+        "ServiceRequest",
+        "Patient",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORM",
+        "ORU",
+        "SIU"
+      ],
+      "data_access_level": "Read/Write (Imaging)",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "imagingstudy.read",
+          "servicerequest.read",
+          "audit.read",
+          "imagingstudy.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/ImagingStudy.read",
+          "user/ServiceRequest.read",
+          "user/ImagingStudy.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "Medium",
+        "authentication_requirements": "Username + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "Kenya Health Act 2017; Kenya Data Protection Act",
+        "audit_expectation": "Audit imaging capture",
+        "segregation_of_duties": "No report authoring",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": null,
+        "kenya_notes": "Resource-constrained settings: offline workflows may exist",
+        "config_notes": "Keep DiagnosticReport.write out"
+      }
+    },
+    {
+      "persona_id": "P033",
+      "name": "Health Records & Information Officer (HRIO)",
+      "country_context": "Kenya",
+      "care_setting": "Facility Records",
+      "domain": "Records",
+      "role_description": "Registers patients, manages records, filing and retrieval.",
+      "integration_use_cases": [
+        "Register patient",
+        "update demographics",
+        "manage file retrieval",
+        "generate reports."
+      ],
+      "primary_systems": [
+        "Registration",
+        "EMR"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Appointment",
+        "DocumentReference",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ADT",
+        "SIU"
+      ],
+      "data_access_level": "Read/Write (Demographics/Docs)",
+      "iam": {
+        "bulletrain_role": "patient_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "appointment.read",
+          "documentreference.read",
+          "audit.read",
+          "patient.write",
+          "appointment.write",
+          "documentreference.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Appointment.read",
+          "user/DocumentReference.read",
+          "user/Patient.write",
+          "user/Appointment.write",
+          "user/DocumentReference.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "Restricted",
+        "authentication_requirements": "Username + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "Kenya Health Act 2017; Kenya Data Protection Act",
+        "audit_expectation": "Audit demographic edits and disclosures",
+        "segregation_of_duties": "No clinical notes editing",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": null,
+        "kenya_notes": "Recognised health records cadre in Kenya",
+        "config_notes": "Restrict clinical content access"
+      }
+    },
+    {
+      "persona_id": "P034",
+      "name": "Facility Data Clerk (HMIS)",
+      "country_context": "Kenya",
+      "care_setting": "Facility / County Reporting",
+      "domain": "Public Health",
+      "role_description": "Captures aggregate indicators and submits to national systems.",
+      "integration_use_cases": [
+        "Aggregate reporting",
+        "submit counts",
+        "data quality checks",
+        "exports."
+      ],
+      "primary_systems": [
+        "KHIS (DHIS2)",
+        "EMR extracts"
+      ],
+      "fhir_resources": [
+        "Measure",
+        "Observation (aggregate proxies)",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "N/A"
+      ],
+      "data_access_level": "Read/Write (Aggregate)",
+      "iam": {
+        "bulletrain_role": "patient_service",
+        "bulletrain_scopes": [
+          "aggregate.write",
+          "aggregate.read",
+          "audit.read"
+        ],
+        "smart_fhir_scopes": [
+          "N/A"
+        ],
+        "data_sensitivity": "Low",
+        "purpose_of_use": "Public Health",
+        "rbac_level": "Restricted",
+        "authentication_requirements": "Username + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "Kenya Data Protection Act; MoH reporting policies",
+        "audit_expectation": "Audit submissions",
+        "segregation_of_duties": "No patient-level clinical access by default",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": null,
+        "kenya_notes": "Separate aggregate vs patient-level access",
+        "config_notes": "Use de-identified/aggregate outputs"
+      }
+    },
+    {
+      "persona_id": "P035",
+      "name": "County Health Management Team (CHMT) Analyst",
+      "country_context": "Kenya",
+      "care_setting": "County Level",
+      "domain": "Public Health",
+      "role_description": "Analyses county data and performance indicators.",
+      "integration_use_cases": [
+        "View dashboards",
+        "run analytics",
+        "approve submissions",
+        "investigate anomalies."
+      ],
+      "primary_systems": [
+        "KHIS (DHIS2)",
+        "Analytics tools"
+      ],
+      "fhir_resources": [
+        "N/A (aggregate)"
+      ],
+      "hl7v2_messages": [
+        "N/A"
+      ],
+      "data_access_level": "Read (Aggregate)",
+      "iam": {
+        "bulletrain_role": "auditor",
+        "bulletrain_scopes": [
+          "aggregate.read",
+          "audit.read"
+        ],
+        "smart_fhir_scopes": [
+          "N/A"
+        ],
+        "data_sensitivity": "Low",
+        "purpose_of_use": "Public Health",
+        "rbac_level": "Restricted",
+        "authentication_requirements": "MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "Kenya Data Protection Act",
+        "audit_expectation": "Audit access to dashboards",
+        "segregation_of_duties": "No facility-level user provisioning",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": null,
+        "kenya_notes": "Role is not clinical; avoid PHI",
+        "config_notes": "Keep as aggregate-only persona"
+      }
+    },
+    {
+      "persona_id": "P036",
+      "name": "Community Health Promoter / CHW",
+      "country_context": "Kenya",
+      "care_setting": "Community",
+      "domain": "Community Health",
+      "role_description": "Provides community follow-up and basic data capture.",
+      "integration_use_cases": [
+        "Record household visits",
+        "appointment reminders",
+        "referrals to facility."
+      ],
+      "primary_systems": [
+        "Community health app",
+        "EMR (limited)"
+      ],
+      "fhir_resources": [
+        "Patient (limited)",
+        "Appointment",
+        "Task",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "SIU"
+      ],
+      "data_access_level": "Read/Write (limited)",
+      "iam": {
+        "bulletrain_role": "patient_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "appointment.read",
+          "task.read",
+          "audit.read",
+          "appointment.write",
+          "task.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Appointment.read",
+          "user/Task.read",
+          "user/Appointment.write",
+          "user/Task.write"
+        ],
+        "data_sensitivity": "Low",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "Restricted",
+        "authentication_requirements": "Username + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "Kenya Health Act 2017; Kenya Data Protection Act",
+        "audit_expectation": "Audit outreach actions",
+        "segregation_of_duties": "No sensitive notes access",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": null,
+        "kenya_notes": "Minimise PHI on mobile devices",
+        "config_notes": "Consider device security controls"
+      }
+    },
+    {
+      "persona_id": "P037",
+      "name": "Emergency Physician",
+      "country_context": "USA",
+      "care_setting": "Emergency Department",
+      "domain": "Clinical",
+      "role_description": "ED doctor providing urgent assessment and treatment.",
+      "integration_use_cases": [
+        "Triage support",
+        "rapid ordering",
+        "discharge summaries",
+        "trauma workflows."
+      ],
+      "primary_systems": [
+        "ED System",
+        "EHR"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "ServiceRequest",
+        "Condition",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ADT",
+        "ORM",
+        "ORU"
+      ],
+      "data_access_level": "Read/Write/Update",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "servicerequest.read",
+          "condition.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write",
+          "servicerequest.write",
+          "condition.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/ServiceRequest.read",
+          "user/Condition.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/ServiceRequest.write",
+          "user/Condition.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit ED orders and dispositions",
+        "segregation_of_duties": "Separate from billing",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary; emergency exceptions still audited",
+        "kenya_notes": null,
+        "config_notes": "Include break-glass flag support"
+      }
+    },
+    {
+      "persona_id": "P038",
+      "name": "Paramedic (Pre-hospital)",
+      "country_context": "UK",
+      "care_setting": "Ambulance Service",
+      "domain": "Pre-hospital",
+      "role_description": "Pre-hospital clinician capturing observations and handover.",
+      "integration_use_cases": [
+        "Capture vitals",
+        "create pre-arrival encounter",
+        "handover to ED."
+      ],
+      "primary_systems": [
+        "Ambulance ePCR",
+        "Integration Engine"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ADT",
+        "ORU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/Encounter.write",
+          "user/Observation.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "Medium",
+        "authentication_requirements": "Smartcard/MFA (where applicable)"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR; NHS policies",
+        "audit_expectation": "Audit pre-hospital documentation",
+        "segregation_of_duties": "No access to longitudinal record beyond need",
+        "uk_nhs_nrbac_notes": "Map to ambulance job roles; local NRBAC where used",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Limit to encounter context"
+      }
+    },
+    {
+      "persona_id": "P039",
+      "name": "Dietitian",
+      "country_context": "UK",
+      "care_setting": "Hospital/Community",
+      "domain": "Allied Health",
+      "role_description": "Provides nutrition assessment and plan.",
+      "integration_use_cases": [
+        "Record assessments",
+        "update care plan",
+        "coordinate with clinicians."
+      ],
+      "primary_systems": [
+        "EHR",
+        "Dietetics system"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Observation",
+        "CarePlan",
+        "Encounter",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "observation.read",
+          "careplan.read",
+          "encounter.read",
+          "audit.read",
+          "observation.write",
+          "careplan.write",
+          "encounter.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Observation.read",
+          "user/CarePlan.read",
+          "user/Encounter.read",
+          "user/Observation.write",
+          "user/CarePlan.write",
+          "user/Encounter.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "Medium",
+        "authentication_requirements": "Smartcard + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR",
+        "audit_expectation": "Audit care plan updates",
+        "segregation_of_duties": "No medication write",
+        "uk_nhs_nrbac_notes": "Allied health NRBAC mapping",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Restrict to relevant care teams"
+      }
+    },
+    {
+      "persona_id": "P040",
+      "name": "Speech & Language Therapist",
+      "country_context": "UK",
+      "care_setting": "Rehab",
+      "domain": "Allied Health",
+      "role_description": "Assesses speech and swallowing and documents care.",
+      "integration_use_cases": [
+        "Record assessments",
+        "therapy plans",
+        "referrals for further evaluation."
+      ],
+      "primary_systems": [
+        "EHR",
+        "Rehab system"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Observation",
+        "CarePlan",
+        "Encounter",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "observation.read",
+          "careplan.read",
+          "encounter.read",
+          "audit.read",
+          "observation.write",
+          "careplan.write",
+          "encounter.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Observation.read",
+          "user/CarePlan.read",
+          "user/Encounter.read",
+          "user/Observation.write",
+          "user/CarePlan.write",
+          "user/Encounter.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "Medium",
+        "authentication_requirements": "Smartcard + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR",
+        "audit_expectation": "Audit therapy plan changes",
+        "segregation_of_duties": "No prescribing",
+        "uk_nhs_nrbac_notes": "NHS allied health mapping",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Use team-based access constraints"
+      }
+    },
+    {
+      "persona_id": "P041",
+      "name": "Mental Health Clinician",
+      "country_context": "USA",
+      "care_setting": "Behavioural Health",
+      "domain": "Clinical",
+      "role_description": "Provides mental health assessment and treatment.",
+      "integration_use_cases": [
+        "Document therapy sessions",
+        "manage care plan",
+        "coordinate referrals."
+      ],
+      "primary_systems": [
+        "EHR",
+        "Mental health system"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "CarePlan",
+        "Consent",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORU",
+        "ADT"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "careplan.read",
+          "consent.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write",
+          "careplan.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/CarePlan.read",
+          "user/Consent.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/CarePlan.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit access to sensitive notes",
+        "segregation_of_duties": "Segregate psychotherapy notes if supported",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary with heightened sensitivity",
+        "kenya_notes": null,
+        "config_notes": "Set sensitivity high; consider break-glass constraints"
+      }
+    },
+    {
+      "persona_id": "P042",
+      "name": "Social Worker",
+      "country_context": "USA",
+      "care_setting": "Hospital",
+      "domain": "Care Coordination",
+      "role_description": "Supports discharge planning and social needs assessment.",
+      "integration_use_cases": [
+        "Document social history",
+        "coordinate services",
+        "referrals."
+      ],
+      "primary_systems": [
+        "EHR",
+        "Care management"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "Task",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ADT",
+        "SIU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "task.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write",
+          "task.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/Task.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/Task.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "Medium",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit social notes access",
+        "segregation_of_duties": "No medication write",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary; limit to assigned patients",
+        "kenya_notes": null,
+        "config_notes": "Use patient-panel constraints"
+      }
+    },
+    {
+      "persona_id": "P043",
+      "name": "Case Manager",
+      "country_context": "USA",
+      "care_setting": "Hospital",
+      "domain": "Care Coordination",
+      "role_description": "Coordinates care and utilisation review.",
+      "integration_use_cases": [
+        "Track length of stay",
+        "manage tasks",
+        "coordinate discharge."
+      ],
+      "primary_systems": [
+        "Care management platform"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Task",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ADT"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "task.read",
+          "audit.read",
+          "task.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Task.read",
+          "user/Task.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "Medium",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit care coordination actions",
+        "segregation_of_duties": "No clinical authoring beyond tasks",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary; avoid clinical notes write",
+        "kenya_notes": null,
+        "config_notes": "Scope to Task/CarePlan where used"
+      }
+    },
+    {
+      "persona_id": "P044",
+      "name": "Operating Theatre Scheduler",
+      "country_context": "UK",
+      "care_setting": "Surgical Services",
+      "domain": "Operations",
+      "role_description": "Manages theatre schedules and resource allocation.",
+      "integration_use_cases": [
+        "Schedule procedures",
+        "coordinate resources",
+        "notify teams."
+      ],
+      "primary_systems": [
+        "Scheduling system",
+        "EHR (limited)"
+      ],
+      "fhir_resources": [
+        "Appointment",
+        "Procedure",
+        "Patient",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "SIU",
+        "ADT"
+      ],
+      "data_access_level": "Read/Write (Scheduling)",
+      "iam": {
+        "bulletrain_role": "patient_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "appointment.read",
+          "procedure.read",
+          "audit.read",
+          "appointment.write",
+          "procedure.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Appointment.read",
+          "user/Procedure.read",
+          "user/Appointment.write",
+          "user/Procedure.write"
+        ],
+        "data_sensitivity": "Low",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "Restricted",
+        "authentication_requirements": "Smartcard + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR",
+        "audit_expectation": "Audit schedule changes",
+        "segregation_of_duties": "No access to notes",
+        "uk_nhs_nrbac_notes": "NRBAC: admin/scheduling activity codes",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Restrict to procedure metadata"
+      }
+    },
+    {
+      "persona_id": "P045",
+      "name": "Bed Manager",
+      "country_context": "UK",
+      "care_setting": "Hospital",
+      "domain": "Operations",
+      "role_description": "Manages bed allocation and patient flow.",
+      "integration_use_cases": [
+        "Update location/ward",
+        "manage admissions/transfers",
+        "discharge coordination."
+      ],
+      "primary_systems": [
+        "Bed management",
+        "EHR"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Location",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ADT"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "patient_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "location.read",
+          "audit.read",
+          "encounter.write",
+          "location.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Location.read",
+          "user/Encounter.write",
+          "user/Location.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "Restricted",
+        "authentication_requirements": "Smartcard + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR",
+        "audit_expectation": "Audit transfers",
+        "segregation_of_duties": "No clinical notes edits",
+        "uk_nhs_nrbac_notes": "NRBAC operations roles",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Limit to Encounter/Location updates"
+      }
+    },
+    {
+      "persona_id": "P046",
+      "name": "Theatre Scrub Nurse",
+      "country_context": "USA",
+      "care_setting": "Surgery",
+      "domain": "Clinical",
+      "role_description": "Assists in surgical procedures and documents perioperative care.",
+      "integration_use_cases": [
+        "Record perioperative observations",
+        "manage instrument counts",
+        "handover."
+      ],
+      "primary_systems": [
+        "OR system",
+        "EHR"
+      ],
+      "fhir_resources": [
+        "Encounter",
+        "Observation",
+        "Procedure",
+        "Patient",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORU",
+        "ADT"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "procedure.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write",
+          "procedure.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/Procedure.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/Procedure.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "Medium",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit perioperative documentation",
+        "segregation_of_duties": "No prescribing",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary within OR context",
+        "kenya_notes": null,
+        "config_notes": "Scope to surgical encounter"
+      }
+    },
+    {
+      "persona_id": "P047",
+      "name": "Infection Prevention Nurse",
+      "country_context": "USA",
+      "care_setting": "Hospital",
+      "domain": "Public Health",
+      "role_description": "Monitors infections and reports to public health as needed.",
+      "integration_use_cases": [
+        "Review lab results",
+        "track infections",
+        "report cases",
+        "outbreak monitoring."
+      ],
+      "primary_systems": [
+        "EHR",
+        "Infection control system"
+      ],
+      "fhir_resources": [
+        "Observation",
+        "Condition",
+        "DiagnosticReport",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORU"
+      ],
+      "data_access_level": "Read/Write (limited)",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "observation.read",
+          "condition.read",
+          "diagnosticreport.read",
+          "audit.read",
+          "condition.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Observation.read",
+          "user/Condition.read",
+          "user/DiagnosticReport.read",
+          "user/Condition.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Public Health",
+        "rbac_level": "Medium",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit surveillance access",
+        "segregation_of_duties": "Separate from billing",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary; public health disclosures permitted but controlled",
+        "kenya_notes": null,
+        "config_notes": "Include reporting workflows"
+      }
+    },
+    {
+      "persona_id": "P048",
+      "name": "Telehealth Clinician",
+      "country_context": "UK",
+      "care_setting": "Virtual Care",
+      "domain": "Clinical",
+      "role_description": "Provides remote consultations via telehealth.",
+      "integration_use_cases": [
+        "Video visit documentation",
+        "e-prescribing",
+        "follow-up tasks",
+        "integration with remote monitoring."
+      ],
+      "primary_systems": [
+        "Telehealth platform",
+        "EHR"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "MedicationRequest",
+        "Task",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORU",
+        "SIU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "medicationrequest.read",
+          "task.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write",
+          "medicationrequest.write",
+          "task.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/MedicationRequest.read",
+          "user/Task.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/MedicationRequest.write",
+          "user/Task.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "Smartcard + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR",
+        "audit_expectation": "Audit remote consultations",
+        "segregation_of_duties": "Separate from platform admin",
+        "uk_nhs_nrbac_notes": "NRBAC telehealth roles may be local",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Ensure device and session controls"
+      }
+    },
+    {
+      "persona_id": "P049",
+      "name": "Home Care Nurse",
+      "country_context": "USA",
+      "care_setting": "Home Health",
+      "domain": "Clinical",
+      "role_description": "Provides home visits and records observations remotely.",
+      "integration_use_cases": [
+        "Visit documentation",
+        "vitals capture",
+        "wound care notes",
+        "care plan tasks."
+      ],
+      "primary_systems": [
+        "Home health app",
+        "EHR"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "CarePlan",
+        "Task",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "careplan.read",
+          "task.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write",
+          "careplan.write",
+          "task.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/CarePlan.read",
+          "user/Task.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/CarePlan.write",
+          "user/Task.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "Medium",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit mobile access",
+        "segregation_of_duties": "No admin privileges",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary; limit to assigned patients",
+        "kenya_notes": null,
+        "config_notes": "Consider offline data protection"
+      }
+    },
+    {
+      "persona_id": "P050",
+      "name": "Clinical Documentation Improvement (CDI) Specialist",
+      "country_context": "USA",
+      "care_setting": "Hospital",
+      "domain": "Operations",
+      "role_description": "Improves clinical documentation for coding and quality.",
+      "integration_use_cases": [
+        "Review notes",
+        "query providers",
+        "update coding queries",
+        "quality checks."
+      ],
+      "primary_systems": [
+        "EHR",
+        "Coding tools"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Condition",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "N/A"
+      ],
+      "data_access_level": "Read/Write (Queries)",
+      "iam": {
+        "bulletrain_role": "auditor",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "condition.read",
+          "audit.read",
+          "condition.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Condition.read",
+          "user/Condition.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "Restricted",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit queries and access",
+        "segregation_of_duties": "Separate from billing final approval",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary; restrict to assigned charts",
+        "kenya_notes": null,
+        "config_notes": "Prefer query/task based writes"
+      }
+    },
+    {
+      "persona_id": "P051",
+      "name": "Clinical Coder",
+      "country_context": "USA",
+      "care_setting": "Revenue Cycle",
+      "domain": "Billing",
+      "role_description": "Codes encounters and diagnoses for claims.",
+      "integration_use_cases": [
+        "Read encounter documentation",
+        "assign codes",
+        "submit coding results."
+      ],
+      "primary_systems": [
+        "Coding system",
+        "EHR"
+      ],
+      "fhir_resources": [
+        "Encounter",
+        "Condition",
+        "Procedure",
+        "Claim",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "DFT"
+      ],
+      "data_access_level": "Read/Write (Coding)",
+      "iam": {
+        "bulletrain_role": "patient_service",
+        "bulletrain_scopes": [
+          "encounter.read",
+          "condition.read",
+          "procedure.read",
+          "claim.read",
+          "audit.read",
+          "claim.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Encounter.read",
+          "user/Condition.read",
+          "user/Procedure.read",
+          "user/Claim.read",
+          "user/Claim.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Payment",
+        "rbac_level": "Restricted",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit coding changes",
+        "segregation_of_duties": "No clinical documentation edits",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary; no psychotherapy notes",
+        "kenya_notes": null,
+        "config_notes": "Restrict access to coding-relevant data"
+      }
+    },
+    {
+      "persona_id": "P052",
+      "name": "Research Coordinator",
+      "country_context": "USA",
+      "care_setting": "Academic Medical Center",
+      "domain": "Research",
+      "role_description": "Coordinates clinical research with governance controls.",
+      "integration_use_cases": [
+        "Screen participants",
+        "manage consent",
+        "collect study data",
+        "de-identification workflows."
+      ],
+      "primary_systems": [
+        "Research platform",
+        "EHR (limited)"
+      ],
+      "fhir_resources": [
+        "Consent",
+        "ResearchStudy",
+        "ResearchSubject",
+        "Patient",
+        "Observation",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "N/A"
+      ],
+      "data_access_level": "Read/Write (Study)",
+      "iam": {
+        "bulletrain_role": "auditor",
+        "bulletrain_scopes": [
+          "consent.read",
+          "patient.read",
+          "observation.read",
+          "audit.read",
+          "consent.write",
+          "observation.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Consent.read",
+          "user/ResearchStudy.read",
+          "user/ResearchSubject.read",
+          "user/Patient.read",
+          "user/Observation.read",
+          "user/Consent.write",
+          "user/Observation.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Research",
+        "rbac_level": "High",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA; IRB policies",
+        "audit_expectation": "Audit research access",
+        "segregation_of_duties": "Separate from clinical care unless dual-role approved",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary; limit to consented subjects",
+        "kenya_notes": null,
+        "config_notes": "Use consent gating + purpose of use 'Research'"
+      }
+    },
+    {
+      "persona_id": "P053",
+      "name": "Consent Officer",
+      "country_context": "UK",
+      "care_setting": "Governance",
+      "domain": "Governance",
+      "role_description": "Manages and validates consent directives and withdrawals.",
+      "integration_use_cases": [
+        "Register consent",
+        "withdraw consent",
+        "enforce purpose of use constraints."
+      ],
+      "primary_systems": [
+        "Consent management",
+        "EHR"
+      ],
+      "fhir_resources": [
+        "Consent",
+        "Patient",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "N/A"
+      ],
+      "data_access_level": "Read/Write (Consent)",
+      "iam": {
+        "bulletrain_role": "auditor",
+        "bulletrain_scopes": [
+          "consent.read",
+          "patient.read",
+          "audit.read",
+          "consent.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Consent.read",
+          "user/Patient.read",
+          "user/Consent.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "High",
+        "authentication_requirements": "MFA + Elevated Role"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR",
+        "audit_expectation": "Audit consent changes",
+        "segregation_of_duties": "No clinical note writes",
+        "uk_nhs_nrbac_notes": "NRBAC governance roles may exist locally",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Fail-closed for sensitive purposes"
+      }
+    },
+    {
+      "persona_id": "P054",
+      "name": "Data Quality Auditor",
+      "country_context": "Kenya",
+      "care_setting": "Facility/County",
+      "domain": "Governance",
+      "role_description": "Reviews data quality, completeness, and anomalies.",
+      "integration_use_cases": [
+        "Run validation",
+        "flag inconsistencies",
+        "approve submissions."
+      ],
+      "primary_systems": [
+        "EMR reporting",
+        "KHIS"
+      ],
+      "fhir_resources": [
+        "AuditEvent",
+        "Measure",
+        "Observation (aggregate)"
+      ],
+      "hl7v2_messages": [
+        "N/A"
+      ],
+      "data_access_level": "Read/Write (Flags)",
+      "iam": {
+        "bulletrain_role": "auditor",
+        "bulletrain_scopes": [
+          "aggregate.read",
+          "aggregate.write",
+          "audit.read"
+        ],
+        "smart_fhir_scopes": [
+          "N/A"
+        ],
+        "data_sensitivity": "Low",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "Restricted",
+        "authentication_requirements": "MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "Kenya Data Protection Act",
+        "audit_expectation": "Audit data quality actions",
+        "segregation_of_duties": "No clinical edits",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": null,
+        "kenya_notes": "Supports routine reporting quality",
+        "config_notes": "Keep PHI minimal"
+      }
+    },
+    {
+      "persona_id": "P055",
+      "name": "Facility Administrator (Operations)",
+      "country_context": "Kenya",
+      "care_setting": "Facility",
+      "domain": "Operations",
+      "role_description": "Manages non-clinical operations and user access requests.",
+      "integration_use_cases": [
+        "Manage appointment slots",
+        "oversee registration workflow",
+        "request role changes."
+      ],
+      "primary_systems": [
+        "Scheduling",
+        "Registration"
+      ],
+      "fhir_resources": [
+        "Appointment",
+        "Patient (demographics)",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "SIU",
+        "ADT"
+      ],
+      "data_access_level": "Read/Write (Ops)",
+      "iam": {
+        "bulletrain_role": "patient_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "appointment.read",
+          "audit.read",
+          "appointment.write",
+          "patient.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Appointment.read",
+          "user/Appointment.write",
+          "user/Patient.write"
+        ],
+        "data_sensitivity": "Low",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "Restricted",
+        "authentication_requirements": "MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "Kenya Data Protection Act",
+        "audit_expectation": "Audit ops changes",
+        "segregation_of_duties": "No direct role provisioning (handled by IAM admin)",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": null,
+        "kenya_notes": "Facility-level workflow admin is common",
+        "config_notes": "Keep clinical access off"
+      }
+    },
+    {
+      "persona_id": "P056",
+      "name": "Integration Engine Operator",
+      "country_context": "Generic",
+      "care_setting": "IT Operations",
+      "domain": "IT Operations",
+      "role_description": "Monitors interface queues, retries, and routing for HL7/FHIR.",
+      "integration_use_cases": [
+        "Monitor message flow",
+        "replay failed messages",
+        "view logs",
+        "manage endpoints."
+      ],
+      "primary_systems": [
+        "Integration Engine",
+        "Monitoring"
+      ],
+      "fhir_resources": [
+        "AuditEvent",
+        "Endpoint (if used)",
+        "Subscription"
+      ],
+      "hl7v2_messages": [
+        "HL7 v2 (all types)"
+      ],
+      "data_access_level": "Read/Write (Ops)",
+      "iam": {
+        "bulletrain_role": "connector",
+        "bulletrain_scopes": [
+          "system/*.read",
+          "audit.read",
+          "system/endpoint.write"
+        ],
+        "smart_fhir_scopes": [
+          "system/*.read",
+          "system/*.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "System",
+        "rbac_level": "High",
+        "authentication_requirements": "MFA + PAM"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA/GDPR/Local",
+        "audit_expectation": "Audit all operational interventions",
+        "segregation_of_duties": "Separate from clinical roles",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Restrict payload viewing where possible"
+      }
+    },
+    {
+      "persona_id": "P057",
+      "name": "Clinical Systems Support Analyst",
+      "country_context": "UK",
+      "care_setting": "IT / Clinical Informatics",
+      "domain": "IT Operations",
+      "role_description": "Supports clinical applications; troubleshoots access and workflows.",
+      "integration_use_cases": [
+        "Support tickets",
+        "impersonation (break-glass) with approval",
+        "audit review."
+      ],
+      "primary_systems": [
+        "ITSM",
+        "EHR (support mode)"
+      ],
+      "fhir_resources": [
+        "AuditEvent",
+        "Patient (limited)"
+      ],
+      "hl7v2_messages": [
+        "N/A"
+      ],
+      "data_access_level": "Read (Support)",
+      "iam": {
+        "bulletrain_role": "auditor",
+        "bulletrain_scopes": [
+          "audit.read",
+          "patient.read"
+        ],
+        "smart_fhir_scopes": [
+          "user/AuditEvent.read",
+          "user/Patient.read"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "High",
+        "authentication_requirements": "MFA + PAM"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR",
+        "audit_expectation": "Audit all support access",
+        "segregation_of_duties": "Support access must be time-bound",
+        "uk_nhs_nrbac_notes": "NRBAC support roles exist in some contexts",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Implement time-limited access tokens"
+      }
+    },
+    {
+      "persona_id": "P058",
+      "name": "Chief Medical Officer (CMO)",
+      "country_context": "USA",
+      "care_setting": "Hospital Leadership",
+      "domain": "Governance",
+      "role_description": "Clinical leadership with oversight and quality governance.",
+      "integration_use_cases": [
+        "Review quality dashboards",
+        "review incidents",
+        "approve policy changes."
+      ],
+      "primary_systems": [
+        "Quality system",
+        "Audit"
+      ],
+      "fhir_resources": [
+        "AuditEvent",
+        "Measure",
+        "Patient (limited)"
+      ],
+      "hl7v2_messages": [
+        "N/A"
+      ],
+      "data_access_level": "Read",
+      "iam": {
+        "bulletrain_role": "auditor",
+        "bulletrain_scopes": [
+          "audit.read",
+          "aggregate.read"
+        ],
+        "smart_fhir_scopes": [
+          "N/A"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "High",
+        "authentication_requirements": "MFA + Privileged"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit oversight activities",
+        "segregation_of_duties": "No IAM provisioning",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary; prefer de-identified analytics",
+        "kenya_notes": null,
+        "config_notes": "Keep PHI access limited to investigations"
+      }
+    },
+    {
+      "persona_id": "P059",
+      "name": "Public Health Surveillance Officer",
+      "country_context": "Kenya",
+      "care_setting": "National/County",
+      "domain": "Public Health",
+      "role_description": "Monitors surveillance data and outbreak indicators.",
+      "integration_use_cases": [
+        "Monitor reports",
+        "investigate spikes",
+        "request facility follow-up."
+      ],
+      "primary_systems": [
+        "KHIS",
+        "Surveillance systems"
+      ],
+      "fhir_resources": [
+        "Measure",
+        "Observation (aggregate)",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "N/A"
+      ],
+      "data_access_level": "Read/Write (Aggregate)",
+      "iam": {
+        "bulletrain_role": "auditor",
+        "bulletrain_scopes": [
+          "aggregate.read",
+          "aggregate.write",
+          "audit.read"
+        ],
+        "smart_fhir_scopes": [
+          "N/A"
+        ],
+        "data_sensitivity": "Low",
+        "purpose_of_use": "Public Health",
+        "rbac_level": "Restricted",
+        "authentication_requirements": "MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "Kenya Data Protection Act; MoH policies",
+        "audit_expectation": "Audit investigation actions",
+        "segregation_of_duties": "No clinical chart access",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": null,
+        "kenya_notes": "Focus on aggregate; request case-level only when authorised",
+        "config_notes": "Keep de-identified by default"
+      }
+    },
+    {
+      "persona_id": "P060",
+      "name": "Occupational Therapist",
+      "country_context": "UK",
+      "care_setting": "Rehab",
+      "domain": "Allied Health",
+      "role_description": "Supports patients to regain daily living skills.",
+      "integration_use_cases": [
+        "Document functional assessments",
+        "update care plans",
+        "referrals."
+      ],
+      "primary_systems": [
+        "EHR",
+        "Rehab system"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "CarePlan",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "careplan.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write",
+          "careplan.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/CarePlan.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/CarePlan.write"
+        ],
+        "data_sensitivity": "Medium",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "Medium",
+        "authentication_requirements": "Smartcard + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR",
+        "audit_expectation": "Audit care plan updates",
+        "segregation_of_duties": "No prescribing",
+        "uk_nhs_nrbac_notes": "Allied health NRBAC mapping",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Team-based access"
+      }
+    },
+    {
+      "persona_id": "P061",
+      "name": "Respiratory Therapist",
+      "country_context": "USA",
+      "care_setting": "Hospital",
+      "domain": "Clinical",
+      "role_description": "Provides respiratory therapy and monitors ventilated patients.",
+      "integration_use_cases": [
+        "Record respiratory observations",
+        "update ventilator settings notes."
+      ],
+      "primary_systems": [
+        "EHR",
+        "ICU system"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Observation",
+        "Encounter",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORU",
+        "ADT"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "observation.read",
+          "encounter.read",
+          "audit.read",
+          "observation.write",
+          "encounter.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Observation.read",
+          "user/Encounter.read",
+          "user/Observation.write",
+          "user/Encounter.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "Medium",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit ICU access",
+        "segregation_of_duties": "No prescribing",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary; ICU context constraints",
+        "kenya_notes": null,
+        "config_notes": "Scope to ICU encounter"
+      }
+    },
+    {
+      "persona_id": "P062",
+      "name": "Dialysis Nurse",
+      "country_context": "Kenya",
+      "care_setting": "Specialty Clinic",
+      "domain": "Clinical",
+      "role_description": "Provides dialysis care and documents sessions.",
+      "integration_use_cases": [
+        "Record dialysis session",
+        "monitor vitals",
+        "update treatment notes."
+      ],
+      "primary_systems": [
+        "EMR",
+        "Dialysis system"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "Procedure",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORU",
+        "ADT"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "observation.read",
+          "procedure.read",
+          "audit.read",
+          "encounter.write",
+          "observation.write",
+          "procedure.write"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.read",
+          "user/Observation.read",
+          "user/Procedure.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/Procedure.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "Medium",
+        "authentication_requirements": "Username + MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "Kenya Health Act 2017; Kenya DPA",
+        "audit_expectation": "Audit session documentation",
+        "segregation_of_duties": "No IAM admin",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": null,
+        "kenya_notes": "Specialty data is sensitive",
+        "config_notes": "Use high sensitivity"
+      }
+    },
+    {
+      "persona_id": "P063",
+      "name": "Clinic Manager",
+      "country_context": "USA",
+      "care_setting": "Outpatient Clinic",
+      "domain": "Operations",
+      "role_description": "Manages clinic operations and schedules; reports performance.",
+      "integration_use_cases": [
+        "Manage schedules",
+        "view utilisation",
+        "approve staff access requests."
+      ],
+      "primary_systems": [
+        "Scheduling",
+        "Reporting"
+      ],
+      "fhir_resources": [
+        "Appointment",
+        "Measure",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "SIU"
+      ],
+      "data_access_level": "Read/Write (Ops)",
+      "iam": {
+        "bulletrain_role": "patient_service",
+        "bulletrain_scopes": [
+          "appointment.read",
+          "appointment.write",
+          "aggregate.read",
+          "audit.read"
+        ],
+        "smart_fhir_scopes": [
+          "user/Appointment.read",
+          "user/Appointment.write"
+        ],
+        "data_sensitivity": "Low",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "Restricted",
+        "authentication_requirements": "MFA + SSO"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA",
+        "audit_expectation": "Audit schedule changes",
+        "segregation_of_duties": "No clinical notes access",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Minimum necessary; avoid chart access",
+        "kenya_notes": null,
+        "config_notes": "Keep to scheduling/aggregate"
+      }
+    },
+    {
+      "persona_id": "P064",
+      "name": "Clinical Psychologist",
+      "country_context": "UK/USA/Kenya",
+      "care_setting": "Hospital / Mental Health Unit",
+      "domain": "Mental Health",
+      "role_description": "Provides psychological assessment and therapy within hospital setting.",
+      "integration_use_cases": [
+        "Therapy documentation",
+        "manage mental health care plans",
+        "consent validation",
+        "break-glass logging."
+      ],
+      "primary_systems": [
+        "Mental Health EHR",
+        "Core EHR"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation (Mental Health Profile)",
+        "CarePlan",
+        "Consent",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORU",
+        "ADT"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "encounter.write",
+          "observation.read",
+          "observation.write",
+          "careplan.read",
+          "careplan.write",
+          "consent.read",
+          "audit.read"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/CarePlan.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "MFA + Elevated Role"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA / GDPR / Kenya Data Protection Act",
+        "audit_expectation": "Mandatory audit + break-glass flagging",
+        "segregation_of_duties": "No prescribing; no billing; no IAM provisioning",
+        "uk_nhs_nrbac_notes": "NRBAC specialist clinician mapping (UK)",
+        "usa_hipaa_notes": "Psychotherapy notes segregated per HIPAA",
+        "kenya_notes": "High confidentiality obligations in Kenya",
+        "config_notes": "Separate FHIR MentalHealth profile + sensitivity tagging"
+      }
+    },
+    {
+      "persona_id": "P065",
+      "name": "Psychiatrist",
+      "country_context": "UK/USA/Kenya",
+      "care_setting": "Hospital / Mental Health",
+      "domain": "Clinical",
+      "role_description": "Medical specialist in psychiatry with prescribing authority.",
+      "integration_use_cases": [
+        "Diagnose",
+        "prescribe",
+        "manage mental health treatment",
+        "crisis intervention",
+        "consent checks."
+      ],
+      "primary_systems": [
+        "Mental Health EHR",
+        "ePrescribing"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation",
+        "CarePlan",
+        "MedicationRequest",
+        "Consent",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ORM",
+        "ORU",
+        "ADT"
+      ],
+      "data_access_level": "Read/Write/Update",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "encounter.write",
+          "observation.read",
+          "observation.write",
+          "medicationrequest.read",
+          "medicationrequest.write",
+          "careplan.read",
+          "careplan.write",
+          "consent.read",
+          "audit.read"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/MedicationRequest.write",
+          "user/CarePlan.write"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Treatment",
+        "rbac_level": "High",
+        "authentication_requirements": "MFA + Elevated Role"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA / GDPR / Kenya Data Protection Act",
+        "audit_expectation": "Audit prescribing + break-glass monitoring",
+        "segregation_of_duties": "No IAM provisioning",
+        "uk_nhs_nrbac_notes": "NRBAC consultant mapping (UK)",
+        "usa_hipaa_notes": "Psychotherapy notes segregation applies",
+        "kenya_notes": "Sensitive mental health obligations apply",
+        "config_notes": "High sensitivity tier + break-glass enforcement"
+      }
+    },
+    {
+      "persona_id": "P066",
+      "name": "Hospital Social Worker",
+      "country_context": "UK/USA/Kenya",
+      "care_setting": "Hospital",
+      "domain": "Care Coordination",
+      "role_description": "Supports discharge planning, safeguarding and social care coordination.",
+      "integration_use_cases": [
+        "Document social history",
+        "manage care transition tasks",
+        "referral coordination",
+        "safeguarding notes."
+      ],
+      "primary_systems": [
+        "EHR",
+        "Care Management Platform"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Encounter",
+        "Observation (Social)",
+        "CarePlan",
+        "Task",
+        "Consent",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "ADT",
+        "SIU"
+      ],
+      "data_access_level": "Read/Write",
+      "iam": {
+        "bulletrain_role": "clinician_service",
+        "bulletrain_scopes": [
+          "patient.read",
+          "encounter.read",
+          "encounter.write",
+          "observation.read",
+          "observation.write",
+          "task.read",
+          "task.write",
+          "careplan.read",
+          "careplan.write",
+          "audit.read"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Encounter.write",
+          "user/Observation.write",
+          "user/Task.write",
+          "user/CarePlan.write"
+        ],
+        "data_sensitivity": "Medium-High",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "Medium",
+        "authentication_requirements": "MFA"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA / GDPR / Kenya Data Protection Act",
+        "audit_expectation": "Enhanced audit on sensitive social entries",
+        "segregation_of_duties": "No medication write; no billing; no IAM rights",
+        "uk_nhs_nrbac_notes": "NRBAC care coordination roles (UK)",
+        "usa_hipaa_notes": "Minimum necessary enforcement (US)",
+        "kenya_notes": "Safeguarding confidentiality obligations",
+        "config_notes": "Restrict to assigned caseload + sensitive field masking"
+      }
+    },
+    {
+      "persona_id": "P067",
+      "name": "Safeguarding Lead",
+      "country_context": "UK",
+      "care_setting": "Hospital",
+      "domain": "Governance",
+      "role_description": "Oversees safeguarding cases and protection protocols.",
+      "integration_use_cases": [
+        "Review safeguarding alerts",
+        "approve disclosures",
+        "investigate cases",
+        "audit review."
+      ],
+      "primary_systems": [
+        "EHR",
+        "Audit System"
+      ],
+      "fhir_resources": [
+        "Patient",
+        "Consent",
+        "AuditEvent",
+        "Observation (Flagged)"
+      ],
+      "hl7v2_messages": [
+        "N/A"
+      ],
+      "data_access_level": "Read",
+      "iam": {
+        "bulletrain_role": "auditor",
+        "bulletrain_scopes": [
+          "patient.read",
+          "consent.read",
+          "audit.read",
+          "observation.read"
+        ],
+        "smart_fhir_scopes": [
+          "user/Patient.read",
+          "user/Consent.read",
+          "user/AuditEvent.read"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "High",
+        "authentication_requirements": "MFA + Privileged"
+      },
+      "compliance": {
+        "regulatory_constraints": "UK GDPR",
+        "audit_expectation": "Full audit trail required",
+        "segregation_of_duties": "No clinical editing privileges",
+        "uk_nhs_nrbac_notes": "Mapped to NHS safeguarding governance roles",
+        "usa_hipaa_notes": null,
+        "kenya_notes": null,
+        "config_notes": "Read-only with enhanced logging"
+      }
+    },
+    {
+      "persona_id": "P068",
+      "name": "Mental Health Records Custodian",
+      "country_context": "USA",
+      "care_setting": "Hospital",
+      "domain": "Records",
+      "role_description": "Manages storage and disclosure of psychotherapy and sensitive notes.",
+      "integration_use_cases": [
+        "Control access to psychotherapy notes",
+        "release under policy",
+        "audit review."
+      ],
+      "primary_systems": [
+        "Document Repository",
+        "EHR"
+      ],
+      "fhir_resources": [
+        "DocumentReference (Psychotherapy)",
+        "Consent",
+        "AuditEvent"
+      ],
+      "hl7v2_messages": [
+        "MDM"
+      ],
+      "data_access_level": "Read/Write (Controlled)",
+      "iam": {
+        "bulletrain_role": "auditor",
+        "bulletrain_scopes": [
+          "documentreference.read",
+          "documentreference.write",
+          "consent.read",
+          "audit.read"
+        ],
+        "smart_fhir_scopes": [
+          "user/DocumentReference.read",
+          "user/Consent.read",
+          "user/AuditEvent.read"
+        ],
+        "data_sensitivity": "High",
+        "purpose_of_use": "Healthcare Operations",
+        "rbac_level": "High",
+        "authentication_requirements": "MFA + Privileged"
+      },
+      "compliance": {
+        "regulatory_constraints": "HIPAA (Psychotherapy Note Protections)",
+        "audit_expectation": "Strict logging and disclosure tracking",
+        "segregation_of_duties": "No prescribing; no clinical documentation editing",
+        "uk_nhs_nrbac_notes": null,
+        "usa_hipaa_notes": "Separate psychotherapy note classification mandatory",
+        "kenya_notes": null,
+        "config_notes": "Dedicated FHIR psychotherapy profile + sensitivity enforcement"
+      }
+    }
+  ]
+}

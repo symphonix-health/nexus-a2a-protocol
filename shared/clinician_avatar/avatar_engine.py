@@ -1,10 +1,33 @@
 from __future__ import annotations
 
+import asyncio
 import json
+import logging
+import os
+import time
 import uuid
 from typing import Any
 
+logger = logging.getLogger(__name__)
+
+# Maximum turns kept per session (oldest pairs dropped to stay under cap)
+MAX_CONVERSATION_TURNS = int(os.getenv("AVATAR_MAX_CONVERSATION_TURNS", "100"))
+# Sessions idle longer than this many seconds are reaped automatically
+SESSION_IDLE_TTL = float(os.getenv("AVATAR_SESSION_IDLE_TTL", "1800"))  # 30 min
+# How often the background reaper checks for expired sessions
+_REAPER_INTERVAL = float(os.getenv("AVATAR_REAPER_INTERVAL", "300"))  # 5 min
+
 from shared.nexus_common.openai_helper import llm_chat
+
+
+def _iso_to_ts(iso: str) -> float:
+    """Parse an ISO-8601 string to a Unix timestamp; return 0.0 on failure."""
+    try:
+        from datetime import datetime, timezone
+
+        return datetime.fromisoformat(iso).astimezone(timezone.utc).timestamp()
+    except Exception:
+        return 0.0
 
 from .avatar_session import AvatarSession
 from .frameworks.calgary_cambridge import next_stage as calgary_next_stage
@@ -19,6 +42,35 @@ from .prompts.clinician_persona import build_persona_prompt
 class AvatarEngine:
     def __init__(self) -> None:
         self.sessions: dict[str, AvatarSession] = {}
+        self._reaper_task: asyncio.Task | None = None
+
+    def start_reaper(self) -> None:
+        """Schedule the background session reaper (call once from app startup)."""
+        if self._reaper_task is None or self._reaper_task.done():
+            self._reaper_task = asyncio.create_task(self._reap_loop())
+
+    async def _reap_loop(self) -> None:
+        """Periodically evict sessions that have been idle longer than SESSION_IDLE_TTL."""
+        while True:
+            await asyncio.sleep(_REAPER_INTERVAL)
+            try:
+                self._reap_idle_sessions()
+            except Exception as exc:
+                logger.warning(f"Avatar session reaper error: {exc}")
+
+    def _reap_idle_sessions(self) -> int:
+        now = time.time()
+        expired = [
+            sid
+            for sid, s in self.sessions.items()
+            # updated_at is an ISO string; fall back to created_at if needed
+            if (now - _iso_to_ts(s.updated_at or s.created_at)) > SESSION_IDLE_TTL
+        ]
+        for sid in expired:
+            self.sessions.pop(sid, None)
+        if expired:
+            logger.info(f"Reaped {len(expired)} idle avatar session(s)")
+        return len(expired)
 
     def start_session(self, patient_case: dict[str, Any], persona: dict[str, Any]) -> AvatarSession:
         session_id = f"avatar-{uuid.uuid4()}"
@@ -156,12 +208,22 @@ class AvatarEngine:
 
         return cleaned.strip()
 
+    @staticmethod
+    def _trim_history(history: list[dict], max_turns: int) -> None:
+        """Drop oldest user+assistant pairs in-place when history exceeds max_turns."""
+        while len(history) > max_turns:
+            # Always remove two entries (user + assistant) to preserve pairing
+            del history[0]
+            if history:
+                del history[0]
+
     def handle_patient_message(self, session_id: str, message: str) -> dict[str, Any]:
         session = self.sessions.get(session_id)
         if session is None:
             return {"error": "session_not_found", "session_id": session_id}
 
         session.conversation_history.append({"role": "user", "content": message})
+        self._trim_history(session.conversation_history, MAX_CONVERSATION_TURNS)
 
         stage = str(session.framework_progress.get("stage") or "initiating")
         stage_context = stage_prompt_context(stage)

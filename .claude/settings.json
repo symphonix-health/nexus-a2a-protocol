@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(PYTHONPATH=. .venv/Scripts/python.exe -c \":*)",
+      "Bash(PYTHONPATH=. PYTHONUTF8=1 .venv/Scripts/python.exe -c \":*)",
+      "Bash(python -c \":*)",
+      "Bash(python -m pytest tests/test_clinician_avatar.py tests/test_video_clinician_provider.py tests/test_avatar_streaming.py -q --tb=short)",
+      "Bash(python -m pytest tests/test_clinician_avatar.py tests/test_video_clinician_provider.py tests/test_avatar_streaming.py --tb=short)",
+      "Bash(python -m pytest tests/nexus_harness/test_helixcare_avatar_streaming.py --collect-only -q)",
+      "Bash(python -m pytest tests/nexus_harness/test_helixcare_avatar_streaming.py --collect-only)",
+      "Bash(python -m pytest tests/nexus_harness/test_helixcare_avatar_streaming.py -v --tb=short)",
+      "Bash(grep -r \"cache\\\\|Cache\\\\|buffer\\\\|Buffer\\\\|store.*=\" /c/nexus-a2a-protocol/shared/nexus_common/*.py)",
+      "Bash(grep -r \"dict\\\\[\" /c/nexus-a2a-protocol/tools/*.py)",
+      "Bash(find /c/nexus-a2a-protocol -name \"*.py\" -path \"*/shared/*\" -exec grep -l \"Session\\\\|session.*dict\\\\|_sessions\\\\|active_.*=\" {} ;)",
+      "Bash(PYTHONPATH=. PYTHONUTF8=1 .venv/Scripts/python.exe -m pytest tests/test_persona_registry.py tests/test_agent_identity.py -v --tb=short)",
+      "Bash(PYTHONPATH=. PYTHONUTF8=1 .venv/Scripts/python.exe -m pytest tests/test_clinician_avatar.py -v --tb=short)",
+      "Bash(python -m pytest tests/ -q --tb=no -x)",
+      "Bash(python -m pytest tests/ -q --tb=no --ignore=tests/nexus_harness -x)",
+      "Bash(python -m pytest tests/ --ignore=tests/nexus_harness -q --tb=short)",
+      "Bash(python -m pytest tests/ --ignore=tests/nexus_harness --tb=short)",
+      "Bash(python -m pytest tests/ --ignore=tests/nexus_harness)",
+      "Bash(.venv/Scripts/python -m pytest tests/ --ignore=tests/nexus_harness -q)",
+      "Bash(.venv/Scripts/python -m pytest tests/ --ignore=tests/nexus_harness)",
+      "Bash(.venv/Scripts/python -m pytest tests/nexus_harness/ -q --tb=short)",
+      "Read(//c/Users/hgeec/AppData/Local/Temp/claude/c--nexus-a2a-protocol/tasks/**)"
+    ]
+  }
+}

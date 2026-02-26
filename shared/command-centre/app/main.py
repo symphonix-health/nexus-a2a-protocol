@@ -50,10 +50,20 @@ app.add_middleware(
 
 # Configuration
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
-UPDATE_INTERVAL_MS = int(os.getenv("UPDATE_INTERVAL_MS", "2000"))
+UPDATE_INTERVAL_MS = int(os.getenv("UPDATE_INTERVAL_MS", "5000"))
+# Cap concurrent agent health checks (avoid spawning N HTTP requests simultaneously)
+POLL_CONCURRENCY = int(os.getenv("CC_POLL_CONCURRENCY", "6"))
+# Re-fetch the (mostly static) agent card at most once per this many seconds
+CARD_CACHE_TTL_S = float(os.getenv("CC_CARD_CACHE_TTL_S", "60.0"))
+# Max simultaneous WebSocket dashboard clients
+WS_MAX_CLIENTS = int(os.getenv("CC_WS_MAX_CLIENTS", "20"))
+# Per-agent health/card request timeout
+AGENT_FETCH_TIMEOUT = float(os.getenv("CC_AGENT_FETCH_TIMEOUT", "5.0"))
 
 # In-memory agent state
 agent_states: dict[str, dict[str, Any]] = {}
+# Card data cached separately so it can be excluded from high-frequency WS broadcasts
+_card_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 scenario_catalog: list[dict[str, Any]] = []
 lock = asyncio.Lock()
 poll_task_started = False
@@ -72,6 +82,21 @@ TRACE_STORE_FILE = Path(
 
 # ── WebSocket Client Registry ────────────────────────────────────────
 ws_clients: set[WebSocket] = set()
+
+
+def _slim_agent_snapshot() -> list[dict[str, Any]]:
+    """Compact agent snapshot — excludes large card payload for WS broadcasts."""
+    return [
+        {
+            "name": s.get("name", ""),
+            "url": s.get("url", ""),
+            "status": s.get("status", "unknown"),
+            "health_score": s.get("health_score", 0.5),
+            "metrics": s.get("metrics", {}),
+            "last_seen": s.get("last_seen", ""),
+        }
+        for s in agent_states.values()
+    ]
 
 
 class DevNoCacheStaticFiles(StaticFiles):
@@ -230,10 +255,33 @@ def _persist_trace_store_to_disk() -> None:
 
 
 # ── Agent Discovery & Health Polling ──────────────────────────────────
-async def fetch_agent_card(url: str, client: httpx.AsyncClient) -> dict[str, Any] | None:
-    """Fetch agent card from discovery endpoint."""
+async def _fetch_card_cached(url: str, client: httpx.AsyncClient) -> dict[str, Any] | None:
+    """Return cached agent card, refreshing only after CARD_CACHE_TTL_S seconds."""
+    now = asyncio.get_event_loop().time()
+    cached_at, cached_card = _card_cache.get(url, (0.0, {}))
+    if now - cached_at < CARD_CACHE_TTL_S:
+        return cached_card or None
     try:
-        resp = await client.get(f"{url}/.well-known/agent-card.json", timeout=10.0)
+        resp = await client.get(
+            f"{url}/.well-known/agent-card.json", timeout=AGENT_FETCH_TIMEOUT
+        )
+        if resp.status_code == 200:
+            card = resp.json()
+            _card_cache[url] = (now, card)
+            return card
+        _card_cache[url] = (now, {})
+    except Exception as exc:
+        logger.debug(f"Failed to fetch agent card from {url}: {exc}")
+        _card_cache[url] = (now, {})
+    return None
+
+
+async def fetch_agent_card(url: str, client: httpx.AsyncClient) -> dict[str, Any] | None:
+    """Fetch agent card from discovery endpoint (bypasses cache — for direct callers)."""
+    try:
+        resp = await client.get(
+            f"{url}/.well-known/agent-card.json", timeout=AGENT_FETCH_TIMEOUT
+        )
         if resp.status_code == 200:
             return resp.json()
     except Exception as exc:
@@ -244,7 +292,7 @@ async def fetch_agent_card(url: str, client: httpx.AsyncClient) -> dict[str, Any
 async def fetch_agent_health(url: str, client: httpx.AsyncClient) -> dict[str, Any] | None:
     """Fetch agent health status."""
     try:
-        resp = await client.get(f"{url}/health", timeout=10.0)
+        resp = await client.get(f"{url}/health", timeout=AGENT_FETCH_TIMEOUT)
         if resp.status_code == 200:
             return resp.json()
     except Exception as exc:
@@ -252,72 +300,77 @@ async def fetch_agent_health(url: str, client: httpx.AsyncClient) -> dict[str, A
     return None
 
 
+async def _poll_one_agent(
+    url: str,
+    client: httpx.AsyncClient,
+    timestamp: str,
+    sem: asyncio.Semaphore,
+) -> None:
+    """Poll a single agent under the concurrency semaphore, update agent_states."""
+    async with sem:
+        card = await _fetch_card_cached(url, client)
+        health = await fetch_agent_health(url, client)
+
+    async with lock:
+        if card or health:
+            agent_name = (health or {}).get("name") or (card or {}).get("name") or url
+            status = "unknown"
+            health_score = 0.5
+            metrics = {}
+
+            if health:
+                status = health.get("status", "unknown")
+                metrics = health.get("metrics", {})
+                error_rate = 0.0
+                total = metrics.get("tasks_completed", 0) + metrics.get("tasks_errored", 0)
+                if total > 0:
+                    error_rate = metrics.get("tasks_errored", 0) / total
+                latency_factor = max(0, 1 - metrics.get("avg_latency_ms", 0) / 10000)
+                health_score = latency_factor * 0.5 + (1 - error_rate) * 0.5
+
+            agent_states[url] = {
+                "name": agent_name,
+                "url": url,
+                "status": status,
+                "health_score": round(health_score, 3),
+                "metrics": metrics,
+                "last_seen": timestamp,
+            }
+        else:
+            if url in agent_states:
+                agent_states[url]["status"] = "unhealthy"
+                agent_states[url]["last_seen"] = timestamp
+
+
 async def poll_agents():
-    """Background task to continuously poll agent health."""
+    """Background task — polls all agents concurrently and broadcasts to WS clients."""
     global first_poll_cycle_completed
-    async with httpx.AsyncClient() as client:
+    sem = asyncio.Semaphore(POLL_CONCURRENCY)
+    limits = httpx.Limits(
+        max_keepalive_connections=POLL_CONCURRENCY,
+        max_connections=POLL_CONCURRENCY + 4,
+        keepalive_expiry=30.0,
+    )
+    async with httpx.AsyncClient(limits=limits) as client:
         while True:
             try:
                 timestamp = datetime.now(timezone.utc).isoformat()
-
-                for url in AGENT_URLS:
-                    card = await fetch_agent_card(url, client)
-                    health = await fetch_agent_health(url, client)
-
-                    async with lock:
-                        if card or health:
-                            agent_name = (
-                                (health or {}).get("name") or (card or {}).get("name") or url
-                            )
-
-                            # Infer dependencies from card
-                            dependencies = []
-                            if card and "methods" in card:
-                                # Placeholder: parse from card or env vars
-                                pass
-
-                            # Calculate health score
-                            status = "unknown"
-                            health_score = 0.5
-                            metrics = {}
-
-                            if health:
-                                status = health.get("status", "unknown")
-                                metrics = health.get("metrics", {})
-
-                                # Health score calculation
-                                error_rate = 0.0
-                                total = metrics.get("tasks_completed", 0) + metrics.get(
-                                    "tasks_errored", 0
-                                )
-                                if total > 0:
-                                    error_rate = metrics.get("tasks_errored", 0) / total
-
-                                latency_factor = max(
-                                    0, 1 - metrics.get("avg_latency_ms", 0) / 10000
-                                )
-                                success_rate = 1 - error_rate
-                                health_score = latency_factor * 0.5 + success_rate * 0.5
-
-                            agent_states[url] = {
-                                "name": agent_name,
-                                "url": url,
-                                "status": status,
-                                "health_score": round(health_score, 3),
-                                "metrics": metrics,
-                                "dependencies": dependencies,
-                                "card": card or {},
-                                "last_seen": timestamp,
-                            }
-
-                        # Mark unreachable agents
-                        else:
-                            if url in agent_states:
-                                agent_states[url]["status"] = "unhealthy"
-                                agent_states[url]["last_seen"] = timestamp
-
+                # Poll all agents concurrently — no sequential blocking
+                await asyncio.gather(
+                    *[_poll_one_agent(url, client, timestamp, sem) for url in AGENT_URLS],
+                    return_exceptions=True,
+                )
                 first_poll_cycle_completed = True
-
+                # Broadcast slim snapshot to all connected WS clients (once per cycle)
+                async with lock:
+                    snapshot = _slim_agent_snapshot()
+                await _broadcast_ws(
+                    {
+                        "type": "agents.snapshot",
+                        "payload": snapshot,
+                        "timestamp": timestamp,
+                    }
+                )
                 await asyncio.sleep(UPDATE_INTERVAL_MS / 1000)
             except Exception as exc:
                 logger.error(f"Error in poll_agents: {exc}")
@@ -366,9 +419,20 @@ async def readyz():
 
 @app.get("/api/agents")
 async def get_agents():
-    """Get current state of all monitored agents."""
+    """Get current state of all monitored agents (slim payload — no card data)."""
     async with lock:
-        return JSONResponse(content=list(agent_states.values()))
+        return JSONResponse(content=_slim_agent_snapshot())
+
+
+@app.get("/api/agents/{agent_url:path}")
+async def get_agent_detail(agent_url: str):
+    """Get full agent state including cached card data for a specific agent URL."""
+    async with lock:
+        state = agent_states.get(agent_url)
+    if state is None:
+        return JSONResponse(status_code=404, content={"error": "agent not found"})
+    _, card = _card_cache.get(agent_url, (0.0, {}))
+    return JSONResponse(content={**state, "card": card})
 
 
 @app.get("/api/topology")
@@ -526,48 +590,56 @@ async def export_trace(trace_id: str):
 # ── WebSocket Event Streaming ─────────────────────────────────────────
 @app.websocket("/api/events")
 async def websocket_events(websocket: WebSocket):
-    """Stream real-time events from Redis pub/sub."""
+    """Stream real-time agent events to dashboard clients.
+
+    Periodic agent snapshots are pushed by poll_agents() — one broadcast
+    per poll cycle regardless of client count.  This handler just keeps
+    the socket alive and forwards Redis events when Redis is available.
+    """
+    if len(ws_clients) >= WS_MAX_CLIENTS:
+        await websocket.close(code=1013)  # 1013 = Try Again Later
+        logger.warning(f"WS client rejected — limit {WS_MAX_CLIENTS} reached")
+        return
+
     await websocket.accept()
     ws_clients.add(websocket)
-    logger.info("WebSocket client connected")
+    logger.info(f"WebSocket client connected ({len(ws_clients)}/{WS_MAX_CLIENTS})")
 
+    redis_client = None
+    pubsub = None
     try:
+        # Send immediate snapshot on connect
+        async with lock:
+            snapshot = _slim_agent_snapshot()
+        await websocket.send_json(
+            {
+                "type": "agents.snapshot",
+                "payload": snapshot,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
+
         if not REDIS_AVAILABLE:
             await websocket.send_json(
                 {
                     "type": "system.warning",
-                    "payload": {"message": "redis.asyncio not installed; event stream disabled"},
+                    "payload": {"message": "Redis not available; snapshots pushed every poll cycle"},
                     "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
             )
-            # Keep socket alive with periodic snapshots.
+            # No per-client loop — poll_agents broadcasts updates.
+            # Just drain any incoming client messages until disconnect.
             while True:
-                async with lock:
-                    await websocket.send_json(
-                        {
-                            "type": "agents.snapshot",
-                            "payload": list(agent_states.values()),
-                            "timestamp": datetime.now(timezone.utc).isoformat(),
-                        }
-                    )
-                await asyncio.sleep(5.0)
+                msg = await websocket.receive()
+                if msg.get("type") == "websocket.disconnect":
+                    break
+            return
 
-        # Connect to Redis
+        # ── Redis path: stream live task events ─────────────────────
         redis_client = aioredis.from_url(REDIS_URL, decode_responses=True)
         pubsub = redis_client.pubsub()
         await pubsub.subscribe("nexus:events")
 
-        # Send initial agent state
-        async with lock:
-            await websocket.send_json(
-                {
-                    "type": "agents.snapshot",
-                    "payload": list(agent_states.values()),
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                }
-            )
-
-        # Stream events
         async for message in pubsub.listen():
             if message["type"] == "message":
                 try:
@@ -582,20 +654,23 @@ async def websocket_events(websocket: WebSocket):
                 except json.JSONDecodeError:
                     logger.warning(f"Invalid JSON in Redis message: {message['data']}")
 
-            # Periodically send agent updates
-            await asyncio.sleep(0.1)
-
     except WebSocketDisconnect:
         logger.info("WebSocket client disconnected")
     except Exception as exc:
         logger.error(f"WebSocket error: {exc}")
     finally:
         ws_clients.discard(websocket)
-        try:
-            await pubsub.unsubscribe("nexus:events")
-            await redis_client.close()
-        except Exception:
-            pass
+        logger.info(f"WebSocket client removed ({len(ws_clients)} remaining)")
+        if pubsub is not None:
+            try:
+                await pubsub.unsubscribe("nexus:events")
+            except Exception:
+                pass
+        if redis_client is not None:
+            try:
+                await redis_client.close()
+            except Exception:
+                pass
 
 
 # ── Static Files ──────────────────────────────────────────────────────

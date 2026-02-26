@@ -224,6 +224,11 @@ class TaskEventBus:
         self._cursor_secret = _cursor_secret_from_env()
         self._history_max_events = max(1, int(os.getenv("NEXUS_STREAM_HISTORY_MAX_EVENTS", "1024")))
         self._history_retention_ms = _cursor_retention_ms_from_env()
+        # Max JSONL file size before rotation (default 2 MB)
+        self._persist_max_bytes = max(
+            65536,
+            int(os.getenv("NEXUS_TASK_EVENT_STORE_MAX_BYTES", str(2 * 1024 * 1024))),
+        )
         self._persist_path = self._resolve_persist_path()
         self._load_persisted_history()
 
@@ -252,6 +257,12 @@ class TaskEventBus:
     def _load_persisted_history(self) -> None:
         if self._persist_path is None or not self._persist_path.exists():
             return
+        # If the file is oversized, rotate it before loading so startup stays fast
+        try:
+            if self._persist_path.stat().st_size >= self._persist_max_bytes:
+                self._rotate_persist_file()
+        except Exception:
+            pass
         try:
             with self._persist_path.open("r", encoding="utf-8") as f:
                 for line in f:
@@ -291,10 +302,44 @@ class TaskEventBus:
             # Persistence is optional; ignore load failures.
             return
 
+    def _rotate_persist_file(self) -> None:
+        """Rewrite the JSONL file keeping only events within the retention window."""
+        if self._persist_path is None or not self._persist_path.exists():
+            return
+        now_ms = int(time.time() * 1000)
+        min_ts = now_ms - self._history_retention_ms
+        try:
+            kept: list[str] = []
+            with self._persist_path.open("r", encoding="utf-8") as f:
+                for line in f:
+                    raw = line.strip()
+                    if not raw:
+                        continue
+                    try:
+                        ts = int(json.loads(raw).get("ts_unix_ms", 0))
+                    except Exception:
+                        continue
+                    if ts >= min_ts:
+                        kept.append(raw)
+            # Trim to at most history_max_events lines per rotation
+            if len(kept) > self._history_max_events:
+                kept = kept[-self._history_max_events :]
+            tmp = self._persist_path.with_suffix(".jsonl.tmp")
+            tmp.write_text("\n".join(kept) + ("\n" if kept else ""), encoding="utf-8")
+            tmp.replace(self._persist_path)
+        except Exception:
+            pass  # Rotation is best-effort
+
     def _persist_event(self, task_id: str, evt: SseEvent) -> None:
         if self._persist_path is None:
             return
         try:
+            # Rotate before writing if file has grown too large
+            try:
+                if self._persist_path.stat().st_size >= self._persist_max_bytes:
+                    self._rotate_persist_file()
+            except FileNotFoundError:
+                pass
             payload = {
                 "task_id": task_id,
                 "event": evt.event,

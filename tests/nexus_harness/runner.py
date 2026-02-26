@@ -205,6 +205,7 @@ HELIXCARE_URLS: dict[str, str] = {
     "discharge-agent": os.environ.get("HC_DISCHARGE_URL", "http://localhost:8027"),
     "followup-scheduler": os.environ.get("HC_FOLLOWUP_URL", "http://localhost:8028"),
     "care-coordinator": os.environ.get("HC_COORDINATOR_URL", "http://localhost:8029"),
+    "clinician-avatar": os.environ.get("HC_AVATAR_URL", "http://localhost:8039"),
 }
 
 

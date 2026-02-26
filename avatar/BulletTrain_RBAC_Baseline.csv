@@ -1,0 +1,7 @@
+BulletTrain_Technical_Role,Default_Scopes,Allowed_Sensitivity,Intended_Use
+system,system/*.read system/*.write,High,Internal services and orchestration
+connector,system/*.read system/*.write,High,External integrations (FHIR/HL7)
+clinician_service,patient.read patient.write encounter.read encounter.write observation.read observation.write,Medium-High,Clinical workflows
+patient_service,patient.read appointment.read appointment.write,Low-Medium,Patient/administrative services with limited PHI
+auditor,audit.read consent.read,High,Audit and compliance review
+admin,*.*,High,Platform administration

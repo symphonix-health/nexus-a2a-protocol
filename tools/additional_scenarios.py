@@ -1914,6 +1914,695 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
 enrich_scenario_handoff_contracts(ADDITIONAL_SCENARIOS)
 
 
+# ── Persona-Aware Scenarios ────────────────────────────────────────────────────
+# These scenarios exercise the persona registry and IAM system.  Each one uses
+# a specific persona_id from config/personas.json and targets a different country
+# context, care setting, or clinical domain.
+
+PERSONA_SCENARIOS: list[PatientScenario] = [
+    # ── 1. UK GP consultation (P002) ─────────────────────────────────────────
+    PatientScenario(
+        name="clinician_avatar_uk_gp_consultation",
+        description=(
+            "UK primary-care consultation via the Clinician Avatar using the GP persona (P002). "
+            "Patient presents with persistent cough and breathlessness — the avatar interviews "
+            "using Calgary-Cambridge, then delegates diagnosis."
+        ),
+        patient_profile={
+            "age": 38,
+            "gender": "female",
+            "chief_complaint": "Persistent cough for 3 weeks",
+            "urgency": "low",
+        },
+        medical_history={
+            "past_medical_history": ["Seasonal asthma (childhood)", "No current medications"],
+            "medications": ["Salbutamol PRN (rarely used)"],
+            "allergies": ["No known drug allergies"],
+            "social_history": {
+                "tobacco": "never",
+                "alcohol": "occasional",
+                "occupation": "Teacher",
+                "exercise": "regular",
+            },
+            "family_history": ["Father with COPD"],
+            "review_of_systems": {
+                "respiratory": "Dry cough, no haemoptysis, worse at night",
+                "constitutional": "Mild fatigue, no fevers, no weight loss",
+            },
+            "vital_signs": {
+                "blood_pressure": "118/72",
+                "heart_rate": 74,
+                "respiratory_rate": 14,
+                "oxygen_saturation": 99,
+                "temperature_c": 36.6,
+            },
+        },
+        journey_steps=[
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/start_session",
+                "params": {
+                    "persona_id": "P002",
+                    "country": "uk",
+                    "care_setting": "primary_care",
+                    "patient_case": {
+                        "patient_profile": {
+                            "chief_complaint": "Persistent cough for 3 weeks",
+                            "age": 38,
+                            "gender": "female",
+                            "urgency": "low",
+                        }
+                    },
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+                    "message": "I've had this dry cough for about three weeks. It keeps me up at night.",
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+                    "message": "No blood. I had childhood asthma but haven't needed my inhaler in years.",
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "diagnosis",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "symptoms": "persistent dry cough, 3 weeks, nocturnal, no haemoptysis",
+                    "differential_diagnosis": ["Asthma exacerbation", "GORD", "Post-nasal drip", "ACE inhibitor cough"],
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "GP delegates to diagnosis after avatar history taking",
+                },
+            },
+            {
+                "agent": "followup",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "followup_schedule": [
+                        {"type": "primary_care", "when": _future(14), "purpose": "Cough review"},
+                    ]
+                },
+                "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": "GP follow-up after diagnostic workup",
+                },
+            },
+        ],
+        expected_duration=12,
+    ),
+
+    # ── 2. USA Attending Physician (P014) — Chest pain ACS pathway ───────────
+    PatientScenario(
+        name="clinician_avatar_usa_attending_acs",
+        description=(
+            "USA hospital consultation using the Attending Physician persona (P014). "
+            "Patient presents with suspected ACS — avatar uses SOCRATES framework, "
+            "then delegates to diagnosis and imaging."
+        ),
+        patient_profile={
+            "age": 62,
+            "gender": "male",
+            "chief_complaint": "Severe crushing chest pain radiating to left arm",
+            "urgency": "high",
+        },
+        medical_history={
+            "past_medical_history": ["Hypertension", "Type 2 diabetes", "Hyperlipidaemia"],
+            "medications": ["Lisinopril 10 mg", "Metformin 1000 mg BID", "Atorvastatin 40 mg"],
+            "allergies": ["Aspirin (GI intolerance — can use alternative)"],
+            "social_history": {
+                "tobacco": "former smoker (quit 5 years ago)",
+                "alcohol": "social",
+                "occupation": "Retired engineer",
+            },
+            "family_history": ["Father had MI at age 58"],
+            "review_of_systems": {
+                "cardiac": "Crushing substernal pain 7/10, radiation to left arm, diaphoresis",
+                "respiratory": "Mild dyspnoea, no cough",
+                "neurological": "No syncope, no focal deficits",
+            },
+            "vital_signs": {
+                "blood_pressure": "158/96",
+                "heart_rate": 104,
+                "respiratory_rate": 22,
+                "oxygen_saturation": 94,
+                "temperature_c": 37.1,
+            },
+        },
+        journey_steps=[
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/start_session",
+                "params": {
+                    "persona_id": "P014",
+                    "country": "usa",
+                    "patient_case": {
+                        "patient_profile": {
+                            "chief_complaint": "Severe crushing chest pain radiating to left arm",
+                            "age": 62,
+                            "gender": "male",
+                            "urgency": "high",
+                        }
+                    },
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+                    "message": "The pain started about 45 minutes ago. It feels like an elephant on my chest.",
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+                    "message": "It's going into my left arm and I feel sweaty and short of breath.",
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "triage",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "symptoms": "crushing chest pain, left arm radiation, diaphoresis, dyspnoea",
+                    "vital_signs": {"blood_pressure": "158/96", "heart_rate": 104, "oxygen_saturation": 94},
+                    "chief_complaint": "suspected ACS",
+                },
+                "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Attending physician escalates to ED triage after avatar assessment",
+                },
+            },
+            {
+                "agent": "diagnosis",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "symptoms": "ACS presentation",
+                    "differential_diagnosis": ["STEMI", "NSTEMI", "Unstable angina", "Aortic dissection"],
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["triage"],
+                    "clinical_rationale": "USA attending delegates diagnosis with STEMI protocol",
+                },
+            },
+        ],
+        expected_duration=14,
+    ),
+
+    # ── 3. Kenya Medical Officer (P026) — Paediatric fever/malaria ────────────
+    PatientScenario(
+        name="clinician_avatar_kenya_medical_officer",
+        description=(
+            "Kenya health facility consultation using the Medical Officer persona (P026). "
+            "Paediatric patient with high fever and vomiting — potential malaria or typhoid."
+        ),
+        patient_profile={
+            "age": 7,
+            "gender": "male",
+            "chief_complaint": "High fever for 2 days and vomiting",
+            "urgency": "high",
+        },
+        medical_history={
+            "past_medical_history": ["No chronic illness", "Malaria episode 1 year ago"],
+            "medications": [],
+            "allergies": [],
+            "social_history": {
+                "tobacco": "N/A",
+                "alcohol": "N/A",
+                "school": "Grade 2",
+                "area": "Rural Kisumu County, near Lake Victoria",
+            },
+            "family_history": ["No significant family history reported"],
+            "review_of_systems": {
+                "constitutional": "Fever 39.8°C, chills, rigors, poor appetite for 2 days",
+                "gastrointestinal": "Vomited twice this morning, no diarrhoea",
+                "neurological": "Alert but irritable, no neck stiffness, no seizures",
+            },
+            "vital_signs": {
+                "blood_pressure": "90/60",
+                "heart_rate": 128,
+                "respiratory_rate": 26,
+                "oxygen_saturation": 96,
+                "temperature_c": 39.8,
+            },
+        },
+        journey_steps=[
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/start_session",
+                "params": {
+                    "persona_id": "P026",
+                    "country": "kenya",
+                    "patient_case": {
+                        "patient_profile": {
+                            "chief_complaint": "High fever for 2 days and vomiting",
+                            "age": 7,
+                            "gender": "male",
+                            "urgency": "high",
+                        }
+                    },
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+                    "message": "My son has had fever for two days, he won't eat and vomited this morning.",
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+                    "message": "We live near the lake. He had malaria last year. We are worried.",
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "diagnosis",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "symptoms": "paediatric fever 2 days, vomiting, malaria exposure risk",
+                    "differential_diagnosis": ["Plasmodium falciparum malaria", "Typhoid fever", "Bacterial sepsis"],
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Medical officer delegates diagnosis with malaria protocol for endemic area",
+                },
+            },
+            {
+                "agent": "pharmacy",
+                "method": "pharmacy/recommend",
+                "params": {
+                    "task": {
+                        "med_plan": ["Artemether-lumefantrine (first-line malaria)"],
+                        "allergies": [],
+                        "current_medications": [],
+                        "weight_kg": 22,
+                    }
+                },
+                "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": "ACT treatment recommendation per Kenya MOH malaria guidelines",
+                },
+            },
+        ],
+        expected_duration=10,
+    ),
+
+    # ── 4. UK Telehealth Clinician (P048) — Remote follow-up ─────────────────
+    PatientScenario(
+        name="clinician_avatar_telehealth_uk_followup",
+        description=(
+            "UK telehealth consultation using the Telehealth Clinician persona (P048). "
+            "Post-discharge remote follow-up for a frailty patient — avatar interviews "
+            "then escalates care plan update to CCM agent."
+        ),
+        patient_profile={
+            "age": 78,
+            "gender": "female",
+            "chief_complaint": "Post-discharge follow-up — mobility and medication review",
+            "urgency": "low",
+        },
+        medical_history={
+            "past_medical_history": ["Atrial fibrillation", "Osteoporosis", "Mild cognitive impairment"],
+            "medications": ["Apixaban 5 mg BID", "Alendronate 70 mg weekly", "Donepezil 5 mg daily"],
+            "allergies": ["NSAIDs (GI bleed history)"],
+            "social_history": {
+                "tobacco": "never",
+                "alcohol": "rarely",
+                "occupation": "Retired",
+                "living": "Lives alone; daughter nearby",
+                "care": "Morning carer visits daily",
+            },
+            "family_history": ["Daughter manages health proxy"],
+            "review_of_systems": {
+                "musculoskeletal": "Hip pain improving, walking with frame",
+                "neurological": "Mild confusion in evenings (sundowning)",
+                "cardiac": "No palpitations, no syncope",
+            },
+            "vital_signs": {
+                "blood_pressure": "134/80",
+                "heart_rate": 72,
+                "respiratory_rate": 16,
+                "oxygen_saturation": 97,
+                "temperature_c": 36.5,
+            },
+        },
+        journey_steps=[
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/start_session",
+                "params": {
+                    "persona_id": "P048",
+                    "country": "uk",
+                    "care_setting": "telehealth",
+                    "patient_case": {
+                        "patient_profile": {
+                            "chief_complaint": "Post-discharge follow-up — mobility and medication review",
+                            "age": 78,
+                            "gender": "female",
+                            "urgency": "low",
+                        }
+                    },
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+                    "message": "I'm managing alright but still need the frame to walk. The hip is less painful.",
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+                    "message": "I'm a bit confused in the evenings but the carer comes in the morning.",
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "ccm_agent" if False else "care_coordinator",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "care_plan_update": {
+                        "patient_id": "frailty-telehealth-001",
+                        "actions": ["physiotherapy referral", "medication compliance check", "cognitive review"],
+                    }
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Telehealth clinician escalates care plan update after remote assessment",
+                },
+            },
+            {
+                "agent": "followup",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "followup_schedule": [
+                        {"type": "telehealth", "when": _future(28), "purpose": "4-week telehealth review"},
+                        {"type": "memory_clinic", "when": _future(42), "purpose": "Cognitive assessment"},
+                    ]
+                },
+                "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["care_coordinator"],
+                    "clinical_rationale": "Telehealth follow-up schedule with memory clinic referral",
+                },
+            },
+        ],
+        expected_duration=14,
+    ),
+
+    # ── 5. Psychiatrist (P065) — Mental health assessment ─────────────────────
+    PatientScenario(
+        name="clinician_avatar_psychiatrist_mental_health",
+        description=(
+            "Mental health consultation using the Psychiatrist persona (P065). "
+            "Patient with depressive episode and anxiety — avatar uses Calgary-Cambridge "
+            "with trauma-informed approach, then delegates to care coordinator."
+        ),
+        patient_profile={
+            "age": 29,
+            "gender": "female",
+            "chief_complaint": "Persistent low mood and anxiety for 6 months",
+            "urgency": "medium",
+        },
+        medical_history={
+            "past_medical_history": ["Generalised anxiety disorder (diagnosed 3 years ago)", "No psychosis history"],
+            "medications": ["Sertraline 50 mg daily (6 weeks)"],
+            "allergies": ["No known drug allergies"],
+            "social_history": {
+                "tobacco": "occasional",
+                "alcohol": "none",
+                "occupation": "Graphic designer (currently on sick leave)",
+                "living": "Lives with partner",
+                "support": "Partner supportive; limited family contact",
+            },
+            "family_history": ["Mother with depression"],
+            "review_of_systems": {
+                "psychiatric": "Low mood, anhedonia, poor sleep, reduced concentration, occasional passive SI (no plan)",
+                "anxiety": "Generalised worry, social withdrawal, avoidance behaviours",
+                "somatic": "Fatigue, poor appetite, no significant weight change",
+            },
+            "vital_signs": {
+                "blood_pressure": "112/70",
+                "heart_rate": 82,
+                "respiratory_rate": 14,
+                "oxygen_saturation": 99,
+                "temperature_c": 36.5,
+            },
+            "risk_assessment": {
+                "suicidal_ideation": "passive, no plan, no intent",
+                "self_harm": "none current",
+                "protective_factors": ["partner, employment goal", "therapy engagement"],
+            },
+        },
+        journey_steps=[
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/start_session",
+                "params": {
+                    "persona_id": "P065",
+                    "country": "uk",
+                    "patient_case": {
+                        "patient_profile": {
+                            "chief_complaint": "Persistent low mood and anxiety for 6 months",
+                            "age": 29,
+                            "gender": "female",
+                            "urgency": "medium",
+                        }
+                    },
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+                    "message": "I've been feeling really low and can't seem to enjoy anything anymore. It's been months.",
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+                    "message": "The anxiety is the worst part. I stopped going out. I feel hopeless sometimes but I wouldn't hurt myself.",
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "care_coordinator",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "care_plan": {
+                        "type": "mental_health",
+                        "interventions": ["CBT referral", "medication review at 8 weeks", "crisis plan"],
+                        "risk_level": "moderate",
+                        "escalation_trigger": "active SI or plan",
+                    }
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Psychiatrist delegates care coordination after risk stratification",
+                },
+            },
+            {
+                "agent": "followup",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "followup_schedule": [
+                        {"type": "psychiatry", "when": _future(14), "purpose": "Medication review + risk reassessment"},
+                        {"type": "cbt", "when": _future(21), "purpose": "First CBT session"},
+                    ]
+                },
+                "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["care_coordinator"],
+                    "clinical_rationale": "Psychiatric follow-up schedule with therapy referral",
+                },
+            },
+        ],
+        expected_duration=16,
+        negative_class=None,
+    ),
+
+    # ── 6. Multi-agent delegation chain — IAM-aware chest pain ───────────────
+    PatientScenario(
+        name="multi_agent_delegation_chest_pain_iam",
+        description=(
+            "Demonstrates the full delegation chain for a chest pain scenario with IAM persona context. "
+            "Avatar (P001) → Care Coordinator (P021) → Triage (P004) → Diagnosis (P001) → Imaging (P005). "
+            "Tests that each handoff respects persona scopes and delegation policy."
+        ),
+        patient_profile={
+            "age": 55,
+            "gender": "male",
+            "chief_complaint": "Crushing chest pain, 45 minutes, radiation to jaw",
+            "urgency": "critical",
+        },
+        medical_history={
+            "past_medical_history": ["Hypertension", "Hypercholesterolaemia"],
+            "medications": ["Amlodipine 10 mg", "Atorvastatin 40 mg"],
+            "allergies": ["Penicillin"],
+            "social_history": {"tobacco": "current smoker", "alcohol": "moderate"},
+            "family_history": ["Father — MI aged 52"],
+            "review_of_systems": {
+                "cardiac": "Crushing central chest pain 9/10, jaw radiation, diaphoresis, nausea",
+                "respiratory": "Severe dyspnoea at rest",
+            },
+            "vital_signs": {
+                "blood_pressure": "100/65",
+                "heart_rate": 115,
+                "respiratory_rate": 28,
+                "oxygen_saturation": 91,
+                "temperature_c": 37.2,
+            },
+            "iam_context": {
+                "initiating_agent": "clinician_avatar_agent",
+                "initiating_persona": "P001",
+                "delegation_chain": [
+                    "clinician_avatar_agent → care_coordinator",
+                    "care_coordinator → triage_agent",
+                    "triage_agent → diagnosis_agent",
+                    "diagnosis_agent → imaging_agent",
+                ],
+                "max_delegation_depth": 3,
+            },
+        },
+        journey_steps=[
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/start_session",
+                "params": {
+                    "persona_id": "P001",
+                    "country": "uk",
+                    "patient_case": {
+                        "patient_profile": {
+                            "chief_complaint": "Crushing chest pain, 45 minutes, radiation to jaw",
+                            "age": 55,
+                            "gender": "male",
+                            "urgency": "critical",
+                        }
+                    },
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+                    "message": "It came on suddenly 45 minutes ago — crushing, going to my jaw. I feel faint.",
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "triage",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "symptoms": "STEMI presentation — chest pain, jaw radiation, haemodynamic compromise",
+                    "vital_signs": {"blood_pressure": "100/65", "heart_rate": 115, "oxygen_saturation": 91},
+                    "persona_context": {"initiating_persona": "P001", "delegated_by": "clinician_avatar_agent"},
+                },
+                "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["clinician_avatar"],
+                    "clinical_rationale": "Avatar Consultant Physician escalates via STEMI protocol; delegation depth 1",
+                },
+            },
+            {
+                "agent": "diagnosis",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "symptoms": "Suspected STEMI",
+                    "differential_diagnosis": ["STEMI", "Type 2 MI", "Aortic dissection"],
+                    "persona_context": {"persona": "P001", "delegation_depth": 2},
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["triage"],
+                    "clinical_rationale": "Diagnosis agent (Consultant Physician) activated; delegation depth 2",
+                },
+            },
+            {
+                "agent": "imaging",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "imaging_request": {"type": "CXR + Echo", "urgency": "STAT"},
+                    "persona_context": {"persona": "P005", "delegation_depth": 3},
+                },
+                "delay": 2,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": "Radiologist persona activated by Diagnosis; max delegation depth 3",
+                },
+            },
+            {
+                "agent": "pharmacy",
+                "method": "pharmacy/recommend",
+                "params": {
+                    "task": {
+                        "med_plan": ["Aspirin 300 mg loading", "Heparin infusion", "GTN sublingual"],
+                        "allergies": ["Penicillin"],
+                        "persona_context": {"persona": "P007"},
+                    }
+                },
+                "delay": 1,
+                "handoff_policy": {
+                    "required_predecessors": ["diagnosis"],
+                    "clinical_rationale": "STEMI pharmacotherapy per ACS protocol; Pharmacist persona (P007)",
+                },
+            },
+        ],
+        expected_duration=12,
+    ),
+]
+
+# Enrich persona scenarios with handoff contracts
+enrich_scenario_handoff_contracts(PERSONA_SCENARIOS)
+
+# Merge persona scenarios into the main ADDITIONAL_SCENARIOS list so they are
+# picked up by TestScenarioCatalog and the run_additional_scenarios runner.
+ADDITIONAL_SCENARIOS.extend(PERSONA_SCENARIOS)
+
+
 async def run_additional_scenarios() -> None:
     """Run all additive variant scenarios."""
     if not ADDITIONAL_SCENARIOS:

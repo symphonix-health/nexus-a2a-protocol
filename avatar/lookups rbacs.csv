@@ -1,0 +1,12 @@
+Purpose_of_Use,Notes
+Treatment,Direct care delivery
+Payment,Billing/claims
+Healthcare Operations,"Operations, quality, risk management"
+Public Health,Surveillance/reporting
+Research,Research with governance controls
+System,Non-human/system operations
+,
+Sensitivity_Tier,Example
+Low,"De-identified, directory, non-clinical metadata"
+Medium,"Demographics, appointments, limited clinical"
+High,"Clinical notes, diagnoses, medications, sensitive results"
