@@ -307,6 +307,9 @@ async def stream_tts_chunks(text: str, voice: str = "alloy"):
     Yields nothing when OPENAI_API_KEY is absent or the API call fails.
     The caller (WebSocket handler) detects zero chunks and sends a
     ``synthetic_fallback`` message so the browser uses SpeechSynthesis instead.
+
+    Uses httpx directly because the OpenAI SDK's with_streaming_response context
+    manager hangs indefinitely on Windows (ProactorEventLoop + httpx issue in SDK v2).
     """
     clean = str(text or "").strip()
     if not clean:
@@ -316,20 +319,28 @@ async def stream_tts_chunks(text: str, voice: str = "alloy"):
     if not api_key:
         return  # no key — WebSocket handler will send synthetic_fallback
 
-    try:
-        from openai import AsyncOpenAI
+    import httpx
 
-        client = AsyncOpenAI(api_key=api_key)
-        model = os.getenv("OPENAI_TTS_MODEL", "gpt-4o-mini-tts")
-        chosen_voice = voice or os.getenv("OPENAI_TTS_VOICE", "alloy")
-        async with client.audio.speech.with_streaming_response.create(
-            model=model,
-            voice=chosen_voice,
-            input=clean,
-            response_format="pcm",  # raw 24 kHz 16-bit mono PCM
-        ) as response:
-            async for chunk in response.iter_bytes(chunk_size=4800):
-                yield chunk
+    model = os.getenv("OPENAI_TTS_MODEL", "gpt-4o-mini-tts")
+    chosen_voice = voice or os.getenv("OPENAI_TTS_VOICE", "alloy")
+    url = "https://api.openai.com/v1/audio/speech"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": model,
+        "voice": chosen_voice,
+        "input": clean,
+        "response_format": "pcm",  # raw 24 kHz 16-bit mono PCM
+    }
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            async with client.stream("POST", url, headers=headers, json=payload) as response:
+                if response.status_code != 200:
+                    return
+                async for chunk in response.aiter_bytes(chunk_size=4800):
+                    yield chunk
     except Exception:  # noqa: BLE001
         return  # API failure — WebSocket handler detects zero chunks → synthetic_fallback
 
