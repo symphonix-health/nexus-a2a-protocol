@@ -2232,20 +2232,41 @@ function clinicalStatus(status) {
 }
 
 // Map agent identifiers to their job-profile display names.
-// Keys are normalised (lower-case, underscored, no trailing "agent").
+// Keys are normalised (lower-case, underscored, no trailing "_agent").
+// Source of truth: config/agent_personas.json
 const AGENT_JOB_PROFILES = {
-    'clinician_avatar': 'Consultant Physician',
-    'clinicianavatagent': 'Consultant Physician',
+    // ed_triage group (8021-8023)
     'triage': 'Triage Nurse',
-    'diagnosis': 'Diagnosing Physician',
+    'diagnosis': 'Consultant Physician',
+    'openhie_mediator': 'Integration Engine Operator',
+    // helixcare group (8024-8039)
     'imaging': 'Radiologist',
     'pharmacy': 'Pharmacist',
     'bed_manager': 'Bed Manager',
-    'bed': 'Bed Manager',
-    'discharge': 'Discharge Coordinator',
-    'follow_up_scheduler': 'GP (Follow-up)',
-    'followup': 'GP (Follow-up)',
+    'discharge': 'Consultant Physician',
+    'followup_scheduler': 'Care Coordinator',
+    'followup': 'Care Coordinator',
     'care_coordinator': 'Care Coordinator',
+    'primary_care': 'GP (General Practitioner)',
+    'specialty_care': 'Consultant Physician',
+    'telehealth': 'Telehealth Clinician',
+    'home_visit': 'Home Care Nurse',
+    'ccm': 'Case Manager',
+    'clinician_avatar': 'Consultant Physician',
+    // telemed_scribe group (8031-8033)
+    'transcriber': 'Clinical Documentation Specialist',
+    'summariser': 'Clinical Documentation Specialist',
+    'ehr_writer': 'Health Records Officer',
+    // consent_verification group (8041-8044)
+    'insurer': 'Billing / Claims Specialist',
+    'provider': 'Consultant Physician',
+    'consent_analyser': 'Privacy Officer',
+    'hitl_ui': 'HITL Reviewer',
+    // public_health_surveillance group (8051-8053)
+    'hospital_reporter': 'Chief Medical Officer',
+    'osint': 'Public Health Surveillance Officer',
+    'central_surveillance': 'Chief Medical Officer',
+    // infrastructure
     'command_centre': 'Command Centre',
 };
 
