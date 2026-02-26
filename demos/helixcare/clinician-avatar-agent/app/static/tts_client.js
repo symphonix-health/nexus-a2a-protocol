@@ -264,9 +264,12 @@ window.TTSClient = (() => {
         if (!synthActive) {
           if (!speechStarted) {
             speechStarted = true;
-            _startAmpPoller();  // begin amplitude → lipsync polling
             if (onSpeechStart) onSpeechStart();
           }
+          // Always (re)start the poller on first binary chunk — speechStarted
+          // may have been set early by the meta handler, so we can't rely on
+          // !speechStarted to gate this.  _startAmpPoller() is idempotent.
+          _startAmpPoller();
           _appendBytes(new Uint8Array(event.data));
         }
       }
