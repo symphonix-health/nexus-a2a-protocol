@@ -221,7 +221,17 @@ def enforce_rbac(
     bulletrain_role = str(token_claims.get("bulletrain_role") or "").strip() or None
     purpose_of_use = str(token_claims.get("purpose_of_use") or "").strip() or None
     data_sensitivity = str(token_claims.get("data_sensitivity") or "").strip() or None
-    granted_scopes = extract_persona_scopes(token_claims)
+    # Build the full effective scope set: base JWT scopes (e.g. nexus:invoke)
+    # plus FHIR/clinical scopes extracted from persona claims.
+    _base_scope = token_claims.get("scope") or ""
+    _base_scopes: list[str] = (
+        [s for s in _base_scope.split() if s]
+        if isinstance(_base_scope, str)
+        else ([str(s) for s in _base_scope if s] if isinstance(_base_scope, list) else [])
+    )
+    granted_scopes = _base_scopes + [
+        s for s in extract_persona_scopes(token_claims) if s not in _base_scopes
+    ]
 
     ctx = RBACContext(
         allowed=False,
