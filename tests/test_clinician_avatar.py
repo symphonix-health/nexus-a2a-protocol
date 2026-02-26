@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from unittest.mock import patch
+
 import pytest
 
 # ── Avatar Engine ────────────────────────────────────────────────────────────
@@ -62,7 +64,11 @@ class TestAvatarEngine:
             persona=self._persona(),
         )
         sid = session.session_id
-        result = engine.handle_patient_message(sid, "I have a throbbing headache on the left side.")
+        with patch(
+            "shared.clinician_avatar.avatar_engine.llm_chat",
+            return_value="I understand you have a throbbing headache. Can you describe where exactly it is?",
+        ):
+            result = engine.handle_patient_message(sid, "I have a throbbing headache on the left side.")
         assert "clinician_response" in result
         assert "consultation_phase" in result
         assert len(result["clinician_response"]) > 5

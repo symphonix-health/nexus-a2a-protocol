@@ -23,6 +23,7 @@ import json
 import os
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -43,6 +44,8 @@ def _load_avatar_app():
         str(_AGENT_DIR / "app" / "main.py"),
     )
     module = importlib.util.module_from_spec(spec)
+    # Register so monkeypatch scans in tests can find and patch module globals.
+    sys.modules["avatar_app_main"] = module
     spec.loader.exec_module(module)  # type: ignore[union-attr]
     return module.app
 
@@ -315,22 +318,27 @@ class TestAvatarRpcSmoke:
     def test_patient_message_returns_response(self, avatar_app):
         from starlette.testclient import TestClient
 
-        with TestClient(avatar_app) as client:
-            start = self._rpc(client, "avatar/start_session", {
-                "patient_case": {
-                    "patient_profile": {
-                        "chief_complaint": "Headache",
-                        "urgency": "medium",
-                    }
-                },
-                "persona": {"name": "Dr. Patel", "specialty": "neurology"},
-            })
-            sid = start["result"]["session_id"]
+        _reply = "I understand. Can you tell me more about the headache?"
+        with patch(
+            "shared.clinician_avatar.avatar_engine.llm_chat",
+            return_value=_reply,
+        ):
+            with TestClient(avatar_app) as client:
+                start = self._rpc(client, "avatar/start_session", {
+                    "patient_case": {
+                        "patient_profile": {
+                            "chief_complaint": "Headache",
+                            "urgency": "medium",
+                        }
+                    },
+                    "persona": {"name": "Dr. Patel", "specialty": "neurology"},
+                })
+                sid = start["result"]["session_id"]
 
-            msg = self._rpc(client, "avatar/patient_message", {
-                "session_id": sid,
-                "message": "I have had a throbbing headache for three days.",
-            })
+                msg = self._rpc(client, "avatar/patient_message", {
+                    "session_id": sid,
+                    "message": "I have had a throbbing headache for three days.",
+                })
 
         assert "result" in msg
         assert "clinician_response" in msg["result"]

@@ -297,7 +297,9 @@ def enforce_rbac(
 
     # 4. Scope check ──────────────────────────────────────────────────────────
     if required_scopes:
-        effective_granted = list(granted_scopes)
+        # nexus:invoke is a protocol-level scope verified by verify_jwt before
+        # RBAC is called; exclude it from FHIR/clinical scope comparisons.
+        effective_granted = [s for s in granted_scopes if s != "nexus:invoke"]
 
         # Fallback: if the token carries no FHIR scopes (bare nexus:invoke),
         # use the agent's registered delegated_scopes from agent_personas.json.
