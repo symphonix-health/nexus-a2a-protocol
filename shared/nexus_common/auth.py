@@ -1,6 +1,10 @@
 """JWT authentication helpers for NEXUS-A2A protocol.
 
 Includes:
+  - mint_jwt()         — HS256 JWT for service-to-service calls
+  - mint_persona_jwt() — HS256 JWT enriched with persona RBAC claims
+  - verify_jwt()       — HS256 verification
+  - verify_jwt_rs256() — RS256 OIDC verification (optional)
 """
 
 from __future__ import annotations
@@ -55,6 +59,68 @@ def mint_jwt(
     sig = hmac.new(
         secret.encode("utf-8"), signing_input, hashlib.sha256
     ).digest()
+    s = _b64url_encode(sig)
+    return f"{h}.{p}.{s}"
+
+
+def mint_persona_jwt(
+    subject: str,
+    secret: str,
+    *,
+    persona_id: str | None = None,
+    agent_id: str | None = None,
+    ttl_seconds: int = 3600,
+    scope: str = "nexus:invoke",
+) -> str:
+    """Mint an HS256 JWT enriched with persona RBAC claims.
+
+    When *persona_id* is supplied the token includes the following extra claims
+    (sourced from ``config/personas.json`` via the PersonaRegistry):
+
+    * ``persona_id``     — e.g. ``"P004"``
+    * ``persona_name``   — e.g. ``"Triage Nurse"``
+    * ``bulletrain_role``— e.g. ``"clinician_service"``
+    * ``rbac_level``     — ``"High"`` / ``"Medium"`` / ``"Restricted"``
+    * ``scopes``         — list of FHIR scopes (``["patient.read", ...]``)
+    * ``purpose_of_use`` — ``"Treatment"`` / ``"Payment"`` / …
+    * ``data_sensitivity``— ``"High"`` / ``"Medium"`` / ``"Low"``
+
+    When *agent_id* is supplied it is embedded as the ``agent_id`` claim.
+
+    Persona look-up is best-effort: if ``config/personas.json`` cannot be read
+    the function still returns a valid (but scope-free) JWT.
+    """
+    header = {"alg": "HS256", "typ": "JWT"}
+    now = int(time.time())
+    payload: Dict[str, Any] = {
+        "sub": subject,
+        "iat": now,
+        "exp": now + ttl_seconds,
+        "scope": scope,
+    }
+    if agent_id:
+        payload["agent_id"] = agent_id
+
+    if persona_id:
+        try:
+            # Lazy import avoids a hard dependency cycle at module level.
+            from shared.nexus_common.identity.persona_registry import (  # noqa: PLC0415
+                get_persona_registry,
+            )
+
+            registry = get_persona_registry()
+            persona = registry.get(persona_id)
+            if persona:
+                payload.update(persona.to_jwt_claims_dict())
+        except Exception:  # noqa: BLE001
+            pass  # Persona lookup is best-effort; never break token minting.
+
+    header_bytes = json.dumps(header, separators=(",", ":")).encode("utf-8")
+    payload_bytes = json.dumps(payload, separators=(",", ":")).encode("utf-8")
+    h = _b64url_encode(header_bytes)
+    p = _b64url_encode(payload_bytes)
+    signing_input = f"{h}.{p}".encode("utf-8")
+    sig = hmac.new(secret.encode("utf-8"), signing_input, hashlib.sha256).digest()
     s = _b64url_encode(sig)
     return f"{h}.{p}.{s}"
 

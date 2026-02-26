@@ -1,0 +1,708 @@
+[
+  {
+    "use_case_id": "RBAC-POS-001",
+    "scenario_title": "Triage Nurse (P004) can assess a patient — full clinical scope chain",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "triage-agent",
+    "agent_url_key": "triage-agent",
+    "persona_id": "P004",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "chief_complaint": "chest pain",
+        "patient_id": "PAT-001"
+      }
+    },
+    "test_tags": ["rbac", "positive", "triage", "clinical"],
+    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-010"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": [
+        {"path": "result.status", "value": "ok"}
+      ]
+    },
+    "notes": "Triage Nurse has patient.read + encounter.write delegated scopes — should be allowed."
+  },
+  {
+    "use_case_id": "RBAC-POS-002",
+    "scenario_title": "Consultant Physician (P001) can invoke diagnosis analysis",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "diagnosis-agent",
+    "agent_url_key": "diagnosis-agent",
+    "persona_id": "P001",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "chief_complaint": "shortness of breath",
+        "patient_id": "PAT-002"
+      }
+    },
+    "test_tags": ["rbac", "positive", "diagnosis", "clinical"],
+    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-011"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": [
+        {"path": "result.status", "value": "ok"}
+      ]
+    },
+    "notes": "Consultant Physician has full clinical scopes including observation.write."
+  },
+  {
+    "use_case_id": "RBAC-POS-003",
+    "scenario_title": "Radiologist (P005) can invoke imaging agent",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "imaging-agent",
+    "agent_url_key": "imaging-agent",
+    "persona_id": "P005",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "modality": "CT",
+        "patient_id": "PAT-003",
+        "referral_note": "Rule out PE"
+      }
+    },
+    "test_tags": ["rbac", "positive", "imaging"],
+    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-012"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": []
+    },
+    "notes": "Radiologist has diagnosticreport.write scope."
+  },
+  {
+    "use_case_id": "RBAC-POS-004",
+    "scenario_title": "Pharmacist (P007) can invoke pharmacy agent",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "pharmacy-agent",
+    "agent_url_key": "pharmacy-agent",
+    "persona_id": "P007",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "medication": "aspirin",
+        "patient_id": "PAT-004",
+        "dose_mg": 75
+      }
+    },
+    "test_tags": ["rbac", "positive", "pharmacy"],
+    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-013"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": []
+    },
+    "notes": "Pharmacist has medicationrequest.write scope."
+  },
+  {
+    "use_case_id": "RBAC-POS-005",
+    "scenario_title": "Bed Manager (P045) can invoke bed management agent",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "bed-manager-agent",
+    "agent_url_key": "bed-manager-agent",
+    "persona_id": "P045",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "ward": "cardiology",
+        "patient_id": "PAT-005"
+      }
+    },
+    "test_tags": ["rbac", "positive", "operations"],
+    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-014"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": []
+    },
+    "notes": "Bed Manager has patient.read + encounter.write scope for bed assignment."
+  },
+  {
+    "use_case_id": "RBAC-POS-006",
+    "scenario_title": "Privacy Officer (P013) — auditor — can query consent-analyser",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "consent-analyser",
+    "agent_url_key": "consent-analyser",
+    "persona_id": "P013",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "patient_id": "PAT-006",
+        "consent_type": "data_sharing"
+      }
+    },
+    "test_tags": ["rbac", "positive", "governance", "consent"],
+    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-020"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": []
+    },
+    "notes": "Caldicott Guardian / Privacy Officer has consent.read scope."
+  },
+  {
+    "use_case_id": "RBAC-POS-007",
+    "scenario_title": "Integration Engine Operator (P056) — connector — can invoke openhie mediator",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "openhie-mediator",
+    "agent_url_key": "openhie-mediator",
+    "persona_id": "P056",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "message_type": "ADT_A01",
+        "patient_id": "PAT-007"
+      }
+    },
+    "test_tags": ["rbac", "positive", "connector"],
+    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-030"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": []
+    },
+    "notes": "Integration Engine Operator has system/*.read + system/*.write scope."
+  },
+  {
+    "use_case_id": "RBAC-POS-008",
+    "scenario_title": "CMO (P058) — surveillance — can invoke hospital-reporter",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "hospital-reporter",
+    "agent_url_key": "hospital-reporter",
+    "persona_id": "P058",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "report_type": "outbreak",
+        "cases": 5,
+        "disease": "influenza"
+      }
+    },
+    "test_tags": ["rbac", "positive", "surveillance"],
+    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-040"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": []
+    },
+    "notes": "CMO has appropriate governance + observation.write scope for reporting."
+  },
+  {
+    "use_case_id": "RBAC-POS-009",
+    "scenario_title": "GP (P002) can invoke primary-care agent",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "clinician-avatar",
+    "agent_url_key": "clinician-avatar",
+    "persona_id": "P002",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "chief_complaint": "diabetes review",
+        "patient_id": "PAT-009"
+      }
+    },
+    "test_tags": ["rbac", "positive", "avatar", "clinical"],
+    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-050"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": []
+    },
+    "notes": "GP has full clinical scopes including encounter.write."
+  },
+  {
+    "use_case_id": "RBAC-POS-010",
+    "scenario_title": "Clinical Documentation Specialist (P050) can invoke EHR writer",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "ehr-writer-agent",
+    "agent_url_key": "ehr-writer-agent",
+    "persona_id": "P050",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "note_type": "progress",
+        "patient_id": "PAT-010",
+        "content": "Patient progressing well post-surgery."
+      }
+    },
+    "test_tags": ["rbac", "positive", "ehr"],
+    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-060"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": []
+    },
+    "notes": "CDI Specialist has encounter.write scope for EHR documentation."
+  },
+  {
+    "use_case_id": "RBAC-POS-011",
+    "scenario_title": "Billing Specialist (P022) — payer — can invoke insurer agent",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "insurer-agent",
+    "agent_url_key": "insurer-agent",
+    "persona_id": "P022",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "claim_id": "CLM-9001",
+        "patient_id": "PAT-011",
+        "icd_codes": ["I25.10"]
+      }
+    },
+    "test_tags": ["rbac", "positive", "billing"],
+    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-070"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": []
+    },
+    "notes": "Billing specialist has patient.read + consent.read scope via connector role."
+  },
+  {
+    "use_case_id": "RBAC-POS-012",
+    "scenario_title": "Discharge agent accepts any valid nexus:invoke JWT for tasks/get",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "discharge-agent",
+    "agent_url_key": "discharge-agent",
+    "persona_id": null,
+    "method": "tasks/get",
+    "params": {"task_id": "T-DOESNOTEXIST"},
+    "test_tags": ["rbac", "positive", "bare-jwt"],
+    "requirement_ids": ["NEXUS-RBAC-002"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": [
+        {"path": "result.state", "value": "unknown"}
+      ]
+    },
+    "notes": "tasks/get only requires nexus:invoke — bare JWT without persona claims is sufficient."
+  },
+  {
+    "use_case_id": "RBAC-POS-013",
+    "scenario_title": "Telehealth clinician (P048) can invoke telehealth-agent",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "clinician-avatar",
+    "agent_url_key": "clinician-avatar",
+    "persona_id": "P048",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "consultation_type": "virtual",
+        "patient_id": "PAT-013",
+        "chief_complaint": "hypertension follow-up"
+      }
+    },
+    "test_tags": ["rbac", "positive", "telehealth"],
+    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-051"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": []
+    },
+    "notes": "Telehealth Clinician (P048, UK) has patient.read + encounter.write."
+  },
+  {
+    "use_case_id": "RBAC-POS-014",
+    "scenario_title": "Kenya Medical Officer (P026) persona accepted by triage agent",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "triage-agent",
+    "agent_url_key": "triage-agent",
+    "persona_id": "P026",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "chief_complaint": "malaria symptoms",
+        "patient_id": "PAT-014"
+      }
+    },
+    "test_tags": ["rbac", "positive", "kenya", "triage"],
+    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-100"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": []
+    },
+    "notes": "Kenya Medical Officer has full clinical scopes — compatible with triage."
+  },
+  {
+    "use_case_id": "RBAC-POS-015",
+    "scenario_title": "Care Coordinator (P021) with Treatment POU accepted by care coordinator agent",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "clinician-avatar",
+    "agent_url_key": "clinician-avatar",
+    "persona_id": "P021",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "coordination_type": "discharge_planning",
+        "patient_id": "PAT-015"
+      }
+    },
+    "test_tags": ["rbac", "positive", "care-coordination"],
+    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-052"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": []
+    },
+    "notes": "USA Care Coordinator (P021) has patient.read + encounter.write."
+  },
+  {
+    "use_case_id": "RBAC-NEG-001",
+    "scenario_title": "No bearer token returns 401",
+    "poc_demo": "helixcare",
+    "scenario_type": "negative",
+    "agent": "triage-agent",
+    "agent_url_key": "triage-agent",
+    "persona_id": null,
+    "method": "tasks/sendSubscribe",
+    "params": {"task": {"patient_id": "PAT-100"}},
+    "auth_mode": "jwt_missing",
+    "test_tags": ["rbac", "negative", "auth"],
+    "requirement_ids": ["NEXUS-RBAC-AUTH-001"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 401,
+      "error": "AUTH_FAILED"
+    },
+    "notes": "Missing Authorization header must return 401 Unauthorized."
+  },
+  {
+    "use_case_id": "RBAC-NEG-002",
+    "scenario_title": "Expired JWT returns 401",
+    "poc_demo": "helixcare",
+    "scenario_type": "negative",
+    "agent": "diagnosis-agent",
+    "agent_url_key": "diagnosis-agent",
+    "persona_id": null,
+    "method": "tasks/sendSubscribe",
+    "params": {"task": {"patient_id": "PAT-101"}},
+    "auth_mode": "jwt_expired",
+    "test_tags": ["rbac", "negative", "auth"],
+    "requirement_ids": ["NEXUS-RBAC-AUTH-002"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 401,
+      "error": "AUTH_FAILED"
+    },
+    "notes": "Expired JWT must be rejected."
+  },
+  {
+    "use_case_id": "RBAC-NEG-003",
+    "scenario_title": "JWT with wrong secret returns 401",
+    "poc_demo": "helixcare",
+    "scenario_type": "negative",
+    "agent": "imaging-agent",
+    "agent_url_key": "imaging-agent",
+    "persona_id": null,
+    "method": "tasks/sendSubscribe",
+    "params": {"task": {"patient_id": "PAT-102"}},
+    "auth_mode": "jwt_invalid",
+    "test_tags": ["rbac", "negative", "auth"],
+    "requirement_ids": ["NEXUS-RBAC-AUTH-003"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 401,
+      "error": "AUTH_FAILED"
+    },
+    "notes": "JWT signed with wrong secret must be rejected."
+  },
+  {
+    "use_case_id": "RBAC-NEG-004",
+    "scenario_title": "JWT missing nexus:invoke scope returns 401",
+    "poc_demo": "helixcare",
+    "scenario_type": "negative",
+    "agent": "pharmacy-agent",
+    "agent_url_key": "pharmacy-agent",
+    "persona_id": null,
+    "method": "tasks/sendSubscribe",
+    "params": {"task": {"patient_id": "PAT-103"}},
+    "auth_mode": "jwt_missing_scope",
+    "test_tags": ["rbac", "negative", "scope"],
+    "requirement_ids": ["NEXUS-RBAC-AUTH-004"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 401,
+      "error": "AUTH_FAILED"
+    },
+    "notes": "JWT without nexus:invoke scope must be rejected at the gate."
+  },
+  {
+    "use_case_id": "RBAC-NEG-005",
+    "scenario_title": "Completely malformed JWT returns 401",
+    "poc_demo": "helixcare",
+    "scenario_type": "negative",
+    "agent": "bed-manager-agent",
+    "agent_url_key": "bed-manager-agent",
+    "persona_id": null,
+    "method": "tasks/sendSubscribe",
+    "params": {"task": {"patient_id": "PAT-104"}},
+    "auth_mode": "jwt_invalid",
+    "test_tags": ["rbac", "negative", "auth"],
+    "requirement_ids": ["NEXUS-RBAC-AUTH-005"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 401,
+      "error": "AUTH_FAILED"
+    },
+    "notes": "A token that is not a valid JWT must be rejected."
+  },
+  {
+    "use_case_id": "RBAC-NEG-006",
+    "scenario_title": "Auditor persona (P013) calling high-sensitivity clinical write is rbac-denied by scope check",
+    "poc_demo": "helixcare",
+    "scenario_type": "negative",
+    "agent": "pharmacy-agent",
+    "agent_url_key": "pharmacy-agent",
+    "persona_id": "P013",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "medication": "warfarin",
+        "dose_mg": 5,
+        "patient_id": "PAT-105"
+      }
+    },
+    "auth_mode": "persona_scope_mismatch",
+    "test_tags": ["rbac", "negative", "scope", "auditor"],
+    "requirement_ids": ["NEXUS-RBAC-SCOPE-001"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "rbac_check": {
+        "allowed": false,
+        "missing_scopes": ["medicationrequest.write"]
+      }
+    },
+    "notes": "Caldicott Guardian / Privacy Officer has only consent.read + audit.read — cannot write prescriptions."
+  },
+  {
+    "use_case_id": "RBAC-NEG-007",
+    "scenario_title": "patient_service role persona cannot invoke high-sensitivity diagnosis",
+    "poc_demo": "helixcare",
+    "scenario_type": "negative",
+    "agent": "diagnosis-agent",
+    "agent_url_key": "diagnosis-agent",
+    "persona_id": "P011",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "chief_complaint": "fever",
+        "patient_id": "PAT-106"
+      }
+    },
+    "auth_mode": "persona_scope_mismatch",
+    "test_tags": ["rbac", "negative", "scope", "patient-service"],
+    "requirement_ids": ["NEXUS-RBAC-SCOPE-002"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "rbac_check": {
+        "allowed": false,
+        "missing_scopes": ["observation.read", "encounter.write"]
+      }
+    },
+    "notes": "Receptionist (P011) has only patient.read + appointment.read — cannot perform diagnosis."
+  },
+  {
+    "use_case_id": "RBAC-NEG-008",
+    "scenario_title": "OSINT agent receives request with only patient_service scopes — denied",
+    "poc_demo": "helixcare",
+    "scenario_type": "negative",
+    "agent": "osint-agent",
+    "agent_url_key": "osint-agent",
+    "persona_id": "P011",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "query": "outbreak signals",
+        "region": "London"
+      }
+    },
+    "auth_mode": "persona_scope_mismatch",
+    "test_tags": ["rbac", "negative", "scope", "surveillance"],
+    "requirement_ids": ["NEXUS-RBAC-SCOPE-003"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "rbac_check": {
+        "allowed": false,
+        "missing_scopes": ["system/*.read"]
+      }
+    },
+    "notes": "OSINT requires system/*.read — patient_service persona cannot satisfy this."
+  },
+  {
+    "use_case_id": "RBAC-NEG-009",
+    "scenario_title": "No bearer token at consent analyser returns 401",
+    "poc_demo": "helixcare",
+    "scenario_type": "negative",
+    "agent": "consent-analyser",
+    "agent_url_key": "consent-analyser",
+    "persona_id": null,
+    "method": "tasks/sendSubscribe",
+    "params": {"task": {"patient_id": "PAT-108", "consent_type": "research"}},
+    "auth_mode": "jwt_missing",
+    "test_tags": ["rbac", "negative", "auth", "governance"],
+    "requirement_ids": ["NEXUS-RBAC-AUTH-006"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 401,
+      "error": "AUTH_FAILED"
+    },
+    "notes": "All agents including governance tier must reject requests without a valid JWT."
+  },
+  {
+    "use_case_id": "RBAC-NEG-010",
+    "scenario_title": "No bearer token at surveillance central returns 401",
+    "poc_demo": "helixcare",
+    "scenario_type": "negative",
+    "agent": "central-surveillance",
+    "agent_url_key": "central-surveillance",
+    "persona_id": null,
+    "method": "tasks/sendSubscribe",
+    "params": {"task": {"report_id": "R-999"}},
+    "auth_mode": "jwt_missing",
+    "test_tags": ["rbac", "negative", "auth", "surveillance"],
+    "requirement_ids": ["NEXUS-RBAC-AUTH-007"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 401,
+      "error": "AUTH_FAILED"
+    },
+    "notes": "Surveillance agents enforce JWT auth on all inbound RPC calls."
+  },
+  {
+    "use_case_id": "RBAC-EDGE-001",
+    "scenario_title": "Token with no persona claims falls back to agent delegated scopes",
+    "poc_demo": "helixcare",
+    "scenario_type": "edge",
+    "agent": "triage-agent",
+    "agent_url_key": "triage-agent",
+    "persona_id": null,
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "chief_complaint": "abdominal pain",
+        "patient_id": "PAT-200"
+      }
+    },
+    "auth_mode": "bare_nexus_invoke",
+    "test_tags": ["rbac", "edge", "fallback"],
+    "requirement_ids": ["NEXUS-RBAC-FALLBACK-001"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": []
+    },
+    "notes": "Bare nexus:invoke JWT — agent_registry fallback applies triage delegated_scopes."
+  },
+  {
+    "use_case_id": "RBAC-EDGE-002",
+    "scenario_title": "Persona ID P067 (Safeguarding Lead) accepted by avatar agent",
+    "poc_demo": "helixcare",
+    "scenario_type": "edge",
+    "agent": "clinician-avatar",
+    "agent_url_key": "clinician-avatar",
+    "persona_id": "P067",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "chief_complaint": "safeguarding consultation",
+        "patient_id": "PAT-201"
+      }
+    },
+    "test_tags": ["rbac", "edge", "safeguarding"],
+    "requirement_ids": ["NEXUS-RBAC-EDGE-001"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": []
+    },
+    "notes": "Safeguarding Lead has patient.read + encounter.write for clinical consultations."
+  },
+  {
+    "use_case_id": "RBAC-EDGE-003",
+    "scenario_title": "Kenya Community Health Promoter (P036) has reduced scopes — accepted for triage tasks/get",
+    "poc_demo": "helixcare",
+    "scenario_type": "edge",
+    "agent": "triage-agent",
+    "agent_url_key": "triage-agent",
+    "persona_id": "P036",
+    "method": "tasks/get",
+    "params": {"task_id": "T-HEALTHCHECK"},
+    "test_tags": ["rbac", "edge", "kenya", "community-health"],
+    "requirement_ids": ["NEXUS-RBAC-EDGE-002"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": []
+    },
+    "notes": "tasks/get only needs nexus:invoke — CHW persona is sufficient."
+  },
+  {
+    "use_case_id": "RBAC-EDGE-004",
+    "scenario_title": "Universal system-scope persona passes OSINT agent",
+    "poc_demo": "helixcare",
+    "scenario_type": "edge",
+    "agent": "osint-agent",
+    "agent_url_key": "osint-agent",
+    "persona_id": "P056",
+    "method": "tasks/sendSubscribe",
+    "params": {
+      "task": {
+        "query": "respiratory illness cluster",
+        "region": "Nairobi"
+      }
+    },
+    "test_tags": ["rbac", "edge", "connector", "surveillance"],
+    "requirement_ids": ["NEXUS-RBAC-EDGE-003"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": []
+    },
+    "notes": "Integration Engine Operator (P056) has system/*.read — covers OSINT requirement."
+  },
+  {
+    "use_case_id": "RBAC-EDGE-005",
+    "scenario_title": "HITL UI agent health check returns 200 without JWT",
+    "poc_demo": "helixcare",
+    "scenario_type": "edge",
+    "agent": "hitl-ui",
+    "agent_url_key": "hitl-ui",
+    "persona_id": null,
+    "method": "health_check",
+    "params": {},
+    "auth_mode": "none",
+    "test_tags": ["rbac", "edge", "health"],
+    "requirement_ids": ["NEXUS-RBAC-HEALTH-001"],
+    "expected_result": {
+      "status": "pass",
+      "http_status": 200,
+      "json_path_checks": [
+        {"path": "status", "value": "healthy"}
+      ]
+    },
+    "notes": "/health endpoint must be unauthenticated for monitoring systems."
+  }
+]
