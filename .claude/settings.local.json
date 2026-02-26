@@ -102,7 +102,15 @@
       "Bash(curl -s http://localhost:8039/static/avatar_renderer.js)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:8039/media/Black%20male%20clinician.mp4\")",
       "Bash(c:/nexus-a2a-protocol/.venv/Scripts/python.exe --version)",
-      "Bash(c:/nexus-a2a-protocol/.venv/Scripts/python.exe -c \"import sys; print\\(sys.executable\\); print\\(sys.path[:3]\\)\")"
+      "Bash(c:/nexus-a2a-protocol/.venv/Scripts/python.exe -c \"import sys; print\\(sys.executable\\); print\\(sys.path[:3]\\)\")",
+      "Bash(git add shared/nexus_common/auth.py shared/nexus_common/identity/__init__.py shared/nexus_common/rbac.py HelixCare/helixcare_rbac_matrix.json tests/nexus_harness/test_helixcare_rbac.py tests/test_rbac.py)",
+      "Bash(git commit:*)",
+      "Bash(PYTHONPATH=c:/nexus-a2a-protocol NEXUS_JWT_SECRET=dev-secret-change-me DID_VERIFY=false python tools/launch_all_agents.py --stop)",
+      "Bash(.venv/Scripts/python.exe tools/launch_all_agents.py --stop)",
+      "Bash(PYTHONPATH=c:/nexus-a2a-protocol NEXUS_JWT_SECRET=dev-secret-change-me DID_VERIFY=false .venv/Scripts/python.exe tools/launch_all_agents.py --with-gateway)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(tasklist /FI \"IMAGENAME eq python.exe\" /V)",
+      "Bash(tasklist)"
     ]
   }
 }

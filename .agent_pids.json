@@ -2,163 +2,163 @@
   {
     "dir": "demos/ed-triage/openhie-mediator",
     "port": 8023,
-    "pid": 19060,
+    "pid": 53596,
     "type": "agent"
   },
   {
     "dir": "demos/ed-triage/diagnosis-agent",
     "port": 8022,
-    "pid": 28520,
+    "pid": 54976,
     "type": "agent"
   },
   {
     "dir": "demos/ed-triage/triage-agent",
     "port": 8021,
-    "pid": 11064,
+    "pid": 55372,
     "type": "agent"
   },
   {
     "dir": "demos/telemed-scribe/ehr-writer-agent",
     "port": 8033,
-    "pid": 31136,
+    "pid": 55044,
     "type": "agent"
   },
   {
     "dir": "demos/telemed-scribe/summariser-agent",
     "port": 8032,
-    "pid": 11684,
+    "pid": 43284,
     "type": "agent"
   },
   {
     "dir": "demos/telemed-scribe/transcriber-agent",
     "port": 8031,
-    "pid": 31692,
+    "pid": 55548,
     "type": "agent"
   },
   {
     "dir": "demos/consent-verification/consent-analyser",
     "port": 8043,
-    "pid": 7832,
+    "pid": 54616,
     "type": "agent"
   },
   {
     "dir": "demos/consent-verification/hitl-ui",
     "port": 8044,
-    "pid": 30460,
+    "pid": 49504,
     "type": "agent"
   },
   {
     "dir": "demos/consent-verification/provider-agent",
     "port": 8042,
-    "pid": 31480,
+    "pid": 51852,
     "type": "agent"
   },
   {
     "dir": "demos/consent-verification/insurer-agent",
     "port": 8041,
-    "pid": 21412,
+    "pid": 55868,
     "type": "agent"
   },
   {
     "dir": "demos/public-health-surveillance/hospital-reporter",
     "port": 8051,
-    "pid": 23304,
+    "pid": 36492,
     "type": "agent"
   },
   {
     "dir": "demos/public-health-surveillance/osint-agent",
     "port": 8052,
-    "pid": 30628,
+    "pid": 56096,
     "type": "agent"
   },
   {
     "dir": "demos/public-health-surveillance/central-surveillance",
     "port": 8053,
-    "pid": 23072,
+    "pid": 37808,
     "type": "agent"
   },
   {
     "dir": "demos/helixcare/imaging-agent",
     "port": 8024,
-    "pid": 12492,
+    "pid": 20924,
     "type": "agent"
   },
   {
     "dir": "demos/helixcare/pharmacy-agent",
     "port": 8025,
-    "pid": 15900,
+    "pid": 40272,
     "type": "agent"
   },
   {
     "dir": "demos/helixcare/bed-manager-agent",
     "port": 8026,
-    "pid": 27728,
+    "pid": 56028,
     "type": "agent"
   },
   {
     "dir": "demos/helixcare/discharge-agent",
     "port": 8027,
-    "pid": 27604,
+    "pid": 26240,
     "type": "agent"
   },
   {
     "dir": "demos/helixcare/followup-scheduler",
     "port": 8028,
-    "pid": 29680,
+    "pid": 27568,
     "type": "agent"
   },
   {
     "dir": "demos/helixcare/care-coordinator",
     "port": 8029,
-    "pid": 24416,
+    "pid": 54828,
     "type": "agent"
   },
   {
     "dir": "demos/helixcare/primary-care-agent",
     "port": 8034,
-    "pid": 1252,
+    "pid": 55468,
     "type": "agent"
   },
   {
     "dir": "demos/helixcare/specialty-care-agent",
     "port": 8035,
-    "pid": 16552,
+    "pid": 48920,
     "type": "agent"
   },
   {
     "dir": "demos/helixcare/telehealth-agent",
     "port": 8036,
-    "pid": 19876,
+    "pid": 38776,
     "type": "agent"
   },
   {
     "dir": "demos/helixcare/home-visit-agent",
     "port": 8037,
-    "pid": 20528,
+    "pid": 55960,
     "type": "agent"
   },
   {
     "dir": "demos/helixcare/ccm-agent",
     "port": 8038,
-    "pid": 4396,
+    "pid": 47920,
     "type": "agent"
   },
   {
     "dir": "demos/helixcare/clinician-avatar-agent",
     "port": 8039,
-    "pid": 31736,
+    "pid": 53824,
     "type": "agent"
   },
   {
     "dir": "shared/command-centre",
     "port": 8099,
-    "pid": 28712,
+    "pid": 13140,
     "type": "backend"
   },
   {
     "dir": "shared/on_demand_gateway",
     "port": 8100,
-    "pid": 28004,
+    "pid": 43776,
     "type": "gateway",
     "ready": true,
     "ready_detail": "status=200",

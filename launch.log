@@ -1,0 +1,97 @@
+  Freed port 8021 by stopping pid 6204
+  Freed port 8022 by stopping pid 51972
+  Freed port 8023 by stopping pid 33248
+  Freed port 8024 by stopping pid 27104
+  Freed port 8025 by stopping pid 8000
+  Freed port 8026 by stopping pid 15480
+  Freed port 8027 by stopping pid 22540
+  Freed port 8028 by stopping pid 35524
+  Freed port 8029 by stopping pid 48152
+  Freed port 8031 by stopping pid 30012
+  Freed port 8032 by stopping pid 44584
+  Freed port 8033 by stopping pid 26256
+  Freed port 8034 by stopping pid 38400
+  Freed port 8035 by stopping pid 34932
+  Freed port 8036 by stopping pid 23448
+  Freed port 8037 by stopping pid 38712
+  Freed port 8038 by stopping pid 27392
+  Freed port 8039 by stopping pid 2504
+  Freed port 8041 by stopping pid 31824
+  Freed port 8042 by stopping pid 13916
+  Freed port 8043 by stopping pid 31504
+  Freed port 8044 by stopping pid 30104
+  Freed port 8051 by stopping pid 43336
+  Freed port 8052 by stopping pid 49756
+  Freed port 8053 by stopping pid 42716
+  Freed port 8099 by stopping pid 6556
+  Freed port 8100 by stopping pid 31816
+  Starting  openhie-mediator                :8023 ... OK  (pid 8256)
+  Starting  diagnosis-agent                 :8022 ... OK  (pid 47472)
+  Starting  triage-agent                    :8021 ... OK  (pid 320)
+  Starting  ehr-writer-agent                :8033 ... OK  (pid 14072)
+  Starting  summariser-agent                :8032 ... OK  (pid 38764)
+  Starting  transcriber-agent               :8031 ... OK  (pid 36688)
+  Starting  consent-analyser                :8043 ... OK  (pid 48920)
+  Starting  hitl-ui                         :8044 ... OK  (pid 31236)
+  Starting  provider-agent                  :8042 ... OK  (pid 31108)
+  Starting  insurer-agent                   :8041 ... OK  (pid 4724)
+  Starting  hospital-reporter               :8051 ... OK  (pid 41416)
+  Starting  osint-agent                     :8052 ... OK  (pid 28748)
+  Starting  central-surveillance            :8053 ... OK  (pid 33016)
+  Starting  imaging-agent                   :8024 ... OK  (pid 19576)
+  Starting  pharmacy-agent                  :8025 ... OK  (pid 34840)
+  Starting  bed-manager-agent               :8026 ... OK  (pid 14692)
+  Starting  discharge-agent                 :8027 ... OK  (pid 13800)
+  Starting  followup-scheduler              :8028 ... OK  (pid 52016)
+  Starting  care-coordinator                :8029 ... OK  (pid 11252)
+  Starting  primary-care-agent              :8034 ... OK  (pid 15168)
+  Starting  specialty-care-agent            :8035 ... OK  (pid 33372)
+  Starting  telehealth-agent                :8036 ... OK  (pid 8000)
+  Starting  home-visit-agent                :8037 ... OK  (pid 3292)
+  Starting  ccm-agent                       :8038 ... OK  (pid 40244)
+  Starting  clinician-avatar-agent          :8039 ... OK  (pid 5164)
+  Starting [BACKEND] command-centre                  :8099 ... OK  (pid 2288)
+  Starting [GATEWAY] on-demand-gateway           :8100 ... OK  (pid 9020)
+  [ok] Gateway :8100 ready (status=200)
+
+27/27 services started (25 agents, 1 backend, 1 gateway). PIDs saved to c:\nexus-a2a-protocol\.agent_pids.json
+
+Effective configuration:
+  Backend URL: http://localhost:8099
+  Gateway URL: http://localhost:8100
+  Selected LLM profile: default
+Waiting 3s for agents to settle...
+  [ok] :8023 healthy
+  [ok] :8022 healthy
+  [ok] :8021 healthy
+  [ok] :8033 healthy
+  [ok] :8032 healthy
+  [ok] :8031 healthy
+  [ok] :8043 healthy
+  [ok] :8044 healthy
+  [ok] :8042 healthy
+  [ok] :8041 healthy
+  [ok] :8051 healthy
+  [ok] :8052 healthy
+  [ok] :8053 healthy
+  [ok] :8024 healthy
+  [ok] :8025 healthy
+  [ok] :8026 healthy
+  [ok] :8027 healthy
+  [ok] :8028 healthy
+  [ok] :8029 healthy
+  [ok] :8034 healthy
+  [ok] :8035 healthy
+  [ok] :8036 healthy
+  [ok] :8037 healthy
+  [ok] :8038 healthy
+  [ok] :8039 healthy
+
+Agent Health: 25/25 agents responding
+
+Backend Services:
+  [ok] Command Centre :8099 running (readyz=status=200)
+
+Gateway Services:
+  [ok] On-demand Gateway :8100 running (readyz=status=200)
+s=200)

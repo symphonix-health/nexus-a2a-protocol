@@ -1,6 +1,7 @@
 {
   "permissions": {
     "allow": [
+      "Bash(*)",
       "Bash(PYTHONPATH=. .venv/Scripts/python.exe -c \":*)",
       "Bash(PYTHONPATH=. PYTHONUTF8=1 .venv/Scripts/python.exe -c \":*)",
       "Bash(python -c \":*)",
