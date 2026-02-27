@@ -10,6 +10,7 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
+
 from shared.clinician_avatar.avatar_engine import AvatarEngine
 from shared.clinician_avatar.avatar_protocol import (
     normalize_patient_message_params,
@@ -26,6 +27,7 @@ from shared.nexus_common.did import did_verify_enabled, verify_did_signature
 from shared.nexus_common.identity import get_agent_identity, get_persona_registry
 from shared.nexus_common.jsonrpc import JsonRpcError, parse_request, response_error, response_result
 from shared.nexus_common.sse import TaskEventBus
+
 
 @contextlib.asynccontextmanager
 async def _lifespan(application: FastAPI):
@@ -59,7 +61,7 @@ def _build_live_speech_payload(text: str) -> dict[str, Any]:
     clean_text = str(text or "").strip()
     return {
         "text": clean_text,
-        "voice": "alloy",
+        "voice": "nova",
         "mime_type": "audio/wav",
         "audio_b64": "",  # empty — live clients use /api/tts/stream WebSocket
         "visemes": simple_viseme_timeline(clean_text),
@@ -164,25 +166,27 @@ async def get_identity(request: Request) -> JSONResponse:
     _require_auth(request)
     identity = get_agent_identity("clinician_avatar_agent")
     persona = identity.primary_persona
-    return JSONResponse(content={
-        "agent_id": identity.agent_id,
-        "primary_persona": persona.to_avatar_dict(),
-        "alternate_personas": {
-            k: get_persona_registry().get(v).to_avatar_dict()
-            for k, v in identity.alternate_persona_ids.items()
-            if get_persona_registry().get(v)
-        },
-        "iam_groups": identity.iam_groups,
-        "delegated_scopes": identity.delegated_scopes,
-        "can_delegate_to": identity.can_delegate_to,
-        "autonomous_actions": identity.autonomous_actions,
-        "communication_permissions": {
-            "send_sms": identity.can_send_sms,
-            "send_email": identity.can_send_email,
-            "receive_sms": identity.can_receive_sms,
-            "receive_email": identity.can_receive_email,
-        },
-    })
+    return JSONResponse(
+        content={
+            "agent_id": identity.agent_id,
+            "primary_persona": persona.to_avatar_dict(),
+            "alternate_personas": {
+                k: get_persona_registry().get(v).to_avatar_dict()
+                for k, v in identity.alternate_persona_ids.items()
+                if get_persona_registry().get(v)
+            },
+            "iam_groups": identity.iam_groups,
+            "delegated_scopes": identity.delegated_scopes,
+            "can_delegate_to": identity.can_delegate_to,
+            "autonomous_actions": identity.autonomous_actions,
+            "communication_permissions": {
+                "send_sms": identity.can_send_sms,
+                "send_email": identity.can_send_email,
+                "receive_sms": identity.can_receive_sms,
+                "receive_email": identity.can_receive_email,
+            },
+        }
+    )
 
 
 _NO_CACHE_HEADERS = {
@@ -219,7 +223,7 @@ async def api_tts(request: Request) -> JSONResponse:
     _require_auth(request)
     payload = await request.json()
     text = str(payload.get("text") or "").strip()
-    voice = str(payload.get("voice") or "alloy").strip()
+    voice = str(payload.get("voice") or "nova").strip()
     return JSONResponse(content=_build_live_speech_payload(text))
 
 
@@ -271,7 +275,7 @@ async def api_tts_stream(websocket: WebSocket) -> None:
                 break
 
             text = str(msg.get("text") or "").strip()
-            voice = str(msg.get("voice") or "alloy").strip() or "alloy"
+            voice = str(msg.get("voice") or "nova").strip() or "nova"
             if not text:
                 continue
 
@@ -288,9 +292,7 @@ async def api_tts_stream(websocket: WebSocket) -> None:
                     **({"synthetic": True} if not _real_tts else {}),
                 }
             )
-            await websocket.send_json(
-                {"type": "visemes", "visemes": simple_viseme_timeline(text)}
-            )
+            await websocket.send_json({"type": "visemes", "visemes": simple_viseme_timeline(text)})
 
             pcm_sent = False
             if _real_tts:
@@ -321,8 +323,7 @@ async def api_tts_stream(websocket: WebSocket) -> None:
 async def get_video_clinician_provider_info(request: Request) -> JSONResponse:
     _require_auth(request)
     configured = (
-        str(os.getenv("VIDEO_CLINICIAN_PROVIDER", "local_gpu")).strip().lower()
-        or "local_gpu"
+        str(os.getenv("VIDEO_CLINICIAN_PROVIDER", "local_gpu")).strip().lower() or "local_gpu"
     )
     return JSONResponse(
         content={

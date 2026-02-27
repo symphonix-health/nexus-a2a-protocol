@@ -223,7 +223,12 @@ class TaskEventBus:
         self._redis_enabled = False
         self._cursor_secret = _cursor_secret_from_env()
         self._history_max_events = max(1, int(os.getenv("NEXUS_STREAM_HISTORY_MAX_EVENTS", "1024")))
+        self._history_max_tasks = max(1, int(os.getenv("NEXUS_STREAM_HISTORY_MAX_TASKS", "2000")))
         self._history_retention_ms = _cursor_retention_ms_from_env()
+        self._subscriber_queue_maxsize = max(
+            1,
+            int(os.getenv("NEXUS_STREAM_SUBSCRIBER_QUEUE_MAXSIZE", "128")),
+        )
         # Max JSONL file size before rotation (default 2 MB)
         self._persist_max_bytes = max(
             65536,
@@ -298,6 +303,7 @@ class TaskEventBus:
                         int(self._history_last_ts.get(task_id, 0)),
                         ts_unix_ms,
                     )
+            self._enforce_history_task_cap()
         except Exception:
             # Persistence is optional; ignore load failures.
             return
@@ -456,7 +462,7 @@ class TaskEventBus:
         """Create a new subscription queue for a task."""
         if task_id not in self._queues:
             self._queues[task_id] = []
-        q: asyncio.Queue[SseEvent] = asyncio.Queue()
+        q: asyncio.Queue[SseEvent] = asyncio.Queue(maxsize=self._subscriber_queue_maxsize)
         self._queues[task_id].append(q)
         return q
 
@@ -494,9 +500,10 @@ class TaskEventBus:
         history = self._history.setdefault(task_id, deque(maxlen=self._history_max_events))
         history.append(event_obj)
         self._history_last_ts[task_id] = ts_unix_ms
+        self._enforce_history_task_cap()
         self._persist_event(task_id, event_obj)
-        for q in self._queues[task_id]:
-            await q.put(event_obj)
+        for q in list(self._queues[task_id]):
+            self._push_event_nonblocking(task_id, q, event_obj)
 
         # Also publish to Redis for cross-agent monitoring
         await self._publish_to_redis(
@@ -756,6 +763,30 @@ class TaskEventBus:
         if not queues:
             self._queues.pop(task_id, None)
 
+    def _push_event_nonblocking(
+        self,
+        task_id: str,
+        queue: asyncio.Queue[SseEvent],
+        event_obj: SseEvent,
+    ) -> None:
+        try:
+            queue.put_nowait(event_obj)
+            return
+        except asyncio.QueueFull:
+            pass
+
+        # Slow subscribers should not cause unbounded queue growth.
+        # Drop oldest queued event and keep newest.
+        try:
+            queue.get_nowait()
+        except asyncio.QueueEmpty:
+            pass
+
+        try:
+            queue.put_nowait(event_obj)
+        except Exception:
+            self._unsubscribe(task_id, queue)
+
     def _event_to_payload(self, task_id: str, evt: SseEvent) -> dict[str, Any]:
         data: Any
         if isinstance(evt.data, str):
@@ -790,6 +821,22 @@ class TaskEventBus:
                 continue
             expired.append(task_id)
         for task_id in expired:
+            self._history.pop(task_id, None)
+            self._history_last_ts.pop(task_id, None)
+            self._stream_seq.pop(task_id, None)
+            self._stream_epoch.pop(task_id, None)
+        self._enforce_history_task_cap()
+
+    def _enforce_history_task_cap(self) -> None:
+        if len(self._history_last_ts) <= self._history_max_tasks:
+            return
+
+        by_age = sorted(self._history_last_ts.items(), key=lambda item: int(item[1]))
+        for task_id, _ in by_age:
+            if len(self._history_last_ts) <= self._history_max_tasks:
+                break
+            if task_id in self._queues and self._queues.get(task_id):
+                continue
             self._history.pop(task_id, None)
             self._history_last_ts.pop(task_id, None)
             self._stream_seq.pop(task_id, None)

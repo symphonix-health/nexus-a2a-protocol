@@ -221,6 +221,7 @@ window.TTSClient = (() => {
             // No real audio coming from server — use browser SpeechSynthesis.
             synthActive = true;
             if (onSynthetic) onSynthetic();
+            window.dispatchEvent(new CustomEvent('nexus_tts_synthetic_fallback'));
             const utt = _speakBrowserTTS(text, voice);
             if (utt) {
               utt.onend   = () => { if (onSpeechEnd) onSpeechEnd(); };
@@ -237,6 +238,7 @@ window.TTSClient = (() => {
             synthActive = true;
             _stopAll();  // discard any partial PCM that arrived before the failure
             if (onSynthetic) onSynthetic();
+            window.dispatchEvent(new CustomEvent('nexus_tts_synthetic_fallback'));
             const utt = _speakBrowserTTS(text, voice);
             if (utt) {
               utt.onend   = () => { if (onSpeechEnd) onSpeechEnd(); };

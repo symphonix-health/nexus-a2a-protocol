@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import time
+from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Any, Callable
 
@@ -34,12 +35,32 @@ class IdempotencyResult:
 class IdempotencyStore:
     """Simple in-memory idempotency store suitable for single-process agents."""
 
-    def __init__(self, clock: Callable[[], float] | None = None) -> None:
-        self._store: dict[
+    def __init__(
+        self,
+        clock: Callable[[], float] | None = None,
+        *,
+        max_entries: int | None = None,
+        max_cached_response_bytes: int | None = None,
+    ) -> None:
+        self._store: OrderedDict[
             str,
             tuple[float, int, str | None, str | None, dict[str, Any] | None],
-        ] = {}
+        ] = OrderedDict()
         self._clock = clock or time.time
+        self._max_entries = (
+            max(1, int(max_entries))
+            if max_entries is not None
+            else _env_positive_int("NEXUS_IDEMPOTENCY_MAX_ENTRIES", default=5000)
+        )
+        self._max_cached_response_bytes = (
+            max(256, int(max_cached_response_bytes))
+            if max_cached_response_bytes is not None
+            else _env_positive_int(
+                "NEXUS_IDEMPOTENCY_MAX_CACHED_RESPONSE_BYTES",
+                default=65536,
+                minimum=256,
+            )
+        )
 
     def check_or_register(
         self,
@@ -60,6 +81,7 @@ class IdempotencyStore:
         existing = self._store.get(full_key)
         if existing is not None:
             first_seen_at, existing_window_ms, existing_scope, existing_hash, existing_response = existing
+            self._store.move_to_end(full_key)
             payload_mismatch = False
             if payload_hash and existing_hash and payload_hash != existing_hash:
                 payload_mismatch = True
@@ -78,6 +100,8 @@ class IdempotencyStore:
             )
 
         self._store[full_key] = (now, dedup_window_ms, scope, payload_hash, cached_response)
+        self._store.move_to_end(full_key)
+        self._evict_over_capacity()
         return IdempotencyResult(
             key=key,
             is_duplicate=False,
@@ -95,13 +119,16 @@ class IdempotencyStore:
         if full_key not in self._store:
             return
         first_seen_at, dedup_window_ms, existing_scope, existing_hash, _ = self._store[full_key]
+        compact_response = self._compact_cached_response(dict(response))
         self._store[full_key] = (
             first_seen_at,
             dedup_window_ms,
             existing_scope,
             existing_hash,
-            dict(response),
+            compact_response,
         )
+        self._store.move_to_end(full_key)
+        self._evict_over_capacity()
 
     def _prune(self, now: float) -> None:
         expired_keys: list[str] = []
@@ -111,6 +138,65 @@ class IdempotencyStore:
                 expired_keys.append(key)
         for key in expired_keys:
             self._store.pop(key, None)
+
+    def _evict_over_capacity(self) -> None:
+        while len(self._store) > self._max_entries:
+            self._store.popitem(last=False)
+
+    def _compact_cached_response(self, response: dict[str, Any]) -> dict[str, Any]:
+        if self._serialized_size_bytes(response) <= self._max_cached_response_bytes:
+            return response
+
+        priority_keys = (
+            "task_id",
+            "trace_id",
+            "resume_cursor",
+            "status",
+            "patient_id",
+            "method",
+            "triage_level",
+            "rationale",
+        )
+        compact: dict[str, Any] = {
+            key: response[key] for key in priority_keys if key in response
+        }
+        if not compact:
+            compact = {"status": response.get("status", "ok")}
+        compact["_idempotency_truncated"] = True
+
+        if self._serialized_size_bytes(compact) <= self._max_cached_response_bytes:
+            return compact
+
+        for key, value in list(compact.items()):
+            if isinstance(value, str) and len(value) > 512:
+                compact[key] = value[:509] + "..."
+
+        if self._serialized_size_bytes(compact) <= self._max_cached_response_bytes:
+            return compact
+
+        minimal: dict[str, Any] = {"_idempotency_truncated": True}
+        for key in ("task_id", "trace_id", "resume_cursor"):
+            if key in compact:
+                minimal[key] = compact[key]
+        return minimal
+
+    @staticmethod
+    def _serialized_size_bytes(value: Any) -> int:
+        try:
+            return len(json.dumps(value, separators=(",", ":"), ensure_ascii=True).encode("utf-8"))
+        except Exception:
+            return 0
+
+    def close(self) -> None:
+        self._store.clear()
+
+
+def _env_positive_int(name: str, default: int, minimum: int = 1) -> int:
+    try:
+        value = int(os.getenv(name, str(default)))
+    except Exception:
+        value = default
+    return max(minimum, value)
 
 
 class RedisIdempotencyStore:

@@ -70,8 +70,18 @@ poll_task_started = False
 first_poll_cycle_completed = False
 
 # ── Trace Store ───────────────────────────────────────────────────────
-TRACE_STORE_MAX = 200
+TRACE_STORE_MAX = max(1, int(os.getenv("COMMAND_CENTRE_TRACE_STORE_MAX", "200")))
+TRACE_STORE_MAX_BYTES = max(
+    1024 * 1024,
+    int(os.getenv("COMMAND_CENTRE_TRACE_STORE_MAX_BYTES", str(32 * 1024 * 1024))),
+)
+TRACE_STEP_PAYLOAD_MAX_BYTES = max(
+    1024,
+    int(os.getenv("COMMAND_CENTRE_TRACE_STEP_PAYLOAD_MAX_BYTES", str(32 * 1024))),
+)
 trace_store: OrderedDict[str, dict[str, Any]] = OrderedDict()
+trace_store_sizes: OrderedDict[str, int] = OrderedDict()
+trace_store_total_bytes = 0
 trace_lock = asyncio.Lock()
 TRACE_STORE_FILE = Path(
     os.getenv(
@@ -225,13 +235,12 @@ def _restore_trace_store_from_disk() -> int:
             trace_id = str(item.get("trace_id", "")).strip()
             if not trace_id:
                 continue
-            restored[trace_id] = item
-
-        while len(restored) > TRACE_STORE_MAX:
-            restored.popitem(last=False)
+            restored[trace_id] = _normalize_trace_for_store(item)
 
         trace_store.clear()
         trace_store.update(restored)
+        _recalculate_trace_store_usage()
+        _evict_trace_store_to_limits()
         return len(trace_store)
     except Exception as exc:
         logger.warning(f"Failed to restore trace store from {TRACE_STORE_FILE}: {exc}")
@@ -252,6 +261,100 @@ def _persist_trace_store_to_disk() -> None:
         temp_path.replace(TRACE_STORE_FILE)
     except Exception as exc:
         logger.warning(f"Failed to persist trace store to {TRACE_STORE_FILE}: {exc}")
+
+
+def _json_size_bytes(value: Any) -> int:
+    try:
+        return len(
+            json.dumps(value, separators=(",", ":"), ensure_ascii=False, default=str).encode("utf-8")
+        )
+    except Exception:
+        return 0
+
+
+def _truncate_payload_for_store(value: Any, *, max_bytes: int) -> Any:
+    size = _json_size_bytes(value)
+    if size <= max_bytes:
+        return value
+    try:
+        serialized = json.dumps(value, ensure_ascii=False, default=str)
+    except Exception:
+        serialized = str(value)
+    preview_chars = min(2048, max(128, max_bytes // 4))
+    return {
+        "_truncated": True,
+        "_approx_size_bytes": size,
+        "preview": serialized[:preview_chars],
+    }
+
+
+def _normalize_trace_for_store(raw_trace: dict[str, Any]) -> dict[str, Any]:
+    trace = dict(raw_trace)
+    steps = trace.get("steps")
+    truncated_fields = 0
+    if isinstance(steps, list):
+        normalized_steps: list[dict[str, Any]] = []
+        for raw_step in steps:
+            if not isinstance(raw_step, dict):
+                continue
+            step = dict(raw_step)
+            for field in ("request_redacted", "response_redacted"):
+                if field not in step:
+                    continue
+                original = step.get(field)
+                compact = _truncate_payload_for_store(
+                    original,
+                    max_bytes=TRACE_STEP_PAYLOAD_MAX_BYTES,
+                )
+                if compact is not original:
+                    truncated_fields += 1
+                step[field] = compact
+            normalized_steps.append(step)
+        trace["steps"] = normalized_steps
+        trace["step_count"] = len(normalized_steps)
+    if truncated_fields:
+        meta = trace.get("storage_meta")
+        storage_meta = dict(meta) if isinstance(meta, dict) else {}
+        storage_meta["truncated_payload_fields"] = truncated_fields
+        storage_meta["step_payload_max_bytes"] = TRACE_STEP_PAYLOAD_MAX_BYTES
+        trace["storage_meta"] = storage_meta
+    return trace
+
+
+def _recalculate_trace_store_usage() -> None:
+    global trace_store_total_bytes
+    trace_store_sizes.clear()
+    total = 0
+    for trace_id, run in trace_store.items():
+        size = _json_size_bytes(run)
+        trace_store_sizes[trace_id] = size
+        total += size
+    trace_store_total_bytes = total
+
+
+def _evict_trace_store_to_limits() -> None:
+    global trace_store_total_bytes
+    while len(trace_store) > TRACE_STORE_MAX:
+        trace_id, _ = trace_store.popitem(last=False)
+        trace_store_total_bytes = max(0, trace_store_total_bytes - trace_store_sizes.pop(trace_id, 0))
+
+    while trace_store and trace_store_total_bytes > TRACE_STORE_MAX_BYTES:
+        trace_id, _ = trace_store.popitem(last=False)
+        trace_store_total_bytes = max(0, trace_store_total_bytes - trace_store_sizes.pop(trace_id, 0))
+
+
+def _upsert_trace_store_item(trace_id: str, trace_run: dict[str, Any]) -> None:
+    global trace_store_total_bytes
+
+    if trace_id in trace_store:
+        trace_store.pop(trace_id, None)
+        trace_store_total_bytes = max(0, trace_store_total_bytes - trace_store_sizes.pop(trace_id, 0))
+
+    trace_store[trace_id] = trace_run
+    size = _json_size_bytes(trace_run)
+    trace_store_sizes[trace_id] = size
+    trace_store_total_bytes += size
+    _evict_trace_store_to_limits()
 
 
 # ── Agent Discovery & Health Polling ──────────────────────────────────
@@ -400,6 +503,9 @@ async def health():
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "monitored_agents": len(AGENT_URLS),
         "ready": poll_task_started and (first_poll_cycle_completed or not AGENT_URLS),
+        "trace_store_runs": len(trace_store),
+        "trace_store_bytes": trace_store_total_bytes,
+        "trace_store_byte_budget": TRACE_STORE_MAX_BYTES,
     }
 
 
@@ -492,11 +598,9 @@ async def ingest_trace(request: Request):
     if not trace_id:
         return JSONResponse(status_code=400, content={"error": "trace_id required"})
 
+    normalized = _normalize_trace_for_store(body if isinstance(body, dict) else {})
     async with trace_lock:
-        trace_store[trace_id] = body
-        # Evict oldest when over capacity
-        while len(trace_store) > TRACE_STORE_MAX:
-            trace_store.popitem(last=False)
+        _upsert_trace_store_item(trace_id, normalized)
         _persist_trace_store_to_disk()
 
     # Broadcast to all WS clients
@@ -505,11 +609,11 @@ async def ingest_trace(request: Request):
             "type": "trace.run",
             "payload": {
                 "trace_id": trace_id,
-                "scenario_name": body.get("scenario_name", ""),
-                "status": body.get("status", ""),
-                "step_count": body.get("step_count", 0),
-                "total_duration_ms": body.get("total_duration_ms", 0),
-                "started_at": body.get("started_at", ""),
+                "scenario_name": normalized.get("scenario_name", ""),
+                "status": normalized.get("status", ""),
+                "step_count": normalized.get("step_count", 0),
+                "total_duration_ms": normalized.get("total_duration_ms", 0),
+                "started_at": normalized.get("started_at", ""),
             },
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
@@ -546,9 +650,12 @@ async def list_traces():
 @app.delete("/api/traces")
 async def reset_traces():
     """Clear all stored trace runs (in-memory + persisted file)."""
+    global trace_store_total_bytes
     async with trace_lock:
         cleared_count = len(trace_store)
         trace_store.clear()
+        trace_store_sizes.clear()
+        trace_store_total_bytes = 0
         _persist_trace_store_to_disk()
 
     await _broadcast_ws(

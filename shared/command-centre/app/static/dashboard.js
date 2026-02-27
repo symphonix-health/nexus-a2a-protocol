@@ -2650,8 +2650,13 @@ function copyToClipboard(text) {
 }
 
 // ── Periodic Updates ──────────────────────────────────────────────────
-// Poll for agent updates every 2 seconds (in addition to WebSocket events)
+// Poll for agent updates only as fallback when WebSocket is disconnected.
+let agentPollInFlight = false;
 setInterval(async () => {
+    if (state.connected || agentPollInFlight) {
+        return;
+    }
+    agentPollInFlight = true;
     try {
         const response = await fetch('/api/agents');
         if (response.ok) {
@@ -2666,5 +2671,7 @@ setInterval(async () => {
         }
     } catch (error) {
         console.error('Failed to poll agents:', error);
+    } finally {
+        agentPollInFlight = false;
     }
-}, 2000);
+}, 5000);
