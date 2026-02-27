@@ -3,6 +3,25 @@
 from __future__ import annotations
 
 import os
+import threading
+
+
+_openai_client = None
+_openai_client_lock = threading.Lock()
+
+
+def _get_openai_client():
+    """Return a singleton OpenAI client (thread-safe)."""
+    global _openai_client
+    if _openai_client is not None:
+        return _openai_client
+    with _openai_client_lock:
+        if _openai_client is not None:
+            return _openai_client
+        from openai import OpenAI
+
+        _openai_client = OpenAI()
+        return _openai_client
 
 
 def llm_available() -> bool:
@@ -10,26 +29,47 @@ def llm_available() -> bool:
     return bool(os.getenv("OPENAI_API_KEY"))
 
 
-def llm_chat(system: str, user: str) -> str:
+def llm_chat(
+    system: str,
+    user: str,
+    *,
+    temperature: float | None = None,
+    top_p: float | None = None,
+) -> str:
     """Call OpenAI chat completion, or return deterministic mock when key is absent."""
     if llm_available():
         try:
-            from openai import OpenAI
-
-            client = OpenAI()
+            client = _get_openai_client()
             kwargs = {}
             # If the system prompt asks for JSON, enforce it via the API
             if "json" in system.lower():
                 kwargs["response_format"] = {"type": "json_object"}
 
-            resp = client.chat.completions.create(
-                model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-                messages=[
+            use_temperature = (
+                float(os.getenv("OPENAI_TEMPERATURE", "0.2"))
+                if temperature is None
+                else float(temperature)
+            )
+            use_top_p = (
+                os.getenv("OPENAI_TOP_P")
+                if top_p is None
+                else str(top_p)
+            )
+
+            req_kwargs = {
+                "model": os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
+                "messages": [
                     {"role": "system", "content": system},
                     {"role": "user", "content": user},
                 ],
-                temperature=0.2,
+                "temperature": use_temperature,
                 **kwargs,
+            }
+            if use_top_p not in (None, ""):
+                req_kwargs["top_p"] = float(use_top_p)
+
+            resp = client.chat.completions.create(
+                **req_kwargs,
             )
             content = resp.choices[0].message.content or ""
 

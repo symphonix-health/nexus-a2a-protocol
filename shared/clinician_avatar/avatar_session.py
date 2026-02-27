@@ -18,8 +18,15 @@ class AvatarSession:
     investigations_results: dict[str, Any] = field(default_factory=dict)
     clinical_actions: list[dict[str, Any]] = field(default_factory=list)
     conversation_history: list[dict[str, str]] = field(default_factory=list)
-    created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
-    updated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    llm_config: dict[str, Any] = field(
+        default_factory=dict,
+    )
+    created_at: str = field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
+    )
+    updated_at: str = field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
+    )
 
     def touch(self) -> None:
         self.updated_at = datetime.now(timezone.utc).isoformat()

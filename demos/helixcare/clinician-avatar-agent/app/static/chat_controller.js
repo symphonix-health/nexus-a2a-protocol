@@ -17,6 +17,15 @@
   const renderModeSelect = document.getElementById('render-mode-select');
   const voiceSelect   = document.getElementById('voice-select');
   const micBtn        = document.getElementById('mic-btn');
+  const audioUploadInput = document.getElementById('audio-upload-input');
+  const scriptLineSelect = document.getElementById('script-line-select');
+  const scriptLineMeta = document.getElementById('script-line-meta');
+  const useScriptBtn = document.getElementById('use-script-btn');
+  const playScriptClipBtn = document.getElementById('play-script-clip-btn');
+  const registrationFirstToggle = document.getElementById('registration-first-toggle');
+  const nondeterministicToggle = document.getElementById('nondeterministic-toggle');
+  const temperatureInput = document.getElementById('temperature-input');
+  const temperatureValue = document.getElementById('temperature-value');
   const statusPill    = document.getElementById('status-pill');
   const frameworkEl   = document.getElementById('framework-state');
   const audioEnableBtn = document.getElementById('audio-enable-btn');
@@ -31,6 +40,89 @@
   let audioEnabled = false;
   let speechRecognition = null;
   let isSpeechListening = false;
+  let scriptPack = [];
+
+  function _flattenScriptPack(payload) {
+    const flattened = [];
+
+    const topLevelLines = Array.isArray(payload?.lines) ? payload.lines : [];
+    topLevelLines.forEach((line) => {
+      if (typeof line === 'string') {
+        flattened.push({ text: line, phase: 'clinical', intent: 'generic' });
+      } else if (line && typeof line === 'object') {
+        flattened.push({
+          scenario_title: 'General',
+          ...line,
+          text: String(line.text || '').trim(),
+        });
+      }
+    });
+
+    const scenarios = Array.isArray(payload?.scenarios) ? payload.scenarios : [];
+    scenarios.forEach((scenario) => {
+      const lines = Array.isArray(scenario?.lines) ? scenario.lines : [];
+      lines.forEach((line) => {
+        if (typeof line === 'string') {
+          flattened.push({
+            scenario_id: scenario?.id,
+            scenario_title: scenario?.title || scenario?.id || 'Scenario',
+            text: line,
+            phase: 'clinical',
+            intent: 'generic',
+          });
+        } else if (line && typeof line === 'object') {
+          flattened.push({
+            scenario_id: scenario?.id,
+            scenario_title: scenario?.title || scenario?.id || 'Scenario',
+            ...line,
+            text: String(line.text || '').trim(),
+          });
+        }
+      });
+    });
+
+    return flattened.filter((line) => line.text);
+  }
+
+  function _selectedScriptLine() {
+    if (!scriptLineSelect) return null;
+    const idx = Number(scriptLineSelect.value || -1);
+    if (Number.isNaN(idx) || idx < 0 || idx >= scriptPack.length) return null;
+    return scriptPack[idx];
+  }
+
+  function _renderSelectedScriptMeta() {
+    if (!scriptLineMeta) return;
+    const line = _selectedScriptLine();
+    if (!line) {
+      scriptLineMeta.textContent = '';
+      return;
+    }
+    const scenario = line.scenario_title ? `[${line.scenario_title}]` : '';
+    const phase = line.phase ? `phase: ${line.phase}` : '';
+    const intent = line.intent ? `intent: ${line.intent}` : '';
+    const fields = Array.isArray(line.expected_fields) && line.expected_fields.length
+      ? `capture: ${line.expected_fields.join(', ')}`
+      : '';
+    scriptLineMeta.textContent = [scenario, phase, intent, fields].filter(Boolean).join(' · ');
+  }
+
+  function _playScriptClip() {
+    const line = _selectedScriptLine();
+    if (!line) {
+      alert('Select a script line first.');
+      return;
+    }
+    const clipName = String(line.audio_clip || '').trim();
+    if (!clipName) {
+      alert('No sample clip is mapped for this line yet. Add audio_clip and place the file in avatar/.');
+      return;
+    }
+    const audio = new Audio(`/media/${encodeURIComponent(clipName)}`);
+    audio.play().catch(() => {
+      alert(`Unable to play ${clipName}. Ensure the file exists in avatar/.`);
+    });
+  }
 
   // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -167,6 +259,7 @@
 
     const result = await rpc('avatar/start_session', {
       patient_case: {
+        registration_first_mode: Boolean(registrationFirstToggle?.checked),
         patient_profile: {
           age: 57,
           gender: 'female',
@@ -179,6 +272,10 @@
         specialty: 'emergency medicine',
         role: 'physician',
         style: 'calm, empathetic, and precise',
+      },
+      llm_config: {
+        nondeterministic: Boolean(nondeterministicToggle?.checked),
+        temperature: Number(temperatureInput?.value || 0.7),
       },
     });
 
@@ -193,6 +290,66 @@
 
     // Speak the greeting via streaming TTS
     _speakStreaming(greeting, null);
+  }
+
+  async function _loadScriptPack() {
+    if (!scriptLineSelect) return;
+    try {
+      const resp = await fetch('/static/patient_script_pack.json', { cache: 'no-store' });
+      if (!resp.ok) return;
+      const payload = await resp.json();
+      scriptPack = _flattenScriptPack(payload);
+      scriptPack.forEach((line, idx) => {
+        const opt = document.createElement('option');
+        const text = String(line?.text || '');
+        const scenarioLabel = line?.scenario_title ? `[${line.scenario_title}] ` : '';
+        opt.value = String(idx);
+        opt.textContent = `${idx + 1}. ${scenarioLabel}${text.slice(0, 80)}`;
+        scriptLineSelect.appendChild(opt);
+      });
+      _renderSelectedScriptMeta();
+    } catch (_) {}
+  }
+
+  async function _transcribeUploadedAudio(file) {
+    if (!file) return;
+    if (!sessionId) {
+      alert('Start a session first, then upload patient audio.');
+      return;
+    }
+    if (!await _ensureToken()) return;
+
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('language', 'en');
+    if (statusPill) statusPill.textContent = 'Transcribing uploaded audio…';
+
+    let data;
+    try {
+      const resp = await fetch('/api/stt/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${authToken}` },
+        body: fd,
+      });
+      data = await resp.json();
+      if (!resp.ok) {
+        throw new Error(data?.detail || `Transcription failed (${resp.status})`);
+      }
+    } catch (err) {
+      if (statusPill) statusPill.textContent = `Session: ${sessionId}`;
+      alert(err.message || 'Audio transcription failed.');
+      return;
+    }
+
+    const transcript = String(data?.transcript || '').trim();
+    if (!transcript) {
+      alert('Transcription returned empty text. Try a clearer recording.');
+      if (statusPill) statusPill.textContent = `Session: ${sessionId}`;
+      return;
+    }
+
+    await sendMessage(transcript, { fromAudio: true, deferTranscript: true });
+    if (audioUploadInput) audioUploadInput.value = '';
   }
 
   // ── Send message (barge-in aware) ────────────────────────────────────────
@@ -395,6 +552,10 @@
     if (startBtn)   startBtn.disabled  = true;
     if (sendBtn)    sendBtn.disabled   = true;
     if (micBtn)     micBtn.disabled    = true;
+    if (audioUploadInput) audioUploadInput.disabled = true;
+    if (useScriptBtn) useScriptBtn.disabled = true;
+    if (playScriptClipBtn) playScriptClipBtn.disabled = true;
+    if (scriptLineSelect) scriptLineSelect.disabled = true;
     if (chatInput)  {
       chatInput.disabled     = true;
       chatInput.placeholder  = liveMode
@@ -441,6 +602,34 @@
       else _startSpeechCapture();
     });
   }
+  if (audioUploadInput) {
+    audioUploadInput.addEventListener('change', (event) => {
+      const file = event.target?.files?.[0];
+      _transcribeUploadedAudio(file).catch((err) => alert(err.message));
+    });
+  }
+  if (useScriptBtn && scriptLineSelect) {
+    useScriptBtn.addEventListener('click', () => {
+      const selected = _selectedScriptLine();
+      const line = String(selected?.text || '').trim();
+      if (!line) return;
+      chatInput.value = line;
+      chatInput.focus();
+    });
+  }
+  if (scriptLineSelect) {
+    scriptLineSelect.addEventListener('change', _renderSelectedScriptMeta);
+  }
+  if (playScriptClipBtn) {
+    playScriptClipBtn.addEventListener('click', _playScriptClip);
+  }
+  if (temperatureInput && temperatureValue) {
+    const updateTemp = () => {
+      temperatureValue.textContent = Number(temperatureInput.value || 0.7).toFixed(1);
+    };
+    updateTemp();
+    temperatureInput.addEventListener('input', updateTemp);
+  }
 
   window.addEventListener('nexus_tts_synthetic_fallback', () => {
     if (statusPill) {
@@ -455,6 +644,7 @@
   if (renderModeSelect) {
     window.AvatarRenderer.setRenderMode(renderModeSelect.value || 'static');
   }
+  _loadScriptPack();
   configureUiMode();
   connectLiveStream();
 

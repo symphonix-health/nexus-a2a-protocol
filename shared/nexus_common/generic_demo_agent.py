@@ -243,7 +243,11 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
 
     @app.get("/health")
     async def health() -> JSONResponse:
-        return JSONResponse(content=health_monitor.get_health())
+        return JSONResponse(
+            content=health_monitor.get_health(
+                bus_stats=bus.get_stats()
+            )
+        )
 
     @app.get("/events/{task_id}")
     async def events(task_id: str, request: Request) -> StreamingResponse:

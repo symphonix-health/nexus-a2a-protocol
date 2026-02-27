@@ -55,6 +55,21 @@
 
     <section class="chat-panel">
       <div id="chat-log" class="chat-log"></div>
+      <div class="patient-tools" aria-label="Patient speaking tools">
+        <label>
+          Script
+          <select id="script-line-select">
+            <option value="">Select a guided patient line…</option>
+          </select>
+        </label>
+        <button id="use-script-btn" type="button">Use Script Line</button>
+        <button id="play-script-clip-btn" type="button">Play Sample Clip</button>
+        <label class="upload-inline">
+          Upload audio
+          <input id="audio-upload-input" type="file" accept="audio/*" />
+        </label>
+      </div>
+      <div id="script-line-meta" class="tiny-meta" aria-live="polite"></div>
       <div class="composer">
         <input id="chat-input" placeholder="Type patient response…" autocomplete="off" />
         <button id="mic-btn" type="button" title="Speak patient message">🎤 Speak</button>
@@ -65,6 +80,22 @@
     <aside class="side-panel">
       <h3>Framework Progress</h3>
       <pre id="framework-state">{}</pre>
+      <div class="llm-controls">
+        <h4>Dialogue Variability</h4>
+        <label class="inline-check">
+          <input id="registration-first-toggle" type="checkbox" checked />
+          Registration-first mode (demographics + consent before triage)
+        </label>
+        <label class="inline-check">
+          <input id="nondeterministic-toggle" type="checkbox" checked />
+          Enable non-deterministic clinician responses
+        </label>
+        <label>
+          Temperature
+          <input id="temperature-input" type="range" min="0" max="1.2" step="0.1" value="0.7" />
+        </label>
+        <div id="temperature-value" class="tiny-meta">0.7</div>
+      </div>
     </aside>
   </main>
 

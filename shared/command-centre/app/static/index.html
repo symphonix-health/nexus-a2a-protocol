@@ -160,6 +160,89 @@
                 </div>
             </section>
 
+            <section class="panel telemetry-roadmap-panel" aria-label="Operational telemetry and patient roadmap">
+                <div class="telemetry-card" aria-live="polite">
+                    <div class="telemetry-card-header">
+                        <h2>Live Memory Telemetry</h2>
+                        <button id="memory-telemetry-refresh" class="trace-export-btn" type="button">Refresh</button>
+                    </div>
+                    <p class="telemetry-subtitle">RSS trend by process to detect runaway growth before failure.</p>
+                    <div class="memory-kpi-row">
+                        <div class="memory-kpi-card">
+                            <span class="label">Total RSS</span>
+                            <span id="memory-total-rss" class="value">--</span>
+                        </div>
+                        <div class="memory-kpi-card">
+                            <span class="label">Tracked Processes</span>
+                            <span id="memory-process-count" class="value">--</span>
+                        </div>
+                        <div class="memory-kpi-card">
+                            <span class="label">Sample Cadence</span>
+                            <span id="memory-sample-cadence" class="value">--</span>
+                        </div>
+                    </div>
+                    <div id="memory-process-list" class="memory-process-list">
+                        <div class="flow-empty">Awaiting memory telemetry samples...</div>
+                    </div>
+                </div>
+
+                <div class="roadmap-card" aria-live="polite">
+                    <div class="roadmap-card-header">
+                        <h2>Patient Visit Roadmap</h2>
+                        <span id="roadmap-status-pill" class="roadmap-status-pill">Awaiting trace</span>
+                    </div>
+                    <p class="telemetry-subtitle">A clear visual journey from registration through follow-up for clinician and patient awareness.</p>
+                    <div class="roadmap-context-row">
+                        <span id="roadmap-scenario-name" class="roadmap-context-main">No scenario selected</span>
+                        <span id="roadmap-progress" class="roadmap-context-sub">0% complete</span>
+                    </div>
+                    <ol id="patient-journey-roadmap" class="patient-journey-roadmap">
+                        <li class="roadmap-step pending" data-stage="registration">
+                            <span class="roadmap-step-index">1</span>
+                            <div class="roadmap-step-content">
+                                <span class="roadmap-step-title">Registration</span>
+                                <span class="roadmap-step-meta">Identity, consent, and intake readiness</span>
+                            </div>
+                        </li>
+                        <li class="roadmap-step pending" data-stage="triage">
+                            <span class="roadmap-step-index">2</span>
+                            <div class="roadmap-step-content">
+                                <span class="roadmap-step-title">Triage</span>
+                                <span class="roadmap-step-meta">Acuity and immediate risk screening</span>
+                            </div>
+                        </li>
+                        <li class="roadmap-step pending" data-stage="diagnosis">
+                            <span class="roadmap-step-index">3</span>
+                            <div class="roadmap-step-content">
+                                <span class="roadmap-step-title">Diagnosis</span>
+                                <span class="roadmap-step-meta">Clinical reasoning and differential refinement</span>
+                            </div>
+                        </li>
+                        <li class="roadmap-step pending" data-stage="treatment">
+                            <span class="roadmap-step-index">4</span>
+                            <div class="roadmap-step-content">
+                                <span class="roadmap-step-title">Treatment</span>
+                                <span class="roadmap-step-meta">Medication, intervention, and care actions</span>
+                            </div>
+                        </li>
+                        <li class="roadmap-step pending" data-stage="disposition">
+                            <span class="roadmap-step-index">5</span>
+                            <div class="roadmap-step-content">
+                                <span class="roadmap-step-title">Disposition</span>
+                                <span class="roadmap-step-meta">Admission, discharge, or transfer planning</span>
+                            </div>
+                        </li>
+                        <li class="roadmap-step pending" data-stage="followup">
+                            <span class="roadmap-step-index">6</span>
+                            <div class="roadmap-step-content">
+                                <span class="roadmap-step-title">Follow-up</span>
+                                <span class="roadmap-step-meta">Continuity, monitoring, and safety netting</span>
+                            </div>
+                        </li>
+                    </ol>
+                </div>
+            </section>
+
             <!-- Timeline Panel (Right Sidebar) -->
             <aside class="panel timeline-panel">
                 <div class="timeline-controls" role="region" aria-label="Timeline controls">

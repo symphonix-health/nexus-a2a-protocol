@@ -2,12 +2,22 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import io
 import json
 import os
 from datetime import datetime, timezone
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi import (
+    FastAPI,
+    File,
+    Form,
+    HTTPException,
+    Request,
+    UploadFile,
+    WebSocket,
+    WebSocketDisconnect,
+)
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -227,6 +237,64 @@ async def api_tts(request: Request) -> JSONResponse:
     return JSONResponse(content=_build_live_speech_payload(text))
 
 
+@app.post("/api/stt/upload")
+async def api_stt_upload(
+    request: Request,
+    file: UploadFile = File(...),
+    language: str = Form("en"),
+) -> JSONResponse:
+    """Transcribe uploaded patient audio clips via OpenAI Speech-to-Text."""
+    _require_auth(request)
+
+    if not os.getenv("OPENAI_API_KEY"):
+        raise HTTPException(
+            status_code=503,
+            detail="OPENAI_API_KEY is not configured. Set it to enable uploaded-audio transcription.",
+        )
+
+    content = await file.read()
+    if not content:
+        raise HTTPException(status_code=400, detail="Uploaded audio file is empty.")
+    if len(content) > 20 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Uploaded audio file is too large (max 20 MB).")
+
+    model = os.getenv("OPENAI_STT_MODEL", "gpt-4o-mini-transcribe")
+    try:
+        from openai import OpenAI
+
+        client = OpenAI()
+        audio_buf = io.BytesIO(content)
+        audio_buf.name = file.filename or "patient_audio.wav"
+        req_kwargs: dict[str, Any] = {
+            "model": model,
+            "file": audio_buf,
+        }
+        clean_language = str(language or "").strip()
+        if clean_language:
+            req_kwargs["language"] = clean_language
+        transcript = client.audio.transcriptions.create(**req_kwargs)
+        text = str(getattr(transcript, "text", "") or "").strip()
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(
+            status_code=502, detail=f"Failed to transcribe uploaded audio: {exc}"
+        ) from exc
+
+    if not text:
+        raise HTTPException(
+            status_code=502, detail="Transcription completed but returned empty text."
+        )
+
+    return JSONResponse(
+        content={
+            "transcript": text,
+            "model": model,
+            "filename": file.filename or "patient_audio.wav",
+        }
+    )
+
+
 @app.websocket("/api/tts/stream")
 async def api_tts_stream(websocket: WebSocket) -> None:
     """Streaming TTS over WebSocket.
@@ -418,12 +486,17 @@ async def rpc(request: Request) -> JSONResponse:
                 identity = get_agent_identity("clinician_avatar_agent")
                 resolved_persona = identity.primary_persona.to_avatar_dict()
 
-            session = engine.start_session(parsed["patient_case"], resolved_persona)
+            session = engine.start_session(
+                parsed["patient_case"],
+                resolved_persona,
+                llm_config=parsed.get("llm_config"),
+            )
             result = {
                 "session_id": session.session_id,
                 "consultation_phase": session.consultation_phase,
                 "framework": session.framework,
                 "framework_progress": session.framework_progress,
+                "llm_config": session.llm_config,
                 "greeting": session.conversation_history[-1]["content"],
                 "persona": resolved_persona,
             }

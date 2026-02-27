@@ -125,7 +125,7 @@ class HealthMonitor:
         # Require multiple samples before latency alone marks an agent degraded.
         self._latency_min_samples = int(os.getenv("NEXUS_HEALTH_LATENCY_MIN_SAMPLES", "3"))
 
-    def get_health(self) -> dict:
+    def get_health(self, bus_stats: dict | None = None) -> dict:
         """Get current health status with metrics."""
         # Simple health determination based on error rate
         total = self.metrics.tasks_completed + self.metrics.tasks_errored
@@ -146,12 +146,15 @@ class HealthMonitor:
         else:
             status = "healthy"
 
-        return HealthStatus(
+        result = HealthStatus(
             status=status,
             name=self.agent_name,
             timestamp=datetime.now(timezone.utc).isoformat(),
             metrics=self.metrics.to_dict() | {"backpressure": self.get_backpressure_contract()},
         ).to_dict()
+        if bus_stats:
+            result["event_bus"] = bus_stats
+        return result
 
     def set_backpressure(
         self,

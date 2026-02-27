@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import hashlib
+import heapq
 import hmac
 import json
 import os
@@ -222,13 +223,21 @@ class TaskEventBus:
         self._redis_client: Any | None = None
         self._redis_enabled = False
         self._cursor_secret = _cursor_secret_from_env()
-        self._history_max_events = max(1, int(os.getenv("NEXUS_STREAM_HISTORY_MAX_EVENTS", "1024")))
-        self._history_max_tasks = max(1, int(os.getenv("NEXUS_STREAM_HISTORY_MAX_TASKS", "2000")))
-        self._history_retention_ms = _cursor_retention_ms_from_env()
+        self._history_max_events = max(1, int(os.getenv("NEXUS_STREAM_HISTORY_MAX_EVENTS", "64")))
+        self._history_max_tasks = max(1, int(os.getenv("NEXUS_STREAM_HISTORY_MAX_TASKS", "500")))
+        self._history_retention_ms = max(
+            1,
+            int(os.getenv("NEXUS_STREAM_HISTORY_RETENTION_MS", str(_cursor_retention_ms_from_env()))),
+        )
         self._subscriber_queue_maxsize = max(
             1,
             int(os.getenv("NEXUS_STREAM_SUBSCRIBER_QUEUE_MAXSIZE", "128")),
         )
+        self._prune_interval_ms = max(
+            100,
+            int(os.getenv("NEXUS_STREAM_PRUNE_INTERVAL_MS", "5000")),
+        )
+        self._last_prune_ms: int = 0
         # Max JSONL file size before rotation (default 2 MB)
         self._persist_max_bytes = max(
             65536,
@@ -484,12 +493,13 @@ class TaskEventBus:
         progress: dict[str, Any] | None = None,
     ) -> None:
         """Publish an event to all subscribers for a task and optionally to Redis."""
-        self._prune_history()
-        if task_id not in self._queues:
-            self._queues[task_id] = []
+        now_ms = int(time.time() * 1000)
+        if now_ms - self._last_prune_ms >= self._prune_interval_ms:
+            self._prune_history(now_unix_ms=now_ms)
+            self._last_prune_ms = now_ms
         seq = self._next_seq(task_id)
         epoch = self._stream_epoch[task_id]
-        ts_unix_ms = int(time.time() * 1000)
+        ts_unix_ms = now_ms
         event_obj = SseEvent(
             event=event,
             data=data,
@@ -502,7 +512,7 @@ class TaskEventBus:
         self._history_last_ts[task_id] = ts_unix_ms
         self._enforce_history_task_cap()
         self._persist_event(task_id, event_obj)
-        for q in list(self._queues[task_id]):
+        for q in list(self._queues.get(task_id, [])):
             self._push_event_nonblocking(task_id, q, event_obj)
 
         # Also publish to Redis for cross-agent monitoring
@@ -655,6 +665,20 @@ class TaskEventBus:
     def cleanup(self, task_id: str) -> None:
         """Remove live subscriber queues while preserving replay history."""
         self._queues.pop(task_id, None)
+
+    def get_stats(self) -> dict[str, Any]:
+        """Return bus memory diagnostics for observability."""
+        total_events = sum(len(d) for d in self._history.values())
+        return {
+            "tasks_tracked": len(self._history),
+            "tasks_with_subscribers": sum(
+                1 for q in self._queues.values() if q
+            ),
+            "total_events_in_memory": total_events,
+            "history_max_events_per_task": self._history_max_events,
+            "history_max_tasks": self._history_max_tasks,
+            "history_retention_ms": self._history_retention_ms,
+        }
 
     async def close(self) -> None:
         """Close Redis connection if active."""
@@ -825,14 +849,21 @@ class TaskEventBus:
             self._history_last_ts.pop(task_id, None)
             self._stream_seq.pop(task_id, None)
             self._stream_epoch.pop(task_id, None)
+            self._queues.pop(task_id, None)
         self._enforce_history_task_cap()
 
     def _enforce_history_task_cap(self) -> None:
-        if len(self._history_last_ts) <= self._history_max_tasks:
+        overflow = len(self._history_last_ts) - self._history_max_tasks
+        if overflow <= 0:
             return
 
-        by_age = sorted(self._history_last_ts.items(), key=lambda item: int(item[1]))
-        for task_id, _ in by_age:
+        # Use heapq.nsmallest for O(n) when overflow is small vs O(n log n) full sort
+        oldest = heapq.nsmallest(
+            overflow + 10,
+            self._history_last_ts.items(),
+            key=lambda item: int(item[1]),
+        )
+        for task_id, _ in oldest:
             if len(self._history_last_ts) <= self._history_max_tasks:
                 break
             if task_id in self._queues and self._queues.get(task_id):
@@ -841,3 +872,4 @@ class TaskEventBus:
             self._history_last_ts.pop(task_id, None)
             self._stream_seq.pop(task_id, None)
             self._stream_epoch.pop(task_id, None)
+            self._queues.pop(task_id, None)

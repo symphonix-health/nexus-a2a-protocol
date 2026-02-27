@@ -10,10 +10,13 @@ Provides:
 from __future__ import annotations
 
 import asyncio
+import csv
 import hashlib
 import json
 import logging
 import os
+import platform
+import subprocess
 from collections import OrderedDict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -59,6 +62,11 @@ CARD_CACHE_TTL_S = float(os.getenv("CC_CARD_CACHE_TTL_S", "60.0"))
 WS_MAX_CLIENTS = int(os.getenv("CC_WS_MAX_CLIENTS", "20"))
 # Per-agent health/card request timeout
 AGENT_FETCH_TIMEOUT = float(os.getenv("CC_AGENT_FETCH_TIMEOUT", "5.0"))
+MEMORY_SAMPLE_INTERVAL_SECONDS = max(
+    2.0,
+    float(os.getenv("CC_MEMORY_SAMPLE_INTERVAL_SECONDS", "5.0")),
+)
+MEMORY_MAX_SAMPLES = max(10, int(os.getenv("CC_MEMORY_MAX_SAMPLES", "180")))
 
 # In-memory agent state
 agent_states: dict[str, dict[str, Any]] = {}
@@ -68,6 +76,13 @@ scenario_catalog: list[dict[str, Any]] = []
 lock = asyncio.Lock()
 poll_task_started = False
 first_poll_cycle_completed = False
+
+# ── Memory Telemetry Store ───────────────────────────────────────────
+MEMORY_PID_FILE = Path(__file__).resolve().parents[3] / ".agent_pids.json"
+memory_process_meta: OrderedDict[str, dict[str, Any]] = OrderedDict()
+memory_samples: OrderedDict[str, list[dict[str, Any]]] = OrderedDict()
+memory_last_timestamp = ""
+memory_lock = asyncio.Lock()
 
 # ── Trace Store ───────────────────────────────────────────────────────
 TRACE_STORE_MAX = max(1, int(os.getenv("COMMAND_CENTRE_TRACE_STORE_MAX", "200")))
@@ -266,7 +281,9 @@ def _persist_trace_store_to_disk() -> None:
 def _json_size_bytes(value: Any) -> int:
     try:
         return len(
-            json.dumps(value, separators=(",", ":"), ensure_ascii=False, default=str).encode("utf-8")
+            json.dumps(value, separators=(",", ":"), ensure_ascii=False, default=str).encode(
+                "utf-8"
+            )
         )
     except Exception:
         return 0
@@ -336,11 +353,15 @@ def _evict_trace_store_to_limits() -> None:
     global trace_store_total_bytes
     while len(trace_store) > TRACE_STORE_MAX:
         trace_id, _ = trace_store.popitem(last=False)
-        trace_store_total_bytes = max(0, trace_store_total_bytes - trace_store_sizes.pop(trace_id, 0))
+        trace_store_total_bytes = max(
+            0, trace_store_total_bytes - trace_store_sizes.pop(trace_id, 0)
+        )
 
     while trace_store and trace_store_total_bytes > TRACE_STORE_MAX_BYTES:
         trace_id, _ = trace_store.popitem(last=False)
-        trace_store_total_bytes = max(0, trace_store_total_bytes - trace_store_sizes.pop(trace_id, 0))
+        trace_store_total_bytes = max(
+            0, trace_store_total_bytes - trace_store_sizes.pop(trace_id, 0)
+        )
 
 
 def _upsert_trace_store_item(trace_id: str, trace_run: dict[str, Any]) -> None:
@@ -348,13 +369,198 @@ def _upsert_trace_store_item(trace_id: str, trace_run: dict[str, Any]) -> None:
 
     if trace_id in trace_store:
         trace_store.pop(trace_id, None)
-        trace_store_total_bytes = max(0, trace_store_total_bytes - trace_store_sizes.pop(trace_id, 0))
+        trace_store_total_bytes = max(
+            0, trace_store_total_bytes - trace_store_sizes.pop(trace_id, 0)
+        )
 
     trace_store[trace_id] = trace_run
     size = _json_size_bytes(trace_run)
     trace_store_sizes[trace_id] = size
     trace_store_total_bytes += size
     _evict_trace_store_to_limits()
+
+
+def _memory_key(pid: int, process_type: str, name: str) -> str:
+    return f"{pid}:{process_type}:{name}"
+
+
+def _read_managed_process_entries() -> list[dict[str, Any]]:
+    """Best-effort load of managed process metadata from launcher PID file."""
+    if not MEMORY_PID_FILE.is_file():
+        return []
+    try:
+        raw = json.loads(MEMORY_PID_FILE.read_text(encoding="utf-8"))
+        if not isinstance(raw, list):
+            return []
+        return [item for item in raw if isinstance(item, dict)]
+    except Exception:
+        return []
+
+
+def _parse_windows_tasklist_rss_bytes(pid: int) -> int | None:
+    """Return RSS-like memory usage in bytes via tasklist CSV output."""
+    try:
+        proc = subprocess.run(
+            ["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if proc.returncode != 0:
+            return None
+        rows = list(csv.reader(proc.stdout.splitlines()))
+        if not rows:
+            return None
+        first = rows[0]
+        if not first or str(first[0]).strip().upper() == "INFO:":
+            return None
+        # Columns: Image Name, PID, Session Name, Session#, Mem Usage
+        if len(first) < 5:
+            return None
+        mem_text = str(first[4])
+        digits = "".join(ch for ch in mem_text if ch.isdigit())
+        if not digits:
+            return None
+        kb = int(digits)
+        return kb * 1024
+    except Exception:
+        return None
+
+
+def _parse_unix_ps_rss_bytes(pid: int) -> int | None:
+    """Return RSS in bytes via ps output (rss reported in KB)."""
+    try:
+        proc = subprocess.run(
+            ["ps", "-o", "rss=", "-p", str(pid)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if proc.returncode != 0:
+            return None
+        text = proc.stdout.strip()
+        if not text:
+            return None
+        kb = int(text)
+        return kb * 1024
+    except Exception:
+        return None
+
+
+def _read_process_rss_bytes(pid: int) -> int | None:
+    if platform.system().lower().startswith("win"):
+        return _parse_windows_tasklist_rss_bytes(pid)
+    return _parse_unix_ps_rss_bytes(pid)
+
+
+def _collect_memory_snapshot_sync() -> tuple[str, list[dict[str, Any]]]:
+    """Collect current process RSS snapshot for managed services + command centre."""
+    timestamp = datetime.now(timezone.utc).isoformat()
+
+    entries: list[dict[str, Any]] = [
+        {
+            "pid": os.getpid(),
+            "type": "backend",
+            "dir": "shared/command-centre",
+            "port": 8099,
+            "name": "command-centre",
+        }
+    ]
+    entries.extend(_read_managed_process_entries())
+
+    dedup: dict[int, dict[str, Any]] = {}
+    for entry in entries:
+        pid = entry.get("pid")
+        if not isinstance(pid, int) or pid <= 0:
+            continue
+        if pid not in dedup:
+            dedup[pid] = entry
+
+    samples: list[dict[str, Any]] = []
+    for pid, entry in dedup.items():
+        process_type = str(entry.get("type", "service"))
+        process_name = str(entry.get("name") or Path(str(entry.get("dir", "service"))).name)
+        key = _memory_key(pid, process_type, process_name)
+        rss_bytes = _read_process_rss_bytes(pid)
+        status = "running" if isinstance(rss_bytes, int) else "unavailable"
+
+        samples.append(
+            {
+                "key": key,
+                "pid": pid,
+                "type": process_type,
+                "name": process_name,
+                "dir": entry.get("dir", ""),
+                "port": entry.get("port"),
+                "status": status,
+                "rss_bytes": int(rss_bytes) if isinstance(rss_bytes, int) else None,
+            }
+        )
+
+    return timestamp, samples
+
+
+async def _sample_memory_once() -> None:
+    """Capture a single telemetry sample and append to bounded in-memory history."""
+    global memory_last_timestamp
+    timestamp, snapshot = await asyncio.to_thread(_collect_memory_snapshot_sync)
+
+    async with memory_lock:
+        memory_last_timestamp = timestamp
+
+        seen_keys: set[str] = set()
+        for item in snapshot:
+            key = str(item.get("key", ""))
+            if not key:
+                continue
+            seen_keys.add(key)
+
+            memory_process_meta[key] = {
+                "key": key,
+                "pid": item.get("pid"),
+                "name": item.get("name"),
+                "type": item.get("type"),
+                "dir": item.get("dir"),
+                "port": item.get("port"),
+                "status": item.get("status", "unknown"),
+            }
+
+            series = memory_samples.get(key)
+            if series is None:
+                series = []
+                memory_samples[key] = series
+
+            series.append(
+                {
+                    "timestamp": timestamp,
+                    "rss_bytes": item.get("rss_bytes"),
+                }
+            )
+            if len(series) > MEMORY_MAX_SAMPLES:
+                del series[: len(series) - MEMORY_MAX_SAMPLES]
+
+        # Mark missing processes as unavailable for current timestamp so charts can show drop-offs.
+        for key, meta in list(memory_process_meta.items()):
+            if key in seen_keys:
+                continue
+            meta["status"] = "unavailable"
+            series = memory_samples.get(key)
+            if series is None:
+                series = []
+                memory_samples[key] = series
+            series.append({"timestamp": timestamp, "rss_bytes": None})
+            if len(series) > MEMORY_MAX_SAMPLES:
+                del series[: len(series) - MEMORY_MAX_SAMPLES]
+
+
+async def poll_memory_telemetry() -> None:
+    """Background memory telemetry sampler."""
+    while True:
+        try:
+            await _sample_memory_once()
+        except Exception as exc:
+            logger.warning(f"Memory telemetry sample failed: {exc}")
+        await asyncio.sleep(MEMORY_SAMPLE_INTERVAL_SECONDS)
 
 
 # ── Agent Discovery & Health Polling ──────────────────────────────────
@@ -365,9 +571,7 @@ async def _fetch_card_cached(url: str, client: httpx.AsyncClient) -> dict[str, A
     if now - cached_at < CARD_CACHE_TTL_S:
         return cached_card or None
     try:
-        resp = await client.get(
-            f"{url}/.well-known/agent-card.json", timeout=AGENT_FETCH_TIMEOUT
-        )
+        resp = await client.get(f"{url}/.well-known/agent-card.json", timeout=AGENT_FETCH_TIMEOUT)
         if resp.status_code == 200:
             card = resp.json()
             _card_cache[url] = (now, card)
@@ -382,9 +586,7 @@ async def _fetch_card_cached(url: str, client: httpx.AsyncClient) -> dict[str, A
 async def fetch_agent_card(url: str, client: httpx.AsyncClient) -> dict[str, Any] | None:
     """Fetch agent card from discovery endpoint (bypasses cache — for direct callers)."""
     try:
-        resp = await client.get(
-            f"{url}/.well-known/agent-card.json", timeout=AGENT_FETCH_TIMEOUT
-        )
+        resp = await client.get(f"{url}/.well-known/agent-card.json", timeout=AGENT_FETCH_TIMEOUT)
         if resp.status_code == 200:
             return resp.json()
     except Exception as exc:
@@ -487,6 +689,7 @@ async def startup_event():
     scenario_catalog = _load_scenario_catalog()
     restored = _restore_trace_store_from_disk()
     asyncio.create_task(poll_agents())
+    asyncio.create_task(poll_memory_telemetry())
     poll_task_started = True
     if restored:
         logger.info(f"Restored {restored} trace runs from {TRACE_STORE_FILE}")
@@ -575,6 +778,88 @@ async def get_topology():
 async def get_scenario_catalog():
     """Return scenario catalog metadata for dashboard journey labels."""
     return JSONResponse(content=scenario_catalog)
+
+
+@app.get("/api/memory")
+async def get_memory_telemetry():
+    """Return lightweight RSS telemetry trends by managed process."""
+    async with memory_lock:
+        processes: list[dict[str, Any]] = []
+        total_rss_bytes = 0
+
+        for key, meta in memory_process_meta.items():
+            series = list(memory_samples.get(key, []))
+            compact_points = []
+            first_rss = None
+            last_rss = None
+            for point in series:
+                rss_bytes = point.get("rss_bytes")
+                if isinstance(rss_bytes, int):
+                    if first_rss is None:
+                        first_rss = rss_bytes
+                    last_rss = rss_bytes
+                compact_points.append(
+                    {
+                        "timestamp": point.get("timestamp"),
+                        "rss_mb": round((rss_bytes or 0) / (1024 * 1024), 2)
+                        if isinstance(rss_bytes, int)
+                        else None,
+                    }
+                )
+
+            rss_bytes_current = None
+            if series:
+                latest = series[-1].get("rss_bytes")
+                if isinstance(latest, int):
+                    rss_bytes_current = latest
+
+            if isinstance(rss_bytes_current, int):
+                total_rss_bytes += rss_bytes_current
+
+            trend_mb = (
+                round((last_rss - first_rss) / (1024 * 1024), 2)
+                if isinstance(last_rss, int) and isinstance(first_rss, int)
+                else None
+            )
+            trend_direction = (
+                "up"
+                if isinstance(trend_mb, float) and trend_mb > 5
+                else "down"
+                if isinstance(trend_mb, float) and trend_mb < -5
+                else "stable"
+            )
+
+            processes.append(
+                {
+                    "key": key,
+                    "pid": meta.get("pid"),
+                    "name": meta.get("name"),
+                    "type": meta.get("type"),
+                    "port": meta.get("port"),
+                    "status": meta.get("status", "unknown"),
+                    "rss_bytes": rss_bytes_current,
+                    "rss_mb": round(rss_bytes_current / (1024 * 1024), 2)
+                    if isinstance(rss_bytes_current, int)
+                    else None,
+                    "trend_mb": trend_mb,
+                    "trend_direction": trend_direction,
+                    "samples": compact_points,
+                }
+            )
+
+        processes.sort(key=lambda p: p.get("rss_bytes") or 0, reverse=True)
+
+        return JSONResponse(
+            content={
+                "timestamp": memory_last_timestamp,
+                "sample_interval_seconds": MEMORY_SAMPLE_INTERVAL_SECONDS,
+                "max_samples": MEMORY_MAX_SAMPLES,
+                "process_count": len(processes),
+                "total_rss_bytes": total_rss_bytes,
+                "total_rss_mb": round(total_rss_bytes / (1024 * 1024), 2),
+                "processes": processes,
+            }
+        )
 
 
 # ── Trace API ─────────────────────────────────────────────────────────
@@ -730,7 +1015,9 @@ async def websocket_events(websocket: WebSocket):
             await websocket.send_json(
                 {
                     "type": "system.warning",
-                    "payload": {"message": "Redis not available; snapshots pushed every poll cycle"},
+                    "payload": {
+                        "message": "Redis not available; snapshots pushed every poll cycle"
+                    },
                     "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
             )
