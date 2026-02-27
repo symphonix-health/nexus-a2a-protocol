@@ -106,6 +106,25 @@ body {
 
 .chat-panel { gap: 0; }
 
+.patient-tools {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 8px 0;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.upload-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#script-line-meta {
+  margin: 0 0 8px;
+}
+
 .chat-log {
   flex: 1;
   min-height: 0;
@@ -173,6 +192,31 @@ pre {
   border-radius: 8px;
   padding: 8px;
   background: #0b1220;
+}
+
+.llm-controls {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #334155;
+}
+
+.llm-controls h4 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+.inline-check {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.tiny-meta {
+  font-size: 12px;
+  color: #94a3b8;
 }
 
 @media (max-width: 1200px) {

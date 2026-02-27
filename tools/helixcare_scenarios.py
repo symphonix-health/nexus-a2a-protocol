@@ -792,6 +792,37 @@ def _choose_simulation_branch(
     return str(rng.choice(non_nominal)) if non_nominal else "nominal"
 
 
+def _is_ai_agent_driven_enabled() -> bool:
+    return os.getenv("HELIXCARE_AI_AGENT_DRIVEN", "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+
+def _ai_agent_driven_intensity() -> str:
+    value = os.getenv("HELIXCARE_AI_AGENT_DRIVEN_INTENSITY", "high").strip().lower()
+    return value if value in {"low", "medium", "high"} else "high"
+
+
+def _agent_driven_profile(base_profile: dict[str, Any], intensity: str) -> dict[str, Any]:
+    profile = dict(base_profile or {})
+    profile["variance_band"] = "medium" if intensity == "low" else intensity
+
+    branches = list(profile.get("allowed_branches") or ["nominal"])
+    for branch in [
+        "triage_escalation",
+        "safety_fallback",
+        "parallel_handoff",
+        "delayed_data",
+    ]:
+        if branch not in branches:
+            branches.append(branch)
+    profile["allowed_branches"] = branches
+    return profile
+
+
 SCENARIOS = [
     PatientScenario(
         name="primary_care_outpatient_in_person",
@@ -1947,8 +1978,7 @@ def _load_clinical_negative_scenarios() -> list[PatientScenario]:
         return loaded
     except Exception:
         try:
-            from tools.clinical_negative_scenarios import \
-                CLINICAL_NEGATIVE_SCENARIOS
+            from tools.clinical_negative_scenarios import CLINICAL_NEGATIVE_SCENARIOS
 
             loaded = list(CLINICAL_NEGATIVE_SCENARIOS)
             enrich_scenario_handoff_contracts(loaded)
@@ -2077,21 +2107,40 @@ async def run_scenario(scenario: PatientScenario) -> None:
 
     # Delegation engine – tracks handoff validation & context chaining
     try:
-        from tools.delegation import (DelegationMonitor, HandoffResult,
-                                      build_delegation_context,
-                                      validate_handoff)
+        from tools.delegation import (
+            DelegationMonitor,
+            HandoffResult,
+            build_delegation_context,
+            validate_handoff,
+        )
     except ImportError:
-        from delegation import (DelegationMonitor, HandoffResult,
-                                build_delegation_context, validate_handoff)
+        from delegation import (
+            DelegationMonitor,
+            HandoffResult,
+            build_delegation_context,
+            validate_handoff,
+        )
 
     try:
-        from shared.nexus_common.clinical_handoff_rules import \
-            apply_nhs_guardrails
+        from shared.nexus_common.clinical_handoff_rules import apply_nhs_guardrails
     except Exception:
         from clinical_handoff_rules import apply_nhs_guardrails  # type: ignore
 
     profile = _scenario_simulation_profile(scenario)
+    ai_agent_driven = _is_ai_agent_driven_enabled()
+    ai_agent_intensity = _ai_agent_driven_intensity()
+    if ai_agent_driven:
+        profile = _agent_driven_profile(profile, ai_agent_intensity)
+        print(
+            "   🤖 AI agent-driven mode: enabled "
+            f"(intensity={ai_agent_intensity}, variance={profile.get('variance_band')})"
+        )
     rng = random.Random(int(profile.get("seed", _stable_seed(scenario.name))))
+
+    clinical_context["_meta"]["ai_agent_driven"] = ai_agent_driven
+    clinical_context["_meta"]["ai_agent_intensity"] = (
+        ai_agent_intensity if ai_agent_driven else None
+    )
 
     monitor = DelegationMonitor()
     completed_agents: set[str] = set()
@@ -2227,6 +2276,21 @@ async def run_scenario(scenario: PatientScenario) -> None:
             "allowed_branches": profile.get("allowed_branches"),
             "selected_branch": branch,
         }
+        if ai_agent_driven:
+            step_params["agent_autonomy"] = {
+                "enabled": True,
+                "intensity": ai_agent_intensity,
+                "objective": "Stress-test NEXUS-A2A robustness with bounded autonomous decisions",
+                "policy": {
+                    "preserve_safety_guardrails": True,
+                    "allow_dynamic_handoff_strategy": True,
+                    "prefer_contextual_reasoning": True,
+                },
+                "stress": {
+                    "inject_non_nominal_probability": True,
+                    "encourage_parallel_handoff_checks": ai_agent_intensity in {"medium", "high"},
+                },
+            }
         task_id = f"{visit_id}-{step['agent']}-{i}"
         rpc_url = resolve_agent_rpc_url(step["agent"])
 
@@ -2473,6 +2537,17 @@ async def main() -> None:
         action="store_true",
         help="Include expanded representative scenario corpus.",
     )
+    parser.add_argument(
+        "--ai-agent-driven",
+        action="store_true",
+        help="Enable bounded AI-agent-driven workflow mode for robustness stress testing.",
+    )
+    parser.add_argument(
+        "--agent-driven-intensity",
+        choices=["low", "medium", "high"],
+        default="high",
+        help="Agent-driven autonomy intensity when --ai-agent-driven is enabled.",
+    )
 
     args = parser.parse_args()
 
@@ -2484,6 +2559,9 @@ async def main() -> None:
         os.environ["HELIXCARE_SIMULATION_SEED"] = str(args.simulation_seed)
     if args.variance_band:
         os.environ["HELIXCARE_VARIANCE_BAND"] = args.variance_band
+    if args.ai_agent_driven:
+        os.environ["HELIXCARE_AI_AGENT_DRIVEN"] = "true"
+        os.environ["HELIXCARE_AI_AGENT_DRIVEN_INTENSITY"] = args.agent_driven_intensity
 
     print(f"⚙ Active retry profile: {ACTIVE_RETRY_MODE}")
     if ON_DEMAND_GATEWAY_URL:
@@ -2494,6 +2572,8 @@ async def main() -> None:
         print(f"⚙ Simulation seed: {os.getenv('HELIXCARE_SIMULATION_SEED')}")
     if os.getenv("HELIXCARE_VARIANCE_BAND"):
         print(f"⚙ Variance band: {os.getenv('HELIXCARE_VARIANCE_BAND')}")
+    if _is_ai_agent_driven_enabled():
+        print(f"⚙ AI agent-driven mode: enabled ({_ai_agent_driven_intensity()})")
     if args.include_representative_expansion:
         print("⚙ Representative expansion: enabled")
 

@@ -465,6 +465,262 @@ body {
     max-width: none;
 }
 
+.telemetry-roadmap-panel {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+
+.telemetry-card,
+.roadmap-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0.85rem;
+    min-height: 250px;
+}
+
+.telemetry-card-header,
+.roadmap-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.55rem;
+    margin-bottom: 0.35rem;
+}
+
+.telemetry-card-header h2,
+.roadmap-card-header h2 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.telemetry-subtitle {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 0.7rem;
+}
+
+.memory-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 0.7rem;
+}
+
+.memory-kpi-card {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-surface);
+    padding: 0.45rem 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.12rem;
+}
+
+.memory-kpi-card .label {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.memory-kpi-card .value {
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.memory-process-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.memory-process-card {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-surface);
+    padding: 0.5rem 0.6rem;
+}
+
+.memory-process-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.4rem;
+}
+
+.memory-process-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.memory-process-meta {
+    color: var(--text-muted);
+    font-size: 0.68rem;
+}
+
+.memory-process-body {
+    margin-top: 0.35rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.6rem;
+    align-items: center;
+}
+
+.memory-process-metrics {
+    min-width: 130px;
+    display: flex;
+    flex-direction: column;
+}
+
+.memory-rss {
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.memory-trend {
+    font-size: 0.69rem;
+    color: var(--text-muted);
+}
+
+.memory-trend.up {
+    color: #fca5a5;
+}
+
+.memory-trend.down {
+    color: #86efac;
+}
+
+.memory-sparkline svg {
+    width: 100%;
+    height: 32px;
+    display: block;
+}
+
+.sparkline-line {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.sparkline-flat {
+    stroke: var(--text-muted);
+    stroke-width: 1.1;
+    stroke-dasharray: 4 4;
+}
+
+.roadmap-status-pill {
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    color: var(--text-muted);
+    padding: 0.2rem 0.55rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.roadmap-status-pill.active {
+    color: #bfdbfe;
+    border-color: rgba(59, 130, 246, 0.65);
+}
+
+.roadmap-status-pill.complete {
+    color: #86efac;
+    border-color: rgba(16, 185, 129, 0.65);
+}
+
+.roadmap-status-pill.risk {
+    color: #fecaca;
+    border-color: rgba(239, 68, 68, 0.7);
+}
+
+.roadmap-context-row {
+    margin: 0.25rem 0 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.6rem;
+}
+
+.roadmap-context-main {
+    font-size: 0.86rem;
+    font-weight: 700;
+}
+
+.roadmap-context-sub {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+}
+
+.patient-journey-roadmap {
+    list-style: none;
+    display: grid;
+    gap: 0.45rem;
+}
+
+.roadmap-step {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 0.55rem;
+    align-items: start;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-surface);
+    padding: 0.45rem 0.55rem;
+}
+
+.roadmap-step-index {
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+}
+
+.roadmap-step-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.roadmap-step-meta {
+    display: block;
+    margin-top: 0.1rem;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.roadmap-step.complete {
+    border-color: rgba(16, 185, 129, 0.55);
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.roadmap-step.complete .roadmap-step-index {
+    background: rgba(16, 185, 129, 0.2);
+    color: #86efac;
+    border-color: rgba(16, 185, 129, 0.65);
+}
+
+.roadmap-step.active {
+    border-color: rgba(59, 130, 246, 0.6);
+    background: rgba(59, 130, 246, 0.14);
+}
+
+.roadmap-step.active .roadmap-step-index {
+    background: rgba(59, 130, 246, 0.2);
+    color: #bfdbfe;
+    border-color: rgba(59, 130, 246, 0.7);
+}
+
 .flow-board-source {
     font-size: 0.75rem;
     padding: 0.25rem 0.5rem;
@@ -1141,6 +1397,20 @@ body {
 
     .flow-kpi-strip {
         grid-template-columns: repeat(2, minmax(120px, 1fr));
+    }
+
+    .telemetry-roadmap-panel {
+        grid-template-columns: 1fr;
+    }
+
+    .memory-kpi-row {
+        grid-template-columns: 1fr;
+    }
+
+    .roadmap-context-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
     }
 
     .trace-layout {

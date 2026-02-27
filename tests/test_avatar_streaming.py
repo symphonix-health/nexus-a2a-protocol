@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import importlib.util
 import json
-import os
 import sys
 from pathlib import Path
 from unittest.mock import patch
@@ -214,7 +213,6 @@ class TestTtsStreamRealPath:
 
         monkeypatch.setattr(vcp, "stream_tts_chunks", _fake_chunks)
         # Also patch in the main module that already imported stream_tts_chunks
-        import importlib
 
         import demos.helixcare  # noqa: F401 — ensure package is on path
 
@@ -449,3 +447,16 @@ class TestAvatarEndpoints:
             resp = client.get("/media/../.env")
 
         assert resp.status_code == 404
+
+    def test_stt_upload_requires_openai_key(self, avatar_app, monkeypatch):
+        from starlette.testclient import TestClient
+
+        monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+        headers = {"Authorization": f"Bearer {_mint_token()}"}
+        files = {"file": ("patient.wav", b"fake-audio", "audio/wav")}
+        data = {"language": "en"}
+
+        with TestClient(avatar_app) as client:
+            resp = client.post("/api/stt/upload", headers=headers, files=files, data=data)
+
+        assert resp.status_code == 503

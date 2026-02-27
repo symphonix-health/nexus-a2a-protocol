@@ -18,7 +18,14 @@ class TestAvatarEngine:
         return AvatarEngine()
 
     def _case(self, complaint="Chest pain", age=54, gender="male", urgency="high"):
-        return {"patient_profile": {"chief_complaint": complaint, "age": age, "gender": gender, "urgency": urgency}}
+        return {
+            "patient_profile": {
+                "chief_complaint": complaint,
+                "age": age,
+                "gender": gender,
+                "urgency": urgency,
+            }
+        }
 
     def _persona(self, name="Dr. Alex", role="clinician", specialty="cardiology"):
         return {"name": name, "role": role, "specialty": specialty}
@@ -68,7 +75,9 @@ class TestAvatarEngine:
             "shared.clinician_avatar.avatar_engine.llm_chat",
             return_value="I understand you have a throbbing headache. Can you describe where exactly it is?",
         ):
-            result = engine.handle_patient_message(sid, "I have a throbbing headache on the left side.")
+            result = engine.handle_patient_message(
+                sid, "I have a throbbing headache on the left side."
+            )
         assert "clinician_response" in result
         assert "consultation_phase" in result
         assert len(result["clinician_response"]) > 5
@@ -77,6 +86,230 @@ class TestAvatarEngine:
         engine = self._make_engine()
         result = engine.handle_patient_message("nonexistent-session", "Hello")
         assert result.get("error") == "session_not_found"
+
+    def test_handle_patient_message_uses_session_llm_config(self):
+        engine = self._make_engine()
+        session = engine.start_session(
+            patient_case=self._case(complaint="Headache", urgency="medium"),
+            persona=self._persona(),
+            llm_config={"nondeterministic": True, "temperature": 0.8, "top_p": 0.9},
+        )
+        sid = session.session_id
+        with patch(
+            "shared.clinician_avatar.avatar_engine.llm_chat",
+            return_value="Thanks, can you describe any nausea with this headache?",
+        ) as mocked_chat:
+            engine.handle_patient_message(sid, "The headache started yesterday.")
+        _, kwargs = mocked_chat.call_args
+        assert kwargs["temperature"] == pytest.approx(0.8)
+        assert kwargs["top_p"] == pytest.approx(0.9)
+
+    def test_registration_first_mode_starts_with_intake_prompt(self):
+        engine = self._make_engine()
+        session = engine.start_session(
+            patient_case={
+                "registration_first_mode": True,
+                "patient_profile": {
+                    "chief_complaint": "Chest pain",
+                    "urgency": "high",
+                },
+            },
+            persona=self._persona(),
+        )
+        greeting = session.conversation_history[-1]["content"]
+        assert "quick intake" in greeting.lower()
+        assert "full legal name" in greeting.lower()
+        assert session.framework_progress["registration_first_mode"] is True
+        assert session.framework_progress["intake"]["completed"] is False
+
+    def test_registration_first_mode_gates_llm_until_intake_complete(self):
+        engine = self._make_engine()
+        session = engine.start_session(
+            patient_case={
+                "registration_first_mode": True,
+                "patient_profile": {
+                    "chief_complaint": "Chest pain",
+                    "urgency": "high",
+                },
+            },
+            persona=self._persona(),
+        )
+        sid = session.session_id
+
+        with patch(
+            "shared.clinician_avatar.avatar_engine.llm_chat",
+            return_value="Clinical response",
+        ) as mocked_chat:
+            for answer in [
+                "Amina Njeri",
+                "1990-04-22",
+                "+254 712 345 678",
+                "Nairobi Westlands",
+                "Yes I consent",
+                "I confirm I understand the consent policy.",
+            ]:
+                result = engine.handle_patient_message(sid, answer)
+
+            assert mocked_chat.call_count == 0
+            assert result["framework_progress"]["intake"]["completed"] is True
+
+            engine.handle_patient_message(
+                sid,
+                "Chest pressure started 30 minutes ago while climbing stairs.",
+            )
+            assert mocked_chat.call_count == 1
+
+    def test_registration_first_mode_rejects_invalid_dob_format(self):
+        engine = self._make_engine()
+        session = engine.start_session(
+            patient_case={
+                "registration_first_mode": True,
+                "patient_profile": {
+                    "chief_complaint": "Chest pain",
+                    "urgency": "high",
+                },
+            },
+            persona=self._persona(),
+        )
+        sid = session.session_id
+
+        engine.handle_patient_message(sid, "Amina Njeri")
+        result = engine.handle_patient_message(sid, "22/04/1990")
+        intake = result["framework_progress"]["intake"]
+
+        assert intake["current_index"] == 1
+        assert intake["completed"] is False
+        assert intake["last_error"]["field"] == "dob"
+        assert "yyyy-mm-dd" in result["clinician_response"].lower()
+
+    def test_registration_first_mode_normalizes_phone(self):
+        engine = self._make_engine()
+        session = engine.start_session(
+            patient_case={
+                "registration_first_mode": True,
+                "patient_profile": {
+                    "chief_complaint": "Chest pain",
+                    "urgency": "high",
+                },
+            },
+            persona=self._persona(),
+        )
+        sid = session.session_id
+
+        engine.handle_patient_message(sid, "Amina Njeri")
+        engine.handle_patient_message(sid, "1990-04-22")
+        result = engine.handle_patient_message(sid, "+254 (712) 345-678")
+        intake = result["framework_progress"]["intake"]
+
+        assert intake["collected"]["phone"] == "+254712345678"
+
+    def test_registration_first_mode_requires_explicit_yes_consent(self):
+        engine = self._make_engine()
+        session = engine.start_session(
+            patient_case={
+                "registration_first_mode": True,
+                "patient_profile": {
+                    "chief_complaint": "Chest pain",
+                    "urgency": "high",
+                },
+            },
+            persona=self._persona(),
+        )
+        sid = session.session_id
+
+        engine.handle_patient_message(sid, "Amina Njeri")
+        engine.handle_patient_message(sid, "1990-04-22")
+        engine.handle_patient_message(sid, "+254712345678")
+        engine.handle_patient_message(sid, "Nairobi Westlands")
+
+        blocked = engine.handle_patient_message(sid, "maybe")
+        intake = blocked["framework_progress"]["intake"]
+        assert intake["completed"] is False
+        assert intake["current_index"] == 4
+        assert intake["last_error"]["field"] == "consent"
+        assert "yes or no" in blocked["clinician_response"].lower()
+
+        consent_ok = engine.handle_patient_message(sid, "yes")
+        intake = consent_ok["framework_progress"]["intake"]
+        assert intake["completed"] is False
+        assert intake["current_index"] == 5
+
+        policy_blocked = engine.handle_patient_message(sid, "I understand")
+        intake = policy_blocked["framework_progress"]["intake"]
+        assert intake["completed"] is False
+        assert intake["last_error"]["field"] == "consent_policy_confirm"
+
+        allowed = engine.handle_patient_message(
+            sid,
+            "I confirm I understand the consent policy.",
+        )
+        intake = allowed["framework_progress"]["intake"]
+        assert intake["completed"] is True
+        assert intake["collected"]["consent"] == "yes"
+        assert intake["collected"]["consent_policy_confirm"] == "confirmed"
+
+    def test_registration_first_mode_normalizes_kenya_local_phone(self):
+        engine = self._make_engine()
+        session = engine.start_session(
+            patient_case={
+                "registration_first_mode": True,
+                "country": "kenya",
+                "patient_profile": {
+                    "chief_complaint": "Chest pain",
+                    "urgency": "high",
+                },
+            },
+            persona=self._persona(),
+        )
+        sid = session.session_id
+
+        engine.handle_patient_message(sid, "Amina Njeri")
+        engine.handle_patient_message(sid, "1990-04-22")
+        result = engine.handle_patient_message(sid, "0712 345 678")
+        intake = result["framework_progress"]["intake"]
+        assert intake["collected"]["phone"] == "+254712345678"
+
+    def test_registration_policy_phrase_is_deployment_configurable(self):
+        from shared.clinician_avatar.avatar_engine import AvatarEngine
+
+        custom_phrase = "I confirm I understand the HelixCare legal consent wording."
+        with patch.object(
+            AvatarEngine,
+            "_CONSENT_POLICY_CONFIRMATION_PHRASE",
+            custom_phrase,
+        ):
+            engine = AvatarEngine()
+            session = engine.start_session(
+                patient_case={
+                    "registration_first_mode": True,
+                    "country": "kenya",
+                    "patient_profile": {
+                        "chief_complaint": "Chest pain",
+                        "urgency": "high",
+                    },
+                },
+                persona=self._persona(),
+            )
+            sid = session.session_id
+
+            engine.handle_patient_message(sid, "Amina Njeri")
+            engine.handle_patient_message(sid, "1990-04-22")
+            engine.handle_patient_message(sid, "0712 345 678")
+            engine.handle_patient_message(sid, "Nairobi Westlands")
+            engine.handle_patient_message(sid, "yes")
+
+            blocked = engine.handle_patient_message(
+                sid,
+                "I confirm I understand the consent policy.",
+            )
+            intake = blocked["framework_progress"]["intake"]
+            assert intake["completed"] is False
+            assert intake["last_error"]["field"] == "consent_policy_confirm"
+            assert custom_phrase in blocked["clinician_response"]
+
+            allowed = engine.handle_patient_message(sid, custom_phrase)
+            intake = allowed["framework_progress"]["intake"]
+            assert intake["completed"] is True
 
     def test_get_session_returns_session_data(self):
         engine = self._make_engine()
@@ -109,26 +342,22 @@ class TestFrameworkSelector:
     """Tests for shared/clinician_avatar/frameworks/framework_selector.py."""
 
     def test_default_is_calgary_cambridge(self):
-        from shared.clinician_avatar.frameworks.framework_selector import \
-            select_framework
+        from shared.clinician_avatar.frameworks.framework_selector import select_framework
 
         assert select_framework("fatigue", "medium") == "calgary_cambridge"
 
     def test_pain_selects_socrates(self):
-        from shared.clinician_avatar.frameworks.framework_selector import \
-            select_framework
+        from shared.clinician_avatar.frameworks.framework_selector import select_framework
 
         assert select_framework("severe chest pain", "high") == "socrates"
 
     def test_critical_selects_abcde(self):
-        from shared.clinician_avatar.frameworks.framework_selector import \
-            select_framework
+        from shared.clinician_avatar.frameworks.framework_selector import select_framework
 
         assert select_framework("collapse", "critical") == "abcde"
 
     def test_emergency_selects_abcde(self):
-        from shared.clinician_avatar.frameworks.framework_selector import \
-            select_framework
+        from shared.clinician_avatar.frameworks.framework_selector import select_framework
 
         assert select_framework("unresponsive", "emergency") == "abcde"
 
@@ -147,21 +376,18 @@ class TestCalgaryCambridge:
         assert len(STAGES) >= 4
 
     def test_next_stage(self):
-        from shared.clinician_avatar.frameworks.calgary_cambridge import \
-            next_stage
+        from shared.clinician_avatar.frameworks.calgary_cambridge import next_stage
 
         assert next_stage("initiating") == "gathering_information"
 
     def test_next_stage_at_end(self):
-        from shared.clinician_avatar.frameworks.calgary_cambridge import \
-            next_stage
+        from shared.clinician_avatar.frameworks.calgary_cambridge import next_stage
 
         last_stage = "closing"
         assert next_stage(last_stage) == last_stage  # stays at end
 
     def test_stage_prompt_context(self):
-        from shared.clinician_avatar.frameworks.calgary_cambridge import \
-            stage_prompt_context
+        from shared.clinician_avatar.frameworks.calgary_cambridge import stage_prompt_context
 
         ctx = stage_prompt_context("gathering_information")
         assert isinstance(ctx, str)
@@ -177,12 +403,20 @@ class TestSocrates:
     def test_socrates_keys_complete(self):
         from shared.clinician_avatar.frameworks.socrates import SOCRATES_KEYS
 
-        expected = {"site", "onset", "character", "radiation", "associations", "time_course", "exacerbating_relieving", "severity"}
+        expected = {
+            "site",
+            "onset",
+            "character",
+            "radiation",
+            "associations",
+            "time_course",
+            "exacerbating_relieving",
+            "severity",
+        }
         assert set(SOCRATES_KEYS) == expected
 
     def test_update_progress(self):
-        from shared.clinician_avatar.frameworks.socrates import (
-            initial_progress, update_progress)
+        from shared.clinician_avatar.frameworks.socrates import initial_progress, update_progress
 
         progress = initial_progress()
         updated = update_progress(progress, "I have pain in my left arm that started yesterday")
@@ -210,10 +444,8 @@ class TestClinicianPersona:
     """Tests for shared/clinician_avatar/prompts/clinician_persona.py."""
 
     def test_build_persona_prompt(self):
-        from shared.clinician_avatar.frameworks.calgary_cambridge import \
-            stage_prompt_context
-        from shared.clinician_avatar.prompts.clinician_persona import \
-            build_persona_prompt
+        from shared.clinician_avatar.frameworks.calgary_cambridge import stage_prompt_context
+        from shared.clinician_avatar.prompts.clinician_persona import build_persona_prompt
 
         prompt = build_persona_prompt(
             persona={"name": "Dr. Alex", "role": "cardiologist", "specialty": "cardiology"},
@@ -290,7 +522,35 @@ class TestScenarioCatalog:
     def test_avatar_scenario_has_avatar_steps(self):
         _, additional = self._load_scenarios()
         avatar_sc = [s for s in additional if s.name == "clinician_avatar_consultation"][0]
-        avatar_steps = [step for step in avatar_sc.journey_steps if step["agent"] == "clinician_avatar"]
+        avatar_steps = [
+            step for step in avatar_sc.journey_steps if step["agent"] == "clinician_avatar"
+        ]
+        assert len(avatar_steps) >= 2  # at least start_session + patient_message
+
+    def test_total_scenario_count(self):
+        canonical, additional = self._load_scenarios()
+        assert len(canonical) == 10
+        assert len(additional) >= 15
+
+    def test_avatar_scenario_has_avatar_steps(self):
+        _, additional = self._load_scenarios()
+        avatar_sc = [s for s in additional if s.name == "clinician_avatar_consultation"][0]
+        avatar_steps = [
+            step for step in avatar_sc.journey_steps if step["agent"] == "clinician_avatar"
+        ]
+        assert len(avatar_steps) >= 2  # at least start_session + patient_message
+
+    def test_total_scenario_count(self):
+        canonical, additional = self._load_scenarios()
+        assert len(canonical) == 10
+        assert len(additional) >= 15
+
+    def test_avatar_scenario_has_avatar_steps(self):
+        _, additional = self._load_scenarios()
+        avatar_sc = [s for s in additional if s.name == "clinician_avatar_consultation"][0]
+        avatar_steps = [
+            step for step in avatar_sc.journey_steps if step["agent"] == "clinician_avatar"
+        ]
         assert len(avatar_steps) >= 2  # at least start_session + patient_message
 
     def test_total_scenario_count(self):

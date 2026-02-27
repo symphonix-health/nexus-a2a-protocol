@@ -203,6 +203,58 @@ def print_llm_profiles(llm_profiles: dict[str, dict]) -> None:
             print(f"    {desc}")
 
 
+def apply_memory_profile(env: dict[str, str], profile: str) -> None:
+    """Apply conservative memory profile defaults without overriding explicit env values."""
+    normalized = profile.strip().lower().replace("_", "-")
+    if normalized not in {"balanced", "aggressive"}:
+        raise ValueError("memory profile must be 'balanced' or 'aggressive'")
+
+    profile_defaults: dict[str, str]
+    if normalized == "aggressive":
+        profile_defaults = {
+            # Command Centre polling / fan-out
+            "UPDATE_INTERVAL_MS": "10000",
+            "CC_POLL_CONCURRENCY": "2",
+            "CC_WS_MAX_CLIENTS": "8",
+            "CC_CARD_CACHE_TTL_S": "120",
+            "CC_AGENT_FETCH_TIMEOUT": "3.0",
+            # Trace retention budgets
+            "COMMAND_CENTRE_TRACE_STORE_MAX": "60",
+            "COMMAND_CENTRE_TRACE_STORE_MAX_BYTES": str(8 * 1024 * 1024),
+            "COMMAND_CENTRE_TRACE_STEP_PAYLOAD_MAX_BYTES": str(8 * 1024),
+            # Keep workers single-process by default for memory density
+            "UVICORN_WORKERS": "1",
+            # Reduce CPython arena fragmentation on long-lived workloads
+            "PYTHONMALLOC": "malloc",
+        }
+    else:
+        profile_defaults = {
+            "UPDATE_INTERVAL_MS": "7000",
+            "CC_POLL_CONCURRENCY": "4",
+            "CC_WS_MAX_CLIENTS": "12",
+            "CC_CARD_CACHE_TTL_S": "90",
+            "CC_AGENT_FETCH_TIMEOUT": "4.0",
+            "COMMAND_CENTRE_TRACE_STORE_MAX": "120",
+            "COMMAND_CENTRE_TRACE_STORE_MAX_BYTES": str(16 * 1024 * 1024),
+            "COMMAND_CENTRE_TRACE_STEP_PAYLOAD_MAX_BYTES": str(16 * 1024),
+            "UVICORN_WORKERS": "1",
+            "PYTHONMALLOC": "malloc",
+        }
+
+    for key, value in profile_defaults.items():
+        env.setdefault(key, value)
+
+    # If caller explicitly set a high worker count, clamp in memory-safe mode.
+    # This avoids multiplicative RAM growth across many agents.
+    try:
+        configured_workers = int(env.get("UVICORN_WORKERS", "1"))
+    except ValueError:
+        configured_workers = 1
+    if configured_workers > 1:
+        print(f"⚠ memory-safe mode: forcing UVICORN_WORKERS=1 (requested {configured_workers})")
+        env["UVICORN_WORKERS"] = "1"
+
+
 def probe_http_health(
     url: str,
     *,
@@ -376,6 +428,8 @@ def start_all(
     *,
     start_agents: bool = True,
     gateway_port: int | None = None,
+    memory_safe: bool = False,
+    memory_profile: str = "balanced",
 ):
     """Start all agents and the backend Command Centre (default)."""
     agents, backend, llm_profiles = load_agent_config()
@@ -398,6 +452,9 @@ def start_all(
     env.setdefault("NEXUS_JWT_SECRET", "dev-secret-change-me")
     env.setdefault("DID_VERIFY", "false")
 
+    if memory_safe:
+        apply_memory_profile(env, memory_profile)
+
     selected_profile = apply_llm_profile(env, llm_profiles, llm_profile)
     # Use provided test key/model only when neither the shell env nor profile set them.
     env.setdefault(
@@ -417,6 +474,17 @@ def start_all(
             print(f"  OPENAI_BASE_URL={env['OPENAI_BASE_URL']}")
         else:
             print("  OPENAI_BASE_URL=https://api.openai.com/v1 (SDK default)")
+
+    if memory_safe:
+        print(f"Using memory profile: {memory_profile}")
+        print("  UPDATE_INTERVAL_MS=" + env.get("UPDATE_INTERVAL_MS", ""))
+        print("  CC_POLL_CONCURRENCY=" + env.get("CC_POLL_CONCURRENCY", ""))
+        print("  COMMAND_CENTRE_TRACE_STORE_MAX=" + env.get("COMMAND_CENTRE_TRACE_STORE_MAX", ""))
+        print(
+            "  COMMAND_CENTRE_TRACE_STORE_MAX_BYTES="
+            + env.get("COMMAND_CENTRE_TRACE_STORE_MAX_BYTES", "")
+        )
+        print("  UVICORN_WORKERS=" + env.get("UVICORN_WORKERS", ""))
 
     # Build environment variables for inter-agent communication
     for _rel_dir, port, _agent_name, rpc_env, env_name in agents:
@@ -773,6 +841,17 @@ if __name__ == "__main__":
     )
     parser.add_argument("--llm-profile", help="Name of LLM profile from config/agents.json")
     parser.add_argument(
+        "--memory-safe",
+        action="store_true",
+        help="Apply conservative memory defaults for full-stack runs.",
+    )
+    parser.add_argument(
+        "--memory-profile",
+        choices=["balanced", "aggressive"],
+        default="balanced",
+        help="Memory profile used with --memory-safe (default: balanced).",
+    )
+    parser.add_argument(
         "--list-llm-profiles",
         action="store_true",
         help="List available LLM profiles",
@@ -800,6 +879,8 @@ if __name__ == "__main__":
                 llm_profile=args.llm_profile,
                 start_agents=(not args.backend_only) and (not args.only_gateway),
                 gateway_port=args.gateway_port,
+                memory_safe=args.memory_safe,
+                memory_profile=args.memory_profile,
             )
         except ValueError as exc:
             print(f"Error: {exc}")

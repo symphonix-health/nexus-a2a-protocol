@@ -41,7 +41,19 @@ const state = {
     },
     alertFeed: [],
     alertHistory: {},
+    memoryTelemetry: null,
+    memoryPollTimer: null,
+    roadmapRun: null,
 };
+
+const ROADMAP_STAGES = [
+    { id: 'registration', title: 'Registration' },
+    { id: 'triage', title: 'Triage' },
+    { id: 'diagnosis', title: 'Diagnosis' },
+    { id: 'treatment', title: 'Treatment' },
+    { id: 'disposition', title: 'Disposition' },
+    { id: 'followup', title: 'Follow-up' },
+];
 
 const FLOW_STALE_MS = 30000;
 const FLOW_EXPIRE_MS = 10 * 60 * 1000;
@@ -85,6 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadTraceRuns();
     initializeTracePanel();
     initializeLiveAvatarPanel();
+    initializeMemoryTelemetryPanel();
+    initializeJourneyRoadmapPanel();
 });
 
 function initializeLiveAvatarPanel() {
@@ -101,6 +115,232 @@ function initializeLiveAvatarPanel() {
             showToast('Live avatar panel refreshed', 'success');
         });
     }
+}
+
+function initializeMemoryTelemetryPanel() {
+    const refreshBtn = document.getElementById('memory-telemetry-refresh');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+            loadMemoryTelemetry(true);
+        });
+    }
+
+    loadMemoryTelemetry(false);
+    if (state.memoryPollTimer) {
+        clearInterval(state.memoryPollTimer);
+    }
+    state.memoryPollTimer = setInterval(() => {
+        loadMemoryTelemetry(false);
+    }, 6000);
+}
+
+async function loadMemoryTelemetry(showToastOnError = false) {
+    try {
+        const response = await fetch('/api/memory');
+        if (!response.ok) {
+            throw new Error(`memory api returned ${response.status}`);
+        }
+        const payload = await response.json();
+        state.memoryTelemetry = payload;
+        renderMemoryTelemetry(payload);
+    } catch (error) {
+        console.warn('Memory telemetry unavailable:', error);
+        if (showToastOnError) {
+            showToast('Memory telemetry unavailable', 'warning');
+        }
+    }
+}
+
+function renderMemoryTelemetry(payload) {
+    const totalRss = document.getElementById('memory-total-rss');
+    const processCount = document.getElementById('memory-process-count');
+    const cadence = document.getElementById('memory-sample-cadence');
+    const list = document.getElementById('memory-process-list');
+
+    if (!totalRss || !processCount || !cadence || !list) return;
+
+    totalRss.textContent = Number.isFinite(payload?.total_rss_mb)
+        ? `${payload.total_rss_mb.toFixed(1)} MB`
+        : '--';
+    processCount.textContent = String(payload?.process_count ?? '--');
+    cadence.textContent = Number.isFinite(payload?.sample_interval_seconds)
+        ? `${payload.sample_interval_seconds}s`
+        : '--';
+
+    const processes = Array.isArray(payload?.processes) ? payload.processes : [];
+    if (processes.length === 0) {
+        list.innerHTML = '<div class="flow-empty">No process telemetry available yet.</div>';
+        return;
+    }
+
+    list.innerHTML = processes.slice(0, 14).map((proc) => {
+        const trend = Number(proc?.trend_mb || 0);
+        const trendClass = trend > 5 ? 'up' : trend < -5 ? 'down' : 'stable';
+        const rss = Number.isFinite(proc?.rss_mb) ? `${proc.rss_mb.toFixed(1)} MB` : 'n/a';
+        const trendLabel = Number.isFinite(proc?.trend_mb)
+            ? `${proc.trend_mb > 0 ? '+' : ''}${proc.trend_mb.toFixed(1)} MB`
+            : 'n/a';
+        const sparkline = renderSparklineSvg(proc?.samples || []);
+        const name = escapeHtml(proc?.name || 'unknown');
+        const type = escapeHtml(proc?.type || 'service');
+        const pid = Number(proc?.pid || 0);
+        const port = proc?.port != null ? `:${proc.port}` : '';
+
+        return `
+            <article class="memory-process-card">
+                <div class="memory-process-head">
+                    <span class="memory-process-name">${name}</span>
+                    <span class="memory-process-meta">${type}${pid ? ` · PID ${pid}` : ''}${port}</span>
+                </div>
+                <div class="memory-process-body">
+                    <div class="memory-process-metrics">
+                        <span class="memory-rss">${rss}</span>
+                        <span class="memory-trend ${trendClass}">${trendLabel}</span>
+                    </div>
+                    <div class="memory-sparkline">${sparkline}</div>
+                </div>
+            </article>
+        `;
+    }).join('');
+}
+
+function renderSparklineSvg(samples) {
+    const values = (Array.isArray(samples) ? samples : [])
+        .map((point) => Number(point?.rss_mb))
+        .filter((value) => Number.isFinite(value));
+
+    if (values.length < 2) {
+        return '<svg viewBox="0 0 120 32" preserveAspectRatio="none"><line x1="0" y1="16" x2="120" y2="16" class="sparkline-flat"></line></svg>';
+    }
+
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const span = Math.max(0.0001, max - min);
+    const points = values.map((value, index) => {
+        const x = (index / Math.max(1, values.length - 1)) * 120;
+        const y = 30 - ((value - min) / span) * 26;
+        return `${x.toFixed(2)},${y.toFixed(2)}`;
+    }).join(' ');
+
+    return `<svg viewBox="0 0 120 32" preserveAspectRatio="none"><polyline points="${points}" class="sparkline-line"></polyline></svg>`;
+}
+
+function initializeJourneyRoadmapPanel() {
+    renderRoadmapBaseline();
+}
+
+function renderRoadmapBaseline() {
+    const scenarioName = document.getElementById('roadmap-scenario-name');
+    const progress = document.getElementById('roadmap-progress');
+    const statusPill = document.getElementById('roadmap-status-pill');
+    if (scenarioName) scenarioName.textContent = 'No scenario selected';
+    if (progress) progress.textContent = '0% complete';
+    if (statusPill) {
+        statusPill.textContent = 'Awaiting trace';
+        statusPill.className = 'roadmap-status-pill pending';
+    }
+    updateRoadmapStageClasses(new Set(), null, false);
+}
+
+function updatePatientJourneyRoadmap(run) {
+    state.roadmapRun = run;
+    const scenarioName = document.getElementById('roadmap-scenario-name');
+    const progress = document.getElementById('roadmap-progress');
+    const statusPill = document.getElementById('roadmap-status-pill');
+
+    if (!run) {
+        renderRoadmapBaseline();
+        return;
+    }
+
+    const scenarioLabel = humanizeScenarioName(run.scenario_name || 'patient_visit');
+    if (scenarioName) scenarioName.textContent = scenarioLabel;
+
+    const steps = Array.isArray(run.steps) ? run.steps : [];
+    const completedStages = new Set();
+    let activeStage = null;
+
+    steps.forEach((step) => {
+        const stage = mapStepToRoadmapStage(step);
+        if (!stage) return;
+        if (step?.status === 'error' || step?.status === 'failed') {
+            if (!activeStage) activeStage = stage;
+            return;
+        }
+        completedStages.add(stage);
+        activeStage = stage;
+    });
+
+    const isFinal = ['final', 'completed'].includes(String(run.status || '').toLowerCase());
+    const doneCount = completedStages.size;
+    const percent = Math.round((doneCount / ROADMAP_STAGES.length) * 100);
+    if (progress) {
+        progress.textContent = `${percent}% complete`;
+    }
+
+    if (statusPill) {
+        if (String(run.status || '').toLowerCase() === 'error') {
+            statusPill.textContent = 'At risk';
+            statusPill.className = 'roadmap-status-pill risk';
+        } else if (isFinal) {
+            statusPill.textContent = 'Completed';
+            statusPill.className = 'roadmap-status-pill complete';
+        } else {
+            statusPill.textContent = 'In progress';
+            statusPill.className = 'roadmap-status-pill active';
+        }
+    }
+
+    updateRoadmapStageClasses(completedStages, activeStage, isFinal);
+}
+
+function updateRoadmapStageClasses(completedStages, activeStage, isFinal) {
+    const roadmap = document.getElementById('patient-journey-roadmap');
+    if (!roadmap) return;
+
+    roadmap.querySelectorAll('.roadmap-step').forEach((item) => {
+        const stage = item.dataset.stage;
+        item.classList.remove('pending', 'active', 'complete');
+
+        if (completedStages.has(stage)) {
+            item.classList.add('complete');
+        } else if (stage === activeStage && !isFinal) {
+            item.classList.add('active');
+        } else {
+            item.classList.add('pending');
+        }
+    });
+}
+
+function mapStepToRoadmapStage(step) {
+    const agent = String(step?.agent || '').toLowerCase();
+    const method = String(step?.method || '').toLowerCase();
+    const line = `${agent} ${method}`;
+
+    if (
+        line.includes('insurer')
+        || line.includes('provider_agent')
+        || line.includes('consent')
+        || line.includes('registration')
+    ) {
+        return 'registration';
+    }
+    if (line.includes('triage')) {
+        return 'triage';
+    }
+    if (line.includes('diagnosis') || line.includes('imaging')) {
+        return 'diagnosis';
+    }
+    if (line.includes('pharmacy') || line.includes('telehealth') || line.includes('home_visit')) {
+        return 'treatment';
+    }
+    if (line.includes('discharge') || line.includes('bed_manager') || line.includes('coordinator')) {
+        return 'disposition';
+    }
+    if (line.includes('followup') || line.includes('ccm') || line.includes('primary_care')) {
+        return 'followup';
+    }
+    return null;
 }
 
 const popoverState = {
@@ -2306,6 +2546,9 @@ function handleTraceRunEvent(payload) {
     renderTraceRunList();
     const badge = document.getElementById('trace-count-badge');
     if (badge) badge.textContent = `${state.traceRuns.length} runs`;
+    if (!state.selectedTraceId) {
+        selectTraceRun(payload.trace_id);
+    }
 }
 
 async function selectTraceRun(traceId) {
@@ -2323,6 +2566,7 @@ async function selectTraceRun(traceId) {
         const run = await response.json();
         renderTraceStepTimeline(run);
         renderTracePatientContext(run);
+        updatePatientJourneyRoadmap(run);
         // Enable export button
         const exportBtn = document.getElementById('trace-export-btn');
         if (exportBtn) exportBtn.disabled = false;

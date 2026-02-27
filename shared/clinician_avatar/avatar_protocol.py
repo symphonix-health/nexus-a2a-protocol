@@ -14,12 +14,14 @@ def normalize_start_session_params(params: dict[str, Any]) -> dict[str, Any]:
     persona_id = str(params.get("persona_id") or "").strip()
     country = str(params.get("country") or "").strip().lower()
     care_setting = str(params.get("care_setting") or "").strip().lower()
+    llm_config = params.get("llm_config") if isinstance(params.get("llm_config"), dict) else {}
     return {
         "patient_case": patient_case,
         "persona": persona,
         "persona_id": persona_id,
         "country": country,
         "care_setting": care_setting,
+        "llm_config": llm_config,
     }
 
 

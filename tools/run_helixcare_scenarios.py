@@ -114,6 +114,44 @@ def start_command_centre_monitor():
         return None
 
 
+def run_memory_soak(
+    *,
+    duration_minutes: int,
+    sample_interval_seconds: float,
+    batch_size: int,
+    batch_interval_seconds: float,
+    gateway_url: str | None,
+    output_dir: str | None,
+) -> int:
+    """Run the dedicated memory soak script."""
+    cmd = [
+        r".\.venv\Scripts\python.exe",
+        "tools/soak_memory_trend.py",
+        "--duration-minutes",
+        str(duration_minutes),
+        "--sample-interval-seconds",
+        str(sample_interval_seconds),
+        "--batch-size",
+        str(batch_size),
+        "--batch-interval-seconds",
+        str(batch_interval_seconds),
+    ]
+    if gateway_url:
+        cmd.extend(["--gateway", gateway_url])
+    if output_dir:
+        cmd.extend(["--output-dir", output_dir])
+
+    print("🧪 Starting memory soak runner...")
+    print(f"   ↳ Command: {' '.join(cmd)}")
+    result = subprocess.run(
+        cmd,
+        cwd=r"C:\nexus-a2a-protocol",
+        env={**os.environ, "PYTHONUTF8": "1"},
+        check=False,
+    )
+    return int(result.returncode)
+
+
 def reset_trace_store(
     base_url: str = "http://localhost:8099",
     timeout: float = 10.0,
@@ -146,6 +184,8 @@ async def run_scenario(
     *,
     include_clinical_negatives: bool = False,
     include_representative_expansion: bool = False,
+    ai_agent_driven: bool = False,
+    agent_driven_intensity: str = "high",
 ):
     """Run a specific scenario."""
     cmd = [
@@ -162,6 +202,9 @@ async def run_scenario(
         cmd.append("--include-clinical-negatives")
     if include_representative_expansion:
         cmd.append("--include-representative-expansion")
+    if ai_agent_driven:
+        cmd.append("--ai-agent-driven")
+        cmd.extend(["--agent-driven-intensity", agent_driven_intensity])
 
     display_title = _display_scenario_title(scenario_name)
     print(f"🏥 Running scenario: {display_title}")
@@ -219,6 +262,63 @@ async def main():
         action="store_true",
         help="Include expanded representative scenario corpus in run set.",
     )
+    parser.add_argument(
+        "--ai-agent-driven",
+        action="store_true",
+        help="Run workflows in bounded AI-agent-driven mode to stress robustness/scalability.",
+    )
+    parser.add_argument(
+        "--agent-driven-intensity",
+        choices=["low", "medium", "high"],
+        default="high",
+        help="AI-agent-driven intensity passed to tools/helixcare_scenarios.py.",
+    )
+    parser.add_argument(
+        "--soak",
+        action="store_true",
+        help="Run memory soak test instead of scenario suite.",
+    )
+    parser.add_argument(
+        "--soak-minutes",
+        type=int,
+        default=30,
+        help="Soak duration in minutes (30-60).",
+    )
+    parser.add_argument(
+        "--soak-sample-interval-seconds",
+        type=float,
+        default=10.0,
+        help="RSS sample interval during soak test.",
+    )
+    parser.add_argument(
+        "--soak-batch-size",
+        type=int,
+        default=5,
+        help="Traffic batch size during soak test.",
+    )
+    parser.add_argument(
+        "--soak-batch-interval-seconds",
+        type=float,
+        default=3.0,
+        help="Traffic batch interval during soak test.",
+    )
+    parser.add_argument(
+        "--soak-output-dir",
+        help="Optional output directory for soak artifacts.",
+    )
+    parser.add_argument(
+        "--memory-safe",
+        action="store_true",
+        help=(
+            "Enable memory-safe orchestration (sequential execution and periodic trace pruning)."
+        ),
+    )
+    parser.add_argument(
+        "--trace-reset-every",
+        type=int,
+        default=0,
+        help="Reset Command Centre trace store every N scenarios (0 disables).",
+    )
     args = parser.parse_args()
     gateway_url = _resolve_gateway_url(args.gateway)
 
@@ -232,6 +332,14 @@ async def main():
         print("⚙ Trace reset enabled: true")
     if args.include_representative_expansion:
         print("⚙ Representative expansion enabled: true")
+    if args.ai_agent_driven:
+        print(f"⚙ AI agent-driven mode: true ({args.agent_driven_intensity})")
+    if args.soak:
+        print(f"⚙ Soak mode enabled: {args.soak_minutes} minutes")
+    if args.memory_safe:
+        print("⚙ Memory-safe orchestration: enabled")
+    if args.trace_reset_every > 0:
+        print(f"⚙ Periodic trace reset: every {args.trace_reset_every} scenario(s)")
 
     # Check if agents are running
     running_ports = check_agents_running(gateway_url=gateway_url)
@@ -267,6 +375,21 @@ async def main():
         else:
             print("💡 Start agents with: .\\.venv\\Scripts\\python.exe tools/launch_all_agents.py")
         input("Press Enter to continue anyway, or Ctrl+C to exit...")
+
+    if args.soak:
+        if args.soak_minutes < 30 or args.soak_minutes > 60:
+            raise SystemExit("--soak-minutes must be between 30 and 60")
+        rc = run_memory_soak(
+            duration_minutes=args.soak_minutes,
+            sample_interval_seconds=args.soak_sample_interval_seconds,
+            batch_size=args.soak_batch_size,
+            batch_interval_seconds=args.soak_batch_interval_seconds,
+            gateway_url=gateway_url,
+            output_dir=args.soak_output_dir,
+        )
+        if rc != 0:
+            raise SystemExit(rc)
+        return
 
     if args.reset_traces_first:
         print("🧹 Resetting trace store before scenario run...")
@@ -311,14 +434,30 @@ async def main():
     print("Monitor the Command Centre for real-time activity")
     print("=" * 50)
 
-    for scenario in scenarios:
+    trace_reset_every = max(0, int(args.trace_reset_every))
+    if args.memory_safe and trace_reset_every == 0:
+        trace_reset_every = 5
+        print("🧠 Memory-safe default: trace store reset every 5 scenarios")
+    if args.memory_safe:
+        print("🧠 Memory-safe mode enforces sequential scenario execution")
+
+    for index, scenario in enumerate(scenarios, start=1):
         await run_scenario(
             scenario,
             retry_mode=args.retry_mode,
             gateway_url=gateway_url,
             include_clinical_negatives=args.include_clinical_negatives,
             include_representative_expansion=args.include_representative_expansion,
+            ai_agent_driven=args.ai_agent_driven,
+            agent_driven_intensity=args.agent_driven_intensity,
         )
+        if trace_reset_every > 0 and index % trace_reset_every == 0 and index < len(scenarios):
+            print(f"🧹 Periodic trace reset ({index}/{len(scenarios)} scenarios complete)")
+            try:
+                cleared = reset_trace_store(base_url="http://localhost:8099")
+                print(f"✅ Trace store reset complete ({cleared} cleared)")
+            except RuntimeError as exc:
+                print(f"⚠️  Trace reset skipped: {exc}")
         print()  # Blank line between scenarios
 
     print("🎉 All scenarios completed!")

@@ -32,6 +32,8 @@ bus = TaskEventBus(agent_name="diagnosis-agent")
 health_monitor = HealthMonitor("diagnosis-agent")
 
 REQUIRED_SCOPE = os.getenv("NEXUS_REQUIRED_SCOPE", "nexus:invoke")
+_CONCURRENCY_LIMIT = int(os.getenv("NEXUS_DIAGNOSIS_MAX_CONCURRENCY", "10"))
+_semaphore = asyncio.Semaphore(_CONCURRENCY_LIMIT)
 
 
 def _require_auth(req: Request) -> str:
@@ -58,7 +60,11 @@ async def agent_card():
 
 @app.get("/health")
 async def health():
-    return JSONResponse(content=health_monitor.get_health())
+    return JSONResponse(
+        content=health_monitor.get_health(
+            bus_stats=bus.get_stats()
+        )
+    )
 
 
 @app.get("/events/{task_id}")
@@ -151,6 +157,15 @@ async def _do_assess(params: dict, token: str) -> dict:
     user = f"Complaint: {chief}; triage={triage_level}; patient_id={patient_id}."
     rationale = await asyncio.to_thread(llm_chat, system, user)
 
+    # Compact patient_context for event replay — full FHIR data
+    # was only needed for the LLM call above.
+    compact_context = {
+        "patient_id": patient_id,
+        "has_allergies": bool(
+            patient_context.get("allergies")
+        ),
+    }
+
     return {
         "task_id": params.get("task_id"),
         "patient_id": patient_id,
@@ -158,7 +173,7 @@ async def _do_assess(params: dict, token: str) -> dict:
         "triage_level": triage_level,
         "triage_priority": "EMERGENCY" if triage_level == "ESI-2" else "URGENT",
         "rationale": rationale,
-        "patient_context": patient_context,
+        "patient_context": compact_context,
     }
 
 
@@ -189,27 +204,28 @@ async def _send_subscribe(params: dict, token: str) -> dict:
     )
 
     async def run() -> None:
-        try:
-            await bus.publish(
-                task_id,
-                "nexus.task.status",
-                json.dumps({"task_id": task_id, "state": "working", "step": "diagnosing"}),
-            )
-            result = await _do_assess({"task": params.get("task", {}), "task_id": task_id}, token)
-            duration_ms = (asyncio.get_event_loop().time() - t0) * 1000
-            health_monitor.metrics.record_completed(duration_ms)
-            await bus.publish(task_id, "nexus.task.final", json.dumps(result), duration_ms)
-            logger.info("[%s] task=%s COMPLETED", trace_id, task_id)
-        except Exception as exc:
-            duration_ms = (asyncio.get_event_loop().time() - t0) * 1000
-            health_monitor.metrics.record_error(duration_ms)
-            await bus.publish(
-                task_id,
-                "nexus.task.error",
-                json.dumps({"task_id": task_id, "error": str(exc)}),
-                duration_ms,
-            )
-            logger.exception("[%s] task=%s FAILED", trace_id, task_id)
+        async with _semaphore:
+            try:
+                await bus.publish(
+                    task_id,
+                    "nexus.task.status",
+                    json.dumps({"task_id": task_id, "state": "working", "step": "diagnosing"}),
+                )
+                result = await _do_assess({"task": params.get("task", {}), "task_id": task_id}, token)
+                duration_ms = (asyncio.get_event_loop().time() - t0) * 1000
+                health_monitor.metrics.record_completed(duration_ms)
+                await bus.publish(task_id, "nexus.task.final", json.dumps(result), duration_ms)
+                logger.info("[%s] task=%s COMPLETED", trace_id, task_id)
+            except Exception as exc:
+                duration_ms = (asyncio.get_event_loop().time() - t0) * 1000
+                health_monitor.metrics.record_error(duration_ms)
+                await bus.publish(
+                    task_id,
+                    "nexus.task.error",
+                    json.dumps({"task_id": task_id, "error": str(exc)}),
+                    duration_ms,
+                )
+                logger.exception("[%s] task=%s FAILED", trace_id, task_id)
 
     asyncio.create_task(run())
     return {"task_id": task_id, "trace_id": trace_id, "resume_cursor": bus.build_resume_cursor(task_id)}

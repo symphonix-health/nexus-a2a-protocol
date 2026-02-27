@@ -1,0 +1,154 @@
+{
+  "version": 2,
+  "description": "Guided patient lines for spoken rehearsal and uploaded-audio prompts across realistic provider-side phone and consultation journeys.",
+  "notes": [
+    "This pack models a real patient interaction, including registration and identity verification before clinical discussion.",
+    "Optional audio_clip files are looked up in the repository avatar/ folder and played through /media/<filename>."
+  ],
+  "scenarios": [
+    {
+      "id": "phone_new_patient_registration",
+      "title": "New patient calling provider for urgent symptoms",
+      "care_setting": "phone",
+      "persona_hint": "adult patient with no prior record",
+      "lines": [
+        {
+          "id": "reg_001_intro",
+          "phase": "registration",
+          "intent": "opening",
+          "text": "Hello, I am a new patient and I need help registering because I have chest discomfort today.",
+          "expected_fields": ["new_patient", "chief_complaint"],
+          "audio_clip": "patient_reg_001_intro.wav"
+        },
+        {
+          "id": "reg_002_identity",
+          "phase": "registration",
+          "intent": "identity",
+          "text": "My full name is Amina Njeri, date of birth 1990-04-22, and my phone number is +254 712 345 678.",
+          "expected_fields": ["full_name", "dob", "phone"],
+          "audio_clip": "patient_reg_002_identity.wav"
+        },
+        {
+          "id": "reg_003_location",
+          "phase": "registration",
+          "intent": "address",
+          "text": "I live in Nairobi, Westlands area, and I can come to the clinic in about forty minutes if needed.",
+          "expected_fields": ["location", "travel_time"]
+        },
+        {
+          "id": "reg_004_contact_pref",
+          "phase": "registration",
+          "intent": "communication_preference",
+          "text": "Please use SMS for updates and call my sister Grace on +254 700 111 222 if you cannot reach me.",
+          "expected_fields": ["preferred_channel", "emergency_contact"]
+        },
+        {
+          "id": "reg_005_insurance",
+          "phase": "registration",
+          "intent": "coverage",
+          "text": "I have SHA cover but I do not remember my member number right now. Can you still begin triage while I retrieve it?",
+          "expected_fields": ["coverage_type", "member_id_pending"]
+        },
+        {
+          "id": "reg_006_consent",
+          "phase": "registration",
+          "intent": "consent",
+          "text": "Yes, I consent to use my information for clinical care and referral if this is an emergency.",
+          "expected_fields": ["consent_care_data"]
+        },
+        {
+          "id": "triage_001_symptom_onset",
+          "phase": "triage",
+          "intent": "history_of_present_illness",
+          "text": "The chest pressure started about thirty minutes ago while I was climbing stairs.",
+          "expected_fields": ["onset_time", "trigger"]
+        },
+        {
+          "id": "triage_002_severity",
+          "phase": "triage",
+          "intent": "severity",
+          "text": "The pain is seven out of ten and it spreads to my left shoulder.",
+          "expected_fields": ["pain_score", "radiation"]
+        },
+        {
+          "id": "triage_003_red_flags",
+          "phase": "triage",
+          "intent": "red_flags",
+          "text": "I feel short of breath and nauseated, but I have not fainted and I can still speak in full sentences.",
+          "expected_fields": ["dyspnea", "nausea", "syncope_denied"]
+        },
+        {
+          "id": "triage_004_history_meds",
+          "phase": "triage",
+          "intent": "past_history_medications",
+          "text": "I have hypertension, I took my blood pressure medicine this morning, and I have no known drug allergies.",
+          "expected_fields": ["pmh", "medications", "allergies"]
+        },
+        {
+          "id": "triage_005_family_risk",
+          "phase": "triage",
+          "intent": "risk_factors",
+          "text": "My father had a heart attack at fifty-six, so I am worried this could be serious.",
+          "expected_fields": ["family_history_cvd"]
+        },
+        {
+          "id": "triage_006_plan_clarification",
+          "phase": "triage",
+          "intent": "shared_decision",
+          "text": "Could you tell me what should happen in the next ten minutes and whether I should come immediately or call emergency transport?",
+          "expected_fields": ["next_steps_requested", "transport_decision"]
+        }
+      ]
+    },
+    {
+      "id": "returning_patient_followup_call",
+      "title": "Returning patient phone follow-up",
+      "care_setting": "phone",
+      "persona_hint": "existing patient after ED discharge",
+      "lines": [
+        {
+          "id": "fu_001_verify",
+          "phase": "registration",
+          "intent": "verify_existing_record",
+          "text": "I am a returning patient. My hospital number is HC-20491 and I was discharged two days ago.",
+          "expected_fields": ["hospital_number", "recent_discharge"]
+        },
+        {
+          "id": "fu_002_concern",
+          "phase": "clinical",
+          "intent": "post_discharge_concern",
+          "text": "I am calling because I still have intermittent chest tightness when I walk.",
+          "expected_fields": ["persistent_symptom"]
+        },
+        {
+          "id": "fu_003_medication_adherence",
+          "phase": "clinical",
+          "intent": "adherence",
+          "text": "I took aspirin and my blood pressure tablets as prescribed, but the tightness returns in the evening.",
+          "expected_fields": ["adherence", "symptom_pattern"]
+        },
+        {
+          "id": "fu_004_safety_net",
+          "phase": "clinical",
+          "intent": "safety_net",
+          "text": "Please confirm which warning signs should make me call emergency services right away.",
+          "expected_fields": ["red_flag_education"]
+        }
+      ]
+    }
+  ],
+  "lines": [
+    {
+      "id": "generic_001",
+      "phase": "clinical",
+      "intent": "opening",
+      "text": "I am calling because I feel unwell and need guidance on what to do next."
+    },
+    {
+      "id": "generic_002",
+      "phase": "registration",
+      "intent": "identity",
+      "text": "I can provide my full name, date of birth, national ID, and contact number to complete registration."
+    }
+  ]
+}
