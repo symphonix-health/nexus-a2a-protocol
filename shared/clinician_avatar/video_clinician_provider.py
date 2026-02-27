@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import base64
 import json
 import math
@@ -301,7 +302,7 @@ class SyncVideoClinicianProvider(_RemoteJsonVideoClinicianProvider):
     api_key_env = "SYNC_API_KEY"
 
 
-async def stream_tts_chunks(text: str, voice: str = "alloy"):
+async def stream_tts_chunks(text: str, voice: str = "nova"):
     """Async generator yielding raw PCM chunks (24 kHz, 16-bit, mono, little-endian).
 
     Yields nothing when OPENAI_API_KEY is absent or the API call fails.
@@ -322,7 +323,9 @@ async def stream_tts_chunks(text: str, voice: str = "alloy"):
     import httpx
 
     model = os.getenv("OPENAI_TTS_MODEL", "gpt-4o-mini-tts")
-    chosen_voice = voice or os.getenv("OPENAI_TTS_VOICE", "alloy")
+    chosen_voice = voice or os.getenv("OPENAI_TTS_VOICE", "nova")
+    timeout_seconds = float(os.getenv("OPENAI_TTS_TIMEOUT_SECONDS", "60"))
+    max_attempts = int(os.getenv("OPENAI_TTS_MAX_ATTEMPTS", "2"))
     url = "https://api.openai.com/v1/audio/speech"
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -334,15 +337,26 @@ async def stream_tts_chunks(text: str, voice: str = "alloy"):
         "input": clean,
         "response_format": "pcm",  # raw 24 kHz 16-bit mono PCM
     }
-    try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            async with client.stream("POST", url, headers=headers, json=payload) as response:
-                if response.status_code != 200:
+    for attempt in range(1, max_attempts + 1):
+        try:
+            async with httpx.AsyncClient(timeout=timeout_seconds) as client:
+                async with client.stream(
+                    "POST",
+                    url,
+                    headers=headers,
+                    json=payload,
+                ) as response:
+                    if response.status_code != 200:
+                        continue
+                    async for chunk in response.aiter_bytes(chunk_size=4800):
+                        yield chunk
                     return
-                async for chunk in response.aiter_bytes(chunk_size=4800):
-                    yield chunk
-    except Exception:  # noqa: BLE001
-        return  # API failure — WebSocket handler detects zero chunks → synthetic_fallback
+        except Exception:  # noqa: BLE001
+            pass
+        if attempt < max_attempts:
+            await asyncio.sleep(0.35)
+    # API failure — WebSocket handler detects zero chunks and sends fallback.
+    return
 
 
 def get_video_clinician_provider() -> VideoClinicianProvider:

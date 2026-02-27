@@ -47,3 +47,23 @@ async def test_resubscribe_replay_survives_bus_restart(tmp_path: Path) -> None:
             os.environ.pop("NEXUS_TASK_EVENT_STORE_ENABLE_DEFAULT", None)
         else:
             os.environ["NEXUS_TASK_EVENT_STORE_ENABLE_DEFAULT"] = previous_default
+
+
+@pytest.mark.asyncio
+async def test_subscriber_queue_is_bounded_and_drops_oldest(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("NEXUS_STREAM_SUBSCRIBER_QUEUE_MAXSIZE", "2")
+    bus = TaskEventBus(agent_name="bounded-queue-agent")
+    task_id = "task-queue-cap"
+    queue = bus.subscribe(task_id)
+
+    await bus.publish(task_id, "nexus.task.status", {"state": "accepted"})
+    await bus.publish(task_id, "nexus.task.status", {"state": "working"})
+    await bus.publish(task_id, "nexus.task.final", {"state": "final"})
+
+    assert queue.qsize() == 2
+    first = queue.get_nowait()
+    second = queue.get_nowait()
+    await bus.close()
+
+    assert first.event == "nexus.task.status"
+    assert second.event == "nexus.task.final"

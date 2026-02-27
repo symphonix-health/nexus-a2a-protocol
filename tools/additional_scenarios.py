@@ -11,11 +11,7 @@ import asyncio
 from datetime import datetime, timedelta
 
 try:
-    from helixcare_scenarios import (
-        PatientScenario,
-        enrich_scenario_handoff_contracts,
-        run_scenario,
-    )
+    from helixcare_scenarios import PatientScenario, enrich_scenario_handoff_contracts, run_scenario
 except Exception:
     from tools.helixcare_scenarios import (
         PatientScenario,
@@ -1667,6 +1663,341 @@ ADDITIONAL_SCENARIOS: list[PatientScenario] = [
         expected_duration=14,
     ),
     PatientScenario(
+        name="new_patient_registration_to_consult",
+        description=(
+            "First-time patient journey with provider-side registration, insurance eligibility "
+            "verification, and assisted enrollment before clinical consultation."
+        ),
+        patient_profile={
+            "age": 33,
+            "gender": "female",
+            "chief_complaint": "Persistent lower abdominal pain and dizziness",
+            "urgency": "medium",
+        },
+        medical_history={
+            "past_medical_history": ["Iron deficiency anemia (history)"],
+            "medications": ["Ferrous sulfate (intermittent use)"],
+            "allergies": ["No known drug allergies"],
+            "social_history": {
+                "tobacco": "never",
+                "alcohol": "none",
+                "occupation": "Market trader",
+                "residence": "Kisumu County",
+            },
+            "family_history": ["Mother with hypertension"],
+            "review_of_systems": {
+                "gastrointestinal": "Intermittent cramping lower abdominal pain for 5 days",
+                "constitutional": "Fatigue and light-headedness, no documented fever",
+            },
+            "vital_signs": {
+                "blood_pressure": "108/66",
+                "heart_rate": 98,
+                "respiratory_rate": 18,
+                "oxygen_saturation": 99,
+                "temperature_c": 36.9,
+            },
+        },
+        journey_steps=[
+            {
+                "agent": "provider_agent",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "request_type": "patient_registration_lookup",
+                        "country": "kenya",
+                        "lookup_keys": ["national_id", "mobile_number", "date_of_birth"],
+                        "on_not_found": "assisted_enrollment",
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "hitl_ui",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "review_reason": "registration_not_found",
+                        "required_actions": [
+                            "verify_identity_documents",
+                            "capture_demographics",
+                            "confirm_guardian_or_next_of_kin",
+                        ],
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "insurer_agent",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "policy_check": "eligibility_and_activation",
+                        "coverage_program": "social_health_insurance",
+                        "require_active_insurance": True,
+                        "on_inactive_or_missing": "enrollment_support_and_pending_coverage",
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "consent_analyser",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "consent_scope": "registration_and_clinical_data_sharing",
+                        "jurisdiction": "kenya",
+                        "minimum_necessary": True,
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "triage",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "symptoms": "lower abdominal pain, dizziness",
+                    "chief_complaint": "new patient post-registration intake",
+                    "financial_clearance_state": "insured_or_pending",
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/start_session",
+                "params": {
+                    "persona_id": "P026",
+                    "country": "kenya",
+                    "patient_case": {
+                        "patient_profile": {
+                            "chief_complaint": "Persistent lower abdominal pain and dizziness",
+                            "age": 33,
+                            "gender": "female",
+                            "urgency": "medium",
+                        }
+                    },
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+                    "message": "The pain started five days ago and comes in waves. I've also felt dizzy when I stand up quickly.",
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "diagnosis",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "symptoms": "lower abdominal pain, dizziness, fatigue",
+                    "differential_diagnosis": [
+                        "Pelvic inflammatory disease",
+                        "Urinary tract infection",
+                        "Anemia-related symptomatic dizziness",
+                    ],
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "pharmacy",
+                "method": "pharmacy/recommend",
+                "params": {
+                    "task": {
+                        "med_plan": ["Oral rehydration", "Empiric analgesia pending labs"],
+                        "allergies": [],
+                        "current_medications": ["Ferrous sulfate"],
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "followup",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "followup_schedule": [
+                        {
+                            "type": "primary_care",
+                            "when": _future(7),
+                            "purpose": "symptom review and insurance activation confirmation",
+                        }
+                    ]
+                },
+                "delay": 1,
+            },
+        ],
+        expected_duration=17,
+    ),
+    PatientScenario(
+        name="registration_failed_urgent_clinical_override",
+        description=(
+            "Negative-path journey where registration and coverage verification fail, but "
+            "urgent clinical override permits emergency treatment while coverage remains pending."
+        ),
+        patient_profile={
+            "age": 41,
+            "gender": "male",
+            "chief_complaint": "Severe chest pain and shortness of breath",
+            "urgency": "critical",
+        },
+        medical_history={
+            "past_medical_history": ["Hypertension"],
+            "medications": ["Amlodipine 5 mg daily"],
+            "allergies": ["No known drug allergies"],
+            "social_history": {
+                "tobacco": "former smoker",
+                "alcohol": "rare",
+                "occupation": "Driver",
+                "residence": "Nairobi County",
+            },
+            "family_history": ["Father with myocardial infarction before age 60"],
+            "review_of_systems": {
+                "cardiac": "Sudden severe central chest pain radiating to left arm",
+                "respiratory": "Dyspnea with diaphoresis",
+            },
+            "vital_signs": {
+                "blood_pressure": "162/96",
+                "heart_rate": 118,
+                "respiratory_rate": 26,
+                "oxygen_saturation": 93,
+                "temperature_c": 36.8,
+            },
+        },
+        journey_steps=[
+            {
+                "agent": "provider_agent",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "request_type": "patient_registration_lookup",
+                        "country": "kenya",
+                        "lookup_keys": ["national_id", "mobile_number", "date_of_birth"],
+                        "simulated_result": "not_found",
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "insurer_agent",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "policy_check": "eligibility_and_activation",
+                        "coverage_program": "social_health_insurance",
+                        "require_active_insurance": True,
+                        "simulated_result": "inactive_or_missing",
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "hitl_ui",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "review_reason": "registration_and_coverage_failure_urgent_case",
+                        "required_actions": [
+                            "approve_urgent_clinical_override",
+                            "record_financial_counselling_required",
+                            "set_coverage_state_pending",
+                        ],
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "triage",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "symptoms": "severe chest pain, dyspnea, diaphoresis",
+                    "chief_complaint": "urgent care override after registration failure",
+                    "clinical_override": True,
+                    "financial_clearance_state": "pending",
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/start_session",
+                "params": {
+                    "persona_id": "P026",
+                    "country": "kenya",
+                    "patient_case": {
+                        "patient_profile": {
+                            "chief_complaint": "Severe chest pain and shortness of breath",
+                            "age": 41,
+                            "gender": "male",
+                            "urgency": "critical",
+                        }
+                    },
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "clinician_avatar",
+                "method": "avatar/patient_message",
+                "params": {
+                    "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+                    "message": "The chest pain started suddenly an hour ago and is getting worse. I feel sweaty and cannot catch my breath.",
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "diagnosis",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "symptoms": "acute chest pain, dyspnea, diaphoresis",
+                    "differential_diagnosis": [
+                        "Acute coronary syndrome",
+                        "Pulmonary embolism",
+                        "Aortic dissection",
+                    ],
+                },
+                "delay": 2,
+            },
+            {
+                "agent": "pharmacy",
+                "method": "pharmacy/recommend",
+                "params": {
+                    "task": {
+                        "med_plan": ["Aspirin loading dose", "Oxygen support"],
+                        "allergies": [],
+                        "current_medications": ["Amlodipine"],
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "bed_manager",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "task": {
+                        "admission_type": "emergency",
+                        "required_monitoring": "telemetry",
+                        "billing_status": "pending_coverage_override",
+                    }
+                },
+                "delay": 1,
+            },
+            {
+                "agent": "followup",
+                "method": "tasks/sendSubscribe",
+                "params": {
+                    "followup_schedule": [
+                        {
+                            "type": "financial_counselling",
+                            "when": _future(1),
+                            "purpose": "complete enrollment and activate insurance",
+                        }
+                    ]
+                },
+                "delay": 1,
+            },
+        ],
+        expected_duration=18,
+    ),
+    PatientScenario(
         name="notifiable_outbreak_public_health_loop",
         description="Hospital case escalated to public health surveillance with OSINT corroboration.",
         patient_profile={
@@ -1999,7 +2330,12 @@ PERSONA_SCENARIOS: list[PatientScenario] = [
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "symptoms": "persistent dry cough, 3 weeks, nocturnal, no haemoptysis",
-                    "differential_diagnosis": ["Asthma exacerbation", "GORD", "Post-nasal drip", "ACE inhibitor cough"],
+                    "differential_diagnosis": [
+                        "Asthma exacerbation",
+                        "GORD",
+                        "Post-nasal drip",
+                        "ACE inhibitor cough",
+                    ],
                 },
                 "delay": 2,
                 "handoff_policy": {
@@ -2024,7 +2360,6 @@ PERSONA_SCENARIOS: list[PatientScenario] = [
         ],
         expected_duration=12,
     ),
-
     # ── 2. USA Attending Physician (P014) — Chest pain ACS pathway ───────────
     PatientScenario(
         name="clinician_avatar_usa_attending_acs",
@@ -2103,7 +2438,11 @@ PERSONA_SCENARIOS: list[PatientScenario] = [
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "symptoms": "crushing chest pain, left arm radiation, diaphoresis, dyspnoea",
-                    "vital_signs": {"blood_pressure": "158/96", "heart_rate": 104, "oxygen_saturation": 94},
+                    "vital_signs": {
+                        "blood_pressure": "158/96",
+                        "heart_rate": 104,
+                        "oxygen_saturation": 94,
+                    },
                     "chief_complaint": "suspected ACS",
                 },
                 "delay": 1,
@@ -2117,7 +2456,12 @@ PERSONA_SCENARIOS: list[PatientScenario] = [
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "symptoms": "ACS presentation",
-                    "differential_diagnosis": ["STEMI", "NSTEMI", "Unstable angina", "Aortic dissection"],
+                    "differential_diagnosis": [
+                        "STEMI",
+                        "NSTEMI",
+                        "Unstable angina",
+                        "Aortic dissection",
+                    ],
                 },
                 "delay": 2,
                 "handoff_policy": {
@@ -2128,7 +2472,6 @@ PERSONA_SCENARIOS: list[PatientScenario] = [
         ],
         expected_duration=14,
     ),
-
     # ── 3. Kenya Medical Officer (P026) — Paediatric fever/malaria ────────────
     PatientScenario(
         name="clinician_avatar_kenya_medical_officer",
@@ -2207,7 +2550,11 @@ PERSONA_SCENARIOS: list[PatientScenario] = [
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "symptoms": "paediatric fever 2 days, vomiting, malaria exposure risk",
-                    "differential_diagnosis": ["Plasmodium falciparum malaria", "Typhoid fever", "Bacterial sepsis"],
+                    "differential_diagnosis": [
+                        "Plasmodium falciparum malaria",
+                        "Typhoid fever",
+                        "Bacterial sepsis",
+                    ],
                 },
                 "delay": 2,
                 "handoff_policy": {
@@ -2235,7 +2582,6 @@ PERSONA_SCENARIOS: list[PatientScenario] = [
         ],
         expected_duration=10,
     ),
-
     # ── 4. UK Telehealth Clinician (P048) — Remote follow-up ─────────────────
     PatientScenario(
         name="clinician_avatar_telehealth_uk_followup",
@@ -2251,8 +2597,16 @@ PERSONA_SCENARIOS: list[PatientScenario] = [
             "urgency": "low",
         },
         medical_history={
-            "past_medical_history": ["Atrial fibrillation", "Osteoporosis", "Mild cognitive impairment"],
-            "medications": ["Apixaban 5 mg BID", "Alendronate 70 mg weekly", "Donepezil 5 mg daily"],
+            "past_medical_history": [
+                "Atrial fibrillation",
+                "Osteoporosis",
+                "Mild cognitive impairment",
+            ],
+            "medications": [
+                "Apixaban 5 mg BID",
+                "Alendronate 70 mg weekly",
+                "Donepezil 5 mg daily",
+            ],
             "allergies": ["NSAIDs (GI bleed history)"],
             "social_history": {
                 "tobacco": "never",
@@ -2318,7 +2672,11 @@ PERSONA_SCENARIOS: list[PatientScenario] = [
                 "params": {
                     "care_plan_update": {
                         "patient_id": "frailty-telehealth-001",
-                        "actions": ["physiotherapy referral", "medication compliance check", "cognitive review"],
+                        "actions": [
+                            "physiotherapy referral",
+                            "medication compliance check",
+                            "cognitive review",
+                        ],
                     }
                 },
                 "delay": 2,
@@ -2332,8 +2690,16 @@ PERSONA_SCENARIOS: list[PatientScenario] = [
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "followup_schedule": [
-                        {"type": "telehealth", "when": _future(28), "purpose": "4-week telehealth review"},
-                        {"type": "memory_clinic", "when": _future(42), "purpose": "Cognitive assessment"},
+                        {
+                            "type": "telehealth",
+                            "when": _future(28),
+                            "purpose": "4-week telehealth review",
+                        },
+                        {
+                            "type": "memory_clinic",
+                            "when": _future(42),
+                            "purpose": "Cognitive assessment",
+                        },
                     ]
                 },
                 "delay": 1,
@@ -2345,7 +2711,6 @@ PERSONA_SCENARIOS: list[PatientScenario] = [
         ],
         expected_duration=14,
     ),
-
     # ── 5. Psychiatrist (P065) — Mental health assessment ─────────────────────
     PatientScenario(
         name="clinician_avatar_psychiatrist_mental_health",
@@ -2361,7 +2726,10 @@ PERSONA_SCENARIOS: list[PatientScenario] = [
             "urgency": "medium",
         },
         medical_history={
-            "past_medical_history": ["Generalised anxiety disorder (diagnosed 3 years ago)", "No psychosis history"],
+            "past_medical_history": [
+                "Generalised anxiety disorder (diagnosed 3 years ago)",
+                "No psychosis history",
+            ],
             "medications": ["Sertraline 50 mg daily (6 weeks)"],
             "allergies": ["No known drug allergies"],
             "social_history": {
@@ -2432,7 +2800,11 @@ PERSONA_SCENARIOS: list[PatientScenario] = [
                 "params": {
                     "care_plan": {
                         "type": "mental_health",
-                        "interventions": ["CBT referral", "medication review at 8 weeks", "crisis plan"],
+                        "interventions": [
+                            "CBT referral",
+                            "medication review at 8 weeks",
+                            "crisis plan",
+                        ],
                         "risk_level": "moderate",
                         "escalation_trigger": "active SI or plan",
                     }
@@ -2448,7 +2820,11 @@ PERSONA_SCENARIOS: list[PatientScenario] = [
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "followup_schedule": [
-                        {"type": "psychiatry", "when": _future(14), "purpose": "Medication review + risk reassessment"},
+                        {
+                            "type": "psychiatry",
+                            "when": _future(14),
+                            "purpose": "Medication review + risk reassessment",
+                        },
                         {"type": "cbt", "when": _future(21), "purpose": "First CBT session"},
                     ]
                 },
@@ -2462,7 +2838,6 @@ PERSONA_SCENARIOS: list[PatientScenario] = [
         expected_duration=16,
         negative_class=None,
     ),
-
     # ── 6. Multi-agent delegation chain — IAM-aware chest pain ───────────────
     PatientScenario(
         name="multi_agent_delegation_chest_pain_iam",
@@ -2538,8 +2913,15 @@ PERSONA_SCENARIOS: list[PatientScenario] = [
                 "method": "tasks/sendSubscribe",
                 "params": {
                     "symptoms": "STEMI presentation — chest pain, jaw radiation, haemodynamic compromise",
-                    "vital_signs": {"blood_pressure": "100/65", "heart_rate": 115, "oxygen_saturation": 91},
-                    "persona_context": {"initiating_persona": "P001", "delegated_by": "clinician_avatar_agent"},
+                    "vital_signs": {
+                        "blood_pressure": "100/65",
+                        "heart_rate": 115,
+                        "oxygen_saturation": 91,
+                    },
+                    "persona_context": {
+                        "initiating_persona": "P001",
+                        "delegated_by": "clinician_avatar_agent",
+                    },
                 },
                 "delay": 1,
                 "handoff_policy": {
@@ -2579,7 +2961,11 @@ PERSONA_SCENARIOS: list[PatientScenario] = [
                 "method": "pharmacy/recommend",
                 "params": {
                     "task": {
-                        "med_plan": ["Aspirin 300 mg loading", "Heparin infusion", "GTN sublingual"],
+                        "med_plan": [
+                            "Aspirin 300 mg loading",
+                            "Heparin infusion",
+                            "GTN sublingual",
+                        ],
                         "allergies": ["Penicillin"],
                         "persona_context": {"persona": "P007"},
                     }

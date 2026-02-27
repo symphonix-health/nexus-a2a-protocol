@@ -29,6 +29,20 @@ except Exception:
     REPRESENTATIVE_SCENARIOS = []
 
 
+def _display_scenario_title(name: str) -> str:
+    role_title_overrides = {
+        "clinician_avatar_consultation": "senior_clinician_consultation",
+        "clinician_avatar_uk_gp_consultation": "gp_uk_consultation",
+        "clinician_avatar_usa_attending_acs": "attending_physician_usa_acs",
+        "clinician_avatar_kenya_medical_officer": "medical_officer_kenya_consultation",
+        "clinician_avatar_telehealth_uk_followup": "telehealth_clinician_uk_followup",
+        "clinician_avatar_psychiatrist_mental_health": "psychiatrist_mental_health_consultation",
+    }
+    if name in role_title_overrides:
+        return role_title_overrides[name]
+    return name.replace("avatar", "clinician")
+
+
 def _resolve_gateway_url(gateway_arg: str | None) -> str | None:
     value = gateway_arg if gateway_arg is not None else os.getenv("NEXUS_ON_DEMAND_GATEWAY_URL")
     if not value:
@@ -149,7 +163,8 @@ async def run_scenario(
     if include_representative_expansion:
         cmd.append("--include-representative-expansion")
 
-    print(f"🏥 Running scenario: {scenario_name}")
+    display_title = _display_scenario_title(scenario_name)
+    print(f"🏥 Running scenario: {display_title}")
     print(f"   ↳ Command: {' '.join(cmd)}")
     try:
         child_env = os.environ.copy()
@@ -164,10 +179,10 @@ async def run_scenario(
         stdout, stderr = await result.communicate()
 
         if result.returncode == 0:
-            print(f"✅ Scenario '{scenario_name}' completed successfully")
+            print(f"✅ Scenario '{display_title}' completed successfully")
             print(stdout.decode())
         else:
-            print(f"❌ Scenario '{scenario_name}' failed")
+            print(f"❌ Scenario '{display_title}' failed")
             print("STDOUT:", stdout.decode())
             print("STDERR:", stderr.decode())
 

@@ -285,6 +285,9 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
         dedup_window_ms = int(idempotency.get("dedup_window_ms", 60000)) if idempotency else 60000
         if dedup_window_ms <= 0:
             raise JsonRpcError(-32602, "Invalid params", "idempotency.dedup_window_ms must be > 0")
+        max_dedup_window_ms = int(os.getenv("NEXUS_IDEMPOTENCY_MAX_DEDUP_WINDOW_MS", "900000"))
+        if max_dedup_window_ms > 0:
+            dedup_window_ms = min(dedup_window_ms, max_dedup_window_ms)
         if idempotency_key:
             dedup = await _idempotency_check_or_register(
                 idempotency_key,

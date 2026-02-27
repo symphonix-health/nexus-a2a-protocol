@@ -25,10 +25,17 @@
       <label>
         Voice
         <select id="voice-select">
+          <option value="nova" selected>nova</option>
           <option value="alloy">alloy</option>
           <option value="echo">echo</option>
-          <option value="nova">nova</option>
           <option value="shimmer">shimmer</option>
+        </select>
+      </label>
+      <label>
+        Render
+        <select id="render-mode-select">
+          <option value="static" selected>Static image + lip-sync</option>
+          <option value="video">Video loop</option>
         </select>
       </label>
       <button id="start-btn" type="button">Start Session</button>
@@ -50,6 +57,7 @@
       <div id="chat-log" class="chat-log"></div>
       <div class="composer">
         <input id="chat-input" placeholder="Type patient response…" autocomplete="off" />
+        <button id="mic-btn" type="button" title="Speak patient message">🎤 Speak</button>
         <button id="send-btn" type="button">Send</button>
       </div>
     </section>
@@ -61,7 +69,8 @@
   </main>
 
   <!-- MediaPipe FaceMesh — landmark detection for driven lip-sync -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/face_mesh.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/face_mesh.js"
+    crossorigin="anonymous"></script>
   <script src="/static/avatar_renderer.js?v=7"></script>
   <script src="/static/lipsync_engine.js?v=5"></script>
   <script src="/static/tts_client.js?v=6"></script>

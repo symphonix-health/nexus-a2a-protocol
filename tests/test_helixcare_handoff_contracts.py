@@ -28,7 +28,9 @@ def test_all_25_journeys_have_explicit_handoff_contracts():
     for scenario in combined:
         for step in scenario.journey_steps:
             policy = step.get("handoff_policy")
-            assert isinstance(policy, dict), f"{scenario.name}:{step.get('agent')} missing handoff_policy"
+            assert isinstance(policy, dict), (
+                f"{scenario.name}:{step.get('agent')} missing handoff_policy"
+            )
             for required_key in (
                 "criticality",
                 "required_handover_fields",
@@ -53,7 +55,9 @@ def test_transfer_steps_include_receiving_team_ownership():
             params = step.get("params")
             assert isinstance(params, dict)
             transition = params.get("care_transition")
-            assert isinstance(transition, dict), f"{scenario.name}:{step.get('agent')} missing care_transition"
+            assert isinstance(transition, dict), (
+                f"{scenario.name}:{step.get('agent')} missing care_transition"
+            )
             assert transition.get("handover_owner"), (
                 f"{scenario.name}:{step.get('agent')} missing handover_owner"
             )
@@ -70,3 +74,23 @@ def test_clinical_negative_library_exists():
         assert scenario.expected_escalation
         assert scenario.expected_safe_outcome
 
+
+def test_registration_failure_urgent_override_markers_present():
+    _canonical, additional, _negatives = _load_scenarios()
+    target_name = "registration_failed_urgent_clinical_override"
+    scenario = next(
+        (s for s in additional if s.name == target_name),
+        None,
+    )
+    assert scenario is not None
+
+    journey_steps = scenario.journey_steps
+    triage_step = next(
+        (step for step in journey_steps if step.get("agent") == "triage"),
+        None,
+    )
+    assert triage_step is not None
+
+    params = triage_step.get("params", {})
+    assert params.get("clinical_override") is True
+    assert params.get("financial_clearance_state") == "pending"

@@ -14,7 +14,9 @@
   const sendBtn       = document.getElementById('send-btn');
   const startBtn      = document.getElementById('start-btn');
   const avatarSelect  = document.getElementById('avatar-select');
+  const renderModeSelect = document.getElementById('render-mode-select');
   const voiceSelect   = document.getElementById('voice-select');
+  const micBtn        = document.getElementById('mic-btn');
   const statusPill    = document.getElementById('status-pill');
   const frameworkEl   = document.getElementById('framework-state');
   const audioEnableBtn = document.getElementById('audio-enable-btn');
@@ -27,6 +29,8 @@
   const readOnly = query.get('readonly') === '1' || liveMode;
   let liveSocket = null;
   let audioEnabled = false;
+  let speechRecognition = null;
+  let isSpeechListening = false;
 
   // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -193,22 +197,29 @@
 
   // ── Send message (barge-in aware) ────────────────────────────────────────
 
-  async function sendMessage() {
+  async function sendMessage(overrideText = null, options = {}) {
     if (readOnly) return;
     // Same AudioContext unlock — must be before any `await`.
     window.TTSClient.enableAudio().catch(() => {});
 
-    const text = chatInput.value.trim();
+    const text = (overrideText == null ? chatInput.value : String(overrideText)).trim();
     if (!text || !sessionId) return;
-    chatInput.value = '';
+    if (overrideText == null) chatInput.value = '';
+
+    const fromAudio = Boolean(options.fromAudio);
+    const deferTranscript = Boolean(options.deferTranscript);
 
     // Barge-in: cancel any avatar speech in progress
     window.TTSClient.cancel();
     window.LipSyncEngine.stop();
 
-    addMsg('user', text);
+    if (!deferTranscript) {
+      addMsg('user', text);
+    }
     _setAvatarState('thinking', 'Thinking…');
-    if (statusPill) statusPill.textContent = 'Processing…';
+    if (statusPill) {
+      statusPill.textContent = fromAudio ? 'Transcribing & processing…' : 'Processing…';
+    }
 
     let result;
     try {
@@ -224,7 +235,97 @@
     addMsg('assistant', response);
     if (frameworkEl) frameworkEl.textContent = JSON.stringify(result.framework_progress || {}, null, 2);
 
+    if (deferTranscript) {
+      setTimeout(() => {
+        addMsg('user', `📝 Transcript: ${text}`);
+      }, 600);
+    }
+
     _speakStreaming(response, null);
+  }
+
+  function _speechApiCtor() {
+    return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  }
+
+  function _setMicUi(active) {
+    if (!micBtn) return;
+    micBtn.dataset.active = active ? '1' : '0';
+    micBtn.textContent = active ? '🛑 Stop' : '🎤 Speak';
+  }
+
+  function _stopSpeechCapture() {
+    if (!speechRecognition) return;
+    try {
+      speechRecognition.stop();
+    } catch (_) {}
+    isSpeechListening = false;
+    _setMicUi(false);
+    if (sessionId) _setAvatarState('idle', '');
+  }
+
+  function _startSpeechCapture() {
+    const Ctor = _speechApiCtor();
+    if (!Ctor) {
+      alert('Speech recognition is not supported in this browser.');
+      return;
+    }
+    if (!sessionId) {
+      alert('Start a session first, then use speech input.');
+      return;
+    }
+
+    if (!speechRecognition) {
+      speechRecognition = new Ctor();
+      speechRecognition.lang = 'en-US';
+      speechRecognition.interimResults = true;
+      speechRecognition.continuous = false;
+
+      let finalText = '';
+
+      speechRecognition.onstart = () => {
+        isSpeechListening = true;
+        _setMicUi(true);
+        _setAvatarState('listening', 'Listening…');
+      };
+
+      speechRecognition.onresult = (event) => {
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const part = event.results[i][0]?.transcript || '';
+          if (event.results[i].isFinal) {
+            finalText += `${part} `;
+          }
+        }
+      };
+
+      speechRecognition.onerror = () => {
+        isSpeechListening = false;
+        _setMicUi(false);
+        if (sessionId) _setAvatarState('idle', '');
+      };
+
+      speechRecognition.onend = () => {
+        isSpeechListening = false;
+        _setMicUi(false);
+        const transcript = finalText.trim();
+        finalText = '';
+        if (transcript) {
+          chatInput.value = '';
+          sendMessage(transcript, {
+            fromAudio: true,
+            deferTranscript: true,
+          }).catch((err) => alert(err.message));
+        } else if (sessionId) {
+          _setAvatarState('idle', '');
+        }
+      };
+    }
+
+    try {
+      speechRecognition.start();
+    } catch (_) {
+      _stopSpeechCapture();
+    }
   }
 
   // ── Live-stream event handling ───────────────────────────────────────────
@@ -293,6 +394,7 @@
     if (!readOnly) return;
     if (startBtn)   startBtn.disabled  = true;
     if (sendBtn)    sendBtn.disabled   = true;
+    if (micBtn)     micBtn.disabled    = true;
     if (chatInput)  {
       chatInput.disabled     = true;
       chatInput.placeholder  = liveMode
@@ -328,11 +430,31 @@
   avatarSelect.addEventListener('change', () =>
     window.AvatarRenderer.setAvatar(avatarSelect.value)
   );
+  if (renderModeSelect) {
+    renderModeSelect.addEventListener('change', () =>
+      window.AvatarRenderer.setRenderMode(renderModeSelect.value)
+    );
+  }
+  if (micBtn) {
+    micBtn.addEventListener('click', () => {
+      if (isSpeechListening) _stopSpeechCapture();
+      else _startSpeechCapture();
+    });
+  }
+
+  window.addEventListener('nexus_tts_synthetic_fallback', () => {
+    if (statusPill) {
+      statusPill.textContent = 'Using browser fallback voice (set OPENAI_API_KEY for natural TTS)';
+    }
+  });
 
   // ── Boot ─────────────────────────────────────────────────────────────────
 
   window.AvatarRenderer.init('avatar-canvas');
   window.AvatarRenderer.setAvatar(avatarSelect.value);
+  if (renderModeSelect) {
+    window.AvatarRenderer.setRenderMode(renderModeSelect.value || 'static');
+  }
   configureUiMode();
   connectLiveStream();
 

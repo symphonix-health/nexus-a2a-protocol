@@ -391,7 +391,9 @@ async def make_jsonrpc_call(
         # httpx/httpcore can leak CancelledError (BaseException in 3.9+)
         # when connect timeouts fire via anyio task groups.
         last_error = "CancelledError (connect timeout)"
-        print(f"   ❌ Attempt {attempts_made}/{ACTIVE_RETRY_CONFIG.max_rpc_attempts} failed (retriable): {last_error}")
+        print(
+            f"   ❌ Attempt {attempts_made}/{ACTIVE_RETRY_CONFIG.max_rpc_attempts} failed (retriable): {last_error}"
+        )
 
     print("   ❌ Error: All connection attempts failed")
     ts_end = datetime.now().astimezone().isoformat()
@@ -667,7 +669,11 @@ def _normalize_handoff_policy(
         ],
     )
 
-    if predecessor_agent and not policy["required_predecessors"] and not policy["optional_predecessors"]:
+    if (
+        predecessor_agent
+        and not policy["required_predecessors"]
+        and not policy["optional_predecessors"]
+    ):
         policy["required_predecessors"] = [predecessor_agent]
 
     # Only explicitly administrative steps may skip.
@@ -716,7 +722,9 @@ def _apply_transition_ownership(step: dict[str, Any]) -> None:
         handover = {}
         care_transition["handover"] = handover
 
-    handover.setdefault("situation", str(params.get("symptoms") or params.get("chief_complaint") or ""))
+    handover.setdefault(
+        "situation", str(params.get("symptoms") or params.get("chief_complaint") or "")
+    )
     handover.setdefault("background", "Relevant history and context shared.")
     handover.setdefault("assessment", "Clinical assessment documented.")
     handover.setdefault("recommendation", "Proceed with receiving-team plan.")
@@ -1939,7 +1947,8 @@ def _load_clinical_negative_scenarios() -> list[PatientScenario]:
         return loaded
     except Exception:
         try:
-            from tools.clinical_negative_scenarios import CLINICAL_NEGATIVE_SCENARIOS
+            from tools.clinical_negative_scenarios import \
+                CLINICAL_NEGATIVE_SCENARIOS
 
             loaded = list(CLINICAL_NEGATIVE_SCENARIOS)
             enrich_scenario_handoff_contracts(loaded)
@@ -1991,6 +2000,30 @@ def _resolve_context_template(value: Any, clinical_context: dict[str, Any]) -> A
 TRACE_SINK_URL = os.getenv("TRACE_SINK_URL", "http://localhost:8099")
 
 
+def _scenario_display_title(name: str) -> str:
+    """Return a user-facing scenario title without changing internal IDs."""
+    role_title_overrides = {
+        "clinician_avatar_consultation": "senior_clinician_consultation",
+        "clinician_avatar_uk_gp_consultation": "gp_uk_consultation",
+        "clinician_avatar_usa_attending_acs": "attending_physician_usa_acs",
+        "clinician_avatar_kenya_medical_officer": "medical_officer_kenya_consultation",
+        "clinician_avatar_telehealth_uk_followup": "telehealth_clinician_uk_followup",
+        "clinician_avatar_psychiatrist_mental_health": "psychiatrist_mental_health_consultation",
+    }
+    if name in role_title_overrides:
+        return role_title_overrides[name]
+    return name.replace("avatar", "clinician")
+
+
+def _agent_display_label(agent_alias: str) -> str:
+    """Return user-facing agent labels without avatar wording."""
+    alias = str(agent_alias or "").strip().lower()
+    role_overrides = {
+        "clinician_avatar": "consulting_clinician",
+    }
+    return role_overrides.get(alias, alias).upper()
+
+
 async def _post_trace_run(trace_run: TraceRun) -> None:
     """POST completed TraceRun to Command Centre (best-effort)."""
     url = f"{TRACE_SINK_URL.rstrip('/')}/api/traces"
@@ -2010,7 +2043,8 @@ async def run_scenario(scenario: PatientScenario) -> None:
     visit_id = f"VISIT-{int(time.time())}-{scenario.name}"
     trace_id = make_trace_id()
 
-    print(f"🏥 Starting Scenario: {scenario.name}")
+    display_title = _scenario_display_title(scenario.name)
+    print(f"🏥 Starting Scenario: {display_title}")
     print(f"   Description: {scenario.description}")
     print(f"   Patient ID: {patient_id}")
     print(f"   Visit ID: {visit_id}")
@@ -2051,7 +2085,8 @@ async def run_scenario(scenario: PatientScenario) -> None:
                                 build_delegation_context, validate_handoff)
 
     try:
-        from shared.nexus_common.clinical_handoff_rules import apply_nhs_guardrails
+        from shared.nexus_common.clinical_handoff_rules import \
+            apply_nhs_guardrails
     except Exception:
         from clinical_handoff_rules import apply_nhs_guardrails  # type: ignore
 
@@ -2067,7 +2102,7 @@ async def run_scenario(scenario: PatientScenario) -> None:
     prev_agent = "_start"
     for i, step in enumerate(scenario.journey_steps, 1):
         agent_alias = step["agent"]
-        print(f"\nStep {i}/{len(scenario.journey_steps)}: {agent_alias.upper()}")
+        print(f"\nStep {i}/{len(scenario.journey_steps)}: {_agent_display_label(agent_alias)}")
 
         branch = _choose_simulation_branch(rng=rng, profile=profile)
         if branch != "nominal":
@@ -2246,9 +2281,13 @@ async def run_scenario(scenario: PatientScenario) -> None:
             }
             params = step.get("params") if isinstance(step.get("params"), dict) else {}
             transition = (
-                params.get("care_transition") if isinstance(params.get("care_transition"), dict) else {}
+                params.get("care_transition")
+                if isinstance(params.get("care_transition"), dict)
+                else {}
             )
-            handover = transition.get("handover") if isinstance(transition.get("handover"), dict) else {}
+            handover = (
+                transition.get("handover") if isinstance(transition.get("handover"), dict) else {}
+            )
             if handover:
                 clinical_context["handover"] = handover
         except Exception:
@@ -2267,7 +2306,9 @@ async def run_scenario(scenario: PatientScenario) -> None:
             if ref:
                 all_refs.add(str(ref))
     trace_run.guideline_refs = sorted(all_refs)
-    blocked_events = [e for e in trace_run.delegation_chain if e.get("state") == "blocked_escalated"]
+    blocked_events = [
+        e for e in trace_run.delegation_chain if e.get("state") == "blocked_escalated"
+    ]
     degraded_events = [
         e
         for e in trace_run.delegation_chain
@@ -2279,9 +2320,13 @@ async def run_scenario(scenario: PatientScenario) -> None:
         trace_run.handover_contract_status = "degraded"
     else:
         trace_run.handover_contract_status = "complete"
-    trigger_event = next((e for e in trace_run.delegation_chain if e.get("escalation_required")), None)
+    trigger_event = next(
+        (e for e in trace_run.delegation_chain if e.get("escalation_required")), None
+    )
     if trigger_event:
-        trace_run.escalation_trigger = str(trigger_event.get("reason_code") or "escalation_required")
+        trace_run.escalation_trigger = str(
+            trigger_event.get("reason_code") or "escalation_required"
+        )
         trace_run.senior_review_deadline = trigger_event.get("deadline_at")
     trace_run.safe_fallback_taken = bool(
         trace_run.safe_fallback_taken
@@ -2294,7 +2339,7 @@ async def run_scenario(scenario: PatientScenario) -> None:
     blocked = monitor.failed_count
     retries = sum(1 for e in trace_run.delegation_chain if e.get("state") == "retry_pending")
     rerouted = sum(1 for e in trace_run.delegation_chain if e.get("state") == "rerouted")
-    print(f"\n✅ Scenario '{scenario.name}' completed!")
+    print(f"\n✅ Scenario '{display_title}' completed!")
     print(f"   Duration: ~{scenario.expected_duration} seconds")
     if skipped or blocked or retries or rerouted:
         print(
@@ -2347,7 +2392,7 @@ async def list_scenarios() -> None:
     print("📋 Canonical HelixCare Patient Visit Scenarios (10):")
     print("=" * 80)
     for i, scenario in enumerate(SCENARIOS, 1):
-        print(f"{i:2d}. {scenario.name}")
+        print(f"{i:2d}. {_scenario_display_title(scenario.name)}")
         print(f"    {scenario.description}")
         print(
             "    Patient: "

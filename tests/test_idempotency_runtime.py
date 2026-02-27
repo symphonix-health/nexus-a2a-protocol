@@ -54,3 +54,44 @@ def test_payload_mismatch_exposes_previous_hash_metadata() -> None:
     assert second.stored_payload_hash == "sha256:original"
     assert second.previous_payload_hash == "sha256:original"
     assert second.payload_hash == "sha256:original"
+
+
+def test_idempotency_store_evicts_oldest_entries_when_capacity_reached() -> None:
+    store = IdempotencyStore(clock=lambda: 8000.0, max_entries=2)
+
+    store.check_or_register("idem-1", dedup_window_ms=10000, scope="tenant:a")
+    store.check_or_register("idem-2", dedup_window_ms=10000, scope="tenant:a")
+    store.check_or_register("idem-3", dedup_window_ms=10000, scope="tenant:a")
+
+    # Oldest entry should have been evicted to keep memory bounded.
+    first_again = store.check_or_register("idem-1", dedup_window_ms=10000, scope="tenant:a")
+    assert first_again.is_duplicate is False
+
+    latest = store.check_or_register("idem-3", dedup_window_ms=10000, scope="tenant:a")
+    assert latest.is_duplicate is True
+
+
+def test_cached_response_is_compacted_when_too_large() -> None:
+    store = IdempotencyStore(
+        clock=lambda: 9000.0,
+        max_entries=10,
+        max_cached_response_bytes=256,
+    )
+
+    store.check_or_register("idem-large", dedup_window_ms=60000, scope="tenant:a")
+    store.save_response(
+        "idem-large",
+        {
+            "task_id": "task-123",
+            "trace_id": "trace-123",
+            "resume_cursor": "cursor-123",
+            "huge_payload": "x" * 8000,
+        },
+        scope="tenant:a",
+    )
+    duplicate = store.check_or_register("idem-large", dedup_window_ms=60000, scope="tenant:a")
+
+    assert duplicate.is_duplicate is True
+    assert isinstance(duplicate.cached_response, dict)
+    assert duplicate.cached_response.get("task_id") == "task-123"
+    assert duplicate.cached_response.get("_idempotency_truncated") is True

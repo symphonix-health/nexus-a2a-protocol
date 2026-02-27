@@ -22,6 +22,7 @@ app = _main.app
 trace_store = _main.trace_store
 trace_lock = _main.trace_lock
 TRACE_STORE_MAX = _main.TRACE_STORE_MAX
+TRACE_STEP_PAYLOAD_MAX_BYTES = _main.TRACE_STEP_PAYLOAD_MAX_BYTES
 
 BASE = "http://testserver"
 
@@ -82,6 +83,26 @@ async def test_post_trace_returns_201():
     data = resp.json()
     assert data["trace_id"] == "trace-T1"
     assert data["stored"] is True
+
+
+@pytest.mark.asyncio
+async def test_post_trace_truncates_oversized_step_payloads():
+    body = _sample_trace_body("trace-big-payload")
+    body["steps"][0]["request_redacted"] = {
+        "blob": "x" * (TRACE_STEP_PAYLOAD_MAX_BYTES * 3),
+    }
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url=BASE) as client:
+        post_resp = await client.post("/api/traces", json=body)
+        assert post_resp.status_code == 201
+        get_resp = await client.get("/api/traces/trace-big-payload")
+
+    assert get_resp.status_code == 200
+    run = get_resp.json()
+    request_payload = run["steps"][0]["request_redacted"]
+    assert request_payload.get("_truncated") is True
+    assert request_payload.get("_approx_size_bytes", 0) > TRACE_STEP_PAYLOAD_MAX_BYTES
 
 
 @pytest.mark.asyncio
