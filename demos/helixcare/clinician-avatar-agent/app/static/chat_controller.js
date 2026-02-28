@@ -9,21 +9,25 @@
  *  • Live-stream mode (/?live=1) unchanged — still drives through handleLiveEvent().
  */
 (() => {
-  const chatLog       = document.getElementById('chat-log');
-  const chatInput     = document.getElementById('chat-input');
-  const sendBtn       = document.getElementById('send-btn');
-  const startBtn      = document.getElementById('start-btn');
-  const avatarSelect  = document.getElementById('avatar-select');
+  const chatLog        = document.getElementById('chat-log');
+  const chatInput      = document.getElementById('chat-input');
+  const sendBtn        = document.getElementById('send-btn');
+  const startBtn       = document.getElementById('start-btn');
+  const avatarSelect   = document.getElementById('avatar-select');
   const renderModeSelect = document.getElementById('render-mode-select');
-  const voiceSelect   = document.getElementById('voice-select');
-  const micBtn        = document.getElementById('mic-btn');
+  const voiceSelect    = document.getElementById('voice-select');
+  const micBtn         = document.getElementById('mic-btn');
   const audioUploadInput = document.getElementById('audio-upload-input');
-  const scriptLineSelect = document.getElementById('script-line-select');
-  const scriptLineMeta = document.getElementById('script-line-meta');
-  const useScriptBtn = document.getElementById('use-script-btn');
-  const playScriptClipBtn = document.getElementById('play-script-clip-btn');
+  // Patient mode controls
+  const scenarioSelect     = document.getElementById('scenario-select');
+  const patientContextBar  = document.getElementById('patient-context-bar');
+  const aiPatientRespondBtn = document.getElementById('ai-patient-respond-btn');
+  const autoRoleplayToggle = document.getElementById('auto-roleplay-toggle');
+  const patientTtsToggle   = document.getElementById('patient-tts-toggle');   // optional: speak typed patient text
+  const patientModeHuman   = document.getElementById('patient-mode-human');
+  const patientModeAi      = document.getElementById('patient-mode-ai');
   const registrationFirstToggle = document.getElementById('registration-first-toggle');
-  const nondeterministicToggle = document.getElementById('nondeterministic-toggle');
+  const nondeterministicToggle  = document.getElementById('nondeterministic-toggle');
   const temperatureInput = document.getElementById('temperature-input');
   const temperatureValue = document.getElementById('temperature-value');
   const statusPill    = document.getElementById('status-pill');
@@ -40,87 +44,138 @@
   let audioEnabled = false;
   let speechRecognition = null;
   let isSpeechListening = false;
-  let scriptPack = [];
 
-  function _flattenScriptPack(payload) {
-    const flattened = [];
+  // ── Patient mode state ───────────────────────────────────────────────────
+  let patientMode        = 'human';   // 'human' | 'ai'
+  let patientContext     = null;      // loaded from patient_script_pack.json scenario
+  let patientConversation = [];        // [{role, content}] for /api/patient/respond
+  let lastClinicianText  = '';        // last clinician response, used by AI respond
+  let scenarioPack       = [];        // array of scenario objects from pack
 
-    const topLevelLines = Array.isArray(payload?.lines) ? payload.lines : [];
-    topLevelLines.forEach((line) => {
-      if (typeof line === 'string') {
-        flattened.push({ text: line, phase: 'clinical', intent: 'generic' });
-      } else if (line && typeof line === 'object') {
-        flattened.push({
-          scenario_title: 'General',
-          ...line,
-          text: String(line.text || '').trim(),
-        });
-      }
-    });
+  // ── Patient mode ─────────────────────────────────────────────────────────
 
-    const scenarios = Array.isArray(payload?.scenarios) ? payload.scenarios : [];
-    scenarios.forEach((scenario) => {
-      const lines = Array.isArray(scenario?.lines) ? scenario.lines : [];
-      lines.forEach((line) => {
-        if (typeof line === 'string') {
-          flattened.push({
-            scenario_id: scenario?.id,
-            scenario_title: scenario?.title || scenario?.id || 'Scenario',
-            text: line,
-            phase: 'clinical',
-            intent: 'generic',
-          });
-        } else if (line && typeof line === 'object') {
-          flattened.push({
-            scenario_id: scenario?.id,
-            scenario_title: scenario?.title || scenario?.id || 'Scenario',
-            ...line,
-            text: String(line.text || '').trim(),
-          });
-        }
+  function _applyPatientMode(mode) {
+    patientMode = mode || 'human';
+    const isAi = patientMode === 'ai';
+
+    // AI-specific controls
+    if (aiPatientRespondBtn) aiPatientRespondBtn.disabled = !isAi;
+    if (autoRoleplayToggle)  autoRoleplayToggle.disabled  = !isAi;
+    if (scenarioSelect)      scenarioSelect.disabled      = !isAi;
+    if (patientContextBar)   patientContextBar.style.display = isAi ? '' : 'none';
+
+    // Update input placeholder
+    if (chatInput) {
+      chatInput.placeholder = isAi
+        ? 'Override AI patient text (or leave blank to use AI)…'
+        : 'Type patient response…';
+    }
+  }
+
+  // Load scenario pack and populate the scenario dropdown
+  async function _loadScenarioPack() {
+    if (!scenarioSelect) return;
+    try {
+      const resp = await fetch('/static/patient_script_pack.json', { cache: 'no-store' });
+      if (!resp.ok) return;
+      const payload = await resp.json();
+      scenarioPack = Array.isArray(payload?.scenarios) ? payload.scenarios : [];
+      scenarioPack.forEach((scenario, idx) => {
+        const opt = document.createElement('option');
+        opt.value = String(idx);
+        opt.textContent = scenario.title || scenario.id || `Scenario ${idx + 1}`;
+        scenarioSelect.appendChild(opt);
       });
-    });
-
-    return flattened.filter((line) => line.text);
+    } catch (_) {}
   }
 
-  function _selectedScriptLine() {
-    if (!scriptLineSelect) return null;
-    const idx = Number(scriptLineSelect.value || -1);
-    if (Number.isNaN(idx) || idx < 0 || idx >= scriptPack.length) return null;
-    return scriptPack[idx];
+  // Called when the user picks a scenario — loads its patient_context
+  function _loadPatientPersona() {
+    if (!scenarioSelect) return;
+    const idx = Number(scenarioSelect.value);
+    const scenario = (!Number.isNaN(idx) && idx >= 0) ? scenarioPack[idx] : null;
+    patientContext      = scenario?.patient_context || null;
+    patientConversation = [];
+    lastClinicianText   = '';
+    if (patientContextBar) {
+      if (patientContext) {
+        const name = patientContext.name || 'Patient';
+        const cc   = patientContext.chief_complaint || scenario?.title || '';
+        patientContextBar.textContent = `🟢 ${name} · ${cc}`;
+      } else {
+        patientContextBar.textContent = '';
+      }
+    }
   }
 
-  function _renderSelectedScriptMeta() {
-    if (!scriptLineMeta) return;
-    const line = _selectedScriptLine();
-    if (!line) {
-      scriptLineMeta.textContent = '';
+  // Generate an AI patient response using the /api/patient/respond endpoint
+  async function _generateAiPatientResponse() {
+    if (!patientContext) {
+      if (statusPill) statusPill.textContent = '⚠ Select a patient scenario first';
       return;
     }
-    const scenario = line.scenario_title ? `[${line.scenario_title}]` : '';
-    const phase = line.phase ? `phase: ${line.phase}` : '';
-    const intent = line.intent ? `intent: ${line.intent}` : '';
-    const fields = Array.isArray(line.expected_fields) && line.expected_fields.length
-      ? `capture: ${line.expected_fields.join(', ')}`
-      : '';
-    scriptLineMeta.textContent = [scenario, phase, intent, fields].filter(Boolean).join(' · ');
-  }
+    if (!lastClinicianText) {
+      if (statusPill) statusPill.textContent = '⚠ No clinician message yet — start the consultation first';
+      return;
+    }
+    if (!await _ensureToken()) return;
 
-  function _playScriptClip() {
-    const line = _selectedScriptLine();
-    if (!line) {
-      alert('Select a script line first.');
+    if (statusPill) statusPill.textContent = 'AI patient thinking…';
+    if (aiPatientRespondBtn) aiPatientRespondBtn.disabled = true;
+
+    let patientText;
+    try {
+      const resp = await fetch('/api/patient/respond', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${authToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clinician_message: lastClinicianText,
+          patient_context: patientContext,
+          conversation_history: patientConversation,
+        }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data?.detail || `Patient AI failed (${resp.status})`);
+      patientText = String(data?.patient_response || '').trim();
+    } catch (err) {
+      if (statusPill) statusPill.textContent = `⚠ AI Patient: ${err.message}`;
+      if (aiPatientRespondBtn) aiPatientRespondBtn.disabled = (patientMode !== 'ai');
       return;
     }
-    const clipName = String(line.audio_clip || '').trim();
-    if (!clipName) {
-      alert('No sample clip is mapped for this line yet. Add audio_clip and place the file in avatar/.');
+
+    if (!patientText) {
+      if (statusPill) statusPill.textContent = '⚠ AI patient returned empty response';
+      if (aiPatientRespondBtn) aiPatientRespondBtn.disabled = (patientMode !== 'ai');
       return;
     }
-    const audio = new Audio(`/media/${encodeURIComponent(clipName)}`);
-    audio.play().catch(() => {
-      alert(`Unable to play ${clipName}. Ensure the file exists in avatar/.`);
+
+    // Record in local conversation history
+    patientConversation.push({ role: 'user', content: patientText });
+
+    // Display in chat
+    addMsg('user', patientText);
+
+    // Restore button
+    if (aiPatientRespondBtn) aiPatientRespondBtn.disabled = (patientMode !== 'ai');
+    if (statusPill) statusPill.textContent = sessionId ? `Session: ${sessionId}` : 'Session ready';
+
+    // Speak the AI patient response in shimmer voice via streaming TTS
+    window.TTSClient.cancel();
+    window.LipSyncEngine.start([]);
+    _setAvatarState('speaking', 'Patient speaking…');
+    window.TTSClient.streamSpeak(patientText, 'shimmer', authToken, {
+      onVisemes(visemes) { window.LipSyncEngine.start(visemes); },
+      onSpeechStart()    { window.LipSyncEngine.stop(); _setAvatarState('speaking', 'Patient speaking…'); },
+      onSpeechEnd()      {
+        window.LipSyncEngine.stop();
+        _setAvatarState('idle', '');
+        if (statusPill) statusPill.textContent = sessionId ? `Session: ${sessionId}` : 'Session ready';
+      },
+      onError(msg)       {
+        window.LipSyncEngine.stop();
+        _setAvatarState('idle', '');
+        if (statusPill) statusPill.textContent = `⚠ Patient TTS: ${msg}`;
+      },
     });
   }
 
@@ -170,21 +225,17 @@
   // ── Speaking pipeline ────────────────────────────────────────────────────
 
   function _speakStreaming(text, onDone) {
+    // Unlock AudioContext before streaming — must be called before any await.
+    window.TTSClient.enableAudio().catch(() => {});
+
     _setAvatarState('speaking', 'Speaking…');
     window.TTSClient.streamSpeak(text, voiceSelect.value, authToken, {
       onVisemes(visemes) {
-        // Start pre-computed timeline as a warm-up while we wait for the first
-        // PCM chunk.  onSpeechStart() will stop it once real audio arrives.
+        // Pre-computed timeline warm-up while waiting for first PCM chunk.
         window.LipSyncEngine.start(visemes);
       },
-      onSynthetic() {
-        // Browser TTS is active — stop the pre-computed timeline so only
-        // word-boundary events (from _speakBrowserTTS) drive the mouth glow.
-        window.LipSyncEngine.stop();
-      },
       onSpeechStart() {
-        // Real PCM is flowing — amplitude polling (via AnalyserNode) takes over
-        // lipsync, so the pre-computed viseme timeline is no longer needed.
+        // Real PCM is flowing — amplitude polling takes over lipsync.
         window.LipSyncEngine.stop();
         _setAvatarState('speaking', 'Speaking…');
       },
@@ -194,10 +245,11 @@
         if (statusPill) statusPill.textContent = sessionId ? `Session: ${sessionId}` : 'Session ready';
         if (onDone) onDone();
       },
-      onFallback(t) {
-        window.TTSClient.speakTextFallback(t, voiceSelect.value);
+      onError(msg) {
+        // Hard TTS failure — surface visibly; no silent fallback.
         window.LipSyncEngine.stop();
         _setAvatarState('idle', '');
+        if (statusPill) statusPill.textContent = `⚠ TTS Error: ${msg}`;
         if (onDone) onDone();
       },
     });
@@ -292,24 +344,7 @@
     _speakStreaming(greeting, null);
   }
 
-  async function _loadScriptPack() {
-    if (!scriptLineSelect) return;
-    try {
-      const resp = await fetch('/static/patient_script_pack.json', { cache: 'no-store' });
-      if (!resp.ok) return;
-      const payload = await resp.json();
-      scriptPack = _flattenScriptPack(payload);
-      scriptPack.forEach((line, idx) => {
-        const opt = document.createElement('option');
-        const text = String(line?.text || '');
-        const scenarioLabel = line?.scenario_title ? `[${line.scenario_title}] ` : '';
-        opt.value = String(idx);
-        opt.textContent = `${idx + 1}. ${scenarioLabel}${text.slice(0, 80)}`;
-        scriptLineSelect.appendChild(opt);
-      });
-      _renderSelectedScriptMeta();
-    } catch (_) {}
-  }
+  // _loadScenarioPack and patient-mode functions are defined above
 
   async function _transcribeUploadedAudio(file) {
     if (!file) return;
@@ -360,6 +395,15 @@
     window.TTSClient.enableAudio().catch(() => {});
 
     const text = (overrideText == null ? chatInput.value : String(overrideText)).trim();
+
+    // In human mode, optionally speak typed patient text via TTS (shimmer voice).
+    // Only fires when the user explicitly enables the 'patient-tts-toggle' checkbox.
+    if (text && patientMode === 'human' && patientTtsToggle?.checked && !options.fromAudio) {
+      window.TTSClient.cancel();
+      window.TTSClient.streamSpeak(text, 'shimmer', authToken, {
+        onError() {/* silent — best-effort patient-side TTS */},
+      });
+    }
     if (!text || !sessionId) return;
     if (overrideText == null) chatInput.value = '';
 
@@ -398,7 +442,19 @@
       }, 600);
     }
 
-    _speakStreaming(response, null);
+    // Track clinician message for AI patient; record both sides in conversation history
+    lastClinicianText = response;
+    patientConversation.push({ role: 'user',      content: text     });
+    patientConversation.push({ role: 'assistant', content: response });
+    // Cap conversation history at 30 entries so it doesn’t grow unboundedly
+    if (patientConversation.length > 30) patientConversation = patientConversation.slice(-30);
+
+    _speakStreaming(response, () => {
+      // After clinician speaks, auto-respond as AI patient if toggled
+      if (patientMode === 'ai' && autoRoleplayToggle?.checked) {
+        _generateAiPatientResponse().catch(() => {});
+      }
+    });
   }
 
   function _speechApiCtor() {
@@ -424,11 +480,11 @@
   function _startSpeechCapture() {
     const Ctor = _speechApiCtor();
     if (!Ctor) {
-      alert('Speech recognition is not supported in this browser.');
+      if (statusPill) statusPill.textContent = '⚠ Speech recognition is not supported in this browser';
       return;
     }
     if (!sessionId) {
-      alert('Start a session first, then use speech input.');
+      if (statusPill) statusPill.textContent = '⚠ Start a session first, then use speech input';
       return;
     }
 
@@ -443,6 +499,7 @@
       speechRecognition.onstart = () => {
         isSpeechListening = true;
         _setMicUi(true);
+        if (micBtn) micBtn.disabled = true; // prevent double-tap during recognition
         _setAvatarState('listening', 'Listening…');
       };
 
@@ -458,12 +515,14 @@
       speechRecognition.onerror = () => {
         isSpeechListening = false;
         _setMicUi(false);
+        if (micBtn) micBtn.disabled = false;
         if (sessionId) _setAvatarState('idle', '');
       };
 
       speechRecognition.onend = () => {
         isSpeechListening = false;
         _setMicUi(false);
+        if (micBtn) micBtn.disabled = false;
         const transcript = finalText.trim();
         finalText = '';
         if (transcript) {
@@ -553,9 +612,11 @@
     if (sendBtn)    sendBtn.disabled   = true;
     if (micBtn)     micBtn.disabled    = true;
     if (audioUploadInput) audioUploadInput.disabled = true;
-    if (useScriptBtn) useScriptBtn.disabled = true;
-    if (playScriptClipBtn) playScriptClipBtn.disabled = true;
-    if (scriptLineSelect) scriptLineSelect.disabled = true;
+    if (aiPatientRespondBtn) aiPatientRespondBtn.disabled = true;
+    if (autoRoleplayToggle)  autoRoleplayToggle.disabled  = true;
+    if (scenarioSelect)      scenarioSelect.disabled      = true;
+    if (patientModeHuman)    patientModeHuman.disabled    = true;
+    if (patientModeAi)       patientModeAi.disabled       = true;
     if (chatInput)  {
       chatInput.disabled     = true;
       chatInput.placeholder  = liveMode
@@ -608,20 +669,26 @@
       _transcribeUploadedAudio(file).catch((err) => alert(err.message));
     });
   }
-  if (useScriptBtn && scriptLineSelect) {
-    useScriptBtn.addEventListener('click', () => {
-      const selected = _selectedScriptLine();
-      const line = String(selected?.text || '').trim();
-      if (!line) return;
-      chatInput.value = line;
-      chatInput.focus();
+  // Patient mode radio toggle
+  if (patientModeHuman) {
+    patientModeHuman.addEventListener('change', () => {
+      if (patientModeHuman.checked) _applyPatientMode('human');
     });
   }
-  if (scriptLineSelect) {
-    scriptLineSelect.addEventListener('change', _renderSelectedScriptMeta);
+  if (patientModeAi) {
+    patientModeAi.addEventListener('change', () => {
+      if (patientModeAi.checked) _applyPatientMode('ai');
+    });
   }
-  if (playScriptClipBtn) {
-    playScriptClipBtn.addEventListener('click', _playScriptClip);
+  if (scenarioSelect) {
+    scenarioSelect.addEventListener('change', _loadPatientPersona);
+  }
+  if (aiPatientRespondBtn) {
+    aiPatientRespondBtn.addEventListener('click', () =>
+      _generateAiPatientResponse().catch((e) => {
+        if (statusPill) statusPill.textContent = `⚠ AI Patient: ${e.message}`;
+      })
+    );
   }
   if (temperatureInput && temperatureValue) {
     const updateTemp = () => {
@@ -631,12 +698,6 @@
     temperatureInput.addEventListener('input', updateTemp);
   }
 
-  window.addEventListener('nexus_tts_synthetic_fallback', () => {
-    if (statusPill) {
-      statusPill.textContent = 'Using browser fallback voice (set OPENAI_API_KEY for natural TTS)';
-    }
-  });
-
   // ── Boot ─────────────────────────────────────────────────────────────────
 
   window.AvatarRenderer.init('avatar-canvas');
@@ -644,7 +705,8 @@
   if (renderModeSelect) {
     window.AvatarRenderer.setRenderMode(renderModeSelect.value || 'static');
   }
-  _loadScriptPack();
+  _applyPatientMode('human');  // default: human patient mode
+  _loadScenarioPack();
   configureUiMode();
   connectLiveStream();
 

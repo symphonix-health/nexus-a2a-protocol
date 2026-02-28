@@ -207,7 +207,8 @@ window.AvatarRenderer = (() => {
       sw = vw;
       sh = Math.round(vw / cAR);
       sx = 0;
-      sy = Math.round((vh - sh) / 2);
+      // Bias crop 10% lower than center to give headroom above the avatar
+      sy = Math.round((vh - sh) * 0.4);
     } else {
       sh = vh;
       sw = Math.round(vh * cAR);
