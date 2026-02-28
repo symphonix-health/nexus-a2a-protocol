@@ -56,20 +56,50 @@
     <section class="chat-panel">
       <div id="chat-log" class="chat-log"></div>
       <div class="patient-tools" aria-label="Patient speaking tools">
-        <label>
-          Script
-          <select id="script-line-select">
-            <option value="">Select a guided patient line…</option>
-          </select>
-        </label>
-        <button id="use-script-btn" type="button">Use Script Line</button>
-        <button id="play-script-clip-btn" type="button">Play Sample Clip</button>
-        <label class="upload-inline">
-          Upload audio
-          <input id="audio-upload-input" type="file" accept="audio/*" />
-        </label>
+        <div class="patient-mode-row" role="group" aria-label="Patient mode">
+          <span class="mode-label">Patient Mode:</span>
+          <label class="inline-check mode-opt" title="Real patient types or speaks their responses">
+            <input id="patient-mode-human" name="patient-mode" type="radio" value="human" checked />
+            👤 Human Patient
+          </label>
+          <label class="inline-check mode-opt" title="AI generates realistic patient replies">
+            <input id="patient-mode-ai" name="patient-mode" type="radio" value="ai" />
+            🤖 AI Roleplay
+          </label>
+        </div>
+
+        <!-- AI Roleplay controls (enabled when AI mode is selected) -->
+        <div class="ai-patient-controls">
+          <label>
+            Scenario
+            <select id="scenario-select" disabled>
+              <option value="">Select patient persona…</option>
+            </select>
+          </label>
+          <button id="ai-patient-respond-btn" type="button" disabled
+            title="Generate an AI patient response to the last clinician message">
+            💬 AI Patient Respond
+          </button>
+          <label class="inline-check" title="Auto-generate patient response after each clinician turn">
+            <input id="auto-roleplay-toggle" type="checkbox" disabled />
+            Auto role-play
+          </label>
+        </div>
+
+        <!-- Human patient controls -->
+        <div class="human-patient-controls">
+          <label class="upload-inline">
+            Upload audio
+            <input id="audio-upload-input" type="file" accept="audio/*" />
+          </label>
+          <label class="inline-check"
+            title="Speak typed patient text aloud using shimmer voice (requires OPENAI_API_KEY)">
+            <input id="patient-tts-toggle" type="checkbox" />
+            Speak patient text (shimmer)
+          </label>
+        </div>
       </div>
-      <div id="script-line-meta" class="tiny-meta" aria-live="polite"></div>
+      <div id="patient-context-bar" class="tiny-meta" aria-live="polite" style="display:none"></div>
       <div class="composer">
         <input id="chat-input" placeholder="Type patient response…" autocomplete="off" />
         <button id="mic-btn" type="button" title="Speak patient message">🎤 Speak</button>
@@ -104,8 +134,8 @@
     crossorigin="anonymous"></script>
   <script src="/static/avatar_renderer.js?v=7"></script>
   <script src="/static/lipsync_engine.js?v=5"></script>
-  <script src="/static/tts_client.js?v=6"></script>
-  <script src="/static/chat_controller.js?v=6"></script>
+  <script src="/static/tts_client.js?v=7"></script>
+  <script src="/static/chat_controller.js?v=7"></script>
 </body>
 
 </html>

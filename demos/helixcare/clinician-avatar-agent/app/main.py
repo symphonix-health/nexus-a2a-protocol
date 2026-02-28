@@ -20,7 +20,6 @@ from fastapi import (
 )
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-
 from shared.clinician_avatar.avatar_engine import AvatarEngine
 from shared.clinician_avatar.avatar_protocol import (
     normalize_patient_message_params,
@@ -350,32 +349,44 @@ async def api_tts_stream(websocket: WebSocket) -> None:
             cancel_event.clear()
 
             _real_tts = has_openai_tts()
+            if not _real_tts:
+                # Hard-fail — no silent browser fallback; surface a visible error
+                await websocket.send_json(
+                    {
+                        "type": "tts_error",
+                        "message": "OPENAI_API_KEY is not configured on this server. Set it to enable speech.",
+                    }
+                )
+                await websocket.send_json({"type": "end"})
+                continue
+
             await websocket.send_json(
                 {
                     "type": "meta",
                     "sample_rate": 24000,
                     "channels": 1,
                     "format": "pcm_s16le",
-                    # Signal browser to use its own TTS when no API key is present
-                    **({"synthetic": True} if not _real_tts else {}),
                 }
             )
             await websocket.send_json({"type": "visemes", "visemes": simple_viseme_timeline(text)})
 
             pcm_sent = False
-            if _real_tts:
-                try:
-                    async for chunk in stream_tts_chunks(text, voice):
-                        if cancel_event.is_set():
-                            break
-                        await websocket.send_bytes(chunk)
-                        pcm_sent = True
-                except Exception:  # noqa: BLE001
-                    pass
-                # API key was set but no audio came through (call failed) —
-                # tell the client to fall back to browser SpeechSynthesis.
-                if not pcm_sent and not cancel_event.is_set():
-                    await websocket.send_json({"type": "synthetic_fallback"})
+            try:
+                async for chunk in stream_tts_chunks(text, voice):
+                    if cancel_event.is_set():
+                        break
+                    await websocket.send_bytes(chunk)
+                    pcm_sent = True
+            except Exception:  # noqa: BLE001
+                pass
+            if not pcm_sent and not cancel_event.is_set():
+                # API key was set but no audio came through — surface a visible error
+                await websocket.send_json(
+                    {
+                        "type": "tts_error",
+                        "message": "TTS synthesis failed — OpenAI returned no audio. Check your API key and quota.",
+                    }
+                )
 
             if not cancel_event.is_set():
                 await websocket.send_json({"type": "end"})
@@ -385,6 +396,121 @@ async def api_tts_stream(websocket: WebSocket) -> None:
         dispatch_task.cancel()
         with contextlib.suppress(asyncio.CancelledError):
             await dispatch_task
+
+
+@app.post("/api/patient/respond")
+async def api_patient_respond(request: Request) -> JSONResponse:
+    """Generate an AI-driven patient response to the clinician's last message.
+
+    Accepts JSON:
+      {
+        "clinician_message": str,          # the clinician's last spoken line
+        "patient_context": {               # persona loaded from patient_script_pack.json
+          "name": str,
+          "age": int | str,
+          "gender": str,
+          "chief_complaint": str,
+          "medical_history": str,
+          "medications": str,
+          "allergies": str,
+          "family_history": str,
+          "social_history": str
+        },
+        "conversation_history": [          # last N {"role": "...", "content": "..."} turns
+          {"role": "assistant", "content": "..."},
+          {"role": "user",      "content": "..."}
+        ]
+      }
+
+    Returns: {"patient_response": str}
+    """
+    _require_auth(request)
+
+    if not os.getenv("OPENAI_API_KEY"):
+        raise HTTPException(
+            status_code=503,
+            detail="OPENAI_API_KEY is not configured. Set it to enable AI patient responses.",
+        )
+
+    body = await request.json()
+    clinician_message = str(body.get("clinician_message") or "").strip()
+    patient_context = body.get("patient_context") or {}
+    raw_history = body.get("conversation_history") or []
+
+    if not clinician_message:
+        raise HTTPException(status_code=400, detail="clinician_message is required")
+
+    # Build patient persona description
+    name = str(patient_context.get("name") or "the patient")
+    age = str(patient_context.get("age") or "adult")
+    gender = str(patient_context.get("gender") or "person")
+    chief_complaint = str(patient_context.get("chief_complaint") or "")
+    medical_history = str(patient_context.get("medical_history") or "not disclosed")
+    medications = str(patient_context.get("medications") or "none known")
+    allergies = str(patient_context.get("allergies") or "none known")
+    family_history = str(patient_context.get("family_history") or "not disclosed")
+    social_history = str(patient_context.get("social_history") or "not disclosed")
+
+    system_prompt = f"""You are roleplaying as a real patient in a medical consultation.
+
+Patient profile:
+- Name: {name}
+- Age: {age}, {gender}
+- Chief complaint: {chief_complaint}
+- Medical history: {medical_history}
+- Current medications: {medications}
+- Allergies: {allergies}
+- Family history: {family_history}
+- Social history: {social_history}
+
+Behaviour rules:
+1. Respond ONLY to what the clinician just asked. Do not volunteer information unprompted.
+2. Reveal medical history, medications, and family history only when directly asked.
+3. Keep responses to 1-3 sentences — patients do not speak in bullet points.
+4. Show realistic emotion: anxiety about serious symptoms, relief at reassurance, confusion at medical jargon.
+5. Use natural spoken English, not clinical terminology. You are not a doctor.
+6. Never break character. Never describe what you are doing (e.g. do not say "As a patient...").
+7. If asked something you would not realistically know, say so naturally.
+"""
+
+    # Cap history at 10 turns to control token spend
+    capped_history = raw_history[-10:] if len(raw_history) > 10 else raw_history
+    history_text = ""
+    for turn in capped_history:
+        role = str(turn.get("role") or "")
+        content = str(turn.get("content") or "")
+        if role == "assistant":
+            history_text += f"Clinician: {content}\n"
+        elif role == "user":
+            history_text += f"Patient: {content}\n"
+
+    user_prompt = f"{history_text}Clinician: {clinician_message}\nPatient:"
+
+    try:
+        from shared.nexus_common.openai_helper import llm_chat
+
+        response_text = await asyncio.to_thread(
+            llm_chat,
+            system_prompt,
+            user_prompt,
+            temperature=0.85,
+            top_p=0.95,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(
+            status_code=502,
+            detail=f"AI patient response generation failed: {exc}",
+        ) from exc
+
+    patient_response = str(response_text or "").strip()
+    # Strip any accidental "Patient:" prefix the LLM may produce
+    if patient_response.lower().startswith("patient:"):
+        patient_response = patient_response[len("patient:") :].strip()
+
+    if not patient_response:
+        raise HTTPException(status_code=502, detail="AI model returned an empty patient response.")
+
+    return JSONResponse(content={"patient_response": patient_response})
 
 
 @app.get("/api/video-clinician/provider")

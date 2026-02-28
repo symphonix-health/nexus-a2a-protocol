@@ -1,138 +1,264 @@
 {
-  "version": 2,
-  "description": "Guided patient lines for spoken rehearsal and uploaded-audio prompts across realistic provider-side phone and consultation journeys.",
+  "version": 3,
+  "description": "Patient personas and reference consultation arcs for the HelixCare avatar consultation simulator.",
   "notes": [
-    "This pack models a real patient interaction, including registration and identity verification before clinical discussion.",
-    "Optional audio_clip files are looked up in the repository avatar/ folder and played through /media/<filename>."
+    "patient_context objects are loaded by the AI roleplay engine to construct a personalised system prompt.",
+    "The lines arrays are human-readable reference arcs only; the AI generates its own responses in roleplay mode.",
+    "In Human Patient mode, users type or speak their own responses; these lines can serve as prompts."
   ],
   "scenarios": [
     {
       "id": "phone_new_patient_registration",
-      "title": "New patient calling provider for urgent symptoms",
+      "title": "New patient — acute chest discomfort",
       "care_setting": "phone",
       "persona_hint": "adult patient with no prior record",
+      "patient_context": {
+        "name": "Amina Njeri",
+        "age": 35,
+        "gender": "female",
+        "chief_complaint": "Chest pressure that started 30 minutes ago while climbing stairs",
+        "medical_history": "Hypertension (diagnosed 3 years ago, well-controlled on medication)",
+        "medications": "Amlodipine 5 mg once daily (taken this morning)",
+        "allergies": "None known",
+        "family_history": "Father had a myocardial infarction at age 56",
+        "social_history": "Non-smoker, occasional alcohol, works as a secondary school teacher in Nairobi, married with two children",
+        "location": "Nairobi, Westlands",
+        "care_setting": "phone",
+        "emotional_state": "Anxious and worried this may be a heart attack given family history"
+      },
       "lines": [
         {
           "id": "reg_001_intro",
           "phase": "registration",
           "intent": "opening",
           "text": "Hello, I am a new patient and I need help registering because I have chest discomfort today.",
-          "expected_fields": ["new_patient", "chief_complaint"],
-          "audio_clip": "patient_reg_001_intro.wav"
+          "expected_fields": [
+            "new_patient",
+            "chief_complaint"
+          ]
         },
         {
           "id": "reg_002_identity",
           "phase": "registration",
           "intent": "identity",
           "text": "My full name is Amina Njeri, date of birth 1990-04-22, and my phone number is +254 712 345 678.",
-          "expected_fields": ["full_name", "dob", "phone"],
-          "audio_clip": "patient_reg_002_identity.wav"
+          "expected_fields": [
+            "full_name",
+            "dob",
+            "phone"
+          ]
         },
         {
           "id": "reg_003_location",
           "phase": "registration",
           "intent": "address",
           "text": "I live in Nairobi, Westlands area, and I can come to the clinic in about forty minutes if needed.",
-          "expected_fields": ["location", "travel_time"]
+          "expected_fields": [
+            "location",
+            "travel_time"
+          ]
         },
         {
           "id": "reg_004_contact_pref",
           "phase": "registration",
           "intent": "communication_preference",
           "text": "Please use SMS for updates and call my sister Grace on +254 700 111 222 if you cannot reach me.",
-          "expected_fields": ["preferred_channel", "emergency_contact"]
+          "expected_fields": [
+            "preferred_channel",
+            "emergency_contact"
+          ]
         },
         {
           "id": "reg_005_insurance",
           "phase": "registration",
           "intent": "coverage",
           "text": "I have SHA cover but I do not remember my member number right now. Can you still begin triage while I retrieve it?",
-          "expected_fields": ["coverage_type", "member_id_pending"]
+          "expected_fields": [
+            "coverage_type",
+            "member_id_pending"
+          ]
         },
         {
           "id": "reg_006_consent",
           "phase": "registration",
           "intent": "consent",
           "text": "Yes, I consent to use my information for clinical care and referral if this is an emergency.",
-          "expected_fields": ["consent_care_data"]
+          "expected_fields": [
+            "consent_care_data"
+          ]
         },
         {
           "id": "triage_001_symptom_onset",
           "phase": "triage",
           "intent": "history_of_present_illness",
           "text": "The chest pressure started about thirty minutes ago while I was climbing stairs.",
-          "expected_fields": ["onset_time", "trigger"]
+          "expected_fields": [
+            "onset_time",
+            "trigger"
+          ]
         },
         {
           "id": "triage_002_severity",
           "phase": "triage",
           "intent": "severity",
           "text": "The pain is seven out of ten and it spreads to my left shoulder.",
-          "expected_fields": ["pain_score", "radiation"]
+          "expected_fields": [
+            "pain_score",
+            "radiation"
+          ]
         },
         {
           "id": "triage_003_red_flags",
           "phase": "triage",
           "intent": "red_flags",
           "text": "I feel short of breath and nauseated, but I have not fainted and I can still speak in full sentences.",
-          "expected_fields": ["dyspnea", "nausea", "syncope_denied"]
+          "expected_fields": [
+            "dyspnea",
+            "nausea",
+            "syncope_denied"
+          ]
         },
         {
           "id": "triage_004_history_meds",
           "phase": "triage",
           "intent": "past_history_medications",
           "text": "I have hypertension, I took my blood pressure medicine this morning, and I have no known drug allergies.",
-          "expected_fields": ["pmh", "medications", "allergies"]
+          "expected_fields": [
+            "pmh",
+            "medications",
+            "allergies"
+          ]
         },
         {
           "id": "triage_005_family_risk",
           "phase": "triage",
           "intent": "risk_factors",
           "text": "My father had a heart attack at fifty-six, so I am worried this could be serious.",
-          "expected_fields": ["family_history_cvd"]
+          "expected_fields": [
+            "family_history_cvd"
+          ]
         },
         {
           "id": "triage_006_plan_clarification",
           "phase": "triage",
           "intent": "shared_decision",
           "text": "Could you tell me what should happen in the next ten minutes and whether I should come immediately or call emergency transport?",
-          "expected_fields": ["next_steps_requested", "transport_decision"]
+          "expected_fields": [
+            "next_steps_requested",
+            "transport_decision"
+          ]
         }
       ]
     },
     {
       "id": "returning_patient_followup_call",
-      "title": "Returning patient phone follow-up",
+      "title": "Returning patient — post-discharge follow-up",
       "care_setting": "phone",
       "persona_hint": "existing patient after ED discharge",
+      "patient_context": {
+        "name": "David Osei",
+        "age": 58,
+        "gender": "male",
+        "chief_complaint": "Intermittent chest tightness when walking, persisting two days after hospital discharge",
+        "medical_history": "Hypertension, type 2 diabetes, NSTEMI two days ago (managed medically, no PCI required)",
+        "medications": "Aspirin 75 mg, Atorvastatin 40 mg, Metformin 500 mg BD, Ramipril 5 mg — all as prescribed",
+        "allergies": "Penicillin (rash)",
+        "family_history": "Mother had a stroke at 70; brother has ischaemic heart disease",
+        "social_history": "Retired civil servant, non-smoker, light alcohol, lives alone in Accra",
+        "location": "Accra, Ghana",
+        "care_setting": "phone",
+        "emotional_state": "Worried and confused about why symptoms persist; anxious about being alone if he deteriorates"
+      },
       "lines": [
         {
           "id": "fu_001_verify",
           "phase": "registration",
           "intent": "verify_existing_record",
           "text": "I am a returning patient. My hospital number is HC-20491 and I was discharged two days ago.",
-          "expected_fields": ["hospital_number", "recent_discharge"]
+          "expected_fields": [
+            "hospital_number",
+            "recent_discharge"
+          ]
         },
         {
           "id": "fu_002_concern",
           "phase": "clinical",
           "intent": "post_discharge_concern",
           "text": "I am calling because I still have intermittent chest tightness when I walk.",
-          "expected_fields": ["persistent_symptom"]
+          "expected_fields": [
+            "persistent_symptom"
+          ]
         },
         {
           "id": "fu_003_medication_adherence",
           "phase": "clinical",
           "intent": "adherence",
           "text": "I took aspirin and my blood pressure tablets as prescribed, but the tightness returns in the evening.",
-          "expected_fields": ["adherence", "symptom_pattern"]
+          "expected_fields": [
+            "adherence",
+            "symptom_pattern"
+          ]
         },
         {
           "id": "fu_004_safety_net",
           "phase": "clinical",
           "intent": "safety_net",
           "text": "Please confirm which warning signs should make me call emergency services right away.",
-          "expected_fields": ["red_flag_education"]
+          "expected_fields": [
+            "red_flag_education"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "antenatal_first_booking",
+      "title": "Antenatal first booking — 10 weeks pregnant",
+      "care_setting": "clinic",
+      "persona_hint": "first-time mother, 10 weeks gestation",
+      "patient_context": {
+        "name": "Priya Sharma",
+        "age": 28,
+        "gender": "female",
+        "chief_complaint": "First antenatal visit, 10 weeks pregnant by LMP, some morning nausea",
+        "medical_history": "No significant past medical history; first pregnancy",
+        "medications": "Folic acid 400 mcg (taken since conception); no other regular medications",
+        "allergies": "None known",
+        "family_history": "Mother had gestational diabetes; no congenital conditions known",
+        "social_history": "Software engineer, non-smoker, no alcohol since positive pregnancy test, lives with partner",
+        "location": "Birmingham, UK",
+        "care_setting": "clinic",
+        "emotional_state": "Excited but apprehensive; many questions about what tests are needed"
+      },
+      "lines": [
+        {
+          "id": "anc_001_intro",
+          "phase": "registration",
+          "intent": "opening",
+          "text": "Hello, I am here for my first midwife appointment. I am about ten weeks along and have lots of questions.",
+          "expected_fields": [
+            "gestation",
+            "primigravida"
+          ]
+        },
+        {
+          "id": "anc_002_symptoms",
+          "phase": "clinical",
+          "intent": "symptoms",
+          "text": "I have been having morning sickness every day, mostly in the first two hours after waking.",
+          "expected_fields": [
+            "nausea_severity",
+            "pattern"
+          ]
+        },
+        {
+          "id": "anc_003_scans",
+          "phase": "clinical",
+          "intent": "investigations",
+          "text": "When will I have my dating scan and what blood tests will you take today?",
+          "expected_fields": [
+            "scan_schedule",
+            "booking_bloods"
+          ]
         }
       ]
     }

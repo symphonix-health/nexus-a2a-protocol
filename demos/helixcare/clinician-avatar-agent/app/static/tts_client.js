@@ -1,11 +1,14 @@
 /**
- * TTSClient — Phase 2 streaming audio upgrade.
+ * TTSClient v7 — streaming audio via OpenAI TTS only. No silent browser fallbacks.
  *
  * Primary path  : streamSpeak()  — WebSocket → raw PCM → Web Audio API.
  *                 First audio arrives within ~300 ms of the server receiving text.
- * Fallback path : speakTextFallback() — browser SpeechSynthesis (triggered by
- *                 server sending {"type":"synthetic"} or {"type":"synthetic_fallback"}).
+ * Error path    : if the server sends {"type":"tts_error"}, callbacks.onError(message)
+ *                 is called and the caller surfaces a visible error in the UI.
  * Legacy path   : playAudioB64() — base64 WAV over HTTP (kept for live-stream mode).
+ * Optional path : speakTextFallback() — browser SpeechSynthesis; kept as explicit
+ *                 opt-in for callers that want it (e.g. human-patient text-to-speech
+ *                 when OPENAI_API_KEY is unavailable).
  *
  * Real-time lipsync: when PCM is playing, an AnalyserNode measures amplitude every
  * 40 ms and calls AvatarRenderer.applyViseme(rms) so mouth movement tracks actual audio.
@@ -168,22 +171,20 @@ window.TTSClient = (() => {
   /**
    * Stream TTS from the backend WebSocket endpoint.
    *
-   * @param {string}   text     - Clinician response text.
-   * @param {string}   voice    - OpenAI voice name.
+   * @param {string}   text     - Text to speak.
+   * @param {string}   voice    - OpenAI voice name (e.g. 'nova', 'shimmer').
    * @param {string}   token    - JWT bearer token.
    * @param {object}   callbacks
    *   onVisemes(visemes)  — called immediately with the viseme timeline.
    *   onSpeechStart()     — called when first real PCM audio starts playing.
    *   onSpeechEnd()       — called after all audio has finished.
-   *   onSynthetic()       — called when browser TTS is active (no real PCM).
-   *   onFallback(t, v)    — called if the WebSocket itself fails.
+   *   onError(message)    — called when server reports a TTS error or WebSocket fails.
    */
   function streamSpeak(text, voice, token, callbacks = {}) {
     cancel();   // barge-in: stop any current stream
 
-    const { onVisemes, onSpeechStart, onSpeechEnd, onFallback, onSynthetic } = callbacks;
+    const { onVisemes, onSpeechStart, onSpeechEnd, onError } = callbacks;
     let speechStarted = false;
-    let synthActive   = false;   // true when browser TTS is handling audio
 
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
     const wsUrl    = `${protocol}://${window.location.host}/api/tts/stream?token=${encodeURIComponent(token)}`;
@@ -192,7 +193,7 @@ window.TTSClient = (() => {
     try {
       ws = new WebSocket(wsUrl);
     } catch (_) {
-      if (onFallback) onFallback(text, voice);
+      if (onError) onError('WebSocket TTS connection could not be opened');
       return;
     }
 
@@ -217,70 +218,44 @@ window.TTSClient = (() => {
             if (onSpeechStart) onSpeechStart();
           }
 
-          if (msg.synthetic) {
-            // No real audio coming from server — use browser SpeechSynthesis.
-            synthActive = true;
-            if (onSynthetic) onSynthetic();
-            window.dispatchEvent(new CustomEvent('nexus_tts_synthetic_fallback'));
-            const utt = _speakBrowserTTS(text, voice);
-            if (utt) {
-              utt.onend   = () => { if (onSpeechEnd) onSpeechEnd(); };
-              utt.onerror = () => { if (onSpeechEnd) onSpeechEnd(); };
-            } else {
-              const estimatedMs = Math.max(1500, text.split(/\s+/).length * 380);
-              setTimeout(() => { if (onSpeechEnd) onSpeechEnd(); }, estimatedMs);
-            }
-          }
-
-        } else if (msg.type === 'synthetic_fallback') {
-          // API key was present but the TTS call failed — switch to browser TTS.
-          if (!synthActive) {
-            synthActive = true;
-            _stopAll();  // discard any partial PCM that arrived before the failure
-            if (onSynthetic) onSynthetic();
-            window.dispatchEvent(new CustomEvent('nexus_tts_synthetic_fallback'));
-            const utt = _speakBrowserTTS(text, voice);
-            if (utt) {
-              utt.onend   = () => { if (onSpeechEnd) onSpeechEnd(); };
-              utt.onerror = () => { if (onSpeechEnd) onSpeechEnd(); };
-            } else {
-              const estimatedMs = Math.max(1500, text.split(/\s+/).length * 380);
-              setTimeout(() => { if (onSpeechEnd) onSpeechEnd(); }, estimatedMs);
-            }
-          }
+        } else if (msg.type === 'tts_error') {
+          // Server-side TTS failure — surface a visible error; do not fall back silently.
+          _stopAll();
+          if (onError) onError(msg.message || 'TTS error');
+          if (onSpeechEnd) onSpeechEnd();
+          ws.close();
+          _ws = null;
+          return;
 
         } else if (msg.type === 'end') {
-          if (!synthActive) {
-            _flushPcm(true);   // drain any remaining bytes
-            if (onSpeechEnd) {
-              const ctx   = _ctx();
-              const delay = Math.max(0, _nextStartAt - ctx.currentTime) * 1000;
-              setTimeout(() => { _stopAmpPoller(); if (onSpeechEnd) onSpeechEnd(); }, delay + 80);
-            }
+          _flushPcm(true);   // drain any remaining bytes
+          if (onSpeechEnd) {
+            const ctx   = _ctx();
+            const delay = Math.max(0, _nextStartAt - ctx.currentTime) * 1000;
+            setTimeout(() => { _stopAmpPoller(); if (onSpeechEnd) onSpeechEnd(); }, delay + 80);
           }
           ws.close();
           _ws = null;
         }
       } else {
         // Binary frame — raw PCM chunk
-        if (!synthActive) {
-          if (!speechStarted) {
-            speechStarted = true;
-            if (onSpeechStart) onSpeechStart();
-          }
-          // Always (re)start the poller on first binary chunk — speechStarted
-          // may have been set early by the meta handler, so we can't rely on
-          // !speechStarted to gate this.  _startAmpPoller() is idempotent.
-          _startAmpPoller();
-          _appendBytes(new Uint8Array(event.data));
+        if (!speechStarted) {
+          speechStarted = true;
+          if (onSpeechStart) onSpeechStart();
         }
+        // Always (re)start the poller on first binary chunk — speechStarted
+        // may have been set early by the meta handler, so we can't rely on
+        // !speechStarted to gate this.  _startAmpPoller() is idempotent.
+        _startAmpPoller();
+        _appendBytes(new Uint8Array(event.data));
       }
     };
 
     ws.onerror = () => {
       _ws = null;
       _stopAmpPoller();
-      if (onFallback) onFallback(text, voice);
+      if (onError) onError('WebSocket TTS connection failed');
+      if (onSpeechEnd) onSpeechEnd();
     };
 
     ws.onclose = () => {
