@@ -120,6 +120,10 @@
     }
     if (!await _ensureToken()) return;
 
+    // Unlock AudioContext early (inside gesture-triggered call chain) so
+    // patient TTS can play through the speakers.
+    window.TTSClient.enableAudio().catch(() => {});
+
     if (statusPill) statusPill.textContent = 'AI patient thinking…';
     if (aiPatientRespondBtn) aiPatientRespondBtn.disabled = true;
 
@@ -161,11 +165,12 @@
 
     // Speak the AI patient response in shimmer voice via streaming TTS
     window.TTSClient.cancel();
+    if (window.RealtimeClient) window.RealtimeClient.cancel();
     window.LipSyncEngine.start([]);
     _setAvatarState('speaking', 'Patient speaking…');
     window.TTSClient.streamSpeak(patientText, 'shimmer', authToken, {
       onVisemes(visemes) { window.LipSyncEngine.start(visemes); },
-      onSpeechStart()    { window.LipSyncEngine.stop(); _setAvatarState('speaking', 'Patient speaking…'); },
+      onSpeechStart()    { _setAvatarState('speaking', 'Patient speaking…'); },
       onSpeechEnd()      {
         window.LipSyncEngine.stop();
         _setAvatarState('idle', '');
@@ -176,7 +181,7 @@
         _setAvatarState('idle', '');
         if (statusPill) statusPill.textContent = `⚠ Patient TTS: ${msg}`;
       },
-    });
+    }, { instructions: _PATIENT_TTS_INSTRUCTIONS });
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────────
@@ -224,19 +229,60 @@
 
   // ── Speaking pipeline ────────────────────────────────────────────────────
 
+  // TTS style instructions per role — gpt-4o-mini-tts uses these to produce
+  // natural, non-robotic speech.  Override via the hidden "instructions"
+  // field on the speak JSON message if needed.
+  const _CLINICIAN_TTS_INSTRUCTIONS =
+    'Speak naturally and warmly like a real clinician in a face-to-face ' +
+    'consultation. Use a calm, reassuring, conversational tone with ' +
+    'natural pacing and breathing pauses. Avoid sounding robotic or ' +
+    'overly formal.';
+  const _PATIENT_TTS_INSTRUCTIONS =
+    'Speak like a real patient describing symptoms to a doctor. Use a ' +
+    'natural, slightly nervous or uncertain tone with normal conversational ' +
+    'pacing. Include natural hesitations. Avoid sounding like a text-to-speech voice.';
+
   function _speakStreaming(text, onDone) {
     // Unlock AudioContext before streaming — must be called before any await.
     window.TTSClient.enableAudio().catch(() => {});
 
     _setAvatarState('speaking', 'Speaking…');
+
+    // ── Prefer OpenAI Realtime API (natural voice via WebRTC) ──────────────
+    if (window.RealtimeClient && window.RealtimeClient.isActive()) {
+      window.RealtimeClient.speak(text, {
+        onSpeechStart() {
+          _setAvatarState('speaking', 'Speaking…');
+        },
+        onSpeechEnd() {
+          _setAvatarState('idle', '');
+          if (statusPill) statusPill.textContent = sessionId ? `Session: ${sessionId}` : 'Session ready';
+          if (onDone) onDone();
+        },
+        onError(msg) {
+          console.warn('[ChatController] Realtime speak error, falling back to TTS:', msg);
+          // Fall back to standard TTS on Realtime failure
+          _speakViaTTS(text, onDone);
+        },
+      });
+      return;
+    }
+
+    // ── Fallback: standard TTS via WebSocket stream ────────────────────────
+    _speakViaTTS(text, onDone);
+  }
+
+  function _speakViaTTS(text, onDone) {
     window.TTSClient.streamSpeak(text, voiceSelect.value, authToken, {
       onVisemes(visemes) {
         // Pre-computed timeline warm-up while waiting for first PCM chunk.
         window.LipSyncEngine.start(visemes);
       },
       onSpeechStart() {
-        // Real PCM is flowing — amplitude polling takes over lipsync.
-        window.LipSyncEngine.stop();
+        // Real PCM is about to flow — amplitude polling will take over lipsync.
+        // Do NOT call LipSyncEngine.stop() here — let the pre-computed timeline
+        // continue until the amp poller naturally dominates.  Stopping early
+        // zeros _speaking and causes a visible lipsync gap.
         _setAvatarState('speaking', 'Speaking…');
       },
       onSpeechEnd() {
@@ -252,7 +298,7 @@
         if (statusPill) statusPill.textContent = `⚠ TTS Error: ${msg}`;
         if (onDone) onDone();
       },
-    });
+    }, { instructions: _CLINICIAN_TTS_INSTRUCTIONS });
   }
 
   // Handles speech from a live-stream event payload that already has audio_b64
@@ -308,6 +354,24 @@
 
     window.AvatarRenderer.setAvatar(avatarSelect.value);
     _setAvatarState('thinking', 'Starting…');
+
+    // ── Initialize OpenAI Realtime API session (WebRTC) ────────────────────
+    // Best-effort: falls back to standard TTS if Realtime API is unavailable.
+    if (window.RealtimeClient) {
+      try {
+        const rtOk = await window.RealtimeClient.init(authToken, {
+          voice: voiceSelect.value,
+        });
+        if (rtOk) {
+          console.log('[ChatController] Realtime API connected');
+          if (statusPill) statusPill.textContent = 'Realtime API connected';
+        } else {
+          console.warn('[ChatController] Realtime API unavailable — using standard TTS');
+        }
+      } catch (err) {
+        console.warn('[ChatController] Realtime init failed:', err.message);
+      }
+    }
 
     const result = await rpc('avatar/start_session', {
       patient_case: {
@@ -400,9 +464,10 @@
     // Only fires when the user explicitly enables the 'patient-tts-toggle' checkbox.
     if (text && patientMode === 'human' && patientTtsToggle?.checked && !options.fromAudio) {
       window.TTSClient.cancel();
+      if (window.RealtimeClient) window.RealtimeClient.cancel();
       window.TTSClient.streamSpeak(text, 'shimmer', authToken, {
         onError() {/* silent — best-effort patient-side TTS */},
-      });
+      }, { instructions: _PATIENT_TTS_INSTRUCTIONS });
     }
     if (!text || !sessionId) return;
     if (overrideText == null) chatInput.value = '';
@@ -412,6 +477,7 @@
 
     // Barge-in: cancel any avatar speech in progress
     window.TTSClient.cancel();
+    if (window.RealtimeClient) window.RealtimeClient.cancel();
     window.LipSyncEngine.stop();
 
     if (!deferTranscript) {
@@ -717,4 +783,17 @@
   } else if (!audioEnabled) {
     if (statusPill) statusPill.textContent = 'Live mode (click Enable Audio)';
   }
+
+  // ── Global one-shot audio unlock ─────────────────────────────────────────
+  // Browsers block AudioContext.resume() unless triggered by a user gesture.
+  // Catch the very first click/keydown anywhere on the page and unlock audio
+  // so subsequent TTS playback works without the user having to find the
+  // "Enable Audio" button.
+  const _unlockAudio = () => {
+    window.TTSClient.enableAudio().catch(() => {});
+    document.removeEventListener('click', _unlockAudio, true);
+    document.removeEventListener('keydown', _unlockAudio, true);
+  };
+  document.addEventListener('click', _unlockAudio, true);
+  document.addEventListener('keydown', _unlockAudio, true);
 })();

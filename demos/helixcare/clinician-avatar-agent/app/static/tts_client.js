@@ -1,8 +1,10 @@
 /**
- * TTSClient v7 — streaming audio via OpenAI TTS only. No silent browser fallbacks.
+ * TTSClient v8 — streaming audio via OpenAI TTS only. No silent browser fallbacks.
  *
  * Primary path  : streamSpeak()  — WebSocket → raw PCM → Web Audio API.
  *                 First audio arrives within ~300 ms of the server receiving text.
+ *                 Accepts optional `options.instructions` for gpt-4o-mini-tts style
+ *                 control (natural clinician vs patient speaking style).
  * Error path    : if the server sends {"type":"tts_error"}, callbacks.onError(message)
  *                 is called and the caller surfaces a visible error in the UI.
  * Legacy path   : playAudioB64() — base64 WAV over HTTP (kept for live-stream mode).
@@ -56,7 +58,7 @@ window.TTSClient = (() => {
       _analyser  = ctx.createAnalyser();
       _analyser.fftSize = 256;
       _analyser.smoothingTimeConstant = 0.6;
-      _analyserBuf = new Uint8Array(_analyser.frequencyBinCount);
+      _analyserBuf = new Uint8Array(_analyser.fftSize);       // full waveform window
       _analyser.connect(ctx.destination);
     }
     return _analyser;
@@ -179,8 +181,10 @@ window.TTSClient = (() => {
    *   onSpeechStart()     — called when first real PCM audio starts playing.
    *   onSpeechEnd()       — called after all audio has finished.
    *   onError(message)    — called when server reports a TTS error or WebSocket fails.
+   * @param {object}   [options]
+   *   instructions {string} — style instructions for gpt-4o-mini-tts (optional).
    */
-  function streamSpeak(text, voice, token, callbacks = {}) {
+  function streamSpeak(text, voice, token, callbacks = {}, options = {}) {
     cancel();   // barge-in: stop any current stream
 
     const { onVisemes, onSpeechStart, onSpeechEnd, onError } = callbacks;
@@ -201,7 +205,9 @@ window.TTSClient = (() => {
     ws.binaryType = 'arraybuffer';
 
     ws.onopen = () => {
-      ws.send(JSON.stringify({ type: 'speak', text, voice }));
+      const msg = { type: 'speak', text, voice };
+      if (options.instructions) msg.instructions = options.instructions;
+      ws.send(JSON.stringify(msg));
     };
 
     ws.onmessage = (event) => {

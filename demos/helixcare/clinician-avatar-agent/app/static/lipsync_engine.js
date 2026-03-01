@@ -21,6 +21,16 @@ window.LipSyncEngine = (() => {
     return 0.65;
   }
 
+  // Mouth shape parameters by viseme type → { mw: mouthWidth, lp: lipPucker }
+  function _visemeShape(v) {
+    if (!v || v === 'sil') return { mw: 0.5,  lp: 0 };
+    if (v === 'PP')        return { mw: 0.3,  lp: 0.3 };
+    if (v === 'FV')        return { mw: 0.45, lp: 0 };
+    if (v === 'EE')        return { mw: 0.85, lp: 0 };
+    if (v === 'OW')        return { mw: 0.32, lp: 0.65 };
+    return { mw: 0.55, lp: 0.1 };
+  }
+
   // Cosine ease between two weights at normalised position t ∈ [0, 1]
   function _blend(from, to, t) {
     const ease = 0.5 - 0.5 * Math.cos(Math.PI * t);
@@ -61,7 +71,18 @@ window.LipSyncEngine = (() => {
         w = typeof prevEntry.weight === 'number' ? prevEntry.weight : _visemeWeight(prevEntry.viseme);
       }
 
-      window.AvatarRenderer.applyViseme(w);
+      // Drive multi-parameter mouth shapes when available
+      if (window.AvatarRenderer.applyVisemeParams) {
+        const shape = _visemeShape(prevEntry.viseme);
+        window.AvatarRenderer.applyVisemeParams({
+          jawOpen: w,
+          mouthWidth: shape.mw,
+          lipPucker: shape.lp,
+          rms: w,
+        });
+      } else {
+        window.AvatarRenderer.applyViseme(w);
+      }
 
       // Stop 300 ms after the last entry
       if (elapsed > (last ? (last.time_ms || 0) : 0) + 300) {
@@ -75,7 +96,11 @@ window.LipSyncEngine = (() => {
       clearInterval(timer);
       timer = null;
     }
-    window.AvatarRenderer.applyViseme(0);
+    if (window.AvatarRenderer.applyVisemeParams) {
+      window.AvatarRenderer.applyVisemeParams({ jawOpen: 0, mouthWidth: 0.5, lipPucker: 0, rms: 0 });
+    } else {
+      window.AvatarRenderer.applyViseme(0);
+    }
   }
 
   return { start, stop };

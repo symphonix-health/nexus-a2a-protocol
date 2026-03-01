@@ -1,7 +1,8 @@
 /**
- * AvatarRenderer
+ * AvatarRenderer v10
  * - Supports static image mode (default) and video loop mode.
- * - Uses amplitude-driven jaw morph and visual overlays.
+ * - Spectral lip sync: bezier-curve lips with skin-adaptive blending.
+ * - Multi-parameter visemes: jawOpen, mouthWidth, lipPucker.
  * - Keeps MediaPipe landmark enhancement when available.
  */
 window.AvatarRenderer = (() => {
@@ -38,6 +39,11 @@ window.AvatarRenderer = (() => {
 
   let _animId = null;
   let _speaking = 0;
+  let _jawOpen = 0;
+  let _mouthWidth = 0.5;
+  let _lipPucker = 0;
+  let _skinRGB = null;
+  let _skinSampleFrame = 0;
   let _state = 'idle';
   let _blinkT = 0;
   let _lastTs = 0;
@@ -277,6 +283,14 @@ window.AvatarRenderer = (() => {
   function applyViseme(weight) {
     const target = Math.max(0, Math.min(1, weight || 0));
     _speaking += (target - _speaking) * 0.25;
+    _jawOpen += (target - _jawOpen) * 0.4;
+  }
+
+  function applyVisemeParams({ jawOpen = 0, mouthWidth = 0.5, lipPucker = 0, rms = 0 } = {}) {
+    _jawOpen += (Math.min(1, jawOpen) - _jawOpen) * 0.4;
+    _mouthWidth += (Math.min(1, mouthWidth) - _mouthWidth) * 0.3;
+    _lipPucker += (Math.min(1, lipPucker) - _lipPucker) * 0.25;
+    _speaking += (Math.min(1, rms) - _speaking) * 0.25;
   }
 
   function _startLoop() {
@@ -322,8 +336,8 @@ window.AvatarRenderer = (() => {
     const intensity = _speaking;
     const activeLm = _mouthLm || _fallbackMouthLm(w, h);
 
-    if (intensity > 0.02) {
-      _applyJawMorph(activeLm.cx, activeLm.cy, activeLm.halfW, w, h, intensity);
+    if (_jawOpen > 0.015) {
+      _drawMouth(activeLm.cx, activeLm.cy, activeLm.halfW, w, h);
     }
 
     if (_state === 'thinking') {
@@ -374,55 +388,124 @@ window.AvatarRenderer = (() => {
       ctx.restore();
     }
 
+    _jawOpen *= 0.93;
+    _mouthWidth += (0.5 - _mouthWidth) * 0.04;
+    _lipPucker *= 0.93;
     _speaking *= 0.92;
   }
 
-  function _applyJawMorph(cx, cy, halfW, w, h, intensity) {
-    const jawDrop = Math.round(Math.min(intensity * h * 0.048, 32));
-    if (jawDrop < 2) return;
+  // ── Canvas-drawn mouth with bézier lips, skin-adaptive blending ──────────
+  function _drawMouth(cx, cy, halfW, w, h) {
+    // Adaptive skin-colour sampling (cached, refreshed every ~60 rendered frames)
+    if (!_skinRGB || ++_skinSampleFrame % 60 === 0) {
+      try {
+        const sy = Math.max(0, Math.round(cy - halfW * 0.55));
+        const sx = Math.round(cx);
+        if (sx > 0 && sx < w && sy > 0 && sy < h) {
+          const p = ctx.getImageData(sx, sy, 1, 1).data;
+          _skinRGB = { r: p[0], g: p[1], b: p[2] };
+        }
+      } catch (_e) { /* cross-origin or empty canvas */ }
+      if (!_skinRGB) _skinRGB = { r: 85, g: 58, b: 48 };
+    }
 
-    const regionW = Math.round(halfW * 2.6 + 24);
-    const regionH = Math.round(h * 0.15);
-    const mx = Math.max(0, Math.round(cx - regionW / 2));
-    const my = Math.round(cy + 1);
+    const jaw = _jawOpen;
+    const spread = _mouthWidth;
+    const pucker = _lipPucker;
 
-    const safeW = Math.min(regionW, w - mx);
-    const safeH = Math.min(regionH, h - my - jawDrop - 1);
-    if (safeW < 4 || safeH < 4 || my < 0 || mx < 0) return;
+    // Dynamic mouth geometry
+    const baseW = halfW * 1.05;
+    const lipW = baseW * (0.55 + spread * 0.45) * (1 - pucker * 0.35);
+    const maxOpen = halfW * 0.55;
+    const openH = jaw * maxOpen * (1 - pucker * 0.15);
+    if (openH < 1) return;
 
-    const pixels = ctx.getImageData(mx, my, safeW, safeH);
-
-    const cavHalfH = jawDrop * 0.72;
-    const cavHalfW = halfW * 0.88;
-    const grad = ctx.createRadialGradient(
-      cx,
-      my + jawDrop * 0.32,
-      0,
-      cx,
-      my + jawDrop * 0.55,
-      Math.max(cavHalfW, 1),
-    );
-    grad.addColorStop(0, 'rgba(4,1,1,0.97)');
-    grad.addColorStop(0.5, 'rgba(14,5,3,0.92)');
-    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    const mCY = cy + openH * 0.3;
+    const sr = _skinRGB.r, sg = _skinRGB.g, sb = _skinRGB.b;
 
     ctx.save();
+
+    // 1 — Feathered skin-tone patch to mask the original static mouth
+    const maskR = lipW * 1.35;
+    const maskH = Math.max(openH * 1.4, halfW * 0.28);
+    const mGrad = ctx.createRadialGradient(cx, mCY, maskR * 0.2, cx, mCY, maskR);
+    mGrad.addColorStop(0,   `rgba(${sr},${sg},${sb},0.93)`);
+    mGrad.addColorStop(0.5, `rgba(${sr},${sg},${sb},0.78)`);
+    mGrad.addColorStop(0.8, `rgba(${sr},${sg},${sb},0.25)`);
+    mGrad.addColorStop(1,   `rgba(${sr},${sg},${sb},0)`);
+    ctx.fillStyle = mGrad;
     ctx.beginPath();
-    ctx.ellipse(cx, my + cavHalfH * 0.55, cavHalfW, cavHalfH, 0, 0, Math.PI * 2);
-    ctx.fillStyle = grad;
+    ctx.ellipse(cx, mCY, maskR, maskH, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    if (intensity > 0.28) {
-      const ta = Math.min(1, (intensity - 0.28) / 0.55);
+    // 2 — Mouth cavity (dark interior with radial gradient)
+    const cavW = lipW * 0.82;
+    const cavH = openH * 0.62;
+    if (cavW > 1 && cavH > 1) {
+      const cGrad = ctx.createRadialGradient(cx, mCY, 0, cx, mCY, Math.max(cavW, cavH));
+      cGrad.addColorStop(0,   'rgba(8,2,2,0.96)');
+      cGrad.addColorStop(0.5, 'rgba(18,6,4,0.91)');
+      cGrad.addColorStop(1,   'rgba(35,15,10,0)');
+      ctx.fillStyle = cGrad;
       ctx.beginPath();
-      ctx.ellipse(cx, my + cavHalfH * 0.2, cavHalfW * 0.7, cavHalfH * 0.38, 0, Math.PI, 0);
-      ctx.fillStyle = `rgba(248,244,240,${(ta * 0.88).toFixed(2)})`;
+      ctx.ellipse(cx, mCY, cavW, cavH, 0, 0, Math.PI * 2);
       ctx.fill();
-    }
-    ctx.restore();
 
-    ctx.putImageData(pixels, mx, my + jawDrop);
+      // Upper teeth — visible when jaw > 0.22
+      if (jaw > 0.22) {
+        const ta = Math.min(0.82, (jaw - 0.22) / 0.55);
+        ctx.fillStyle = `rgba(238,233,226,${ta.toFixed(2)})`;
+        ctx.beginPath();
+        ctx.ellipse(cx, mCY - cavH * 0.52, cavW * 0.68, cavH * 0.22, 0, Math.PI, 0);
+        ctx.fill();
+      }
+
+      // Tongue hint — visible when jaw > 0.48
+      if (jaw > 0.48) {
+        const tA = Math.min(0.55, (jaw - 0.48) / 0.45);
+        ctx.fillStyle = `rgba(170,82,72,${tA.toFixed(2)})`;
+        ctx.beginPath();
+        ctx.ellipse(cx, mCY + cavH * 0.28, cavW * 0.45, cavH * 0.28, 0, 0, Math.PI);
+        ctx.fill();
+      }
+    }
+
+    // 3 — Lip curves (adaptive colour blended from sampled skin tone)
+    const lr = Math.round(sr * 0.6 + 120 * 0.4);
+    const lg = Math.round(sg * 0.4 + 50 * 0.6);
+    const lb = Math.round(sb * 0.4 + 45 * 0.6);
+    const lt = Math.max(1.5, halfW * 0.055);
+
+    // Upper lip — cupid's bow via cubic bézier
+    ctx.beginPath();
+    ctx.moveTo(cx - lipW, cy);
+    ctx.bezierCurveTo(
+      cx - lipW * 0.55, cy - lt * 0.9,
+      cx - lipW * 0.15, cy - lt * 0.5,
+      cx, cy - lt * 0.2,
+    );
+    ctx.bezierCurveTo(
+      cx + lipW * 0.15, cy - lt * 0.5,
+      cx + lipW * 0.55, cy - lt * 0.9,
+      cx + lipW, cy,
+    );
+    ctx.strokeStyle = `rgba(${lr},${lg},${lb},0.7)`;
+    ctx.lineWidth = lt;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    // Lower lip — fuller, slightly wider arc
+    const lowY = cy + openH * 0.65;
+    ctx.beginPath();
+    ctx.moveTo(cx - lipW * 0.88, lowY);
+    ctx.quadraticCurveTo(cx, lowY + lt * 1.3, cx + lipW * 0.88, lowY);
+    ctx.strokeStyle = `rgba(${lr},${lg},${lb},0.55)`;
+    ctx.lineWidth = lt * 1.15;
+    ctx.stroke();
+
+    ctx.restore();
   }
 
-  return { init, setAvatar, setRenderMode, applyViseme, setState };
+  return { init, setAvatar, setRenderMode, applyViseme, applyVisemeParams, setState };
 })();

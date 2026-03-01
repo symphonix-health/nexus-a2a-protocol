@@ -8,33 +8,24 @@ import os
 from datetime import datetime, timezone
 from typing import Any
 
-from fastapi import (
-    FastAPI,
-    File,
-    Form,
-    HTTPException,
-    Request,
-    UploadFile,
-    WebSocket,
-    WebSocketDisconnect,
-)
-from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
+from fastapi import (FastAPI, File, Form, HTTPException, Request, UploadFile,
+                     WebSocket, WebSocketDisconnect)
+from fastapi.responses import (FileResponse, JSONResponse, Response,
+                               StreamingResponse)
 from fastapi.staticfiles import StaticFiles
+
 from shared.clinician_avatar.avatar_engine import AvatarEngine
 from shared.clinician_avatar.avatar_protocol import (
-    normalize_patient_message_params,
-    normalize_start_session_params,
-)
+    normalize_patient_message_params, normalize_start_session_params)
 from shared.clinician_avatar.video_clinician_provider import (
-    get_video_clinician_provider,
-    has_openai_tts,
-    simple_viseme_timeline,
-    stream_tts_chunks,
-)
+    get_video_clinician_provider, has_openai_tts, simple_viseme_timeline,
+    stream_tts_chunks)
 from shared.nexus_common.auth import AuthError, mint_jwt, verify_jwt
 from shared.nexus_common.did import did_verify_enabled, verify_did_signature
-from shared.nexus_common.identity import get_agent_identity, get_persona_registry
-from shared.nexus_common.jsonrpc import JsonRpcError, parse_request, response_error, response_result
+from shared.nexus_common.identity import (get_agent_identity,
+                                          get_persona_registry)
+from shared.nexus_common.jsonrpc import (JsonRpcError, parse_request,
+                                         response_error, response_result)
 from shared.nexus_common.sse import TaskEventBus
 
 
@@ -294,6 +285,70 @@ async def api_stt_upload(
     )
 
 
+# ── OpenAI Realtime API — ephemeral key minting ───────────────────────────
+_OPENAI_REALTIME_MODEL = os.getenv(
+    "OPENAI_REALTIME_MODEL", "gpt-4o-mini-realtime-preview"
+)
+
+
+@app.post("/api/realtime/token")
+async def api_realtime_token(request: Request) -> JSONResponse:
+    """Mint an ephemeral client secret for the OpenAI Realtime API.
+
+    The browser uses this short-lived key to establish a direct WebRTC
+    connection with OpenAI — audio flows peer-to-peer afterwards.
+
+    Request JSON (optional):  { "voice": "coral" }
+    Response JSON: same shape as OpenAI ``/v1/realtime/client_secrets``
+    """
+    import httpx
+
+    # ── Auth ────────────────────────────────────────────────────────────────
+    auth_header = request.headers.get("authorization", "")
+    token = auth_header.removeprefix("Bearer ").strip()
+    try:
+        verify_jwt(token, JWT_SECRET, required_scope=REQUIRED_SCOPE)
+    except AuthError:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    api_key = os.getenv("OPENAI_API_KEY", "")
+    if not api_key:
+        raise HTTPException(
+            status_code=503,
+            detail="OPENAI_API_KEY not configured — Realtime API unavailable",
+        )
+
+    body = {}
+    with contextlib.suppress(Exception):
+        body = await request.json()
+    voice = body.get("voice", "coral")
+
+    # ── Call OpenAI to mint ephemeral key ───────────────────────────────────
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.post(
+                "https://api.openai.com/v1/realtime/sessions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": _OPENAI_REALTIME_MODEL,
+                    "voice": voice,
+                },
+            )
+            resp.raise_for_status()
+            return JSONResponse(content=resp.json())
+    except httpx.HTTPStatusError as exc:
+        detail = exc.response.text[:300] if exc.response else str(exc)
+        raise HTTPException(status_code=502, detail=f"OpenAI error: {detail}")
+    except httpx.RequestError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Failed to reach OpenAI Realtime API: {exc}",
+        )
+
+
 @app.websocket("/api/tts/stream")
 async def api_tts_stream(websocket: WebSocket) -> None:
     """Streaming TTS over WebSocket.
@@ -343,6 +398,7 @@ async def api_tts_stream(websocket: WebSocket) -> None:
 
             text = str(msg.get("text") or "").strip()
             voice = str(msg.get("voice") or "nova").strip() or "nova"
+            instructions = str(msg.get("instructions") or "").strip() or None
             if not text:
                 continue
 
@@ -372,7 +428,7 @@ async def api_tts_stream(websocket: WebSocket) -> None:
 
             pcm_sent = False
             try:
-                async for chunk in stream_tts_chunks(text, voice):
+                async for chunk in stream_tts_chunks(text, voice, instructions=instructions):
                     if cancel_event.is_set():
                         break
                     await websocket.send_bytes(chunk)
