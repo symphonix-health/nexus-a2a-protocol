@@ -302,12 +302,19 @@ class SyncVideoClinicianProvider(_RemoteJsonVideoClinicianProvider):
     api_key_env = "SYNC_API_KEY"
 
 
-async def stream_tts_chunks(text: str, voice: str = "nova"):
+async def stream_tts_chunks(
+    text: str,
+    voice: str = "nova",
+    instructions: str | None = None,
+):
     """Async generator yielding raw PCM chunks (24 kHz, 16-bit, mono, little-endian).
 
     Yields nothing when OPENAI_API_KEY is absent or the API call fails.
     The caller (WebSocket handler) detects zero chunks and sends a
-    ``synthetic_fallback`` message so the browser uses SpeechSynthesis instead.
+    ``tts_error`` message so the UI surfaces a visible error.
+
+    ``instructions`` (optional) is passed to gpt-4o-mini-tts to control
+    speaking style.  Falls back to a sensible clinician default when omitted.
 
     Uses httpx directly because the OpenAI SDK's with_streaming_response context
     manager hangs indefinitely on Windows (ProactorEventLoop + httpx issue in SDK v2).
@@ -326,17 +333,32 @@ async def stream_tts_chunks(text: str, voice: str = "nova"):
     chosen_voice = voice or os.getenv("OPENAI_TTS_VOICE", "nova")
     timeout_seconds = float(os.getenv("OPENAI_TTS_TIMEOUT_SECONDS", "60"))
     max_attempts = int(os.getenv("OPENAI_TTS_MAX_ATTEMPTS", "2"))
+
+    # Default style instructions for natural clinician speech
+    _default_instructions = (
+        "Speak naturally and warmly like a real clinician in a face-to-face "
+        "consultation. Use a calm, reassuring, conversational tone with "
+        "natural pacing and breathing pauses. Avoid sounding robotic or "
+        "overly formal."
+    )
+    tts_instructions = instructions or os.getenv(
+        "OPENAI_TTS_INSTRUCTIONS", _default_instructions
+    )
+
     url = "https://api.openai.com/v1/audio/speech"
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
     }
-    payload = {
+    payload: dict[str, Any] = {
         "model": model,
         "voice": chosen_voice,
         "input": clean,
         "response_format": "pcm",  # raw 24 kHz 16-bit mono PCM
     }
+    # gpt-4o-mini-tts supports the `instructions` field for style control
+    if tts_instructions:
+        payload["instructions"] = tts_instructions
     for attempt in range(1, max_attempts + 1):
         try:
             async with httpx.AsyncClient(timeout=timeout_seconds) as client:

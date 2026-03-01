@@ -25,10 +25,14 @@
       <label>
         Voice
         <select id="voice-select">
-          <option value="nova" selected>nova</option>
-          <option value="alloy">alloy</option>
-          <option value="echo">echo</option>
-          <option value="shimmer">shimmer</option>
+          <option value="coral" selected>coral (realtime)</option>
+          <option value="alloy">alloy (realtime)</option>
+          <option value="ash">ash (realtime)</option>
+          <option value="ballad">ballad (realtime)</option>
+          <option value="sage">sage (realtime)</option>
+          <option value="shimmer">shimmer (standard TTS)</option>
+          <option value="nova">nova (standard TTS)</option>
+          <option value="echo">echo (standard TTS)</option>
         </select>
       </label>
       <label>
@@ -94,7 +98,7 @@
           </label>
           <label class="inline-check"
             title="Speak typed patient text aloud using shimmer voice (requires OPENAI_API_KEY)">
-            <input id="patient-tts-toggle" type="checkbox" />
+            <input id="patient-tts-toggle" type="checkbox" checked />
             Speak patient text (shimmer)
           </label>
         </div>
@@ -132,10 +136,11 @@
   <!-- MediaPipe FaceMesh — landmark detection for driven lip-sync -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/face_mesh.js"
     crossorigin="anonymous"></script>
-  <script src="/static/avatar_renderer.js?v=7"></script>
-  <script src="/static/lipsync_engine.js?v=5"></script>
-  <script src="/static/tts_client.js?v=7"></script>
-  <script src="/static/chat_controller.js?v=7"></script>
+  <script src="/static/avatar_renderer.js?v=10"></script>
+  <script src="/static/lipsync_engine.js?v=10"></script>
+  <script src="/static/realtime_client.js?v=10"></script>
+  <script src="/static/tts_client.js?v=9"></script>
+  <script src="/static/chat_controller.js?v=9"></script>
 </body>
 
 </html>

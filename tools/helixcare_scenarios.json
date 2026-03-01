@@ -1,0 +1,3172 @@
+[
+  {
+    "name": "primary_care_outpatient_in_person",
+    "description": "In-person primary care visit with assessment, treatment, and checkout.",
+    "patient_profile": {
+      "age": 47,
+      "gender": "female",
+      "chief_complaint": "Fatigue and elevated blood pressure follow-up",
+      "urgency": "medium"
+    },
+    "journey_steps": [
+      {
+        "agent": "primary_care",
+        "method": "primary_care/manage_visit",
+        "params": {
+          "visit_mode": "in_person",
+          "complaint": "fatigue and hypertension follow-up"
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/start_session",
+        "params": {
+          "patient_case": {
+            "chief_complaint": "Fatigue and elevated blood pressure follow-up",
+            "age": 47,
+            "gender": "female",
+            "urgency": "medium"
+          },
+          "persona": "senior_internist"
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "primary_care"
+          ],
+          "clinical_rationale": "Internist reviews chief complaint after initial intake",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/patient_message",
+        "params": {
+          "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+          "message": "I've been so tired the last six weeks. Even small tasks at work exhaust me, and my headaches are getting worse."
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "Patient describes symptom trajectory during interview",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "diagnosis",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "symptoms": "fatigue, headaches",
+          "differential_diagnosis": [
+            "Hypertension",
+            "Anemia",
+            "Thyroid dysfunction"
+          ]
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "optional_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "Diagnosis follows clinician interview findings",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 900,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "pharmacy",
+        "method": "pharmacy/recommend",
+        "params": {
+          "task": {
+            "med_plan": [
+              "Lisinopril"
+            ],
+            "allergies": [],
+            "current_medications": [
+              "Metformin"
+            ]
+          }
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "required_predecessors": [
+            "diagnosis"
+          ],
+          "clinical_rationale": "Medication adjustment based on diagnostic assessment",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "followup",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "followup_schedule": [
+            {
+              "type": "primary_care",
+              "when": "2026-03-31T14:29:08.611155",
+              "purpose": "BP and lab review"
+            }
+          ],
+          "care_transition": {
+            "handover_owner": "discharge_coordinator",
+            "receiving_team": "primary_care_team",
+            "followup_responsibility": "primary_care_team",
+            "receiving_provider_notified": true,
+            "handover": {
+              "situation": "",
+              "background": "Relevant history and context shared.",
+              "assessment": "Clinical assessment documented.",
+              "recommendation": "Proceed with receiving-team plan.",
+              "plan": "Follow local pathway and monitor response.",
+              "outstanding_tasks": [
+                "Confirm plan ownership"
+              ],
+              "communication_needs": "No specific communication barriers documented."
+            }
+          }
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "required_predecessors": [
+            "diagnosis"
+          ],
+          "optional_predecessors": [
+            "pharmacy"
+          ],
+          "clinical_rationale": "Follow-up scheduled after diagnosis and treatment plan",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_context_keys": [],
+          "required_handover_fields": [
+            "handover.situation",
+            "handover.background",
+            "handover.assessment",
+            "handover.recommendation",
+            "handover.plan",
+            "handover.outstanding_tasks",
+            "handover.communication_needs"
+          ],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 1200,
+          "safe_fallback_branch": "manual_followup_queue",
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      }
+    ],
+    "expected_duration": 16,
+    "medical_history": {
+      "past_medical_history": [
+        "Type 2 diabetes",
+        "Hypertension",
+        "Iron deficiency anemia (history)"
+      ],
+      "medications": [
+        "Metformin 1000 mg BID",
+        "Lisinopril 10 mg daily"
+      ],
+      "allergies": [
+        "No known drug allergies"
+      ],
+      "social_history": {
+        "tobacco": "never",
+        "alcohol": "occasional",
+        "occupation": "Administrative assistant",
+        "exercise": "limited due to fatigue"
+      },
+      "family_history": [
+        "Mother with hypertension",
+        "Father with type 2 diabetes"
+      ],
+      "review_of_systems": {
+        "constitutional": "Fatigue over 6 weeks, no fevers",
+        "neurologic": "Intermittent headaches, no focal deficits"
+      },
+      "vital_signs": {
+        "blood_pressure": "152/92",
+        "heart_rate": 82,
+        "respiratory_rate": 16,
+        "oxygen_saturation": 98,
+        "temperature_c": 36.7
+      }
+    },
+    "simulation_profile": {
+      "seed": 2695650003,
+      "variance_band": "low",
+      "allowed_branches": [
+        "nominal",
+        "handoff_delay",
+        "context_gap"
+      ]
+    },
+    "negative_class": null,
+    "expected_escalation": null,
+    "expected_safe_outcome": null
+  },
+  {
+    "name": "specialty_outpatient_clinic",
+    "description": "Specialty clinic workflow with referral triage and diagnostics.",
+    "patient_profile": {
+      "age": 61,
+      "gender": "male",
+      "chief_complaint": "Progressive exertional chest discomfort",
+      "urgency": "high"
+    },
+    "journey_steps": [
+      {
+        "agent": "specialty_care",
+        "method": "specialty_care/manage_referral",
+        "params": {
+          "specialty": "cardiology",
+          "reason": "exertional angina assessment"
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/start_session",
+        "params": {
+          "patient_case": {
+            "chief_complaint": "Progressive exertional chest discomfort",
+            "age": 61,
+            "gender": "male",
+            "urgency": "high"
+          },
+          "persona": "senior_cardiologist"
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "specialty_care"
+          ],
+          "clinical_rationale": "Cardiologist interviews patient after referral intake",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/patient_message",
+        "params": {
+          "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+          "message": "The pressure comes on when I walk uphill or carry groceries. It eases after I rest for a few minutes. My brother had the same thing before his stents."
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "Patient provides exertional symptom history",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "diagnosis",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "symptoms": "exertional chest discomfort",
+          "differential_diagnosis": [
+            "Stable angina",
+            "GERD",
+            "Aortic stenosis"
+          ]
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "optional_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "Diagnosis informed by cardiologist interview findings",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 900,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "imaging",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "orders": [
+            {
+              "type": "ecg",
+              "priority": "urgent",
+              "indication": "cardiac rhythm"
+            },
+            {
+              "type": "stress_echo",
+              "priority": "routine",
+              "indication": "ischemia workup"
+            }
+          ]
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "diagnosis"
+          ],
+          "clinical_rationale": "Imaging ordered based on diagnostic assessment",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": "diagnostic_reassessment",
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "coordinator",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "journey_type": "specialty_outpatient",
+            "coordination_tasks": [
+              "Prior authorization",
+              "Procedure scheduling",
+              "PCP communication"
+            ]
+          },
+          "care_transition": {
+            "handover_owner": "care_coordinator",
+            "receiving_team": "multidisciplinary_team",
+            "followup_responsibility": "primary_care_team",
+            "receiving_provider_notified": true,
+            "handover": {
+              "situation": "",
+              "background": "Relevant history and context shared.",
+              "assessment": "Clinical assessment documented.",
+              "recommendation": "Proceed with receiving-team plan.",
+              "plan": "Follow local pathway and monitor response.",
+              "outstanding_tasks": [
+                "Confirm plan ownership"
+              ],
+              "communication_needs": "No specific communication barriers documented."
+            }
+          }
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "diagnosis"
+          ],
+          "optional_predecessors": [
+            "imaging"
+          ],
+          "clinical_rationale": "Care coordination after diagnostic workup initiated",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_context_keys": [],
+          "required_handover_fields": [
+            "handover.situation",
+            "handover.background",
+            "handover.assessment",
+            "handover.recommendation",
+            "handover.plan",
+            "handover.outstanding_tasks",
+            "handover.communication_needs"
+          ],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 1200,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      }
+    ],
+    "expected_duration": 18,
+    "medical_history": {
+      "past_medical_history": [
+        "Hypertension",
+        "Hyperlipidemia",
+        "GERD"
+      ],
+      "medications": [
+        "Aspirin 81 mg daily",
+        "Atorvastatin 20 mg nightly"
+      ],
+      "allergies": [
+        "No known drug allergies"
+      ],
+      "social_history": {
+        "tobacco": "former smoker (15 pack-years)",
+        "alcohol": "occasional",
+        "activity": "reduced exertional tolerance over 2 months"
+      },
+      "family_history": [
+        "Brother with CAD requiring PCI"
+      ],
+      "review_of_systems": {
+        "cardiac": "Exertional pressure-like chest discomfort relieved by rest",
+        "respiratory": "No rest dyspnea, no hemoptysis"
+      },
+      "vital_signs": {
+        "blood_pressure": "146/88",
+        "heart_rate": 86,
+        "respiratory_rate": 18,
+        "oxygen_saturation": 97,
+        "temperature_c": 36.6
+      }
+    },
+    "simulation_profile": {
+      "seed": 1738688990,
+      "variance_band": "low",
+      "allowed_branches": [
+        "nominal",
+        "handoff_delay",
+        "context_gap"
+      ]
+    },
+    "negative_class": null,
+    "expected_escalation": null,
+    "expected_safe_outcome": null
+  },
+  {
+    "name": "telehealth_video_consult",
+    "description": "Video telehealth consult with identity/location verification and remote plan.",
+    "patient_profile": {
+      "age": 35,
+      "gender": "female",
+      "chief_complaint": "Migraine follow-up",
+      "urgency": "low"
+    },
+    "journey_steps": [
+      {
+        "agent": "telehealth",
+        "method": "telehealth/consult",
+        "params": {
+          "modality": "video",
+          "location_verified": true,
+          "consent_documented": true
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/start_session",
+        "params": {
+          "patient_case": {
+            "chief_complaint": "Migraine follow-up",
+            "age": 35,
+            "gender": "female",
+            "urgency": "low"
+          },
+          "persona": "neurologist"
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "telehealth"
+          ],
+          "clinical_rationale": "Neurologist conducts structured migraine review via video",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/patient_message",
+        "params": {
+          "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+          "message": "The migraines are still happening twice a week. Sumatriptan helps but I'm worried about using it too often. My sleep has been terrible with the project deadlines."
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "Patient reports frequency and medication concerns",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "diagnosis",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "symptoms": "recurrent migraines, photophobia",
+          "differential_diagnosis": [
+            "Migraine",
+            "Medication overuse headache"
+          ]
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "optional_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "Diagnosis refined by clinician consultation findings",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 900,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "pharmacy",
+        "method": "pharmacy/recommend",
+        "params": {
+          "task": {
+            "med_plan": [
+              "Ibuprofen"
+            ],
+            "allergies": [],
+            "current_medications": []
+          }
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "required_predecessors": [
+            "diagnosis"
+          ],
+          "clinical_rationale": "Medication adjusted based on diagnostic assessment",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "followup",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "followup_schedule": [
+            {
+              "type": "telehealth",
+              "when": "2026-03-15T14:29:08.611665",
+              "purpose": "response to treatment"
+            }
+          ],
+          "care_transition": {
+            "handover_owner": "discharge_coordinator",
+            "receiving_team": "primary_care_team",
+            "followup_responsibility": "primary_care_team",
+            "receiving_provider_notified": true,
+            "handover": {
+              "situation": "",
+              "background": "Relevant history and context shared.",
+              "assessment": "Clinical assessment documented.",
+              "recommendation": "Proceed with receiving-team plan.",
+              "plan": "Follow local pathway and monitor response.",
+              "outstanding_tasks": [
+                "Confirm plan ownership"
+              ],
+              "communication_needs": "No specific communication barriers documented."
+            }
+          }
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "required_predecessors": [
+            "diagnosis"
+          ],
+          "optional_predecessors": [
+            "pharmacy"
+          ],
+          "clinical_rationale": "Follow-up to assess treatment response",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_context_keys": [],
+          "required_handover_fields": [
+            "handover.situation",
+            "handover.background",
+            "handover.assessment",
+            "handover.recommendation",
+            "handover.plan",
+            "handover.outstanding_tasks",
+            "handover.communication_needs"
+          ],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 1200,
+          "safe_fallback_branch": "manual_followup_queue",
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      }
+    ],
+    "expected_duration": 14,
+    "medical_history": {
+      "past_medical_history": [
+        "Migraine without aura",
+        "Generalized anxiety disorder"
+      ],
+      "medications": [
+        "Sumatriptan 50 mg PRN",
+        "Sertraline 50 mg daily"
+      ],
+      "allergies": [
+        "No known drug allergies"
+      ],
+      "social_history": {
+        "tobacco": "never",
+        "alcohol": "occasional",
+        "occupation": "Software engineer",
+        "sleep": "5-6 hours/night during work weeks"
+      },
+      "family_history": [
+        "Mother with migraine"
+      ],
+      "review_of_systems": {
+        "neurologic": "Photophobia and pulsatile unilateral headaches; no focal deficits",
+        "constitutional": "No fever, no weight loss"
+      },
+      "vital_signs": {
+        "blood_pressure": "124/78",
+        "heart_rate": 74,
+        "respiratory_rate": 16,
+        "oxygen_saturation": 99,
+        "temperature_c": 36.7
+      }
+    },
+    "simulation_profile": {
+      "seed": 943661254,
+      "variance_band": "low",
+      "allowed_branches": [
+        "nominal",
+        "handoff_delay",
+        "context_gap"
+      ]
+    },
+    "negative_class": null,
+    "expected_escalation": null,
+    "expected_safe_outcome": null
+  },
+  {
+    "name": "telehealth_audio_only_followup",
+    "description": "Audio-only telehealth follow-up with escalation guardrails.",
+    "patient_profile": {
+      "age": 73,
+      "gender": "male",
+      "chief_complaint": "Medication side-effect review",
+      "urgency": "low"
+    },
+    "journey_steps": [
+      {
+        "agent": "telehealth",
+        "method": "telehealth/consult",
+        "params": {
+          "modality": "audio_only",
+          "location_verified": true,
+          "consent_documented": true
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/start_session",
+        "params": {
+          "patient_case": {
+            "chief_complaint": "Medication side-effect review",
+            "age": 73,
+            "gender": "male",
+            "urgency": "low"
+          },
+          "persona": "senior_internist"
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "telehealth"
+          ],
+          "clinical_rationale": "Internist reviews medication side-effects via audio",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/patient_message",
+        "params": {
+          "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+          "message": "I've been feeling dizzy when I stand up since my doctor changed my blood pressure medication last month. It happens mostly in the morning."
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "Patient describes orthostatic symptoms timeline",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "primary_care",
+        "method": "primary_care/manage_visit",
+        "params": {
+          "visit_mode": "audio_only",
+          "complaint": "dizziness after medication change"
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "optional_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "PCP assessment informed by avatar interview findings",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "pharmacy",
+        "method": "pharmacy/check_interactions",
+        "params": {
+          "drugs": [
+            "Lisinopril",
+            "Ibuprofen"
+          ]
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "required_predecessors": [
+            "primary_care"
+          ],
+          "clinical_rationale": "Drug interaction check after PCP dosage review",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "followup",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "followup_schedule": [
+            {
+              "type": "in_person_primary_care",
+              "when": "2026-03-08T14:29:08.611665",
+              "purpose": "orthostatic vitals and exam"
+            }
+          ],
+          "care_transition": {
+            "handover_owner": "discharge_coordinator",
+            "receiving_team": "primary_care_team",
+            "followup_responsibility": "primary_care_team",
+            "receiving_provider_notified": true,
+            "handover": {
+              "situation": "",
+              "background": "Relevant history and context shared.",
+              "assessment": "Clinical assessment documented.",
+              "recommendation": "Proceed with receiving-team plan.",
+              "plan": "Follow local pathway and monitor response.",
+              "outstanding_tasks": [
+                "Confirm plan ownership"
+              ],
+              "communication_needs": "No specific communication barriers documented."
+            }
+          }
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "required_predecessors": [
+            "primary_care"
+          ],
+          "optional_predecessors": [
+            "pharmacy"
+          ],
+          "clinical_rationale": "In-person follow-up for orthostatic assessment",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_context_keys": [],
+          "required_handover_fields": [
+            "handover.situation",
+            "handover.background",
+            "handover.assessment",
+            "handover.recommendation",
+            "handover.plan",
+            "handover.outstanding_tasks",
+            "handover.communication_needs"
+          ],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 1200,
+          "safe_fallback_branch": "manual_followup_queue",
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      }
+    ],
+    "expected_duration": 13,
+    "medical_history": {
+      "past_medical_history": [
+        "Hypertension",
+        "Stage 3 CKD",
+        "Osteoarthritis"
+      ],
+      "medications": [
+        "Lisinopril 10 mg daily",
+        "Ibuprofen 400 mg PRN"
+      ],
+      "allergies": [
+        "Sulfa (rash)"
+      ],
+      "social_history": {
+        "tobacco": "never",
+        "alcohol": "none",
+        "living_situation": "lives with spouse"
+      },
+      "family_history": [
+        "Mother with hypertension"
+      ],
+      "review_of_systems": {
+        "neurologic": "Intermittent dizziness after medication change",
+        "cardiovascular": "No syncope, no chest pain"
+      },
+      "vital_signs": {
+        "blood_pressure": "118/66",
+        "heart_rate": 72,
+        "respiratory_rate": 16,
+        "oxygen_saturation": 98,
+        "temperature_c": 36.5
+      }
+    },
+    "simulation_profile": {
+      "seed": 1857882352,
+      "variance_band": "low",
+      "allowed_branches": [
+        "nominal",
+        "handoff_delay",
+        "context_gap"
+      ]
+    },
+    "negative_class": null,
+    "expected_escalation": null,
+    "expected_safe_outcome": null
+  },
+  {
+    "name": "home_visit_house_call",
+    "description": "Home-based primary care visit including environment and safety assessment.",
+    "patient_profile": {
+      "age": 84,
+      "gender": "female",
+      "chief_complaint": "Frailty and recurrent falls",
+      "urgency": "medium"
+    },
+    "journey_steps": [
+      {
+        "agent": "home_visit",
+        "method": "home_visit/dispatch",
+        "params": {
+          "home_safety_screen": true,
+          "caregiver_present": true
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/start_session",
+        "params": {
+          "patient_case": {
+            "chief_complaint": "Frailty and recurrent falls",
+            "age": 84,
+            "gender": "female",
+            "urgency": "medium"
+          },
+          "persona": "geriatrician"
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "home_visit"
+          ],
+          "clinical_rationale": "Geriatrician assesses fall risk and cognitive status",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/patient_message",
+        "params": {
+          "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+          "message": "I fell again last Tuesday getting out of bed. My legs just gave out. My daughter says I seem more confused at night lately."
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "Patient reports falls and nighttime confusion",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "primary_care",
+        "method": "primary_care/manage_visit",
+        "params": {
+          "visit_mode": "home",
+          "complaint": "falls and mobility decline"
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "optional_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "PCP assessment informed by geriatric consultation",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "pharmacy",
+        "method": "pharmacy/recommend",
+        "params": {
+          "task": {
+            "med_plan": [
+              "Acetaminophen"
+            ],
+            "allergies": [],
+            "current_medications": [
+              "Warfarin"
+            ]
+          }
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "required_predecessors": [
+            "primary_care"
+          ],
+          "clinical_rationale": "Pain management avoiding fall-risk medications",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "coordinator",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "journey_type": "home_visit",
+            "coordination_tasks": [
+              "Home health referral",
+              "DME order",
+              "Falls prevention education"
+            ]
+          },
+          "care_transition": {
+            "handover_owner": "care_coordinator",
+            "receiving_team": "multidisciplinary_team",
+            "followup_responsibility": "primary_care_team",
+            "receiving_provider_notified": true,
+            "handover": {
+              "situation": "",
+              "background": "Relevant history and context shared.",
+              "assessment": "Clinical assessment documented.",
+              "recommendation": "Proceed with receiving-team plan.",
+              "plan": "Follow local pathway and monitor response.",
+              "outstanding_tasks": [
+                "Confirm plan ownership"
+              ],
+              "communication_needs": "No specific communication barriers documented."
+            }
+          }
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "primary_care"
+          ],
+          "optional_predecessors": [
+            "pharmacy"
+          ],
+          "clinical_rationale": "Care coordination for home safety and DME",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_context_keys": [],
+          "required_handover_fields": [
+            "handover.situation",
+            "handover.background",
+            "handover.assessment",
+            "handover.recommendation",
+            "handover.plan",
+            "handover.outstanding_tasks",
+            "handover.communication_needs"
+          ],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 1200,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      }
+    ],
+    "expected_duration": 19,
+    "medical_history": {
+      "past_medical_history": [
+        "Atrial fibrillation",
+        "Osteoporosis",
+        "Mild cognitive impairment"
+      ],
+      "medications": [
+        "Warfarin 5 mg daily",
+        "Vitamin D3 1000 IU daily"
+      ],
+      "allergies": [
+        "Codeine (nausea)"
+      ],
+      "social_history": {
+        "living_situation": "Lives alone with daytime caregiver support",
+        "mobility": "Uses walker",
+        "home_risks": [
+          "Loose rugs",
+          "Poor bathroom grab-bar support"
+        ]
+      },
+      "family_history": [
+        "Daughter with osteoporosis"
+      ],
+      "review_of_systems": {
+        "musculoskeletal": "Gait instability and lower-extremity weakness",
+        "neurologic": "No recent syncope, intermittent confusion at night"
+      },
+      "vital_signs": {
+        "blood_pressure": "134/74",
+        "heart_rate": 78,
+        "respiratory_rate": 18,
+        "oxygen_saturation": 97,
+        "temperature_c": 36.4
+      }
+    },
+    "simulation_profile": {
+      "seed": 928460634,
+      "variance_band": "low",
+      "allowed_branches": [
+        "nominal",
+        "handoff_delay",
+        "context_gap"
+      ]
+    },
+    "negative_class": null,
+    "expected_escalation": null,
+    "expected_safe_outcome": null
+  },
+  {
+    "name": "chronic_care_management_monthly",
+    "description": "Longitudinal CCM monthly cycle with care-plan update and coordination.",
+    "patient_profile": {
+      "age": 69,
+      "gender": "male",
+      "chief_complaint": "CCM monthly review for diabetes and CHF",
+      "urgency": "low"
+    },
+    "journey_steps": [
+      {
+        "agent": "ccm",
+        "method": "ccm/monthly_review",
+        "params": {
+          "conditions": [
+            "Diabetes",
+            "CHF"
+          ],
+          "monthly_minutes": 25
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/start_session",
+        "params": {
+          "patient_case": {
+            "chief_complaint": "CCM monthly review for diabetes and CHF",
+            "age": 69,
+            "gender": "male",
+            "urgency": "low"
+          },
+          "persona": "senior_internist"
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "ccm"
+          ],
+          "clinical_rationale": "Internist check-in after care-plan metrics review",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/patient_message",
+        "params": {
+          "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+          "message": "My ankles have been swelling a bit more this week. I've been trying to cut back on salt but it's hard with the processed food my wife buys."
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "Patient reports fluid retention and dietary challenges",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "primary_care",
+        "method": "primary_care/manage_visit",
+        "params": {
+          "visit_mode": "care_management",
+          "complaint": "goal and plan review"
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "optional_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "PCP adjusts care plan based on avatar interview",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "followup",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "followup_schedule": [
+            {
+              "type": "ccm_touchpoint",
+              "when": "2026-03-31T14:29:08.611665",
+              "purpose": "next monthly review"
+            }
+          ],
+          "care_transition": {
+            "handover_owner": "discharge_coordinator",
+            "receiving_team": "primary_care_team",
+            "followup_responsibility": "primary_care_team",
+            "receiving_provider_notified": true,
+            "handover": {
+              "situation": "",
+              "background": "Relevant history and context shared.",
+              "assessment": "Clinical assessment documented.",
+              "recommendation": "Proceed with receiving-team plan.",
+              "plan": "Follow local pathway and monitor response.",
+              "outstanding_tasks": [
+                "Confirm plan ownership"
+              ],
+              "communication_needs": "No specific communication barriers documented."
+            }
+          }
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "required_predecessors": [
+            "primary_care"
+          ],
+          "clinical_rationale": "Schedule next monthly CCM review cycle",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [
+            "handover.situation",
+            "handover.background",
+            "handover.assessment",
+            "handover.recommendation",
+            "handover.plan",
+            "handover.outstanding_tasks",
+            "handover.communication_needs"
+          ],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 1200,
+          "safe_fallback_branch": "manual_followup_queue",
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "pharmacy",
+        "method": "pharmacy/check_interactions",
+        "params": {
+          "drugs": [
+            "Metformin",
+            "Lisinopril",
+            "Aspirin"
+          ]
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "required_predecessors": [
+            "primary_care"
+          ],
+          "clinical_rationale": "Verify drug interactions after plan adjustments",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      }
+    ],
+    "expected_duration": 15,
+    "medical_history": {
+      "past_medical_history": [
+        "Type 2 diabetes",
+        "Congestive heart failure (HFrEF)",
+        "Chronic kidney disease stage 2"
+      ],
+      "medications": [
+        "Metformin 1000 mg BID",
+        "Lisinopril 20 mg daily",
+        "Aspirin 81 mg daily",
+        "Furosemide 20 mg daily"
+      ],
+      "allergies": [
+        "No known drug allergies"
+      ],
+      "social_history": {
+        "diet": "Inconsistent low-sodium adherence",
+        "activity": "Walks 10-15 minutes/day",
+        "self_monitoring": "Intermittent glucose and weight logging"
+      },
+      "family_history": [
+        "Brother with heart failure"
+      ],
+      "review_of_systems": {
+        "cardiac": "Mild exertional dyspnea, occasional ankle edema",
+        "endocrine": "Variable fasting glucose control"
+      },
+      "vital_signs": {
+        "blood_pressure": "140/84",
+        "heart_rate": 80,
+        "respiratory_rate": 18,
+        "oxygen_saturation": 96,
+        "temperature_c": 36.8
+      }
+    },
+    "simulation_profile": {
+      "seed": 467138894,
+      "variance_band": "low",
+      "allowed_branches": [
+        "nominal",
+        "handoff_delay",
+        "context_gap"
+      ]
+    },
+    "negative_class": null,
+    "expected_escalation": null,
+    "expected_safe_outcome": null
+  },
+  {
+    "name": "emergency_department_treat_and_release",
+    "description": "ED flow resulting in treatment and safe discharge.",
+    "patient_profile": {
+      "age": 29,
+      "gender": "male",
+      "chief_complaint": "Acute asthma exacerbation",
+      "urgency": "high"
+    },
+    "journey_steps": [
+      {
+        "agent": "triage",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "symptoms": "wheezing and dyspnea",
+          "chief_complaint": "asthma flare",
+          "arrival_time": "2026-03-01T14:29:08.611665"
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 900,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/start_session",
+        "params": {
+          "patient_case": {
+            "chief_complaint": "Acute asthma exacerbation",
+            "age": 29,
+            "gender": "male",
+            "urgency": "high"
+          },
+          "persona": "emergency_physician"
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "triage"
+          ],
+          "clinical_rationale": "EM physician assesses severity after triage",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/patient_message",
+        "params": {
+          "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+          "message": "I ran out of my maintenance inhaler last week and caught a cold. The wheezing started yesterday and got really bad this morning. I can barely finish a sentence."
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "Patient describes trigger and severity progression",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "diagnosis",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "symptoms": "wheezing and dyspnea",
+          "differential_diagnosis": [
+            "Asthma exacerbation",
+            "Pneumonia",
+            "Pneumothorax"
+          ]
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "optional_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "Diagnosis informed by EM physician interview",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 900,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "imaging",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "orders": [
+            {
+              "type": "chest_xray",
+              "priority": "urgent",
+              "indication": "rule out alternative pathology"
+            }
+          ]
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "diagnosis"
+          ],
+          "clinical_rationale": "CXR ordered to exclude pneumothorax/pneumonia",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": "diagnostic_reassessment",
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "pharmacy",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "med_plan": [
+              "Albuterol",
+              "Prednisone"
+            ],
+            "allergies": []
+          }
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "required_predecessors": [
+            "diagnosis"
+          ],
+          "clinical_rationale": "Bronchodilator and steroid therapy based on diagnosis",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "discharge",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "discharge_diagnosis": "Asthma exacerbation",
+            "discharge_disposition": "home"
+          },
+          "care_transition": {
+            "handover_owner": "discharging_clinician",
+            "receiving_team": "community_care_team",
+            "followup_responsibility": "primary_care_team",
+            "receiving_provider_notified": true,
+            "handover": {
+              "situation": "",
+              "background": "Relevant history and context shared.",
+              "assessment": "Clinical assessment documented.",
+              "recommendation": "Proceed with receiving-team plan.",
+              "plan": "Follow local pathway and monitor response.",
+              "outstanding_tasks": [
+                "Confirm plan ownership"
+              ],
+              "communication_needs": "No specific communication barriers documented."
+            }
+          }
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "required_predecessors": [
+            "pharmacy"
+          ],
+          "optional_predecessors": [
+            "imaging"
+          ],
+          "clinical_rationale": "Discharge after treatment response and CXR clear",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_context_keys": [],
+          "required_handover_fields": [
+            "handover.situation",
+            "handover.background",
+            "handover.assessment",
+            "handover.recommendation",
+            "handover.plan",
+            "handover.outstanding_tasks",
+            "handover.communication_needs"
+          ],
+          "escalation_path": [
+            "care_coordinator",
+            "senior_clinician",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 900,
+          "safe_fallback_branch": "admit_for_senior_review",
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "followup",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "followup_schedule": [
+            {
+              "type": "primary_care",
+              "when": "2026-03-04T14:29:08.611665",
+              "purpose": "post-ED check"
+            }
+          ],
+          "care_transition": {
+            "handover_owner": "discharge_coordinator",
+            "receiving_team": "primary_care_team",
+            "followup_responsibility": "primary_care_team",
+            "receiving_provider_notified": true,
+            "handover": {
+              "situation": "",
+              "background": "Relevant history and context shared.",
+              "assessment": "Clinical assessment documented.",
+              "recommendation": "Proceed with receiving-team plan.",
+              "plan": "Follow local pathway and monitor response.",
+              "outstanding_tasks": [
+                "Confirm plan ownership"
+              ],
+              "communication_needs": "No specific communication barriers documented."
+            }
+          }
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "required_predecessors": [
+            "discharge"
+          ],
+          "clinical_rationale": "Early PCP follow-up after ED discharge",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [
+            "handover.situation",
+            "handover.background",
+            "handover.assessment",
+            "handover.recommendation",
+            "handover.plan",
+            "handover.outstanding_tasks",
+            "handover.communication_needs"
+          ],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 1200,
+          "safe_fallback_branch": "manual_followup_queue",
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      }
+    ],
+    "expected_duration": 20,
+    "medical_history": {
+      "past_medical_history": [
+        "Asthma (moderate persistent)",
+        "Allergic rhinitis"
+      ],
+      "medications": [
+        "Albuterol inhaler PRN",
+        "Budesonide-formoterol inhaler BID"
+      ],
+      "allergies": [
+        "Cats",
+        "Dust mites"
+      ],
+      "social_history": {
+        "tobacco": "never",
+        "alcohol": "social",
+        "trigger_exposures": [
+          "Cold air",
+          "Recent viral URI",
+          "Missed controller doses"
+        ]
+      },
+      "family_history": [
+        "Sibling with asthma"
+      ],
+      "review_of_systems": {
+        "respiratory": "Wheeze, chest tightness, dyspnea; no hemoptysis",
+        "cardiac": "No exertional chest pressure"
+      },
+      "vital_signs": {
+        "blood_pressure": "138/86",
+        "heart_rate": 116,
+        "respiratory_rate": 28,
+        "oxygen_saturation": 92,
+        "temperature_c": 37.1
+      }
+    },
+    "simulation_profile": {
+      "seed": 817806814,
+      "variance_band": "low",
+      "allowed_branches": [
+        "nominal",
+        "handoff_delay",
+        "context_gap"
+      ]
+    },
+    "negative_class": null,
+    "expected_escalation": null,
+    "expected_safe_outcome": null
+  },
+  {
+    "name": "emergency_department_to_inpatient_admission",
+    "description": "ED flow that escalates to inpatient admission.",
+    "patient_profile": {
+      "age": 57,
+      "gender": "female",
+      "chief_complaint": "Chest pain and diaphoresis",
+      "urgency": "critical"
+    },
+    "journey_steps": [
+      {
+        "agent": "triage",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "symptoms": "severe chest pain",
+          "chief_complaint": "possible ACS",
+          "arrival_time": "2026-03-01T14:29:08.611665"
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 900,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/start_session",
+        "params": {
+          "patient_case": {
+            "chief_complaint": "Chest pain and diaphoresis",
+            "age": 57,
+            "gender": "female",
+            "urgency": "critical"
+          },
+          "persona": "emergency_physician"
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "triage"
+          ],
+          "clinical_rationale": "EM physician rapid assessment of possible ACS",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/patient_message",
+        "params": {
+          "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+          "message": "The pain came on suddenly about two hours ago while I was at work. It's a heavy pressure right in my chest going down my left arm. I'm sweating and feel nauseous."
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "Patient describes acute onset and radiation pattern",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "diagnosis",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "symptoms": "chest pain and dyspnea",
+          "differential_diagnosis": [
+            "Acute coronary syndrome",
+            "PE",
+            "Aortic dissection"
+          ]
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "optional_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "Urgent differential guided by EM physician assessment",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 900,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "imaging",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "orders": [
+            {
+              "type": "ecg",
+              "priority": "emergent",
+              "indication": "ST changes"
+            },
+            {
+              "type": "chest_xray",
+              "priority": "urgent",
+              "indication": "alternate diagnosis"
+            }
+          ]
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "diagnosis"
+          ],
+          "clinical_rationale": "Emergent imaging for suspected ACS",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": "diagnostic_reassessment",
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "bed_manager",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "admission_type": "emergency",
+            "required_monitoring": "telemetry",
+            "estimated_los": "2-4 days"
+          },
+          "care_transition": {
+            "handover_owner": "admitting_registrar",
+            "receiving_team": "inpatient_team",
+            "followup_responsibility": "primary_care_team",
+            "receiving_provider_notified": true,
+            "handover": {
+              "situation": "",
+              "background": "Relevant history and context shared.",
+              "assessment": "Clinical assessment documented.",
+              "recommendation": "Proceed with receiving-team plan.",
+              "plan": "Follow local pathway and monitor response.",
+              "outstanding_tasks": [
+                "Confirm plan ownership"
+              ],
+              "communication_needs": "No specific communication barriers documented."
+            }
+          }
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "required_predecessors": [
+            "diagnosis"
+          ],
+          "optional_predecessors": [
+            "imaging"
+          ],
+          "clinical_rationale": "Telemetry admission for cardiac monitoring",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_context_keys": [],
+          "required_handover_fields": [
+            "handover.situation",
+            "handover.background",
+            "handover.assessment",
+            "handover.recommendation",
+            "handover.plan",
+            "handover.outstanding_tasks",
+            "handover.communication_needs"
+          ],
+          "escalation_path": [
+            "care_coordinator",
+            "senior_clinician",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 1200,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "coordinator",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "journey_type": "ed_to_inpatient",
+            "coordination_tasks": [
+              "Cardiology consult",
+              "Inpatient handoff"
+            ]
+          },
+          "care_transition": {
+            "handover_owner": "care_coordinator",
+            "receiving_team": "multidisciplinary_team",
+            "followup_responsibility": "primary_care_team",
+            "receiving_provider_notified": true,
+            "handover": {
+              "situation": "",
+              "background": "Relevant history and context shared.",
+              "assessment": "Clinical assessment documented.",
+              "recommendation": "Proceed with receiving-team plan.",
+              "plan": "Follow local pathway and monitor response.",
+              "outstanding_tasks": [
+                "Confirm plan ownership"
+              ],
+              "communication_needs": "No specific communication barriers documented."
+            }
+          }
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "required_predecessors": [
+            "bed_manager"
+          ],
+          "clinical_rationale": "Cardiology consult and inpatient handoff after admission",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [
+            "handover.situation",
+            "handover.background",
+            "handover.assessment",
+            "handover.recommendation",
+            "handover.plan",
+            "handover.outstanding_tasks",
+            "handover.communication_needs"
+          ],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 1200,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      }
+    ],
+    "expected_duration": 18,
+    "medical_history": {
+      "past_medical_history": [
+        "Hypertension",
+        "Hyperlipidemia",
+        "Type 2 diabetes"
+      ],
+      "medications": [
+        "Lisinopril 20 mg daily",
+        "Atorvastatin 40 mg nightly",
+        "Metformin 1000 mg BID"
+      ],
+      "allergies": [
+        "Penicillin (rash)"
+      ],
+      "social_history": {
+        "tobacco": "former smoker (20 pack-years)",
+        "alcohol": "rare",
+        "exercise_tolerance": "decreased over past month"
+      },
+      "family_history": [
+        "Father with MI at 59"
+      ],
+      "review_of_systems": {
+        "cardiac": "Substernal pressure radiating to left arm with diaphoresis",
+        "respiratory": "Mild dyspnea",
+        "gi": "Nausea present"
+      },
+      "vital_signs": {
+        "blood_pressure": "168/98",
+        "heart_rate": 112,
+        "respiratory_rate": 24,
+        "oxygen_saturation": 94,
+        "temperature_c": 36.8
+      }
+    },
+    "simulation_profile": {
+      "seed": 4158840688,
+      "variance_band": "low",
+      "allowed_branches": [
+        "nominal",
+        "handoff_delay",
+        "context_gap"
+      ]
+    },
+    "negative_class": null,
+    "expected_escalation": null,
+    "expected_safe_outcome": null
+  },
+  {
+    "name": "inpatient_admission_and_daily_rounds",
+    "description": "Inpatient episode focusing on admission, medication safety, and daily review.",
+    "patient_profile": {
+      "age": 72,
+      "gender": "male",
+      "chief_complaint": "Community acquired pneumonia with hypoxia",
+      "urgency": "high"
+    },
+    "journey_steps": [
+      {
+        "agent": "bed_manager",
+        "method": "admission/assign_bed",
+        "params": {
+          "task": {
+            "unit_pref": "Ward",
+            "decision": "admit"
+          },
+          "care_transition": {
+            "handover_owner": "admitting_registrar",
+            "receiving_team": "inpatient_team",
+            "followup_responsibility": "primary_care_team",
+            "receiving_provider_notified": true,
+            "handover": {
+              "situation": "",
+              "background": "Relevant history and context shared.",
+              "assessment": "Clinical assessment documented.",
+              "recommendation": "Proceed with receiving-team plan.",
+              "plan": "Follow local pathway and monitor response.",
+              "outstanding_tasks": [
+                "Confirm plan ownership"
+              ],
+              "communication_needs": "No specific communication barriers documented."
+            }
+          }
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [
+            "handover.situation",
+            "handover.background",
+            "handover.assessment",
+            "handover.recommendation",
+            "handover.plan",
+            "handover.outstanding_tasks",
+            "handover.communication_needs"
+          ],
+          "escalation_path": [
+            "care_coordinator",
+            "senior_clinician",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 1200,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/start_session",
+        "params": {
+          "patient_case": {
+            "chief_complaint": "Community acquired pneumonia with hypoxia",
+            "age": 72,
+            "gender": "male",
+            "urgency": "high"
+          },
+          "persona": "attending_pulmonologist"
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "bed_manager"
+          ],
+          "clinical_rationale": "Attending evaluates patient on admission to ward",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/patient_message",
+        "params": {
+          "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+          "message": "I started coughing about five days ago after my grandchild was sick. It got worse and now I can barely breathe. There's some yellowish sputum."
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "Patient describes symptom onset and respiratory status",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "pharmacy",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "med_plan": [
+              "Amoxicillin",
+              "Oxygen"
+            ],
+            "allergies": []
+          }
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "optional_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "Antibiotic and supplemental O2 per attending assessment",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "coordinator",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "journey_type": "inpatient_stay",
+            "coordination_tasks": [
+              "Daily rounds",
+              "Consult sync",
+              "Care-plan update"
+            ]
+          },
+          "care_transition": {
+            "handover_owner": "care_coordinator",
+            "receiving_team": "multidisciplinary_team",
+            "followup_responsibility": "primary_care_team",
+            "receiving_provider_notified": true,
+            "handover": {
+              "situation": "",
+              "background": "Relevant history and context shared.",
+              "assessment": "Clinical assessment documented.",
+              "recommendation": "Proceed with receiving-team plan.",
+              "plan": "Follow local pathway and monitor response.",
+              "outstanding_tasks": [
+                "Confirm plan ownership"
+              ],
+              "communication_needs": "No specific communication barriers documented."
+            }
+          }
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "pharmacy"
+          ],
+          "clinical_rationale": "Care coordination after admission orders placed",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [
+            "handover.situation",
+            "handover.background",
+            "handover.assessment",
+            "handover.recommendation",
+            "handover.plan",
+            "handover.outstanding_tasks",
+            "handover.communication_needs"
+          ],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 1200,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "ccm",
+        "method": "ccm/monthly_review",
+        "params": {
+          "conditions": [
+            "COPD"
+          ],
+          "monthly_minutes": 20
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "required_predecessors": [
+            "coordinator"
+          ],
+          "clinical_rationale": "CCM review for chronic COPD management during stay",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      }
+    ],
+    "expected_duration": 16,
+    "medical_history": {
+      "past_medical_history": [
+        "COPD",
+        "Hypertension",
+        "Chronic tobacco exposure"
+      ],
+      "medications": [
+        "Tiotropium inhaler daily",
+        "Amlodipine 5 mg daily",
+        "Albuterol inhaler PRN"
+      ],
+      "allergies": [
+        "No known drug allergies"
+      ],
+      "social_history": {
+        "tobacco": "former smoker (40 pack-years)",
+        "living_situation": "Lives with spouse",
+        "recent_exposure": "Grandchild with respiratory infection"
+      },
+      "family_history": [
+        "Father with COPD"
+      ],
+      "review_of_systems": {
+        "respiratory": "Productive cough, pleuritic chest discomfort, dyspnea",
+        "constitutional": "Fever and fatigue"
+      },
+      "vital_signs": {
+        "blood_pressure": "128/72",
+        "heart_rate": 102,
+        "respiratory_rate": 26,
+        "oxygen_saturation": 88,
+        "temperature_c": 38.7
+      }
+    },
+    "simulation_profile": {
+      "seed": 3887889681,
+      "variance_band": "low",
+      "allowed_branches": [
+        "nominal",
+        "handoff_delay",
+        "context_gap"
+      ]
+    },
+    "negative_class": null,
+    "expected_escalation": null,
+    "expected_safe_outcome": null
+  },
+  {
+    "name": "inpatient_discharge_transition",
+    "description": "Discharge and transition-of-care workflow to outpatient follow-up.",
+    "patient_profile": {
+      "age": 66,
+      "gender": "female",
+      "chief_complaint": "Discharge readiness after CHF admission",
+      "urgency": "medium"
+    },
+    "journey_steps": [
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/start_session",
+        "params": {
+          "patient_case": {
+            "chief_complaint": "Discharge readiness after CHF admission",
+            "age": 66,
+            "gender": "female",
+            "urgency": "medium"
+          },
+          "persona": "attending_cardiologist"
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "clinical_rationale": "Cardiologist reviews discharge readiness with patient",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "clinician_avatar",
+        "method": "avatar/patient_message",
+        "params": {
+          "session_id": "$ctx.agent_outputs.clinician_avatar.session_id",
+          "message": "I'm breathing much better now and the swelling in my legs went down. My partner is ready to help me with the daily weight checks at home."
+        },
+        "delay": 2,
+        "handoff_policy": {
+          "required_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "Patient confirms symptom improvement and home support",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "discharge",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "discharge_diagnosis": "Heart failure exacerbation",
+            "discharge_disposition": "home",
+            "followup_instructions": [
+              "Daily weights",
+              "Low sodium diet"
+            ]
+          },
+          "care_transition": {
+            "handover_owner": "discharging_clinician",
+            "receiving_team": "community_care_team",
+            "followup_responsibility": "primary_care_team",
+            "receiving_provider_notified": true,
+            "handover": {
+              "situation": "",
+              "background": "Relevant history and context shared.",
+              "assessment": "Clinical assessment documented.",
+              "recommendation": "Proceed with receiving-team plan.",
+              "plan": "Follow local pathway and monitor response.",
+              "outstanding_tasks": [
+                "Confirm plan ownership"
+              ],
+              "communication_needs": "No specific communication barriers documented."
+            }
+          }
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "optional_predecessors": [
+            "clinician_avatar"
+          ],
+          "clinical_rationale": "Discharge planned after cardiologist confirms readiness",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [
+            "handover.situation",
+            "handover.background",
+            "handover.assessment",
+            "handover.recommendation",
+            "handover.plan",
+            "handover.outstanding_tasks",
+            "handover.communication_needs"
+          ],
+          "escalation_path": [
+            "care_coordinator",
+            "senior_clinician",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 900,
+          "safe_fallback_branch": "admit_for_senior_review",
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "pharmacy",
+        "method": "pharmacy/recommend",
+        "params": {
+          "task": {
+            "med_plan": [
+              "Lisinopril",
+              "Aspirin"
+            ],
+            "allergies": [],
+            "current_medications": [
+              "Ibuprofen"
+            ]
+          }
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "required_predecessors": [
+            "discharge"
+          ],
+          "clinical_rationale": "Discharge medication reconciliation",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "followup",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "followup_schedule": [
+            {
+              "type": "cardiology",
+              "when": "2026-03-08T14:29:08.611665",
+              "purpose": "post-discharge visit"
+            },
+            {
+              "type": "primary_care",
+              "when": "2026-03-15T14:29:08.611665",
+              "purpose": "transition of care"
+            }
+          ],
+          "care_transition": {
+            "handover_owner": "discharge_coordinator",
+            "receiving_team": "primary_care_team",
+            "followup_responsibility": "primary_care_team",
+            "receiving_provider_notified": true,
+            "handover": {
+              "situation": "",
+              "background": "Relevant history and context shared.",
+              "assessment": "Clinical assessment documented.",
+              "recommendation": "Proceed with receiving-team plan.",
+              "plan": "Follow local pathway and monitor response.",
+              "outstanding_tasks": [
+                "Confirm plan ownership"
+              ],
+              "communication_needs": "No specific communication barriers documented."
+            }
+          }
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "required_predecessors": [
+            "discharge"
+          ],
+          "optional_predecessors": [
+            "pharmacy"
+          ],
+          "clinical_rationale": "Follow-up scheduling after discharge orders finalized",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "required_context_keys": [],
+          "required_handover_fields": [
+            "handover.situation",
+            "handover.background",
+            "handover.assessment",
+            "handover.recommendation",
+            "handover.plan",
+            "handover.outstanding_tasks",
+            "handover.communication_needs"
+          ],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 1200,
+          "safe_fallback_branch": "manual_followup_queue",
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      },
+      {
+        "agent": "ccm",
+        "method": "ccm/monthly_review",
+        "params": {
+          "conditions": [
+            "CHF"
+          ],
+          "monthly_minutes": 22
+        },
+        "delay": 1,
+        "handoff_policy": {
+          "required_predecessors": [
+            "discharge"
+          ],
+          "clinical_rationale": "CCM enrollment for transition of care monitoring",
+          "criticality": "clinical",
+          "fallback_mode": "block_escalate",
+          "optional_predecessors": [],
+          "required_context_keys": [],
+          "required_handover_fields": [],
+          "escalation_path": [
+            "care_coordinator",
+            "hitl_ui"
+          ],
+          "max_wait_seconds": 600,
+          "safe_fallback_branch": null,
+          "guideline_refs": [
+            "NICE-QS174-Statement4",
+            "NICE-NG5",
+            "NICE-QS213-Statement5",
+            "WHO-Medication-Without-Harm"
+          ]
+        }
+      }
+    ],
+    "expected_duration": 15,
+    "medical_history": {
+      "past_medical_history": [
+        "Congestive heart failure",
+        "Hypertension",
+        "Coronary artery disease"
+      ],
+      "medications": [
+        "Lisinopril 20 mg daily",
+        "Aspirin 81 mg daily",
+        "Furosemide 40 mg daily"
+      ],
+      "allergies": [
+        "Ibuprofen (fluid retention)"
+      ],
+      "social_history": {
+        "diet": "High sodium prior to admission; now educated on restriction",
+        "support": "Lives with partner who assists medication management",
+        "self_monitoring": "Agrees to daily weight logs"
+      },
+      "family_history": [
+        "Mother with heart failure"
+      ],
+      "review_of_systems": {
+        "cardiac": "Improved dyspnea and edema compared with admission",
+        "constitutional": "No fever; appetite improving"
+      },
+      "vital_signs": {
+        "blood_pressure": "122/70",
+        "heart_rate": 76,
+        "respiratory_rate": 18,
+        "oxygen_saturation": 97,
+        "temperature_c": 36.6
+      }
+    },
+    "simulation_profile": {
+      "seed": 1396009271,
+      "variance_band": "low",
+      "allowed_branches": [
+        "nominal",
+        "handoff_delay",
+        "context_gap"
+      ]
+    },
+    "negative_class": null,
+    "expected_escalation": null,
+    "expected_safe_outcome": null
+  }
+]

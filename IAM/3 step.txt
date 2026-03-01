@@ -1,0 +1,141 @@
+A neat way to close the “mTLS authenticates but doesn’t scope access” gap is to add enterprise IAM persona-assumption on top of the transport identity.
+
+Step 1 — Prove the caller is a real agent (mTLS): each agent has its own X.509 certificate. The receiving agent terminates mTLS and maps the certificate (Subject/SAN/thumbprint) to a known Agent Principal.
+
+Step 2 — Map that agent to a persona (AD identity): treat personas as Azure AD / Entra ID (or on-prem AD DS) identities, groups, or app roles. After mTLS verification, the “Agent Principal” is authorised to assume one or more personas (e.g., BillingAgent, NetworkOpsAgent, FraudReviewAgent).
+
+Step 3 — Issue scoped authorisation via AD: once a persona is selected, the system obtains an AD-backed token (OAuth2/OIDC in Entra ID), or applies group/role claims derived from Active Directory. Those claims become the mechanism that mTLS lacks: resource + action scope (RBAC/ABAC), enforced at each API endpoint (“can read CDR summaries”, “can trigger network slice change”, “cannot access PII”, etc.).
+
+Practical pattern: mTLS = device/workload identity, AD persona = user/work role, token/claims = fine-grained permissions. That gives you mutual authentication plus least-privilege authorisation without relying on static API keys.
+
+Example: An “AssuranceAgent” calls a “ChargingAgent”. mTLS validates the calling agent certificate; the ChargingAgent then checks AD that this agent may assume BillingOps-ReadOnly and issues/accepts a token with role=BillingOpsReader, limiting access to /cdr/summary but denying /cdr/raw and any admin endpoints.
+
+References (APA)
+
+Microsoft. (n.d.). Microsoft Entra ID (Azure AD) documentation: authentication and authorization, app roles and groups. Microsoft Learn.
+
+Microsoft. (n.d.). Active Directory Domain Services (AD DS) overview. Microsoft Learn.
+
+IETF. (2019). The OAuth 2.0 Authorization Framework (RFC 6749).
+
+IETF. (2015). JSON Web Token (JWT) (RFC 7519).
+
+IETF. (2008). The Transport Layer Security (TLS) Protocol Version 1.2 (RFC 5246).
+
+
+
+3-step (mTLS ? persona mapping ? AD-scoped authorisation) to sync-ai-health/nexus-a2a-protocol for care coordination + patient visit workflows, with agents operating alongside human identities.
+Target design
+Treat every A2A call as having two identities:
+1. Workload identity (Agent) proven by mTLS
+2. Enterprise persona identity (AD/Entra) used for authorisation and audit, optionally tied to a human-in-the-loop
+This gives you: strong mutual authentication, least-privilege, and clinical-grade audit trails.
+
+How it fits nexus-a2a-protocol in practice
+Step 1 — mTLS establishes “Agent Principal”
+* Each agent in the repo (e.g., care-coordination agent, scheduling agent, referral agent, etc.) gets:
+o a unique X.509 cert
+o a stable agent_id
+* The receiving agent (or an A2A gateway) validates the client cert and maps it to an Agent Principal:
+o agent_principal = hash(cert_thumbprint) -> agent_id
+Output: “This is definitely TriageAgent-01 (workload identity).”
+
+Step 2 — Agent assumes an enterprise “persona” in AD/Entra
+Model personas as directory objects:
+* Option A (preferred): Entra ID App Roles + Groups
+* Option B: AD DS groups (if you’re on-prem heavy) + federation to Entra ID
+Create a mapping table (policy) such as:
+Agent Principal
+Allowed Personas (AD)
+Constraints
+TriageAgent-01
+CareCoordinator.Agent, ClinicalTriage.Agent
+only when case has consent
+SchedulingAgent-02
+Scheduling.Agent
+no access to diagnosis fields
+ReferralAgent-03
+Referral.Agent
+only referral bundles
+Human-in-loop “side-by-side”
+If a clinician is supervising, the agent can operate in an “on-behalf-of” mode:
+* human_actor = Dr.Smith@org
+* agent_actor = TriageAgent-01
+* effective_persona = ClinicalTriage.Agent AND delegated_by = Dr.Smith@org
+That yields auditability: agent action attributable to a person + constrained persona.
+
+Step 3 — Authorise per resource/action using AD-backed claims
+Once persona is selected, the agent obtains a token (or the gateway issues one) that carries claims like:
+* sub = agent identity or service principal
+* act / azp = calling agent app
+* obo / custom claim = human supervisor (if any)
+* roles = ClinicalTriage.Agent
+* scp (scopes) = visit.read, careplan.write
+* patient_scope = patient/encounter constraints (via policy engine)
+Enforcement happens per endpoint in the receiving agent (or central policy gateway):
+* RBAC: “role can call endpoint”
+* ABAC: “role can call endpoint only if consent present and within care team”
+
+Concrete examples for patient visit + care coordination
+Example 1: Patient check-in ? triage ? encounter creation
+1. CheckInAgent ? TriageAgent (mTLS OK)
+2. TriageAgent assumes ClinicalTriage.Agent
+3. Token grants:
+o Encounter.create
+o Observation.write (triage set)
+o Denies: MedicationDispense.write
+If clinician oversight required:
+TriageAgent runs with delegated_by = Nurse.Patel@org, making approval explicit.
+
+Example 2: Care coordinator requests referral
+1. CareCoordAgent ? ReferralAgent
+2. ReferralAgent assumes Referral.Agent
+3. Allowed:
+o ServiceRequest.create
+o DocumentReference.attach
+4. Denied:
+o Patient.update (demographics) unless Registration.Agent
+
+Example 3: Multi-agent care plan update with human approval gate
+* Agent drafts a care plan update (CarePlan.patch), but policy requires:
+o HumanApproval = true for certain transitions (e.g., discharge, high-risk meds)
+Flow:
+1. Agent authenticates (mTLS)
+2. Persona token indicates it can propose but not finalise
+3. Human clinician signs off using their own AD identity
+4. System records:
+o agent_actor, human_actor, effective_persona, decision
+
+What to implement in the repo (minimal, high-value)
+1. Agent Identity Registry
+* Maps cert thumbprints ? agent_id
+* Stores allowed personas + constraints
+2. Persona Broker / Token Service
+* Given (agent_id, requested_persona, optional human_actor):
+o validate assumption policy
+o mint OIDC token (or exchange) with role/scope claims
+3. Policy Enforcement Point
+* Either:
+o a lightweight A2A Gateway enforcing claims before routing, or
+o embedded middleware in each agent
+4. Audit schema (non-negotiable in care)
+Store an immutable event per A2A call:
+* trace_id, agent_actor, human_actor?, persona, resource, action, patient_id, encounter_id, decision, timestamp
+This is what makes “agents side by side humans” defensible to governance, clinical safety, and regulators.
+
+One caution (important)
+mTLS + AD persona does not automatically solve patient-level constraints. You still need a policy layer that evaluates:
+* consent
+* care team membership
+* purpose of use
+* break-glass rules
+…otherwise you risk “valid persona, wrong patient”.
+
+References (APA)
+* Hardt, D. (2012). The OAuth 2.0 Authorization Framework (RFC 6749). IETF.
+* Jones, M., Bradley, J., & Sakimura, N. (2015). JSON Web Token (JWT) (RFC 7519). IETF.
+* Rescorla, E. (2018). The Transport Layer Security (TLS) Protocol Version 1.3 (RFC 8446). IETF.
+* Microsoft. (n.d.). Microsoft Entra ID documentation (OAuth2/OIDC, app roles, conditional access, workload identities). Microsoft Learn.
+* Microsoft. (n.d.). Active Directory Domain Services overview. Microsoft Learn.
+If you want this to snap directly onto the care coordination / patient visit scenarios you have in the repo, paste (or point me to) the scenario names or the workflow folder paths you’re using, and I’ll map specific agents ? specific personas ? specific permissions as a small, concrete matrix you can implement immediately.
+

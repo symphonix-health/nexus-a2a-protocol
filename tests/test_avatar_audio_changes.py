@@ -29,6 +29,9 @@ CC_JS = STATIC / "chat_controller.js"
 AVATAR_HTML = STATIC / "avatar.html"
 PACK_JSON = STATIC / "patient_script_pack.json"
 AVATAR_URL = "http://localhost:8039"
+REALTIME_JS = STATIC / "realtime_client.js"
+AVATAR_RENDERER_JS = STATIC / "avatar_renderer.js"
+LIPSYNC_ENGINE_JS = STATIC / "lipsync_engine.js"
 
 
 # ── Fixtures ────────────────────────────────────────────────────────────────
@@ -98,6 +101,24 @@ class TestMainPy:
         """POST /api/patient/respond endpoint exists."""
         assert "/api/patient/respond" in main_src
 
+    def test_realtime_token_endpoint(self, main_src):
+        """POST /api/realtime/token endpoint exists."""
+        assert "/api/realtime/token" in main_src
+
+    def test_realtime_token_auth_check(self, main_src):
+        """Realtime token endpoint verifies JWT auth."""
+        region = main_src[main_src.find("/api/realtime/token") :][:1000]
+        assert "verify_jwt" in region
+
+    def test_realtime_token_calls_openai(self, main_src):
+        """Realtime token endpoint calls OpenAI client_secrets API."""
+        region = main_src[main_src.find("/api/realtime/token") :][:1500]
+        assert "realtime/sessions" in region
+
+    def test_realtime_model_configurable(self, main_src):
+        """Realtime API model is configurable via env var."""
+        assert "OPENAI_REALTIME_MODEL" in main_src
+
     def test_llm_chat_in_patient_endpoint(self, main_src):
         """llm_chat is called inside the patient endpoint."""
         assert "llm_chat" in main_src
@@ -138,9 +159,9 @@ class TestMainPy:
 
 
 class TestTtsClientJs:
-    def test_v7_header(self, tts_src):
-        """File version string updated to v7."""
-        assert "v7" in tts_src
+    def test_v8_header(self, tts_src):
+        """File version string updated to v8."""
+        assert "v8" in tts_src
 
     def test_tts_error_handler(self, tts_src):
         """tts_error message type is handled."""
@@ -264,18 +285,247 @@ class TestChatControllerJs:
         speak_region = cc_src[cc_src.find("function _speakStreaming") :][:1500]
         assert "onError" in speak_region
 
+    def test_realtime_client_init_in_start_session(self, cc_src):
+        """RealtimeClient.init() called during startSession."""
+        assert "RealtimeClient.init" in cc_src
+
+    def test_realtime_client_speak_in_speak_streaming(self, cc_src):
+        """_speakStreaming tries RealtimeClient.speak before TTSClient."""
+        speak_region = cc_src[cc_src.find("function _speakStreaming") :][:800]
+        assert "RealtimeClient" in speak_region
+        assert "isActive" in speak_region
+
+    def test_realtime_client_cancel_on_barge_in(self, cc_src):
+        """Barge-in cancels both TTSClient and RealtimeClient."""
+        assert "RealtimeClient.cancel" in cc_src
+
+    def test_speak_via_tts_fallback(self, cc_src):
+        """_speakViaTTS fallback function defined."""
+        assert "_speakViaTTS" in cc_src
+
+
+# ── 3b. realtime_client.js ──────────────────────────────────────────────────
+
+
+@pytest.fixture(scope="session")
+def rt_src() -> str:
+    return REALTIME_JS.read_text(encoding="utf-8")
+
+
+@pytest.fixture(scope="session")
+def ar_src() -> str:
+    return AVATAR_RENDERER_JS.read_text(encoding="utf-8")
+
+
+@pytest.fixture(scope="session")
+def ls_src() -> str:
+    return LIPSYNC_ENGINE_JS.read_text(encoding="utf-8")
+
+
+class TestRealtimeClientJs:
+    """Tests for the OpenAI Realtime API WebRTC client module."""
+
+    def test_file_exists(self):
+        """realtime_client.js exists."""
+        assert REALTIME_JS.exists()
+
+    def test_module_exported(self, rt_src):
+        """RealtimeClient exported to window."""
+        assert "window.RealtimeClient" in rt_src
+
+    def test_init_function(self, rt_src):
+        """init() async function defined."""
+        assert "async function init" in rt_src
+
+    def test_speak_function(self, rt_src):
+        """speak() function defined."""
+        assert "function speak" in rt_src
+
+    def test_cancel_function(self, rt_src):
+        """cancel() function defined."""
+        assert "function cancel" in rt_src
+
+    def test_close_function(self, rt_src):
+        """close() function defined."""
+        assert "function close" in rt_src
+
+    def test_is_active_function(self, rt_src):
+        """isActive() function defined."""
+        assert "function isActive" in rt_src
+
+    def test_webrtc_peer_connection(self, rt_src):
+        """Uses RTCPeerConnection for WebRTC."""
+        assert "RTCPeerConnection" in rt_src
+
+    def test_data_channel_oai_events(self, rt_src):
+        """Creates data channel named 'oai-events'."""
+        assert "oai-events" in rt_src
+
+    def test_ephemeral_key_fetch(self, rt_src):
+        """Fetches ephemeral key from /api/realtime/token."""
+        assert "/api/realtime/token" in rt_src
+
+    def test_sdp_exchange_with_openai(self, rt_src):
+        """Sends SDP offer to OpenAI /v1/realtime/calls."""
+        assert "api.openai.com/v1/realtime/calls" in rt_src
+
+    def test_remote_audio_element(self, rt_src):
+        """Creates <audio> element for remote stream playback."""
+        assert "createElement('audio')" in rt_src
+        assert "autoplay" in rt_src
+
+    def test_analyser_node_for_lipsync(self, rt_src):
+        """Uses AnalyserNode frequency data for spectral lip sync."""
+        assert "createAnalyser" in rt_src
+        assert "getByteFrequencyData" in rt_src
+
+    def test_amplitude_poller(self, rt_src):
+        """Starts 40ms amplitude polling loop."""
+        assert "setInterval" in rt_src
+
+    def test_applies_lipsync_viseme(self, rt_src):
+        """Amplitude poller drives AvatarRenderer.applyVisemeParams."""
+        assert "AvatarRenderer.applyVisemeParams" in rt_src
+
+    def test_frequency_band_analysis(self, rt_src):
+        """Frequency bands for low/mid/high energy are present."""
+        assert "freq >= 80 && freq < 400" in rt_src
+        assert "freq >= 400 && freq < 2200" in rt_src
+        assert "freq >= 2200 && freq < 6500" in rt_src
+
+    def test_fft_and_smoothing_config(self, rt_src):
+        """AnalyserNode uses v10 FFT/smoothing tuning."""
+        assert "fftSize = 512" in rt_src
+        assert "smoothingTimeConstant = 0.3" in rt_src
+
+    def test_resets_viseme_params_on_stop(self, rt_src):
+        """Stop path resets params to neutral mouth shape."""
+        assert "mouthWidth: 0.5" in rt_src
+        assert "lipPucker: 0" in rt_src
+
+
+class TestAvatarRendererJs:
+    """Tests for multi-parameter mouth rendering in avatar_renderer.js."""
+
+    def test_file_exists(self):
+        assert AVATAR_RENDERER_JS.exists()
+
+    def test_multi_param_state_vars(self, ar_src):
+        assert "_jawOpen" in ar_src
+        assert "_mouthWidth" in ar_src
+        assert "_lipPucker" in ar_src
+
+    def test_apply_viseme_params_function(self, ar_src):
+        assert "function applyVisemeParams" in ar_src
+        assert "jawOpen" in ar_src
+        assert "mouthWidth" in ar_src
+        assert "lipPucker" in ar_src
+
+    def test_draw_mouth_present(self, ar_src):
+        assert "function _drawMouth" in ar_src
+        assert "_drawMouth(activeLm.cx, activeLm.cy, activeLm.halfW, w, h)" in ar_src
+
+    def test_bezier_curve_lips(self, ar_src):
+        assert "bezierCurveTo" in ar_src
+        assert "quadraticCurveTo" in ar_src
+
+    def test_skin_sampling_present(self, ar_src):
+        assert "_skinRGB" in ar_src
+        assert "getImageData" in ar_src
+
+    def test_legacy_jaw_morph_removed(self, ar_src):
+        assert "_applyJawMorph" not in ar_src
+
+    def test_exports_apply_viseme_params(self, ar_src):
+        assert "applyVisemeParams" in ar_src
+
+
+class TestLipSyncEngineJs:
+    """Tests for viseme-shape mapping in lipsync_engine.js."""
+
+    def test_file_exists(self):
+        assert LIPSYNC_ENGINE_JS.exists()
+
+    def test_viseme_shape_function(self, ls_src):
+        assert "function _visemeShape" in ls_src
+
+    def test_viseme_shape_classes(self, ls_src):
+        assert "'PP'" in ls_src
+        assert "'FV'" in ls_src
+        assert "'EE'" in ls_src
+        assert "'OW'" in ls_src
+
+    def test_apply_viseme_params_call(self, ls_src):
+        assert "applyVisemeParams" in ls_src
+        assert "mouthWidth: shape.mw" in ls_src
+        assert "lipPucker: shape.lp" in ls_src
+
+    def test_stop_resets_neutral_shape(self, ls_src):
+        assert "mouthWidth: 0.5" in ls_src
+        assert "lipPucker: 0" in ls_src
+
+    def test_session_update_disable_vad(self, rt_src):
+        """Sends session.update to disable VAD (text-only input)."""
+        assert "session.update" in rt_src
+        assert "turn_detection" in rt_src
+
+    def test_out_of_band_response(self, rt_src):
+        """Uses out-of-band response.create with conversation: 'none'."""
+        assert "response.create" in rt_src
+        assert "'none'" in rt_src
+
+    def test_response_cancel(self, rt_src):
+        """Sends response.cancel on cancel()."""
+        assert "response.cancel" in rt_src
+
+    def test_response_done_handling(self, rt_src):
+        """Handles response.done event."""
+        assert "response.done" in rt_src
+
+    def test_silent_audio_track(self, rt_src):
+        """Creates silent audio track for WebRTC negotiation."""
+        assert "createMediaStreamDestination" in rt_src
+        assert "gain.value" in rt_src or "gain.gain.value" in rt_src
+
+    def test_media_stream_source(self, rt_src):
+        """Creates MediaStreamSource from remote audio for analysis."""
+        assert "createMediaStreamSource" in rt_src
+
+    def test_speech_callbacks(self, rt_src):
+        """Supports onSpeechStart, onSpeechEnd, onError callbacks."""
+        assert "onSpeechStart" in rt_src
+        assert "onSpeechEnd" in rt_src
+        assert "onError" in rt_src
+
 
 # ── 4. avatar.html ───────────────────────────────────────────────────────────
 
 
 class TestAvatarHtml:
-    def test_tts_client_v7(self, html_src):
-        """tts_client.js loaded at version 7."""
-        assert "tts_client.js?v=7" in html_src
+    def test_tts_client_v9(self, html_src):
+        """tts_client.js loaded at version 9."""
+        assert "tts_client.js?v=9" in html_src
 
-    def test_chat_controller_v7(self, html_src):
-        """chat_controller.js loaded at version 7."""
-        assert "chat_controller.js?v=7" in html_src
+    def test_chat_controller_v9(self, html_src):
+        """chat_controller.js loaded at version 9."""
+        assert "chat_controller.js?v=9" in html_src
+
+    def test_realtime_client_script(self, html_src):
+        """realtime_client.js script tag present."""
+        assert "realtime_client.js?v=10" in html_src
+
+    def test_avatar_renderer_script(self, html_src):
+        """avatar_renderer.js script tag present at v10."""
+        assert "avatar_renderer.js?v=10" in html_src
+
+    def test_lipsync_engine_script(self, html_src):
+        """lipsync_engine.js script tag present at v10."""
+        assert "lipsync_engine.js?v=10" in html_src
+
+    def test_realtime_voices_in_select(self, html_src):
+        """Realtime API voices appear in voice-select dropdown."""
+        assert 'value="coral"' in html_src
+        assert 'value="sage"' in html_src
 
     def test_patient_mode_human_radio(self, html_src):
         """Human patient mode radio button present."""
@@ -463,3 +713,38 @@ class TestPatientRespondEndpoint:
         data = resp.json()
         assert data["version"] == 3
         assert len(data["scenarios"]) == 3
+
+    def test_realtime_token_rejects_no_auth(self, avatar_running):
+        """POST /api/realtime/token rejects requests without JWT."""
+        if not avatar_running:
+            pytest.skip("Avatar agent not running on port 8039")
+        resp = httpx.post(
+            f"{AVATAR_URL}/api/realtime/token",
+            headers={"Content-Type": "application/json"},
+            json={"voice": "coral"},
+            timeout=10,
+        )
+        assert resp.status_code in (401, 403)
+
+    def test_realtime_token_with_auth(self, headers, avatar_running):
+        """POST /api/realtime/token returns 200 or 503 (no API key) with valid auth."""
+        if not avatar_running:
+            pytest.skip("Avatar agent not running on port 8039")
+        resp = httpx.post(
+            f"{AVATAR_URL}/api/realtime/token",
+            headers=headers,
+            json={"voice": "coral"},
+            timeout=15,
+        )
+        # 200 = ephemeral key returned, 503 = OPENAI_API_KEY not set, 502 = OpenAI error
+        assert resp.status_code in (200, 502, 503)
+        if resp.status_code == 503:
+            assert "OPENAI_API_KEY" in resp.json().get("detail", "")
+
+    def test_realtime_client_js_served(self, avatar_running):
+        """realtime_client.js is served as a static file."""
+        if not avatar_running:
+            pytest.skip("Avatar agent not running on port 8039")
+        resp = httpx.get(f"{AVATAR_URL}/static/realtime_client.js", timeout=5)
+        assert resp.status_code == 200
+        assert "RealtimeClient" in resp.text

@@ -1,0 +1,169 @@
+ÔÜÖ Active retry profile: balanced
+ÔÜÖ On-demand gateway routing: http://localhost:8100
+­ƒÜÇ Running 33 scenario(s)
+   Mode: Sequential
+   Retry profile: balanced
+­ƒÅÑ Starting Scenario: primary_care_outpatient_in_person
+   Description: In-person primary care visit with assessment, treatment, and checkout.
+   Patient ID: PAT-1772381562-primary_care_outpatient_in_person
+   Visit ID: VISIT-1772381562-primary_care_outpatient_in_person
+   Trace ID: trace-56812371-3419-4b17-b4a0-e6278aeb1697
+   Profile: {'age': 47, 'gender': 'female', 'chief_complaint': 'Fatigue and elevated blood pressure follow-up', 'urgency': 'medium'}
+================================================================================
+
+Step 1/6: PRIMARY_CARE
+­ƒô× Calling http://localhost:8100/rpc/primary_care - Method: primary_care/manage_visit
+   Ô£à Response received
+
+Step 2/6: CONSULTING_CLINICIAN
+­ƒô× Calling http://localhost:8100/rpc/clinician_avatar - Method: avatar/start_session
+   Ô£à Response received
+
+Step 3/6: CONSULTING_CLINICIAN
+­ƒô× Calling http://localhost:8100/rpc/clinician_avatar - Method: avatar/patient_message
+   ÔØî Attempt 1/7 failed (retriable): ReadTimeout
+   ÔÅ▒ Retry budget exhausted for this call
+   ÔØî Error: All connection attempts failed
+
+Step 4/6: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 5/6: PHARMACY
+­ƒô× Calling http://localhost:8100/rpc/pharmacy - Method: pharmacy/recommend
+   Ô£à Response received
+
+Step 6/6: FOLLOWUP
+   ­ƒÜ½ Handoff blocked ÔÇö Missing handover contract fields: handover.situation, handover.background, handover.assessment, handover.recommendation, handover.plan, handover.outstanding_tasks, handover.communication_needs
+   ­ƒôï Trace posted ÔåÆ trace-56812371-3419-4b17-b4a0-e6278aeb1697
+
+Ô£à Scenario 'primary_care_outpatient_in_person' completed!
+   Duration: ~16 seconds
+   Delegation: 0 skipped, 1 blocked, 0 retry-pending, 0 rerouted
+================================================================================
+­ƒÅÑ Starting Scenario: specialty_outpatient_clinic
+   Description: Specialty clinic workflow with referral triage and diagnostics.
+   Patient ID: PAT-1772381650-specialty_outpatient_clinic
+   Visit ID: VISIT-1772381650-specialty_outpatient_clinic
+   Trace ID: trace-327a0012-4c36-44f7-ae5e-8c1677271ba2
+   Profile: {'age': 61, 'gender': 'male', 'chief_complaint': 'Progressive exertional chest discomfort', 'urgency': 'high'}
+================================================================================
+
+Step 1/6: SPECIALTY_CARE
+­ƒô× Calling http://localhost:8100/rpc/specialty_care - Method: specialty_care/manage_referral
+   Ô£à Response received
+
+Step 2/6: CONSULTING_CLINICIAN
+­ƒô× Calling http://localhost:8100/rpc/clinician_avatar - Method: avatar/start_session
+   Ô£à Response received
+
+Step 3/6: CONSULTING_CLINICIAN
+­ƒô× Calling http://localhost:8100/rpc/clinician_avatar - Method: avatar/patient_message
+   Ô£à Response received
+
+Step 4/6: DIAGNOSIS
+   ­ƒÄ▓ Simulation branch: handoff_delay
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 5/6: IMAGING
+­ƒô× Calling http://localhost:8100/rpc/imaging - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 6/6: COORDINATOR
+   ­ƒÜ½ Handoff blocked ÔÇö Missing handover contract fields: handover.situation, handover.background, handover.assessment, handover.recommendation, handover.plan, handover.outstanding_tasks, handover.communication_needs
+   ­ƒôï Trace posted ÔåÆ trace-327a0012-4c36-44f7-ae5e-8c1677271ba2
+
+Ô£à Scenario 'specialty_outpatient_clinic' completed!
+   Duration: ~18 seconds
+   Delegation: 0 skipped, 1 blocked, 0 retry-pending, 0 rerouted
+================================================================================
+­ƒÅÑ Starting Scenario: telehealth_video_consult
+   Description: Video telehealth consult with identity/location verification and remote plan.
+   Patient ID: PAT-1772381718-telehealth_video_consult
+   Visit ID: VISIT-1772381718-telehealth_video_consult
+   Trace ID: trace-17bd78fd-2d8a-4b0d-b0e8-f79c6b33bd95
+   Profile: {'age': 35, 'gender': 'female', 'chief_complaint': 'Migraine follow-up', 'urgency': 'low'}
+================================================================================
+
+Step 1/6: TELEHEALTH
+­ƒô× Calling http://localhost:8100/rpc/telehealth - Method: telehealth/consult
+   Ô£à Response received
+
+Step 2/6: CONSULTING_CLINICIAN
+­ƒô× Calling http://localhost:8100/rpc/clinician_avatar - Method: avatar/start_session
+   Ô£à Response received
+
+Step 3/6: CONSULTING_CLINICIAN
+­ƒô× Calling http://localhost:8100/rpc/clinician_avatar - Method: avatar/patient_message
+   Ô£à Response received
+
+Step 4/6: DIAGNOSIS
+­ƒô× Calling http://localhost:8100/rpc/diagnosis - Method: tasks/sendSubscribe
+   Ô£à Response received
+
+Step 5/6: PHARMACY
+­ƒô× Calling http://localhost:8100/rpc/pharmacy - Method: pharmacy/recommend
+   Ô£à Response received
+
+Step 6/6: FOLLOWUP
+   ­ƒÜ½ Handoff blocked ÔÇö Missing handover contract fields: handover.situation, handover.background, handover.assessment, handover.recommendation, handover.plan, handover.outstanding_tasks, handover.communication_needs
+   ­ƒôï Trace posted ÔåÆ trace-17bd78fd-2d8a-4b0d-b0e8-f79c6b33bd95
+
+Ô£à Scenario 'telehealth_video_consult' completed!
+   Duration: ~14 seconds
+   Delegation: 0 skipped, 1 blocked, 0 retry-pending, 0 rerouted
+================================================================================
+­ƒÅÑ Starting Scenario: telehealth_audio_only_followup
+   Description: Audio-only telehealth follow-up with escalation guardrails.
+   Patient ID: PAT-1772381761-telehealth_audio_only_followup
+   Visit ID: VISIT-1772381761-telehealth_audio_only_followup
+   Trace ID: trace-2e1c4538-e61f-4493-a8f0-bb04566954f6
+   Profile: {'age': 73, 'gender': 'male', 'chief_complaint': 'Medication side-effect review', 'urgency': 'low'}
+================================================================================
+
+Step 1/6: TELEHEALTH
+­ƒô× Calling http://localhost:8100/rpc/telehealth - Method: telehealth/consult
+   Ô£à Response received
+
+Step 2/6: CONSULTING_CLINICIAN
+­ƒô× Calling http://localhost:8100/rpc/clinician_avatar - Method: avatar/start_session
+   Ô£à Response received
+
+Step 3/6: CONSULTING_CLINICIAN
+­ƒô× Calling http://localhost:8100/rpc/clinician_avatar - Method: avatar/patient_message
+   Ô£à Response received
+
+Step 4/6: PRIMARY_CARE
+­ƒô× Calling http://localhost:8100/rpc/primary_care - Method: primary_care/manage_visit
+   Ô£à Response received
+
+Step 5/6: PHARMACY
+­ƒô× Calling http://localhost:8100/rpc/pharmacy - Method: pharmacy/check_interactions
+   Ô£à Response received
+
+Step 6/6: FOLLOWUP
+   ­ƒÜ½ Handoff blocked ÔÇö Missing handover contract fields: handover.situation, handover.background, handover.assessment, handover.recommendation, handover.plan, handover.outstanding_tasks, handover.communication_needs
+   ­ƒôï Trace posted ÔåÆ trace-2e1c4538-e61f-4493-a8f0-bb04566954f6
+
+Ô£à Scenario 'telehealth_audio_only_followup' completed!
+   Duration: ~13 seconds
+   Delegation: 0 skipped, 1 blocked, 0 retry-pending, 0 rerouted
+================================================================================
+­ƒÅÑ Starting Scenario: home_visit_house_call
+   Description: Home-based primary care visit including environment and safety assessment.
+   Patient ID: PAT-1772381800-home_visit_house_call
+   Visit ID: VISIT-1772381800-home_visit_house_call
+   Trace ID: trace-27269e59-4838-4976-b0a1-67075b7b7b5b
+   Profile: {'age': 84, 'gender': 'female', 'chief_complaint': 'Frailty and recurrent falls', 'urgency': 'medium'}
+================================================================================
+
+Step 1/6: HOME_VISIT
+   ­ƒÄ▓ Simulation branch: context_gap
+­ƒô× Calling http://localhost:8100/rpc/home_visit - Method: home_visit/dispatch
+   Ô£à Response received
+
+Step 2/6: CONSULTING_CLINICIAN
+­ƒô× Calling http://localhost:8100/rpc/clinician_avatar - Method: avatar/start_session
+   Ô£à Response received
+

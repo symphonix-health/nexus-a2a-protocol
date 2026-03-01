@@ -95,9 +95,10 @@ def _ws_recv(ws):
 
 
 class TestTtsStreamSyntheticPath:
-    """When OPENAI_API_KEY is absent the handler emits synthetic=True and skips PCM."""
+    """When OPENAI_API_KEY is absent the handler emits tts_error + end (no silent fallback)."""
 
     def test_meta_has_synthetic_flag(self, avatar_app, monkeypatch):
+        """No API key → tts_error frame is sent, no PCM, no synthetic meta."""
         from starlette.testclient import TestClient
 
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
@@ -120,15 +121,13 @@ class TestTtsStreamSyntheticPath:
                             break
 
         types = [m["type"] for m in messages]
-        assert "meta" in types
-        assert "visemes" in types
-        assert "end" in types
-
-        meta = next(m for m in messages if m["type"] == "meta")
-        assert meta.get("synthetic") is True, "Expected synthetic=True when no API key"
-        assert pcm_bytes == 0, "Expected zero PCM bytes on synthetic path"
+        assert "tts_error" in types, "Expected tts_error frame when no API key"
+        assert "end" in types, "Expected end frame after tts_error"
+        assert "meta" not in types, "Got meta frame unexpectedly — browser fallback path was not removed"
+        assert pcm_bytes == 0, "Expected zero PCM bytes when no API key"
 
     def test_visemes_list_is_non_empty(self, avatar_app, monkeypatch):
+        """No API key → tts_error sent; no visemes frame (hard-fail before viseme generation)."""
         from starlette.testclient import TestClient
 
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
@@ -147,10 +146,11 @@ class TestTtsStreamSyntheticPath:
                         if msg.get("type") == "end":
                             break
 
-        visemes_msg = next((m for m in messages if m["type"] == "visemes"), None)
-        assert visemes_msg is not None
-        assert isinstance(visemes_msg["visemes"], list)
-        assert len(visemes_msg["visemes"]) >= 1
+        types = [m["type"] for m in messages]
+        # New protocol: no API key → tts_error + end (no visemes, no PCM)
+        assert "tts_error" in types, "Expected tts_error frame when no API key"
+        assert "end" in types, "Expected end frame after tts_error"
+        assert "visemes" not in types, "Got unexpected visemes frame on error path"
 
     def test_empty_text_skips_entire_exchange(self, avatar_app, monkeypatch):
         """Sending an empty speak message should be silently ignored."""
@@ -207,7 +207,7 @@ class TestTtsStreamRealPath:
         # We monkeypatch stream_tts_chunks to avoid a real API call
         import shared.clinician_avatar.video_clinician_provider as vcp
 
-        async def _fake_chunks(text, voice="alloy"):  # noqa: RUF029
+        async def _fake_chunks(text, voice="alloy", **kwargs):  # noqa: RUF029
             # Yield a minimal 4800-byte chunk of silence (16-bit LE zeroes)
             yield bytes(4800)
 
