@@ -1,0 +1,9 @@
+{
+  "registry": "http://localhost:8060/rpc",
+  "audit": "http://localhost:8064/rpc",
+  "adapters": {
+    "fhir": "http://localhost:8061/rpc",
+    "x12": "http://localhost:8062/rpc",
+    "ncpdp": "http://localhost:8063/rpc"
+  }
+}

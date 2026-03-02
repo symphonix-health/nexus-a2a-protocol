@@ -18,6 +18,7 @@ from .a2a_http import (
     negotiate_http_request,
     response_headers as a2a_response_headers,
 )
+from .authorization import AuthorizationError, authorize_rpc_request
 from .did import did_verify_enabled, verify_did_signature
 from .health import HealthMonitor, apply_backpressure_to_agent_card
 from .ids import make_task_id, make_trace_id
@@ -112,6 +113,7 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
     inflight_tasks = 0
 
     required_scope = os.getenv("NEXUS_REQUIRED_SCOPE", "nexus:invoke")
+    agent_id = os.getenv("NEXUS_AGENT_ID", default_name.strip().lower().replace("-", "_"))
     card_path = Path(app_dir) / "agent_card.json"
 
     def _build_idempotency_store() -> IdempotencyStore | RedisIdempotencyStore:
@@ -222,7 +224,7 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
         )
         return out
 
-    def _require_auth(req: Request) -> str:
+    def _require_basic_auth(req: Request) -> str:
         try:
             token = extract_bearer_token(req.headers.get("authorization", ""))
             verify_service_auth(
@@ -235,6 +237,22 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
         if did_verify_enabled() and not verify_did_signature():
             raise HTTPException(status_code=401, detail="DID signature verification failed")
         return token
+
+    def _authorize_rpc(req: Request, method: str, params: dict[str, Any]) -> str:
+        try:
+            authz = authorize_rpc_request(
+                authorization_header=req.headers.get("authorization", ""),
+                headers=req.headers,
+                method=method,
+                params=params,
+                target_agent_id=agent_id,
+                required_scope=required_scope,
+            )
+        except AuthorizationError as exc:
+            raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
+        if did_verify_enabled() and not verify_did_signature():
+            raise HTTPException(status_code=401, detail="DID signature verification failed")
+        return authz.token
 
     @app.get("/.well-known/agent-card.json")
     async def agent_card() -> JSONResponse:
@@ -251,7 +269,7 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
 
     @app.get("/events/{task_id}")
     async def events(task_id: str, request: Request) -> StreamingResponse:
-        _require_auth(request)
+        _require_basic_auth(request)
         return StreamingResponse(bus.stream(task_id), media_type="text/event-stream")
 
     @app.websocket("/ws/{task_id}")
@@ -466,8 +484,10 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
         traceparent_in, tracestate_in = extract_trace_context(request.headers)
         response_traceparent = traceparent_in
         try:
+            candidate_method = str(payload.get("method") or "").strip() or "tasks/send"
+            candidate_params = payload.get("params") if isinstance(payload.get("params"), dict) else {}
             try:
-                _token = _require_auth(request)
+                _token = _authorize_rpc(request, candidate_method, candidate_params)
             except HTTPException as exc:
                 if not response_traceparent:
                     response_traceparent = build_traceparent(str(payload.get("id") or "auth"))

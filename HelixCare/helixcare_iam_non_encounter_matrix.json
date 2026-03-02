@@ -1,0 +1,267 @@
+[
+  {
+    "use_case_id": "IAM-NE-0001",
+    "scenario_title": "Control-plane non-encounter method tasks/get is allowed with valid JWT",
+    "poc_demo": "helixcare-iam-non-encounter",
+    "scenario_type": "positive",
+    "gateway_alias": "triage",
+    "auth_profile": "session",
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "iam-ne-0001",
+      "method": "tasks/get",
+      "params": {
+        "task_id": "iam-ne-task-001"
+      }
+    },
+    "expected_http_status": 200,
+    "expected_jsonrpc_envelope": true,
+    "requirement_ids": [
+      "NEXUS-IAM-STEP3",
+      "NEXUS-IAM-NONENCOUNTER-CONTROLPLANE"
+    ],
+    "test_tags": [
+      "helixcare",
+      "iam",
+      "non-encounter",
+      "positive",
+      "control-plane"
+    ]
+  },
+  {
+    "use_case_id": "IAM-NE-0002",
+    "scenario_title": "Non-encounter request without bearer token is rejected",
+    "poc_demo": "helixcare-iam-non-encounter",
+    "scenario_type": "negative",
+    "gateway_alias": "triage",
+    "auth_profile": "missing",
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "iam-ne-0002",
+      "method": "tasks/get",
+      "params": {
+        "task_id": "iam-ne-task-002"
+      }
+    },
+    "expected_http_status": 401,
+    "expected_detail_contains": "Missing bearer token",
+    "requirement_ids": [
+      "NEXUS-IAM-STEP3",
+      "NEXUS-IAM-NONENCOUNTER-AUTH"
+    ],
+    "test_tags": [
+      "helixcare",
+      "iam",
+      "non-encounter",
+      "negative",
+      "auth"
+    ]
+  },
+  {
+    "use_case_id": "IAM-NE-0003",
+    "scenario_title": "Non-encounter audit/query denies persona without audit scope",
+    "poc_demo": "helixcare-iam-non-encounter",
+    "scenario_type": "negative",
+    "gateway_alias": "consent-analyser",
+    "auth_profile": "persona",
+    "auth_subject": "harness-p004",
+    "persona_id": "P004",
+    "auth_agent_id": "triage_agent",
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "iam-ne-0003",
+      "method": "audit/query",
+      "params": {}
+    },
+    "expected_http_status": 403,
+    "expected_detail_contains": "Missing required scopes",
+    "requirement_ids": [
+      "NEXUS-IAM-STEP3",
+      "NEXUS-IAM-NONENCOUNTER-RBAC"
+    ],
+    "test_tags": [
+      "helixcare",
+      "iam",
+      "non-encounter",
+      "negative",
+      "rbac"
+    ]
+  },
+  {
+    "use_case_id": "IAM-NE-0004",
+    "scenario_title": "Strict persona mode rejects unknown service principal on non-encounter call",
+    "poc_demo": "helixcare-iam-non-encounter",
+    "scenario_type": "edge",
+    "gateway_alias": "triage",
+    "auth_profile": "jwt",
+    "auth_subject": "unknown_service_agent",
+    "requires_env": {
+      "NEXUS_PERSONA_STRICT": "true"
+    },
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "iam-ne-0004",
+      "method": "tasks/get",
+      "params": {
+        "task_id": "iam-ne-task-004"
+      }
+    },
+    "expected_http_status": 403,
+    "expected_detail_contains": "Unknown agent principal",
+    "requirement_ids": [
+      "NEXUS-IAM-STEP2",
+      "NEXUS-IAM-NONENCOUNTER-PERSONA"
+    ],
+    "test_tags": [
+      "helixcare",
+      "iam",
+      "non-encounter",
+      "edge",
+      "persona"
+    ]
+  },
+  {
+    "use_case_id": "IAM-NE-0005",
+    "scenario_title": "Enforce mode denies sensitive patient non-encounter access without break-glass",
+    "poc_demo": "helixcare-iam-non-encounter",
+    "scenario_type": "negative",
+    "gateway_alias": "consent-analyser",
+    "auth_profile": "persona",
+    "auth_subject": "harness-p013",
+    "persona_id": "P013",
+    "auth_agent_id": "consent_analyser",
+    "requires_env": {
+      "NEXUS_POLICY_MODE": "enforce"
+    },
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "iam-ne-0005",
+      "method": "audit/query",
+      "params": {
+        "patient_id": "patient-sensitive-001"
+      }
+    },
+    "expected_http_status": 403,
+    "expected_detail_contains": "Policy denied",
+    "requirement_ids": [
+      "NEXUS-IAM-ENTERPRISE-POLICY",
+      "NEXUS-IAM-NONENCOUNTER-BREAKGLASS"
+    ],
+    "test_tags": [
+      "helixcare",
+      "iam",
+      "non-encounter",
+      "negative",
+      "policy"
+    ]
+  },
+  {
+    "use_case_id": "IAM-NE-0006",
+    "scenario_title": "Enforce mode allows sensitive patient non-encounter access with break-glass justification",
+    "poc_demo": "helixcare-iam-non-encounter",
+    "scenario_type": "positive",
+    "gateway_alias": "consent-analyser",
+    "auth_profile": "persona",
+    "auth_subject": "harness-p013",
+    "persona_id": "P013",
+    "auth_agent_id": "consent_analyser",
+    "requires_env": {
+      "NEXUS_POLICY_MODE": "enforce"
+    },
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "iam-ne-0006",
+      "method": "audit/query",
+      "params": {
+        "patient_id": "patient-sensitive-001",
+        "break_glass": true,
+        "break_glass_reason": "Urgent compliance investigation"
+      }
+    },
+    "expected_http_status": 200,
+    "expected_jsonrpc_envelope": true,
+    "requirement_ids": [
+      "NEXUS-IAM-ENTERPRISE-POLICY",
+      "NEXUS-IAM-NONENCOUNTER-BREAKGLASS"
+    ],
+    "test_tags": [
+      "helixcare",
+      "iam",
+      "non-encounter",
+      "positive",
+      "policy"
+    ]
+  },
+  {
+    "use_case_id": "IAM-NE-0007",
+    "scenario_title": "Enforce mode denies non-encounter access on purpose-of-use mismatch",
+    "poc_demo": "helixcare-iam-non-encounter",
+    "scenario_type": "negative",
+    "gateway_alias": "consent-analyser",
+    "auth_profile": "persona",
+    "auth_subject": "harness-p013",
+    "persona_id": "P013",
+    "auth_agent_id": "consent_analyser",
+    "requires_env": {
+      "NEXUS_POLICY_MODE": "enforce"
+    },
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "iam-ne-0007",
+      "method": "audit/query",
+      "params": {
+        "patient_id": "patient-policy-pou-001"
+      }
+    },
+    "expected_http_status": 403,
+    "expected_detail_contains": "purpose_of_use_not_allowed",
+    "requirement_ids": [
+      "NEXUS-IAM-ENTERPRISE-POLICY",
+      "NEXUS-IAM-NONENCOUNTER-POU"
+    ],
+    "test_tags": [
+      "helixcare",
+      "iam",
+      "non-encounter",
+      "negative",
+      "policy",
+      "purpose-of-use"
+    ]
+  },
+  {
+    "use_case_id": "IAM-NE-0008",
+    "scenario_title": "Shadow mode does not block non-encounter call despite policy denial",
+    "poc_demo": "helixcare-iam-non-encounter",
+    "scenario_type": "edge",
+    "gateway_alias": "consent-analyser",
+    "auth_profile": "persona",
+    "auth_subject": "harness-p013",
+    "persona_id": "P013",
+    "auth_agent_id": "consent_analyser",
+    "requires_env": {
+      "NEXUS_POLICY_MODE": "shadow"
+    },
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "iam-ne-0008",
+      "method": "audit/query",
+      "params": {
+        "patient_id": "patient-sensitive-001"
+      }
+    },
+    "expected_http_status": 200,
+    "expected_jsonrpc_envelope": true,
+    "requirement_ids": [
+      "NEXUS-IAM-ENTERPRISE-POLICY",
+      "NEXUS-IAM-NONENCOUNTER-SHADOW"
+    ],
+    "test_tags": [
+      "helixcare",
+      "iam",
+      "non-encounter",
+      "edge",
+      "policy",
+      "shadow"
+    ]
+  }
+]

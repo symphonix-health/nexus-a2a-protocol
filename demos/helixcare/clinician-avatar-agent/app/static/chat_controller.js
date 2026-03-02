@@ -51,6 +51,28 @@
   let patientConversation = [];        // [{role, content}] for /api/patient/respond
   let lastClinicianText  = '';        // last clinician response, used by AI respond
   let scenarioPack       = [];        // array of scenario objects from pack
+  let transcriptEntries  = [];        // durable local transcript entries
+
+  function _transcriptStorageKey() {
+    return sessionId ? `avatar_consultation_transcript_${sessionId}` : 'avatar_consultation_transcript_pending';
+  }
+
+  function _persistTranscript() {
+    try {
+      const payload = {
+        session_id: sessionId || null,
+        saved_at: new Date().toISOString(),
+        entries: transcriptEntries,
+      };
+      localStorage.setItem(_transcriptStorageKey(), JSON.stringify(payload));
+      localStorage.setItem('avatar_consultation_transcript_latest', JSON.stringify(payload));
+    } catch (_) {}
+  }
+
+  function _resetTranscript() {
+    transcriptEntries = [];
+    _persistTranscript();
+  }
 
   // ── Patient mode ─────────────────────────────────────────────────────────
 
@@ -207,9 +229,18 @@
     if (!clean) return;
     const div       = document.createElement('div');
     div.className   = `msg ${role}`;
+    div.setAttribute('data-role', role);
     div.textContent = clean;
     chatLog.appendChild(div);
     chatLog.scrollTop = chatLog.scrollHeight;
+
+    transcriptEntries.push({
+      ts: new Date().toISOString(),
+      role,
+      text: clean,
+    });
+    if (transcriptEntries.length > 500) transcriptEntries = transcriptEntries.slice(-500);
+    _persistTranscript();
   }
 
   // ── JSON-RPC helper ──────────────────────────────────────────────────────
@@ -396,6 +427,7 @@
     });
 
     sessionId = result.session_id;
+    _resetTranscript();
     startBtn.textContent = 'Session Active';
     startBtn.classList.add('session-active');
     if (statusPill) statusPill.textContent = `Session: ${sessionId}`;
@@ -463,11 +495,17 @@
     // In human mode, optionally speak typed patient text via TTS (shimmer voice).
     // Only fires when the user explicitly enables the 'patient-tts-toggle' checkbox.
     if (text && patientMode === 'human' && patientTtsToggle?.checked && !options.fromAudio) {
+      if (!await _ensureToken()) {
+        if (statusPill) statusPill.textContent = '⚠ Unable to speak patient text: missing auth token';
+      } else {
       window.TTSClient.cancel();
       if (window.RealtimeClient) window.RealtimeClient.cancel();
       window.TTSClient.streamSpeak(text, 'shimmer', authToken, {
-        onError() {/* silent — best-effort patient-side TTS */},
+        onError(msg) {
+          if (statusPill) statusPill.textContent = `⚠ Patient TTS: ${msg}`;
+        },
       }, { instructions: _PATIENT_TTS_INSTRUCTIONS });
+      }
     }
     if (!text || !sessionId) return;
     if (overrideText == null) chatInput.value = '';

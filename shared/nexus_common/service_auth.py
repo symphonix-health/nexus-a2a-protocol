@@ -3,14 +3,30 @@
 from __future__ import annotations
 
 import os
+from dataclasses import dataclass
 from typing import Any, Mapping
 
 from .auth import AuthError, OidcError, verify_jwt, verify_jwt_rs256
+from .identity import get_agent_cert_registry, normalize_thumbprint
+from .identity.agent_cert_registry import extract_thumbprint_from_xfcc
 
 
 def _env_bool(name: str, default: bool = False) -> bool:
     raw = os.getenv(name, "true" if default else "false").strip().lower()
     return raw in {"1", "true", "yes", "on"}
+
+
+def _canonical_actor(value: str | None) -> str:
+    return str(value or "").strip().lower().replace("-", "_")
+
+
+@dataclass(frozen=True)
+class ServiceAuthContext:
+    token: str
+    claims: dict[str, Any]
+    mtls_present: bool
+    cert_thumbprint: str | None
+    agent_principal: str | None
 
 
 def extract_bearer_token(authorization_header: str) -> str:
@@ -69,7 +85,23 @@ def _enforce_roles(payload: dict[str, Any], required_roles: list[str] | None = N
         raise AuthError("Insufficient roles")
 
 
+def _extract_client_cert_thumbprint(headers: Mapping[str, str]) -> str | None:
+    direct = str(
+        headers.get("x-client-cert-sha256") or headers.get("x-cert-thumbprint-sha256") or ""
+    ).strip()
+    if direct:
+        return normalize_thumbprint(direct)
+    xfcc = str(headers.get("x-forwarded-client-cert", "")).strip()
+    if xfcc:
+        parsed = extract_thumbprint_from_xfcc(xfcc)
+        if parsed:
+            return parsed
+    return None
+
+
 def _has_mtls_identity(headers: Mapping[str, str]) -> bool:
+    if _extract_client_cert_thumbprint(headers):
+        return True
     xfcc = str(headers.get("x-forwarded-client-cert", "")).strip()
     if xfcc:
         return True
@@ -78,9 +110,6 @@ def _has_mtls_identity(headers: Mapping[str, str]) -> bool:
         return True
     x_ssl_verify = str(headers.get("x-ssl-client-verify", "")).strip().lower()
     if x_ssl_verify == "success":
-        return True
-    cert_thumbprint = str(headers.get("x-client-cert-sha256", "")).strip()
-    if cert_thumbprint:
         return True
     return False
 
@@ -92,6 +121,12 @@ def _enforce_mtls(headers: Mapping[str, str]) -> None:
         raise AuthError("mTLS client certificate required")
 
 
+def _thumbprints_match(expected_thumbprint: str, presented_thumbprint: str) -> bool:
+    if presented_thumbprint == expected_thumbprint:
+        return True
+    return normalize_thumbprint(presented_thumbprint) == normalize_thumbprint(expected_thumbprint)
+
+
 def _enforce_cert_bound_token(payload: dict[str, Any], headers: Mapping[str, str]) -> None:
     if not _env_bool("NEXUS_CERT_BOUND_TOKENS_REQUIRED", False):
         return
@@ -99,15 +134,42 @@ def _enforce_cert_bound_token(payload: dict[str, Any], headers: Mapping[str, str
     expected_thumbprint = None
     if isinstance(cnf, dict):
         expected_thumbprint = str(cnf.get("x5t#S256") or "").strip()
-    presented_thumbprint = str(
-        headers.get("x-client-cert-sha256") or headers.get("x-cert-thumbprint-sha256") or ""
-    ).strip()
+    presented_thumbprint = _extract_client_cert_thumbprint(headers) or ""
     if not expected_thumbprint:
         raise AuthError("Token cnf.x5t#S256 claim required for cert-bound validation")
     if not presented_thumbprint:
         raise AuthError("Client certificate thumbprint header required for cert-bound validation")
-    if presented_thumbprint != expected_thumbprint:
+    if not _thumbprints_match(expected_thumbprint, presented_thumbprint):
         raise AuthError("Certificate-bound token mismatch")
+
+
+def _resolve_agent_principal(headers: Mapping[str, str]) -> tuple[str | None, str | None]:
+    thumbprint = _extract_client_cert_thumbprint(headers)
+    if not thumbprint:
+        return None, None
+    registry = get_agent_cert_registry()
+    return thumbprint, registry.resolve_agent_principal(thumbprint)
+
+
+def _enforce_agent_mapping(payload: dict[str, Any], headers: Mapping[str, str]) -> tuple[str | None, str | None]:
+    thumbprint, mapped_agent = _resolve_agent_principal(headers)
+    mapping_required = _env_bool("NEXUS_MTLS_AGENT_MAPPING_REQUIRED", False)
+    if mapping_required and not mapped_agent:
+        raise AuthError("mTLS certificate is not mapped to an agent principal")
+
+    token_actor = (
+        str(payload.get("agent_principal") or payload.get("agent_id") or payload.get("sub") or "").strip()
+        or None
+    )
+    match_required = _env_bool("NEXUS_MTLS_AGENT_MATCH_REQUIRED", False)
+    if match_required and mapped_agent and token_actor:
+        if _canonical_actor(mapped_agent) != _canonical_actor(token_actor):
+            raise AuthError("mTLS agent principal does not match token subject")
+
+    if mapped_agent and not payload.get("agent_principal"):
+        payload["agent_principal"] = mapped_agent
+
+    return thumbprint, mapped_agent
 
 
 def verify_service_auth(
@@ -123,4 +185,34 @@ def verify_service_auth(
     _enforce_mtls(request_headers)
     _enforce_cert_bound_token(claims, request_headers)
     _enforce_roles(claims, required_roles=required_roles)
+    _enforce_agent_mapping(claims, request_headers)
     return claims
+
+
+def verify_service_request(
+    authorization_header: str,
+    *,
+    headers: Mapping[str, str] | None = None,
+    required_scope: str | None = None,
+    required_roles: list[str] | None = None,
+) -> ServiceAuthContext:
+    """Authenticate request headers and return identity context."""
+    request_headers: Mapping[str, str] = headers or {}
+    token = extract_bearer_token(authorization_header)
+    claims = verify_service_auth(
+        token,
+        headers=request_headers,
+        required_scope=required_scope,
+        required_roles=required_roles,
+    )
+    cert_thumbprint, mapped_agent = _resolve_agent_principal(request_headers)
+    agent_principal = str(
+        claims.get("agent_principal") or claims.get("agent_id") or mapped_agent or ""
+    ).strip() or None
+    return ServiceAuthContext(
+        token=token,
+        claims=claims,
+        mtls_present=_has_mtls_identity(request_headers),
+        cert_thumbprint=cert_thumbprint,
+        agent_principal=agent_principal,
+    )

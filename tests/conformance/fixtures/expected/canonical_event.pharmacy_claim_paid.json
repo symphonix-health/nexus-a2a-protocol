@@ -1,0 +1,12 @@
+{
+  "eventType": "pharmacy.claim.response",
+  "correlationId": "corr-pharm-001",
+  "entities": {
+    "claimId": "RX123456"
+  },
+  "payload": {
+    "status": "Paid",
+    "paidAmount": 42.15,
+    "patientPayAmount": 10.0
+  }
+}

@@ -29,6 +29,13 @@ class AuditLogEntry:
     patient_id: Optional[str] = None
     reason: Optional[str] = None
     ip_address: Optional[str] = None
+    agent_actor: Optional[str] = None
+    human_actor: Optional[str] = None
+    effective_persona: Optional[str] = None
+    decision: Optional[str] = None
+    deny_reasons: Optional[list[str]] = None
+    obligations: Optional[list[str]] = None
+    method: Optional[str] = None
 
 
 class AuditLogger:

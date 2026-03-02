@@ -21,6 +21,8 @@ import httpx
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 
+from shared.nexus_common.authorization import AuthorizationError, authorize_rpc_request
+
 ROOT = Path(__file__).resolve().parents[3]
 CONFIG_FILE = ROOT / "config" / "agents.json"
 DEFAULT_GATEWAY_PORT = int(os.getenv("NEXUS_ON_DEMAND_GATEWAY_PORT", "8100"))
@@ -32,6 +34,7 @@ STARTUP_HEALTH_INTERVAL_SECONDS = float(
 RPC_TIMEOUT_SECONDS = float(os.getenv("NEXUS_ON_DEMAND_RPC_TIMEOUT_SECONDS", "45.0"))
 IDLE_TTL_SECONDS = float(os.getenv("NEXUS_ON_DEMAND_IDLE_TTL_SECONDS", "120.0"))
 IDLE_REAP_INTERVAL_SECONDS = max(5.0, IDLE_TTL_SECONDS / 4.0)
+REQUIRED_SCOPE = os.getenv("NEXUS_REQUIRED_SCOPE", "nexus:invoke")
 
 DEFAULT_DEPENDENCY_GRAPH: dict[str, list[str]] = {
     # Clinical intake triggers downstream diagnostics
@@ -441,9 +444,21 @@ app = FastAPI(
 
 def _proxy_headers(request: Request) -> dict[str, str]:
     headers: dict[str, str] = {"content-type": "application/json"}
-    auth = request.headers.get("authorization")
-    if auth:
-        headers["authorization"] = auth
+    forward_keys = (
+        "authorization",
+        "x-forwarded-client-cert",
+        "ssl-client-verify",
+        "x-ssl-client-verify",
+        "x-client-cert-sha256",
+        "x-cert-thumbprint-sha256",
+        "traceparent",
+        "tracestate",
+        "x-request-id",
+    )
+    for key in forward_keys:
+        value = request.headers.get(key)
+        if value:
+            headers[key] = value
     return headers
 
 
@@ -493,6 +508,26 @@ async def proxy_rpc(agent_alias: str, request: Request) -> Response:
         payload = await request.json()
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"Invalid JSON payload: {exc}") from exc
+
+    try:
+        spec = _manager.resolve_spec(agent_alias)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    method = str(payload.get("method") or "").strip()
+    params = payload.get("params") if isinstance(payload.get("params"), dict) else {}
+    if method:
+        try:
+            authorize_rpc_request(
+                authorization_header=request.headers.get("authorization", ""),
+                headers=request.headers,
+                method=method,
+                params=params,
+                target_agent_id=spec.key,
+                required_scope=REQUIRED_SCOPE,
+            )
+        except AuthorizationError as exc:
+            raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
 
     try:
         spec = await _manager.ensure_started(agent_alias)

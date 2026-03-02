@@ -36,6 +36,8 @@ def app(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> object:
     monkeypatch.setenv("NEXUS_JWT_SECRET", JWT_SECRET)
     monkeypatch.setenv("NEXUS_REQUIRED_SCOPE", REQUIRED_SCOPE)
     monkeypatch.setenv("NEXUS_IDEMPOTENCY_BACKEND", "memory")
+    monkeypatch.setenv("NEXUS_POLICY_MODE", "off")
+    monkeypatch.setenv("NEXUS_PERSONA_STRICT", "false")
     card = {
         "name": "unit-generic-agent",
         "protocol": "NEXUS-A2A",

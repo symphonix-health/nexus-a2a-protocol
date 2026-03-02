@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run all 7 HelixCare test suites IN PARALLEL and collect results."""
+"""Run all HelixCare test suites in parallel and collect results."""
 import os, subprocess, sys, time, threading, json
 
 os.environ["NEXUS_JWT_SECRET"] = "dev-secret-change-me"
@@ -14,6 +14,7 @@ FILES = [
     ("surveillance",       "tests/nexus_harness/test_helixcare_surveillance.py"),
     ("discovery",          "tests/nexus_harness/test_helixcare_protocol_discovery.py"),
     ("security",           "tests/nexus_harness/test_helixcare_protocol_security.py"),
+    ("iam_non_encounter",  "tests/nexus_harness/test_helixcare_iam_non_encounter.py"),
 ]
 
 results = {}
@@ -43,7 +44,7 @@ def run_one(name, tf):
         results[name] = {"passed": p, "failed": f, "errors": e, "time": dt, "summary": summary, "rc": r.returncode}
         print(f"  [{name:15s}] done: {p} passed, {f} failed, {e} errors  ({dt:.0f}s)", flush=True)
 
-print(f"Starting 7 test suites in parallel ({time.strftime('%H:%M:%S')})")
+print(f"Starting {len(FILES)} test suites in parallel ({time.strftime('%H:%M:%S')})")
 threads = []
 for name, tf in FILES:
     t = threading.Thread(target=run_one, args=(name, tf), name=name)
@@ -67,7 +68,7 @@ for name, r in sorted(results.items()):
 
 pct = (total_p / total * 100) if total > 0 else 0
 print(f"\n  TOTAL: {total_p}/{total} passed ({pct:.1f}%)")
-print(f"  Target: 7000 scenarios across 7 matrices")
+print(f"  Target: full HelixCare matrix coverage across all configured suites")
 
 # Save results
 with open("helixcare_results.json", "w") as f:

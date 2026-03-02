@@ -1,0 +1,43 @@
+{
+  "defaults": {
+    "consent_granted": true,
+    "care_team": [],
+    "allowed_purposes_of_use": [
+      "Treatment",
+      "Healthcare Operations",
+      "Payment"
+    ],
+    "break_glass_allowed": false,
+    "requires_break_glass": false,
+    "redaction_profile": null
+  },
+  "patients": {
+    "patient-sensitive-001": {
+      "consent_granted": true,
+      "care_team": [
+        "triage_agent",
+        "care_coordinator",
+        "Dr.Smith@org",
+        "Nurse.Patel@org"
+      ],
+      "allowed_purposes_of_use": [
+        "Treatment"
+      ],
+      "break_glass_allowed": true,
+      "requires_break_glass": true,
+      "redaction_profile": "sensitive-mental-health"
+    },
+    "patient-policy-pou-001": {
+      "consent_granted": true,
+      "care_team": [
+        "consent_analyser"
+      ],
+      "allowed_purposes_of_use": [
+        "Treatment"
+      ],
+      "break_glass_allowed": false,
+      "requires_break_glass": false,
+      "redaction_profile": null
+    }
+  }
+}

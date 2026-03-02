@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexus.local/schemas/nexus-problem.schema.json",
+  "title": "NexusProblem",
+  "type": "object",
+  "required": [
+    "code",
+    "message",
+    "retryable",
+    "correlationId",
+    "timestamp"
+  ],
+  "properties": {
+    "code": {
+      "enum": [
+        "invalid_payload",
+        "unsupported_profile",
+        "auth_failed",
+        "forbidden_scope",
+        "downstream_timeout",
+        "replay_blocked",
+        "internal_error"
+      ]
+    },
+    "message": {
+      "type": "string"
+    },
+    "details": {
+      "type": "object"
+    },
+    "retryable": {
+      "type": "boolean"
+    },
+    "correlationId": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

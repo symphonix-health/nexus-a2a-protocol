@@ -1,278 +1,114 @@
 {
-  "generated_at": "2026-02-26T15:08:20.964705+00:00",
-  "total": 21,
-  "passed": 19,
-  "failed": 2,
-  "skipped": 0,
+  "generated_at": "2026-03-02T10:47:08.231010+00:00",
+  "total": 8,
+  "passed": 0,
+  "failed": 0,
+  "skipped": 8,
   "errors": 0,
   "results": [
     {
-      "use_case_id": "HC-AVATAR-00001",
-      "scenario_title": "Avatar agent card is discoverable",
-      "poc_demo": "helixcare-clinician-avatar",
+      "use_case_id": "IAM-NE-0001",
+      "scenario_title": "Control-plane non-encounter method tasks/get is allowed with valid JWT",
+      "poc_demo": "helixcare-iam-non-encounter",
       "scenario_type": "positive",
       "requirement_ids": [
-        "FR-1",
-        "NFR-7"
+        "NEXUS-IAM-STEP3",
+        "NEXUS-IAM-NONENCOUNTER-CONTROLPLANE"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 328.00000000861473
+      "status": "skip",
+      "message": "Gateway unreachable at http://localhost:8100: ",
+      "duration_ms": 1500.0
     },
     {
-      "use_case_id": "HC-AVATAR-00002",
-      "scenario_title": "Avatar health endpoint returns healthy",
-      "poc_demo": "helixcare-clinician-avatar",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "NFR-7"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000000267755
-    },
-    {
-      "use_case_id": "HC-AVATAR-00003",
-      "scenario_title": "Start avatar session \u2014 cardiac emergency persona",
-      "poc_demo": "helixcare-clinician-avatar",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-15",
-        "FR-16",
-        "NFR-3"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 296.0000000020955
-    },
-    {
-      "use_case_id": "HC-AVATAR-00004",
-      "scenario_title": "Patient message \u2014 clinician responds with SOCRATES assessment",
-      "poc_demo": "helixcare-clinician-avatar",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-16",
-        "FR-17",
-        "NFR-3"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 5953.000000008615
-    },
-    {
-      "use_case_id": "HC-AVATAR-00005",
-      "scenario_title": "Get avatar session status returns accurate framework progress",
-      "poc_demo": "helixcare-clinician-avatar",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-18",
-        "NFR-3"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 280.99999998812564
-    },
-    {
-      "use_case_id": "HC-AVATAR-00006",
-      "scenario_title": "End session removes it from active session pool",
-      "poc_demo": "helixcare-clinician-avatar",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-19"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000000267755
-    },
-    {
-      "use_case_id": "HC-AVATAR-00007",
-      "scenario_title": "TTS WebSocket stream delivers meta + visemes + end frames",
-      "poc_demo": "helixcare-clinician-avatar",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-20",
-        "NFR-2",
-        "NFR-3"
-      ],
-      "status": "fail",
-      "message": "Missing frame type 'end' in TTS stream; received ['meta', 'visemes']\nassert 'end' in {'meta', 'visemes'}",
-      "duration_ms": 7235.000000000582
-    },
-    {
-      "use_case_id": "HC-AVATAR-00008",
-      "scenario_title": "TTS stream visemes list is non-empty and structurally valid",
-      "poc_demo": "helixcare-clinician-avatar",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-21"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 5593.999999997322
-    },
-    {
-      "use_case_id": "HC-AVATAR-00009",
-      "scenario_title": "Media endpoint serves avatar reference video",
-      "poc_demo": "helixcare-clinician-avatar",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "NFR-8"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 436.9999999908032
-    },
-    {
-      "use_case_id": "HC-AVATAR-00010",
-      "scenario_title": "Start session \u2014 diabetic foot ulcer, medium urgency",
-      "poc_demo": "helixcare-clinician-avatar",
-      "scenario_type": "positive",
-      "requirement_ids": [
-        "FR-15",
-        "FR-16"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000000267755
-    },
-    {
-      "use_case_id": "HC-AVATAR-N001",
-      "scenario_title": "RPC without auth token returns 401",
-      "poc_demo": "helixcare-clinician-avatar",
+      "use_case_id": "IAM-NE-0002",
+      "scenario_title": "Non-encounter request without bearer token is rejected",
+      "poc_demo": "helixcare-iam-non-encounter",
       "scenario_type": "negative",
       "requirement_ids": [
-        "SPR-1",
-        "CR-5"
+        "NEXUS-IAM-STEP3",
+        "NEXUS-IAM-NONENCOUNTER-AUTH"
       ],
-      "status": "fail",
-      "message": "HC-AVATAR-N001: negative response must include error envelope; body={'detail': 'Missing bearer token'}",
-      "duration_ms": 281.00000000267755
+      "status": "skip",
+      "message": "Gateway unreachable at http://localhost:8100: ",
+      "duration_ms": 0.0
     },
     {
-      "use_case_id": "HC-AVATAR-N002",
-      "scenario_title": "Unknown RPC method returns JSON-RPC -32601",
-      "poc_demo": "helixcare-clinician-avatar",
+      "use_case_id": "IAM-NE-0003",
+      "scenario_title": "Non-encounter audit/query denies persona without audit scope",
+      "poc_demo": "helixcare-iam-non-encounter",
       "scenario_type": "negative",
       "requirement_ids": [
-        "FR-22",
-        "CR-3"
+        "NEXUS-IAM-STEP3",
+        "NEXUS-IAM-NONENCOUNTER-RBAC"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 264.9999999994179
+      "status": "skip",
+      "message": "Gateway unreachable at http://localhost:8100: ",
+      "duration_ms": 0.0
     },
     {
-      "use_case_id": "HC-AVATAR-N003",
-      "scenario_title": "patient_message with empty session_id returns error",
-      "poc_demo": "helixcare-clinician-avatar",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "FR-17",
-        "CR-3"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 297.0000000059372
-    },
-    {
-      "use_case_id": "HC-AVATAR-N004",
-      "scenario_title": "get_status with unknown session returns error",
-      "poc_demo": "helixcare-clinician-avatar",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "FR-18"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 282.00000000651926
-    },
-    {
-      "use_case_id": "HC-AVATAR-N005",
-      "scenario_title": "Media endpoint returns 404 for non-existent file",
-      "poc_demo": "helixcare-clinician-avatar",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "NFR-8"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 282.00000000651926
-    },
-    {
-      "use_case_id": "HC-AVATAR-N006",
-      "scenario_title": "Media path traversal attack is blocked (404)",
-      "poc_demo": "helixcare-clinician-avatar",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "SPR-3",
-        "CR-5"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000000267755
-    },
-    {
-      "use_case_id": "HC-AVATAR-N007",
-      "scenario_title": "TTS WebSocket rejects connection without token",
-      "poc_demo": "helixcare-clinician-avatar",
-      "scenario_type": "negative",
-      "requirement_ids": [
-        "SPR-1",
-        "CR-5"
-      ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 2046.0000000020955
-    },
-    {
-      "use_case_id": "HC-AVATAR-E001",
-      "scenario_title": "Empty speak message is silently skipped; subsequent message succeeds",
-      "poc_demo": "helixcare-clinician-avatar",
+      "use_case_id": "IAM-NE-0004",
+      "scenario_title": "Strict persona mode rejects unknown service principal on non-encounter call",
+      "poc_demo": "helixcare-iam-non-encounter",
       "scenario_type": "edge",
       "requirement_ids": [
-        "FR-20"
+        "NEXUS-IAM-STEP2",
+        "NEXUS-IAM-NONENCOUNTER-PERSONA"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 5093.999999997322
+      "status": "skip",
+      "message": "requires NEXUS_PERSONA_STRICT='true'; got ''",
+      "duration_ms": 0.0
     },
     {
-      "use_case_id": "HC-AVATAR-E002",
-      "scenario_title": "Multiple independent sessions do not share state",
-      "poc_demo": "helixcare-clinician-avatar",
-      "scenario_type": "edge",
+      "use_case_id": "IAM-NE-0005",
+      "scenario_title": "Enforce mode denies sensitive patient non-encounter access without break-glass",
+      "poc_demo": "helixcare-iam-non-encounter",
+      "scenario_type": "negative",
       "requirement_ids": [
-        "FR-15",
-        "NFR-5"
+        "NEXUS-IAM-ENTERPRISE-POLICY",
+        "NEXUS-IAM-NONENCOUNTER-BREAKGLASS"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 421.99999999138527
+      "status": "skip",
+      "message": "requires NEXUS_POLICY_MODE='enforce'; got ''",
+      "duration_ms": 0.0
     },
     {
-      "use_case_id": "HC-AVATAR-E003",
-      "scenario_title": "avatar/end_session is idempotent \u2014 second call returns ended=false",
-      "poc_demo": "helixcare-clinician-avatar",
-      "scenario_type": "edge",
+      "use_case_id": "IAM-NE-0006",
+      "scenario_title": "Enforce mode allows sensitive patient non-encounter access with break-glass justification",
+      "poc_demo": "helixcare-iam-non-encounter",
+      "scenario_type": "positive",
       "requirement_ids": [
-        "FR-19"
+        "NEXUS-IAM-ENTERPRISE-POLICY",
+        "NEXUS-IAM-NONENCOUNTER-BREAKGLASS"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 578.0000000086147
+      "status": "skip",
+      "message": "requires NEXUS_POLICY_MODE='enforce'; got ''",
+      "duration_ms": 0.0
     },
     {
-      "use_case_id": "HC-AVATAR-E004",
-      "scenario_title": "Cancel message mid-stream does not crash server",
-      "poc_demo": "helixcare-clinician-avatar",
+      "use_case_id": "IAM-NE-0007",
+      "scenario_title": "Enforce mode denies non-encounter access on purpose-of-use mismatch",
+      "poc_demo": "helixcare-iam-non-encounter",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "NEXUS-IAM-ENTERPRISE-POLICY",
+        "NEXUS-IAM-NONENCOUNTER-POU"
+      ],
+      "status": "skip",
+      "message": "requires NEXUS_POLICY_MODE='enforce'; got ''",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "IAM-NE-0008",
+      "scenario_title": "Shadow mode does not block non-encounter call despite policy denial",
+      "poc_demo": "helixcare-iam-non-encounter",
       "scenario_type": "edge",
       "requirement_ids": [
-        "FR-20",
-        "NFR-4"
+        "NEXUS-IAM-ENTERPRISE-POLICY",
+        "NEXUS-IAM-NONENCOUNTER-SHADOW"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 7468.999999997322
+      "status": "skip",
+      "message": "requires NEXUS_POLICY_MODE='shadow'; got ''",
+      "duration_ms": 0.0
     }
   ],
   "dropped_results": 0,

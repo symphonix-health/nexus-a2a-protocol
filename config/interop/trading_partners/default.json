@@ -1,0 +1,8 @@
+{
+  "partnerId": "default",
+  "x12": {
+    "isaSenderId": "SENDERID",
+    "isaReceiverId": "RECEIVERID"
+  },
+  "claimTranslationMode": "pass-through"
+}

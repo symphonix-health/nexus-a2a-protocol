@@ -1,0 +1,25 @@
+{
+  "tlsRequiredForTokenBearingCalls": true,
+  "mtls": {
+    "enabled": false,
+    "failClosedWhenEnabled": true
+  },
+  "scopeMatrix": {
+    "health.fhir.r4.core": [
+      "fhir.write"
+    ],
+    "health.fhir.r4.financial": [
+      "eligibility.read",
+      "claims.submit"
+    ],
+    "health.x12.5010.270": [
+      "eligibility.read"
+    ],
+    "health.x12.5010.837p": [
+      "claims.submit"
+    ],
+    "health.ncpdp.telecom.d0": [
+      "ncpdp.submit"
+    ]
+  }
+}
