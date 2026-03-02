@@ -268,6 +268,12 @@ window.RealtimeClient = (() => {
     _pc.ontrack = (e) => {
       // Play audio via <audio> element
       _audioEl.srcObject = e.streams[0];
+      _audioEl.muted = false;
+      _audioEl.volume = 1.0;
+      _audioEl.playsInline = true;
+      _audioEl.play().catch((err) => {
+        console.warn('[RealtimeClient] Remote audio play() blocked:', err?.message || err);
+      });
 
       // Also route through AnalyserNode for lip sync amplitude measurement
       try {

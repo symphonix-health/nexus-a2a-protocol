@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexus.local/schemas/nexus-envelope.schema.json",
+  "title": "NexusEnvelope",
+  "type": "object",
+  "required": [
+    "envelopeVersion",
+    "taskId",
+    "correlationId",
+    "timestamp",
+    "actor",
+    "requestedProfile",
+    "parts"
+  ],
+  "properties": {
+    "envelopeVersion": {
+      "type": "string",
+      "pattern": "^1\\.0\\.0$"
+    },
+    "taskId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "correlationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "idempotencyKey": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "actor": {
+      "type": "object",
+      "required": [
+        "sub",
+        "type",
+        "scopes"
+      ],
+      "properties": {
+        "sub": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "user",
+            "service"
+          ]
+        },
+        "tenant": {
+          "type": "string"
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "requestedProfile": {
+      "type": "string"
+    },
+    "acceptableProfiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "profileId",
+          "versionRange"
+        ],
+        "properties": {
+          "profileId": {
+            "type": "string"
+          },
+          "versionRange": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "replay": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            "none",
+            "safe-replay"
+          ]
+        },
+        "sourceTaskId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "parts": {
+      "type": "array",
+      "items": {
+        "$ref": "nexus-artifact-part.schema.json"
+      },
+      "minItems": 1
+    },
+    "meta": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}

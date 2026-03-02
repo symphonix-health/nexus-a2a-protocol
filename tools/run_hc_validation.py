@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Representative HelixCare validation: 100 scenarios per matrix (700 total).
+"""Representative HelixCare validation: 100 scenarios per matrix.
 
 Runs sequentially to avoid overloading agents.
-For the full 7000 run: pytest tests/nexus_harness/test_helixcare_*.py -q --tb=no -p no:xdist
+For the full run: pytest tests/nexus_harness/test_helixcare_*.py -q --tb=no -p no:xdist
 """
 import os, subprocess, sys, time, json
 
@@ -18,6 +18,7 @@ FILES = [
     ("surveillance",  "tests/nexus_harness/test_helixcare_surveillance.py"),
     ("discovery",     "tests/nexus_harness/test_helixcare_protocol_discovery.py"),
     ("security",      "tests/nexus_harness/test_helixcare_protocol_security.py"),
+    ("iam_non_encounter", "tests/nexus_harness/test_helixcare_iam_non_encounter.py"),
 ]
 
 # Build -k filter: first 65 positive + first 25 negative + first 10 edge per matrix
@@ -38,7 +39,7 @@ results = {}
 total_p = total_f = total_e = 0
 
 print(f"HelixCare Representative Validation ({time.strftime('%H:%M:%S')})")
-print(f"Running 100 scenarios per matrix (700 total)\n")
+print(f"Running 100 scenarios per matrix ({len(FILES) * 100} total)\n")
 
 for name, tf in FILES:
     print(f"  Running {name:15s} ...", end="", flush=True)
@@ -80,9 +81,9 @@ pct = (total_p / total * 100) if total > 0 else 0
 print(f"\n{'='*60}")
 print(f"REPRESENTATIVE VALIDATION SUMMARY")
 print(f"{'='*60}")
-print(f"  Scenarios tested: {total}/700 representative ({total_p} passed)")
+print(f"  Scenarios tested: {total}/{len(FILES) * 100} representative ({total_p} passed)")
 print(f"  Pass rate: {pct:.1f}%")
-print(f"  Full matrix: 7000 scenarios across 7 matrices")
+print(f"  Full matrix: all scenarios across {len(FILES)} matrices")
 print(f"{'='*60}")
 
 with open("helixcare_validation.json", "w") as fh:

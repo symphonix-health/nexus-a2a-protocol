@@ -1,0 +1,10 @@
+{
+  "name": "Profile Registry Agent",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "methods": [
+    "tasks/send",
+    "tasks/get",
+    "tasks/cancel"
+  ]
+}

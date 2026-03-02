@@ -1000,6 +1000,12 @@ TEST_CONFIGS = [
         "prefix": "helixcare_security",
         "urls_dict": '{\n    "triage": HELIXCARE_URLS["triage-agent"],\n    "imaging": HELIXCARE_URLS["imaging-agent"],\n    "bed": HELIXCARE_URLS["bed-manager-agent"],\n    "discharge": HELIXCARE_URLS["discharge-agent"],\n    "tasks/sendSubscribe": HELIXCARE_URLS["triage-agent"],\n}',
     },
+    {
+        "path": "tests/nexus_harness/test_helixcare_iam_non_encounter.py",
+        "matrix_file": "helixcare_iam_non_encounter_matrix.json",
+        "prefix": "helixcare_iam_non_encounter",
+        "urls_dict": '{\n    "gateway": os.environ.get("NEXUS_ON_DEMAND_GATEWAY_URL", "http://localhost:8100"),\n}',
+    },
 ]
 
 

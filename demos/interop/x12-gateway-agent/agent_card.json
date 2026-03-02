@@ -1,0 +1,24 @@
+{
+  "name": "X12 Gateway Agent",
+  "protocol": "NEXUS-A2A",
+  "protocolVersion": "1.0",
+  "profiles": [
+    {
+      "profileId": "health.x12.5010.270",
+      "version": "1.0.0"
+    },
+    {
+      "profileId": "health.x12.5010.837p",
+      "version": "1.0.0"
+    },
+    {
+      "profileId": "health.x12.5010.835",
+      "version": "1.0.0"
+    }
+  ],
+  "methods": [
+    "tasks/send",
+    "tasks/get",
+    "tasks/cancel"
+  ]
+}

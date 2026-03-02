@@ -8,7 +8,7 @@
     "files.insertFinalNewline": true,
     "files.trimTrailingWhitespace": true,
     // Python
-    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+    "python.defaultInterpreterPath": "c:/nexus-a2a-protocol/.venv/Scripts/python.exe",
     "python.envFile": "${workspaceFolder}/.vscode/.env",
     "[python]": {
         "editor.defaultFormatter": "charliermarsh.ruff",

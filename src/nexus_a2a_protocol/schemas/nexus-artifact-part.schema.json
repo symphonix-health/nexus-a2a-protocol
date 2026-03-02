@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexus.local/schemas/nexus-artifact-part.schema.json",
+  "title": "NexusArtifactPart",
+  "type": "object",
+  "required": [
+    "partId",
+    "kind",
+    "contentType",
+    "payloadMode"
+  ],
+  "properties": {
+    "partId": {
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "fhir.resource",
+        "fhir.bundle",
+        "x12.edi",
+        "ncpdp.telecom",
+        "document.reference",
+        "binary.attachment",
+        "canonical.healthcare.event"
+      ]
+    },
+    "contentType": {
+      "type": "string"
+    },
+    "payloadMode": {
+      "enum": [
+        "inline",
+        "reference"
+      ]
+    },
+    "inlinePayload": {},
+    "reference": {
+      "type": "object",
+      "required": [
+        "uri"
+      ],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "sha256": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "constraints": {
+      "type": "object",
+      "properties": {
+        "maxSizeBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "encryptedAtRest": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "payloadMode": {
+            "const": "inline"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "inlinePayload"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "payloadMode": {
+            "const": "reference"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "reference"
+        ]
+      }
+    }
+  ],
+  "additionalProperties": false
+}

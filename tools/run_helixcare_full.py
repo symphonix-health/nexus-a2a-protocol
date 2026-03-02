@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run all 7 HelixCare test suites and report results."""
+"""Run all HelixCare test suites and report results."""
 import os
 import subprocess
 import sys
@@ -17,6 +17,7 @@ TEST_FILES = [
     "tests/nexus_harness/test_helixcare_surveillance.py",
     "tests/nexus_harness/test_helixcare_protocol_discovery.py",
     "tests/nexus_harness/test_helixcare_protocol_security.py",
+    "tests/nexus_harness/test_helixcare_iam_non_encounter.py",
 ]
 
 results = {}
@@ -73,4 +74,4 @@ for name, r in results.items():
 total = total_pass + total_fail + total_err
 pct = (total_pass / total * 100) if total > 0 else 0
 print(f"\n  TOTAL: {total_pass}/{total} passed ({pct:.1f}%)  |  {total_fail} failed  |  {total_err} errors")
-print(f"  Target: 7000 scenarios across 7 matrices")
+print(f"  Target: full HelixCare matrix coverage across all configured suites")

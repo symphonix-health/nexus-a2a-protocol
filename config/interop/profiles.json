@@ -1,0 +1,34 @@
+{
+  "profiles": [
+    {
+      "profileId": "health.fhir.r4.core",
+      "version": "1.0.0",
+      "adapterEndpoint": "http://localhost:8061/rpc"
+    },
+    {
+      "profileId": "health.fhir.r4.financial",
+      "version": "1.0.0",
+      "adapterEndpoint": "http://localhost:8061/rpc"
+    },
+    {
+      "profileId": "health.x12.5010.270",
+      "version": "1.0.0",
+      "adapterEndpoint": "http://localhost:8062/rpc"
+    },
+    {
+      "profileId": "health.x12.5010.837p",
+      "version": "1.0.0",
+      "adapterEndpoint": "http://localhost:8062/rpc"
+    },
+    {
+      "profileId": "health.x12.5010.835",
+      "version": "1.0.0",
+      "adapterEndpoint": "http://localhost:8062/rpc"
+    },
+    {
+      "profileId": "health.ncpdp.telecom.d0",
+      "version": "1.0.0",
+      "adapterEndpoint": "http://localhost:8063/rpc"
+    }
+  ]
+}

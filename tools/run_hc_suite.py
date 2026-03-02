@@ -14,6 +14,7 @@ FILES = [
     "tests/nexus_harness/test_helixcare_surveillance.py",
     "tests/nexus_harness/test_helixcare_protocol_discovery.py",
     "tests/nexus_harness/test_helixcare_protocol_security.py",
+    "tests/nexus_harness/test_helixcare_iam_non_encounter.py",
 ]
 
 out = open("helixcare_results.txt", "w")

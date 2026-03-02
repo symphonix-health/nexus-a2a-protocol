@@ -1,0 +1,10 @@
+{
+  "partnerId": "payer_a",
+  "x12": {
+    "requires278ForPriorAuth": true,
+    "claimType": "837p"
+  },
+  "ncpdp": {
+    "supportsRejectCodes": true
+  }
+}
