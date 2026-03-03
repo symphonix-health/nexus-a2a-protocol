@@ -28,6 +28,9 @@
     // Ruff (Linting & Formatting)
     "ruff.enable": true,
     "ruff.lint.enable": true,
+    "ruff.path": [
+        "c:/nexus-a2a-protocol/.venv/Scripts/ruff.exe"
+    ],
     "ruff.importStrategy": "fromEnvironment",
     // File Watching & Search
     "files.watcherExclude": {

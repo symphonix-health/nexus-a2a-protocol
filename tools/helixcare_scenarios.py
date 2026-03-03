@@ -50,6 +50,14 @@ BASE_URLS = {
     "hospital_reporter": "http://localhost:8051",
     "osint_agent": "http://localhost:8052",
     "central_surveillance": "http://localhost:8053",
+    "profile_registry": "http://localhost:8060",
+    "fhir_profile": "http://localhost:8061",
+    "x12_gateway": "http://localhost:8062",
+    "ncpdp_gateway": "http://localhost:8063",
+    "audit": "http://localhost:8064",
+    "hl7v2_gateway": "http://localhost:8065",
+    "cda_document": "http://localhost:8066",
+    "dicom_imaging": "http://localhost:8067",
 }
 ON_DEMAND_GATEWAY_URL = os.getenv("NEXUS_ON_DEMAND_GATEWAY_URL", "").strip().rstrip("/")
 
@@ -1978,7 +1986,8 @@ def _load_clinical_negative_scenarios() -> list[PatientScenario]:
         return loaded
     except Exception:
         try:
-            from tools.clinical_negative_scenarios import CLINICAL_NEGATIVE_SCENARIOS
+            from tools.clinical_negative_scenarios import \
+                CLINICAL_NEGATIVE_SCENARIOS
 
             loaded = list(CLINICAL_NEGATIVE_SCENARIOS)
             enrich_scenario_handoff_contracts(loaded)
@@ -2107,22 +2116,16 @@ async def run_scenario(scenario: PatientScenario) -> None:
 
     # Delegation engine – tracks handoff validation & context chaining
     try:
-        from tools.delegation import (
-            DelegationMonitor,
-            HandoffResult,
-            build_delegation_context,
-            validate_handoff,
-        )
+        from tools.delegation import (DelegationMonitor, HandoffResult,
+                                      build_delegation_context,
+                                      validate_handoff)
     except ImportError:
-        from delegation import (
-            DelegationMonitor,
-            HandoffResult,
-            build_delegation_context,
-            validate_handoff,
-        )
+        from delegation import (DelegationMonitor, HandoffResult,
+                                build_delegation_context, validate_handoff)
 
     try:
-        from shared.nexus_common.clinical_handoff_rules import apply_nhs_guardrails
+        from shared.nexus_common.clinical_handoff_rules import \
+            apply_nhs_guardrails
     except Exception:
         from clinical_handoff_rules import apply_nhs_guardrails  # type: ignore
 

@@ -43,8 +43,7 @@ def start_command_centre_monitor():
         print("📊 Starting Command Centre monitor...")
         return subprocess.Popen(
             monitor_cmd,
-            cwd=r"C:
-exus-a2a-protocol",
+            cwd=r"C:\nexus-a2a-protocol",
             creationflags=subprocess.CREATE_NEW_CONSOLE
         )
     except Exception as e:
@@ -72,8 +71,7 @@ async def run_scenario_batch(scenarios: List[str], batch_name: str):
         try:
             result = await asyncio.create_subprocess_exec(
                 *cmd,
-                cwd=r"C:
-exus-a2a-protocol",
+                cwd=r"C:\nexus-a2a-protocol",
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE
             )

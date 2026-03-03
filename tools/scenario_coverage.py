@@ -35,6 +35,14 @@ _CONFIG_TO_RUNTIME_AGENT = {
     "transcriber_agent": "transcriber",
     "summariser_agent": "summariser",
     "ehr_writer_agent": "ehr_writer",
+    "profile_registry_agent": "profile_registry",
+    "fhir_profile_agent": "fhir_profile",
+    "x12_gateway_agent": "x12_gateway",
+    "ncpdp_gateway_agent": "ncpdp_gateway",
+    "audit_agent": "audit",
+    "hl7v2_gateway_agent": "hl7v2_gateway",
+    "cda_document_agent": "cda_document",
+    "dicom_imaging_agent": "dicom_imaging",
 }
 
 

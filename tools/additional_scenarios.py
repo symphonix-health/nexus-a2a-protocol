@@ -11,13 +11,13 @@ import asyncio
 from datetime import datetime, timedelta
 
 try:
-    from helixcare_scenarios import PatientScenario, enrich_scenario_handoff_contracts, run_scenario
+    from helixcare_scenarios import (PatientScenario,
+                                     enrich_scenario_handoff_contracts,
+                                     run_scenario)
 except Exception:
-    from tools.helixcare_scenarios import (
-        PatientScenario,
-        enrich_scenario_handoff_contracts,
-        run_scenario,
-    )
+    from tools.helixcare_scenarios import (PatientScenario,
+                                           enrich_scenario_handoff_contracts,
+                                           run_scenario)
 
 
 def _future(days: int) -> str:
@@ -2987,6 +2987,1158 @@ enrich_scenario_handoff_contracts(PERSONA_SCENARIOS)
 # Merge persona scenarios into the main ADDITIONAL_SCENARIOS list so they are
 # picked up by TestScenarioCatalog and the run_additional_scenarios runner.
 ADDITIONAL_SCENARIOS.extend(PERSONA_SCENARIOS)
+
+
+# Interop standards scenarios (hybrid-profiles coverage)
+ADDITIONAL_SCENARIOS.extend(
+    [
+        PatientScenario(
+            name="interop_eligibility_prior_auth_bridge",
+            description=(
+                "Cross-standard prior authorization pathway: registry-driven profile resolution, "
+                "FHIR clinical packet validation, X12 eligibility/prior-auth translation, and "
+                "audit trail emission."
+            ),
+            patient_profile={
+                "age": 57,
+                "gender": "female",
+                "chief_complaint": "Progressive lumbar radiculopathy requiring MRI authorization",
+                "urgency": "medium",
+            },
+            medical_history={
+                "past_medical_history": [
+                    "Lumbar degenerative disc disease",
+                    "Type 2 diabetes",
+                    "Hypertension",
+                ],
+                "medications": [
+                    "Metformin 1000 mg BID",
+                    "Losartan 50 mg daily",
+                    "Gabapentin 300 mg TID",
+                ],
+                "allergies": ["No known drug allergies"],
+                "review_of_systems": {
+                    "neurologic": "Worsening left leg radicular pain and numbness for 6 weeks",
+                    "musculoskeletal": "Pain not controlled by conservative management",
+                },
+            },
+            journey_steps=[
+                {
+                    "agent": "provider_agent",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "request_type": "prior_auth_initiation",
+                            "service": "mri_lumbar_spine",
+                            "clinical_justification": "progressive neurologic deficits",
+                        }
+                    },
+                    "delay": 1,
+                },
+                {
+                    "agent": "profile_registry",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "requested_profile": "health.fhir.r4.financial@1.0.0",
+                            "acceptable_profiles": [
+                                {"profileId": "health.x12.5010.270", "versionRange": "1.x"},
+                                {"profileId": "health.x12.5010.278", "versionRange": "1.x"},
+                            ],
+                            "capability": "coverage.prior_auth",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["provider_agent"],
+                        "clinical_rationale": "Profile registry resolves standards path before exchange",
+                    },
+                },
+                {
+                    "agent": "fhir_profile",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "profile": "health.fhir.r4.financial",
+                            "bundle_type": "message",
+                            "resources": [
+                                "CoverageEligibilityRequest",
+                                "ServiceRequest",
+                                "Condition",
+                                "Observation",
+                            ],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["profile_registry"],
+                        "clinical_rationale": "FHIR adapter validates and normalizes prior-auth payload",
+                    },
+                },
+                {
+                    "agent": "x12_gateway",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "transactions": ["270", "271", "278"],
+                            "mode": "fhir_to_x12_translation",
+                            "trading_partner": "payer_alpha",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["fhir_profile"],
+                        "clinical_rationale": "X12 bridge executes payer-mandated eligibility and auth flow",
+                    },
+                },
+                {
+                    "agent": "insurer_agent",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "policy_check": "benefit_and_medical_necessity",
+                            "response_channel": "x12_271_and_278_response",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["x12_gateway"],
+                        "clinical_rationale": "Payer adjudication returns eligibility and prior-auth decision",
+                    },
+                },
+                {
+                    "agent": "audit",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "event_type": "interop_prior_auth_completed",
+                            "must_include": [
+                                "correlation_id",
+                                "requested_profile",
+                                "resolved_profile",
+                                "x12_transaction_ids",
+                                "authorization_decision",
+                            ],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["insurer_agent"],
+                        "clinical_rationale": "Audit event persisted for compliance and traceability",
+                    },
+                },
+            ],
+            expected_duration=14,
+        ),
+        PatientScenario(
+            name="interop_claim_submission_and_remittance",
+            description=(
+                "Post-discharge billing flow that converts a FHIR Claim to X12 837, ingests 835 remittance, "
+                "maps outcomes back to financial records, and logs immutable audit evidence."
+            ),
+            patient_profile={
+                "age": 63,
+                "gender": "male",
+                "chief_complaint": "Heart-failure admission billing and reconciliation",
+                "urgency": "low",
+            },
+            medical_history={
+                "past_medical_history": ["Congestive heart failure", "Chronic kidney disease stage 3"],
+                "medications": ["Furosemide 40 mg daily", "Carvedilol 12.5 mg BID"],
+                "allergies": ["No known drug allergies"],
+                "review_of_systems": {
+                    "cardiac": "Symptoms improved after inpatient diuresis",
+                    "constitutional": "Stable for discharge and billing completion",
+                },
+            },
+            journey_steps=[
+                {
+                    "agent": "discharge",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "discharge_diagnosis": "Acute on chronic heart failure",
+                            "discharge_disposition": "home",
+                        }
+                    },
+                    "delay": 1,
+                },
+                {
+                    "agent": "profile_registry",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "requested_profile": "health.x12.5010.837p",
+                            "acceptable_profiles": [
+                                {"profileId": "health.x12.5010.837p", "versionRange": "1.x"},
+                                {"profileId": "health.x12.5010.835", "versionRange": "1.x"},
+                            ],
+                            "capability": "claims.submit_and_remit_ingest",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["discharge"],
+                        "clinical_rationale": "Billing profiles resolved after finalized discharge summary",
+                    },
+                },
+                {
+                    "agent": "fhir_profile",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "profile": "health.fhir.r4.financial",
+                            "resources": ["Claim", "Encounter", "Condition", "Procedure"],
+                            "validation_mode": "claim_submission",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["profile_registry"],
+                        "clinical_rationale": "FHIR claim artifacts validated before EDI conversion",
+                    },
+                },
+                {
+                    "agent": "x12_gateway",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "transactions": ["837", "835"],
+                            "mode": "submit_and_ingest",
+                            "trading_partner": "payer_beta",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["fhir_profile"],
+                        "clinical_rationale": "Gateway submits 837 and receives adjudication/remittance 835",
+                    },
+                },
+                {
+                    "agent": "care_coordinator",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "journey_type": "financial_reconciliation",
+                            "coordination_tasks": [
+                                "patient_balance_notification",
+                                "eob_delivery",
+                                "denial_followup_if_needed",
+                            ],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["x12_gateway"],
+                        "clinical_rationale": "Coordinator closes loop after remittance outcomes",
+                    },
+                },
+                {
+                    "agent": "audit",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "event_type": "interop_claim_and_remittance_completed",
+                            "must_include": [
+                                "claim_identifier",
+                                "x12_837_control_number",
+                                "x12_835_trace_number",
+                                "adjudication_status",
+                            ],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["care_coordinator"],
+                        "clinical_rationale": "Financial lifecycle events captured in immutable audit log",
+                    },
+                },
+            ],
+            expected_duration=13,
+        ),
+        PatientScenario(
+            name="interop_pharmacy_pos_claim_adjudication",
+            description=(
+                "Outpatient pharmacy point-of-sale claim using NCPDP Telecom D.0 with profile registry "
+                "resolution, adjudication response handling, and audit trace emission."
+            ),
+            patient_profile={
+                "age": 49,
+                "gender": "female",
+                "chief_complaint": "Urgent insulin refill after dose adjustment",
+                "urgency": "medium",
+            },
+            medical_history={
+                "past_medical_history": ["Type 1 diabetes mellitus", "Diabetic retinopathy"],
+                "medications": ["Insulin aspart", "Insulin glargine"],
+                "allergies": ["Latex"],
+                "review_of_systems": {
+                    "endocrine": "Recent glucose variability after regimen changes",
+                    "constitutional": "No signs of DKA, needs uninterrupted insulin access",
+                },
+            },
+            journey_steps=[
+                {
+                    "agent": "pharmacy",
+                    "method": "pharmacy/recommend",
+                    "params": {
+                        "task": {
+                            "med_plan": ["Insulin aspart refill"],
+                            "allergies": ["Latex"],
+                            "current_medications": ["Insulin glargine"],
+                        }
+                    },
+                    "delay": 1,
+                },
+                {
+                    "agent": "profile_registry",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "requested_profile": "health.ncpdp.telecom.d0",
+                            "acceptable_profiles": [
+                                {"profileId": "health.ncpdp.telecom.d0", "versionRange": "1.x"}
+                            ],
+                            "capability": "pharmacy.pos_claim",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["pharmacy"],
+                        "clinical_rationale": "Registry resolves pharmacy claim profile before switch routing",
+                    },
+                },
+                {
+                    "agent": "ncpdp_gateway",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "transaction": "telecom_d0_claim",
+                            "required_fields": [
+                                "BIN",
+                                "PCN",
+                                "Group",
+                                "CardholderID",
+                                "RxNumber",
+                                "NDC",
+                                "Quantity",
+                                "DaysSupply",
+                            ],
+                            "simulate_response": "paid",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["profile_registry"],
+                        "clinical_rationale": "NCPDP adapter validates POS claim and returns adjudication",
+                    },
+                },
+                {
+                    "agent": "fhir_profile",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "profile": "health.fhir.r4.financial",
+                            "mapping_source": "ncpdp_telecom_response",
+                            "target_resources": ["Claim", "ClaimResponse"],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["ncpdp_gateway"],
+                        "clinical_rationale": "Adjudication mapped to internal FHIR financial record",
+                    },
+                },
+                {
+                    "agent": "audit",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "event_type": "interop_ncpdp_pos_claim_completed",
+                            "must_include": [
+                                "claim_reference",
+                                "ncpdp_response_code",
+                                "paid_amount_or_reject_code",
+                            ],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["fhir_profile"],
+                        "clinical_rationale": "POS claim and adjudication outcome logged for compliance",
+                    },
+                },
+                {
+                    "agent": "followup",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "followup_schedule": [
+                            {
+                                "type": "endocrinology",
+                                "when": _future(14),
+                                "purpose": "insulin efficacy and refill continuity review",
+                            }
+                        ]
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["audit"],
+                        "clinical_rationale": "Clinical continuity follow-up after successful pharmacy adjudication",
+                    },
+                },
+            ],
+            expected_duration=12,
+        ),
+        PatientScenario(
+            name="interop_unsupported_profile_routing_failure",
+            description=(
+                "Negative-path intake where a requested interoperability profile is unsupported, "
+                "causing deterministic routing failure, manual escalation, and audited closure."
+            ),
+            patient_profile={
+                "age": 44,
+                "gender": "female",
+                "chief_complaint": "Specialty referral requiring unsupported payer profile",
+                "urgency": "medium",
+            },
+            medical_history={
+                "past_medical_history": ["Crohn disease", "Iron deficiency anemia"],
+                "medications": ["Mesalamine", "Ferrous sulfate"],
+                "allergies": ["No known drug allergies"],
+            },
+            journey_steps=[
+                {
+                    "agent": "provider_agent",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "request_type": "interop_referral_submission",
+                            "service": "specialty_gastro_referral",
+                            "requested_profile": "health.fhir.r5.financial@9.9.9",
+                        }
+                    },
+                    "delay": 1,
+                },
+                {
+                    "agent": "profile_registry",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "requested_profile": "health.fhir.r5.financial@9.9.9",
+                            "acceptable_profiles": [
+                                {"profileId": "health.fhir.r4.financial", "versionRange": "1.x"}
+                            ],
+                            "expect_resolution": "none",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["provider_agent"],
+                        "clinical_rationale": "Registry fails closed when no exact or compatible profile exists",
+                    },
+                },
+                {
+                    "agent": "hitl_ui",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "review_reason": "unsupported_profile_routing_failure",
+                            "required_actions": [
+                                "confirm_profile_catalog",
+                                "select_supported_alternative",
+                                "document_variance",
+                            ],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["profile_registry"],
+                        "clinical_rationale": "Manual governance review triggered for unsupported profile",
+                    },
+                },
+                {
+                    "agent": "audit",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "event_type": "interop_unsupported_profile_blocked",
+                            "must_include": [
+                                "requested_profile",
+                                "resolution_outcome",
+                                "reviewer_decision",
+                                "correlation_id",
+                            ],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["hitl_ui"],
+                        "clinical_rationale": "Blocked exchange captured as immutable compliance event",
+                    },
+                },
+            ],
+            expected_duration=9,
+            simulation_profile={"allowed_branches": ["unsupported_profile"]},
+            negative_class="interop_profile_negotiation",
+            expected_escalation="hitl_ui",
+            expected_safe_outcome="blocked_no_exchange",
+        ),
+        PatientScenario(
+            name="interop_profile_fallback_exhaustion",
+            description=(
+                "Negative-path prior-auth flow where acceptable profile fallback options are exhausted "
+                "without compatible SemVer matches, forcing safe interruption and audit evidence."
+            ),
+            patient_profile={
+                "age": 61,
+                "gender": "male",
+                "chief_complaint": "Planned lumbar procedure prior-auth with stale partner profiles",
+                "urgency": "low",
+            },
+            medical_history={
+                "past_medical_history": ["Lumbar spinal stenosis", "Type 2 diabetes"],
+                "medications": ["Metformin", "Pregabalin"],
+                "allergies": ["No known drug allergies"],
+            },
+            journey_steps=[
+                {
+                    "agent": "provider_agent",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "request_type": "prior_auth_initiation",
+                            "service": "lumbar_decompression",
+                            "requested_profile": "health.x12.5010.278@3.0.0",
+                        }
+                    },
+                    "delay": 1,
+                },
+                {
+                    "agent": "profile_registry",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "requested_profile": "health.x12.5010.278@3.0.0",
+                            "acceptable_profiles": [
+                                {"profileId": "health.x12.5010.278", "versionRange": "3.x"},
+                                {"profileId": "health.x12.5010.270", "versionRange": "3.x"},
+                            ],
+                            "expect_resolution": "none",
+                            "failure_mode": "fallback_exhausted",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["provider_agent"],
+                        "clinical_rationale": "Fallback search returns no compatible profile versions",
+                    },
+                },
+                {
+                    "agent": "care_coordinator",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "journey_type": "interop_recovery",
+                            "coordination_tasks": [
+                                "reschedule_nonurgent_request",
+                                "notify_integration_team",
+                                "maintain_patient_safety_plan",
+                            ],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["profile_registry"],
+                        "clinical_rationale": "Non-urgent request paused while preserving continuity",
+                    },
+                },
+                {
+                    "agent": "audit",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "event_type": "interop_profile_fallback_exhausted",
+                            "must_include": [
+                                "requested_profile",
+                                "acceptable_profiles",
+                                "fallback_attempt_count",
+                                "safe_outcome",
+                            ],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["care_coordinator"],
+                        "clinical_rationale": "Exhausted fallback path recorded for operational remediation",
+                    },
+                },
+            ],
+            expected_duration=9,
+            simulation_profile={"allowed_branches": ["fallback_exhausted"]},
+            negative_class="interop_profile_fallback",
+            expected_escalation="care_coordinator",
+            expected_safe_outcome="deferred_with_manual_recovery",
+        ),
+        PatientScenario(
+            name="interop_malformed_ncpdp_payload",
+            description=(
+                "Negative-path pharmacy claim where malformed NCPDP payload fields are detected, "
+                "rejected safely, corrected via human review, and audited."
+            ),
+            patient_profile={
+                "age": 52,
+                "gender": "female",
+                "chief_complaint": "Urgent insulin refill with malformed payer payload",
+                "urgency": "high",
+            },
+            medical_history={
+                "past_medical_history": ["Type 1 diabetes mellitus"],
+                "medications": ["Insulin aspart", "Insulin glargine"],
+                "allergies": ["Latex"],
+            },
+            journey_steps=[
+                {
+                    "agent": "pharmacy",
+                    "method": "pharmacy/recommend",
+                    "params": {
+                        "task": {
+                            "med_plan": ["Insulin aspart refill"],
+                            "allergies": ["Latex"],
+                            "current_medications": ["Insulin glargine"],
+                        }
+                    },
+                    "delay": 1,
+                },
+                {
+                    "agent": "profile_registry",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "requested_profile": "health.ncpdp.telecom.d0",
+                            "acceptable_profiles": [
+                                {"profileId": "health.ncpdp.telecom.d0", "versionRange": "1.x"}
+                            ],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["pharmacy"],
+                        "clinical_rationale": "Registry resolves POS claim profile before submission",
+                    },
+                },
+                {
+                    "agent": "ncpdp_gateway",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "transaction": "telecom_d0_claim",
+                            "payload_quality": "malformed",
+                            "missing_fields": ["BIN", "CardholderID", "DaysSupply"],
+                            "expect_result": "reject",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["profile_registry"],
+                        "clinical_rationale": "Gateway rejects malformed NCPDP payload before payer submission",
+                    },
+                },
+                {
+                    "agent": "hitl_ui",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "review_reason": "malformed_ncpdp_payload",
+                            "required_actions": [
+                                "verify_member_card_data",
+                                "correct_missing_fields",
+                                "resubmit_claim",
+                            ],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["ncpdp_gateway"],
+                        "clinical_rationale": "Pharmacy operations performs corrective data-entry cycle",
+                    },
+                },
+                {
+                    "agent": "audit",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "event_type": "interop_ncpdp_payload_rejected",
+                            "must_include": [
+                                "missing_required_fields",
+                                "reject_code",
+                                "correction_owner",
+                                "resubmission_flag",
+                            ],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["hitl_ui"],
+                        "clinical_rationale": "Malformed payload rejection logged with remediation evidence",
+                    },
+                },
+            ],
+            expected_duration=10,
+            simulation_profile={"allowed_branches": ["malformed_payload_reject"]},
+            negative_class="interop_ncpdp_validation",
+            expected_escalation="hitl_ui",
+            expected_safe_outcome="reject_then_manual_correction",
+        ),
+        PatientScenario(
+            name="interop_x12_translation_reject_loop",
+            description=(
+                "Negative-path claims flow where X12 translation triggers repeated partner rejects, "
+                "enters bounded retry loop, then escalates to safe manual reconciliation."
+            ),
+            patient_profile={
+                "age": 66,
+                "gender": "male",
+                "chief_complaint": "Post-discharge claim repeatedly rejected by clearinghouse",
+                "urgency": "low",
+            },
+            medical_history={
+                "past_medical_history": ["Chronic heart failure", "Atrial fibrillation"],
+                "medications": ["Apixaban", "Furosemide", "Bisoprolol"],
+                "allergies": ["No known drug allergies"],
+            },
+            journey_steps=[
+                {
+                    "agent": "discharge",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "discharge_diagnosis": "Acute heart-failure exacerbation",
+                            "discharge_disposition": "home",
+                        }
+                    },
+                    "delay": 1,
+                },
+                {
+                    "agent": "profile_registry",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "requested_profile": "health.x12.5010.837p",
+                            "acceptable_profiles": [
+                                {"profileId": "health.x12.5010.837p", "versionRange": "1.x"},
+                                {"profileId": "health.x12.5010.835", "versionRange": "1.x"},
+                            ],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["discharge"],
+                        "clinical_rationale": "Claims profile resolved before translation cycle",
+                    },
+                },
+                {
+                    "agent": "fhir_profile",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "profile": "health.fhir.r4.financial",
+                            "resources": ["Claim", "Encounter", "Procedure"],
+                            "validation_mode": "claim_submission",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["profile_registry"],
+                        "clinical_rationale": "FHIR financial payload validated before EDI serialization",
+                    },
+                },
+                {
+                    "agent": "x12_gateway",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "transaction": "837",
+                            "mode": "translate_and_submit",
+                            "simulate_partner_response": "reject_loop",
+                            "max_retry_attempts": 3,
+                            "retry_policy": "bounded_backoff",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["fhir_profile"],
+                        "clinical_rationale": "Gateway enters bounded retry on repeated clearinghouse rejects",
+                    },
+                },
+                {
+                    "agent": "care_coordinator",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "journey_type": "claim_recovery",
+                            "coordination_tasks": [
+                                "open_manual_billing_case",
+                                "notify_revenue_cycle_team",
+                                "track_resubmission_window",
+                            ],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["x12_gateway"],
+                        "clinical_rationale": "Manual reconciliation triggered after bounded retry exhaustion",
+                    },
+                },
+                {
+                    "agent": "audit",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "event_type": "interop_x12_reject_loop_terminated",
+                            "must_include": [
+                                "retry_attempts",
+                                "reject_codes",
+                                "termination_reason",
+                                "manual_case_reference",
+                            ],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["care_coordinator"],
+                        "clinical_rationale": "Retry-loop termination and recovery handoff audited",
+                    },
+                },
+            ],
+            expected_duration=11,
+            simulation_profile={"allowed_branches": ["x12_reject_loop"]},
+            negative_class="interop_x12_retry_exhaustion",
+            expected_escalation="care_coordinator",
+            expected_safe_outcome="manual_reconciliation_after_bounded_retry",
+        ),
+        # HL7 V2 Legacy Integration
+        PatientScenario(
+            name="interop_hl7v2_adt_patient_merge",
+            description="HL7 V2 ADT^A40 patient merge from legacy hospital system with FHIR translation.",
+            patient_profile={
+                "age": 62,
+                "gender": "female",
+                "chief_complaint": "Duplicate patient records identified during registration",
+                "urgency": "administrative",
+            },
+            medical_history={
+                "past_medical_history": ["Duplicate MRN resolution required"],
+                "medications": [],
+                "allergies": [],
+                "social_history": {},
+                "family_history": [],
+            },
+            journey_steps=[
+                {
+                    "agent": "profile_registry",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "requestedProfile": "health.hl7v2.2.5.adt",
+                            "acceptableProfiles": ["health.hl7v2.2.5.adt", "health.hl7v2.2.3.adt"],
+                            "use_case": "patient_merge",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": [],
+                        "clinical_rationale": "Registry resolves HL7 V2 ADT profile for legacy integration",
+                    },
+                },
+                {
+                    "agent": "hl7v2_gateway",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "message_type": "ADT^A40",
+                            "source_mrn": "12345678",
+                            "target_mrn": "87654321",
+                            "merge_reason": "duplicate_registration_detected",
+                            "segments": ["MSH", "EVN", "PID", "MRG"],
+                            "translation_target": "fhir",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["profile_registry"],
+                        "clinical_rationale": "HL7 V2 gateway processes ADT merge and prepares FHIR translation",
+                    },
+                },
+                {
+                    "agent": "fhir_profile",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "operation": "patient_merge",
+                            "source_patient_id": "12345678",
+                            "target_patient_id": "87654321",
+                            "fhir_transaction": "merge_bundle",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["hl7v2_gateway"],
+                        "clinical_rationale": "FHIR agent applies patient merge in canonical model",
+                    },
+                },
+                {
+                    "agent": "audit",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "event_type": "hl7v2_patient_merge_completed",
+                            "must_include": ["source_mrn", "target_mrn", "merge_timestamp"],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["fhir_profile"],
+                        "clinical_rationale": "Patient merge audited for HIPAA compliance",
+                    },
+                },
+            ],
+            expected_duration=4,
+            simulation_profile={"allowed_branches": ["hl7v2_integration"]},
+        ),
+        # CDA Document Exchange
+        PatientScenario(
+            name="interop_cda_discharge_summary_hie",
+            description="C-CDA Discharge Summary generation and submission to state HIE network.",
+            patient_profile={
+                "age": 71,
+                "gender": "male",
+                "chief_complaint": "Post-discharge document exchange to regional HIE",
+                "urgency": "routine",
+            },
+            medical_history={
+                "past_medical_history": ["Pneumonia", "COPD", "Type 2 Diabetes"],
+                "medications": [
+                    "Azithromycin 500 mg daily (7 days)",
+                    "Albuterol inhaler PRN",
+                    "Metformin 1000 mg BID",
+                ],
+                "allergies": ["Sulfa drugs"],
+                "social_history": {"tobacco": "former smoker", "alcohol": "occasional"},
+                "family_history": ["Father with lung cancer"],
+            },
+            journey_steps=[
+                {
+                    "agent": "discharge",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "discharge_disposition": "home",
+                            "discharge_instructions": "respiratory_infection_recovery",
+                            "request_ccda_generation": True,
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": [],
+                        "clinical_rationale": "Discharge agent initiates CDA document generation",
+                    },
+                },
+                {
+                    "agent": "profile_registry",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "requestedProfile": "health.cda.r2.ccda",
+                            "acceptableProfiles": ["health.cda.r2.ccda", "health.cda.r2"],
+                            "document_type": "discharge_summary",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["discharge"],
+                        "clinical_rationale": "Registry resolves C-CDA profile for HIE submission",
+                    },
+                },
+                {
+                    "agent": "cda_document",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "document_type": "Discharge Summary",
+                            "cda_template": "2.16.840.1.113883.10.20.22.1.8",
+                            "include_sections": [
+                                "allergies",
+                                "medications",
+                                "problems",
+                                "procedures",
+                                "results",
+                            ],
+                            "hie_submission_endpoint": "state_hie_gateway",
+                        }
+                    },
+                    "delay": 2,
+                    "handoff_policy": {
+                        "required_predecessors": ["profile_registry"],
+                        "clinical_rationale": "CDA agent generates C-CDA discharge summary for HIE",
+                    },
+                },
+                {
+                    "agent": "fhir_profile",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "operation": "cda_to_fhir_mapping",
+                            "source_document_type": "ccda_discharge_summary",
+                            "target_bundle_type": "document",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["cda_document"],
+                        "clinical_rationale": "FHIR agent creates canonical representation for internal use",
+                    },
+                },
+                {
+                    "agent": "audit",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "event_type": "cda_hie_submission_completed",
+                            "must_include": ["document_oid", "hie_submission_timestamp"],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["fhir_profile"],
+                        "clinical_rationale": "HIE document submission audited for compliance",
+                    },
+                },
+            ],
+            expected_duration=6,
+            simulation_profile={"allowed_branches": ["cda_hie"]},
+        ),
+        # DICOM Imaging Integration
+        PatientScenario(
+            name="interop_dicom_radiology_telehealth_consult",
+            description="DICOM imaging study query and ImagingStudy FHIR mapping for telehealth radiology consult.",
+            patient_profile={
+                "age": 48,
+                "gender": "female",
+                "chief_complaint": "Persistent headaches requiring imaging review",
+                "urgency": "routine",
+            },
+            medical_history={
+                "past_medical_history": ["Migraine disorder", "Essential hypertension"],
+                "medications": ["Sumatriptan 50 mg PRN", "Lisinopril 10 mg daily"],
+                "allergies": [],
+                "social_history": {},
+                "family_history": ["Mother with stroke"],
+            },
+            journey_steps=[
+                {
+                    "agent": "imaging",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "study_requested": "Brain MRI with and without contrast",
+                            "clinical_indication": "chronic_headaches_with_neuro_symptoms",
+                            "request_dicom_metadata": True,
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": [],
+                        "clinical_rationale": "Imaging agent orders study and requests DICOM integration",
+                    },
+                },
+                {
+                    "agent": "profile_registry",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "requestedProfile": "health.dicom.cfind",
+                            "acceptableProfiles": ["health.dicom.cfind", "health.dicom.qido"],
+                            "query_level": "study",
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["imaging"],
+                        "clinical_rationale": "Registry resolves DICOM query profile for PACS integration",
+                    },
+                },
+                {
+                    "agent": "dicom_imaging",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "dicom_operation": "C-FIND",
+                            "query_level": "STUDY",
+                            "modality": "MRI",
+                            "accession_number": "ACC2026030301",
+                            "extract_metadata": True,
+                        }
+                    },
+                    "delay": 2,
+                    "handoff_policy": {
+                        "required_predecessors": ["profile_registry"],
+                        "clinical_rationale": "DICOM agent queries PACS for study metadata",
+                    },
+                },
+                {
+                    "agent": "fhir_profile",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "operation": "dicom_to_imagingstudy",
+                            "study_uid": "1.2.840.10008.1.2.1",
+                            "series_count": 4,
+                            "instance_count": 72,
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["dicom_imaging"],
+                        "clinical_rationale": "FHIR agent maps DICOM metadata to ImagingStudy resource",
+                    },
+                },
+                {
+                    "agent": "specialty_care",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "consultation_type": "teleradiology",
+                            "imaging_study_available": True,
+                            "radiologist_review_requested": True,
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["fhir_profile"],
+                        "clinical_rationale": "Specialty care receives ImagingStudy for telehealth consult",
+                    },
+                },
+                {
+                    "agent": "audit",
+                    "method": "tasks/sendSubscribe",
+                    "params": {
+                        "task": {
+                            "event_type": "dicom_imaging_telehealth_consult_completed",
+                            "must_include": ["study_uid", "access_timestamp", "consulted_radiologist"],
+                        }
+                    },
+                    "delay": 1,
+                    "handoff_policy": {
+                        "required_predecessors": ["specialty_care"],
+                        "clinical_rationale": "DICOM access and telehealth consult audited for HIPAA compliance",
+                    },
+                },
+            ],
+            expected_duration=7,
+            simulation_profile={"allowed_branches": ["dicom_telehealth"]},
+        ),
+    ]
+)
 
 
 async def run_additional_scenarios() -> None:
