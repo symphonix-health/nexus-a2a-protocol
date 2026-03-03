@@ -122,6 +122,48 @@
                 "description": "Central surveillance coordinator"
             }
         },
+        "interop": {
+            "profile_registry_agent": {
+                "port": 8060,
+                "path": "demos/interop/profile-registry-agent",
+                "description": "Interoperability profile registry"
+            },
+            "fhir_profile_agent": {
+                "port": 8061,
+                "path": "demos/interop/fhir-profile-agent",
+                "description": "FHIR profile adapter gateway"
+            },
+            "x12_gateway_agent": {
+                "port": 8062,
+                "path": "demos/interop/x12-gateway-agent",
+                "description": "X12 profile adapter gateway"
+            },
+            "ncpdp_gateway_agent": {
+                "port": 8063,
+                "path": "demos/interop/ncpdp-gateway-agent",
+                "description": "NCPDP profile adapter gateway"
+            },
+            "audit_agent": {
+                "port": 8064,
+                "path": "demos/interop/audit-agent",
+                "description": "Interoperability audit and policy ledger"
+            },
+            "hl7v2_gateway_agent": {
+                "port": 8065,
+                "path": "demos/interop/hl7v2-gateway-agent",
+                "description": "HL7 Version 2.x legacy message gateway"
+            },
+            "cda_document_agent": {
+                "port": 8066,
+                "path": "demos/interop/cda-document-agent",
+                "description": "CDA/C-CDA document generation and validation agent"
+            },
+            "dicom_imaging_agent": {
+                "port": 8067,
+                "path": "demos/interop/dicom-imaging-agent",
+                "description": "DICOM imaging metadata and query/retrieve agent"
+            }
+        },
         "helixcare": {
             "imaging_agent": {
                 "port": 8024,

@@ -2506,6 +2506,15 @@ const AGENT_JOB_PROFILES = {
     'hospital_reporter': 'Chief Medical Officer',
     'osint': 'Public Health Surveillance Officer',
     'central_surveillance': 'Chief Medical Officer',
+    // interop group (8060-8067)
+    'profile_registry': 'Integration Engine Operator',
+    'fhir_profile': 'Integration Engine Operator',
+    'x12_gateway': 'Integration Engine Operator',
+    'ncpdp_gateway': 'Integration Engine Operator',
+    'audit': 'Privacy Officer',
+    'hl7v2_gateway': 'Integration Engine Operator',
+    'cda_document': 'Health Records Officer',
+    'dicom_imaging': 'Imaging Informatics Specialist',
     // infrastructure
     'command_centre': 'Command Centre',
 };

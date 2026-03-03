@@ -24,13 +24,13 @@
       "description": "Audit, consent, and compliance agents — read-only clinical data access.",
       "bulletrain_role": "auditor",
       "rbac_level": "High",
-      "members": ["consent_analyser", "hospital_reporter", "central_surveillance"]
+      "members": ["consent_analyser", "hospital_reporter", "central_surveillance", "audit_agent"]
     },
     "nexus-connector": {
       "description": "Integration bridge agents — FHIR/HL7 mediators, external gateways.",
       "bulletrain_role": "connector",
       "rbac_level": "High",
-      "members": ["openhie_mediator", "insurer_agent", "provider_agent"]
+      "members": ["openhie_mediator", "insurer_agent", "provider_agent", "profile_registry_agent", "fhir_profile_agent", "x12_gateway_agent", "ncpdp_gateway_agent", "hl7v2_gateway_agent", "cda_document_agent", "dicom_imaging_agent"]
     },
     "nexus-intelligence": {
       "description": "Intelligence and surveillance agents — OSINT, public health reporting.",
@@ -768,6 +768,220 @@
       "scenario_roles": {
         "primary": ["sepsis_deterioration"],
         "secondary": ["paediatric_respiratory"]
+      }
+    },
+    "profile_registry_agent": {
+      "port": 8060,
+      "primary_persona_id": "P056",
+      "persona_name": "Integration Engine Operator",
+      "alternate_personas": {},
+      "iam": {
+        "entra_display_name": "NEXUS Profile Registry Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-connector"],
+        "delegated_scopes": ["system/*.read", "system/*.write"],
+        "can_delegate_to": ["fhir_profile_agent", "x12_gateway_agent", "ncpdp_gateway_agent", "audit_agent"],
+        "can_receive_delegation_from": [],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": false,
+          "receive_sms": false,
+          "receive_email": false
+        },
+        "purpose_of_use": "System",
+        "autonomous_actions": ["profile_registration", "version_resolution", "adapter_discovery"]
+      },
+      "scenario_roles": {
+        "primary": [],
+        "secondary": []
+      }
+    },
+    "fhir_profile_agent": {
+      "port": 8061,
+      "primary_persona_id": "P056",
+      "persona_name": "Integration Engine Operator",
+      "alternate_personas": {},
+      "iam": {
+        "entra_display_name": "NEXUS FHIR Profile Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-connector"],
+        "delegated_scopes": ["nexus:invoke", "fhir.write"],
+        "can_delegate_to": ["audit_agent"],
+        "can_receive_delegation_from": ["profile_registry_agent"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": false,
+          "receive_sms": false,
+          "receive_email": false
+        },
+        "purpose_of_use": "System",
+        "autonomous_actions": ["fhir_profile_validation", "fhir_profile_mapping", "envelope_translation"]
+      },
+      "scenario_roles": {
+        "primary": [],
+        "secondary": []
+      }
+    },
+    "x12_gateway_agent": {
+      "port": 8062,
+      "primary_persona_id": "P056",
+      "persona_name": "Integration Engine Operator",
+      "alternate_personas": {},
+      "iam": {
+        "entra_display_name": "NEXUS X12 Gateway Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-connector"],
+        "delegated_scopes": ["nexus:invoke", "eligibility.read", "claims.submit"],
+        "can_delegate_to": ["audit_agent"],
+        "can_receive_delegation_from": ["profile_registry_agent"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": false,
+          "receive_sms": false,
+          "receive_email": false
+        },
+        "purpose_of_use": "System",
+        "autonomous_actions": ["x12_profile_validation", "x12_transaction_classification", "envelope_translation"]
+      },
+      "scenario_roles": {
+        "primary": [],
+        "secondary": []
+      }
+    },
+    "ncpdp_gateway_agent": {
+      "port": 8063,
+      "primary_persona_id": "P056",
+      "persona_name": "Integration Engine Operator",
+      "alternate_personas": {},
+      "iam": {
+        "entra_display_name": "NEXUS NCPDP Gateway Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-connector"],
+        "delegated_scopes": ["nexus:invoke", "ncpdp.submit"],
+        "can_delegate_to": ["audit_agent"],
+        "can_receive_delegation_from": ["profile_registry_agent"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": false,
+          "receive_sms": false,
+          "receive_email": false
+        },
+        "purpose_of_use": "System",
+        "autonomous_actions": ["ncpdp_profile_validation", "adjudication_payload_mapping", "envelope_translation"]
+      },
+      "scenario_roles": {
+        "primary": [],
+        "secondary": []
+      }
+    },
+    "audit_agent": {
+      "port": 8064,
+      "primary_persona_id": "P013",
+      "persona_name": "Caldicott Guardian / Privacy Officer",
+      "alternate_personas": {
+        "usa": "P024",
+        "uk_consent": "P053"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS Interop Audit Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-governance"],
+        "delegated_scopes": ["audit.read", "audit.write", "consent.read"],
+        "can_delegate_to": [],
+        "can_receive_delegation_from": ["profile_registry_agent", "fhir_profile_agent", "x12_gateway_agent", "ncpdp_gateway_agent", "hl7v2_gateway_agent", "cda_document_agent", "dicom_imaging_agent"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": false,
+          "receive_sms": false,
+          "receive_email": false
+        },
+        "purpose_of_use": "Healthcare Operations",
+        "autonomous_actions": ["interop_audit_logging", "policy_breach_flagging", "traceability_export"]
+      },
+      "scenario_roles": {
+        "primary": [],
+        "secondary": []
+      }
+    },
+    "hl7v2_gateway_agent": {
+      "port": 8065,
+      "primary_persona_id": "P056",
+      "persona_name": "Integration Engine Operator",
+      "alternate_personas": {},
+      "iam": {
+        "entra_display_name": "NEXUS HL7 V2 Gateway Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-connector"],
+        "delegated_scopes": ["nexus:invoke", "hl7v2.inbound", "hl7v2.outbound"],
+        "can_delegate_to": ["audit_agent", "fhir_profile_agent"],
+        "can_receive_delegation_from": ["profile_registry_agent"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": false,
+          "receive_sms": false,
+          "receive_email": false
+        },
+        "purpose_of_use": "System",
+        "autonomous_actions": ["hl7v2_adt_translation", "hl7v2_oru_translation", "hl7v2_orm_translation", "hl7v2_to_fhir_mapping"]
+      },
+      "scenario_roles": {
+        "primary": [],
+        "secondary": []
+      }
+    },
+    "cda_document_agent": {
+      "port": 8066,
+      "primary_persona_id": "P008",
+      "persona_name": "Health Records Officer",
+      "alternate_personas": {
+        "usa": "P019",
+        "kenya": "P031"
+      },
+      "iam": {
+        "entra_display_name": "NEXUS CDA Document Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-connector"],
+        "delegated_scopes": ["nexus:invoke", "cda.generate", "cda.validate", "cda.exchange"],
+        "can_delegate_to": ["audit_agent", "fhir_profile_agent"],
+        "can_receive_delegation_from": ["profile_registry_agent"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": false,
+          "receive_sms": false,
+          "receive_email": false
+        },
+        "purpose_of_use": "Healthcare Operations",
+        "autonomous_actions": ["ccda_generation", "ccda_validation", "cda_to_fhir_mapping", "hie_document_submission"]
+      },
+      "scenario_roles": {
+        "primary": [],
+        "secondary": []
+      }
+    },
+    "dicom_imaging_agent": {
+      "port": 8067,
+      "primary_persona_id": "P057",
+      "persona_name": "Imaging Informatics Specialist",
+      "alternate_personas": {},
+      "iam": {
+        "entra_display_name": "NEXUS DICOM Imaging Agent",
+        "entra_app_id": null,
+        "groups": ["nexus-connector"],
+        "delegated_scopes": ["nexus:invoke", "dicom.query", "dicom.retrieve", "imaging.read"],
+        "can_delegate_to": ["audit_agent", "fhir_profile_agent"],
+        "can_receive_delegation_from": ["profile_registry_agent", "imaging_agent"],
+        "communication_permissions": {
+          "send_sms": false,
+          "send_email": false,
+          "receive_sms": false,
+          "receive_email": false
+        },
+        "purpose_of_use": "Treatment",
+        "autonomous_actions": ["dicom_cfind_query", "dicom_metadata_extraction", "imagingstudy_mapping", "pacs_integration"]
+      },
+      "scenario_roles": {
+        "primary": [],
+        "secondary": []
       }
     }
   }
