@@ -11,12 +11,20 @@ import httpx
 import pytest
 
 from shared.nexus_common.auth import mint_jwt, mint_persona_jwt
-from tests.nexus_harness.runner import ScenarioResult, get_report, pytest_ids, scenarios_for_helixcare
+from tests.nexus_harness.runner import (
+    ScenarioResult,
+    assert_deterministic_negative_rpc,
+    get_report,
+    pytest_ids,
+    scenarios_for_helixcare,
+)
 
 MATRIX = "helixcare_iam_non_encounter_matrix.json"
 SCENARIOS = scenarios_for_helixcare(MATRIX)
 
-GATEWAY_BASE_URL = os.environ.get("NEXUS_ON_DEMAND_GATEWAY_URL", "http://localhost:8100").rstrip("/")
+GATEWAY_BASE_URL = os.environ.get("NEXUS_ON_DEMAND_GATEWAY_URL", "http://localhost:8100").rstrip(
+    "/"
+)
 JWT_SECRET = os.environ.get("NEXUS_JWT_SECRET", "dev-secret-change-me")
 _GATEWAY_PROBE_DONE = False
 _GATEWAY_PROBE_OK = False
@@ -35,7 +43,9 @@ def _mk_sr(scenario: dict[str, Any]) -> ScenarioResult:
     )
 
 
-def _auth_headers_for_scenario(scenario: dict[str, Any], auth_headers: dict[str, str]) -> dict[str, str]:
+def _auth_headers_for_scenario(
+    scenario: dict[str, Any], auth_headers: dict[str, str]
+) -> dict[str, str]:
     headers = dict(auth_headers)
     profile = str(scenario.get("auth_profile", "session")).strip().lower()
 
@@ -54,7 +64,9 @@ def _auth_headers_for_scenario(scenario: dict[str, Any], auth_headers: dict[str,
     elif profile == "persona":
         persona_id = str(scenario.get("persona_id") or "").strip()
         if not persona_id:
-            raise AssertionError(f"{scenario['use_case_id']}: persona auth_profile requires persona_id")
+            raise AssertionError(
+                f"{scenario['use_case_id']}: persona auth_profile requires persona_id"
+            )
         token = mint_persona_jwt(
             subject,
             JWT_SECRET,
@@ -147,6 +159,12 @@ async def test_helixcare_iam_non_encounter_matrix(
             timeout=8.0,
         )
 
+        body = resp.json() if "application/json" in resp.headers.get("content-type", "") else {}
+
+        expected_result = scenario.get("expected_result", {})
+        expected_error = str(expected_result.get("error") or "").strip().upper()
+        expected_http_status = int(scenario.get("expected_http_status", 200))
+
         # Environment may have partial services. Avoid false fails on startup/transport errors.
         if resp.status_code == 503:
             _GATEWAY_DEPENDENCY_UNAVAILABLE = True
@@ -155,7 +173,15 @@ async def test_helixcare_iam_non_encounter_matrix(
             sr.message = _GATEWAY_DEPENDENCY_MSG
             return
 
-        expected_http_status = int(scenario.get("expected_http_status", 200))
+        if expected_http_status >= 400 or expected_error:
+            assert_deterministic_negative_rpc(
+                scenario,
+                status_code=resp.status_code,
+                body=body if isinstance(body, dict) else {},
+            )
+            sr.status = "pass"
+            return
+
         assert resp.status_code == expected_http_status, (
             f"{scenario['use_case_id']}: expected HTTP {expected_http_status}, got {resp.status_code}; "
             f"body={resp.text[:400]}"
@@ -167,7 +193,7 @@ async def test_helixcare_iam_non_encounter_matrix(
             detail = ""
             if "application/json" in resp.headers.get("content-type", ""):
                 try:
-                    parsed = resp.json()
+                    parsed = body if isinstance(body, dict) else resp.json()
                     if isinstance(parsed, dict):
                         detail = str(parsed.get("detail") or "")
                 except Exception:
@@ -181,8 +207,9 @@ async def test_helixcare_iam_non_encounter_matrix(
             assert "application/json" in resp.headers.get("content-type", ""), (
                 f"{scenario['use_case_id']}: expected JSON response envelope"
             )
-            body = resp.json()
-            assert isinstance(body, dict), f"{scenario['use_case_id']}: expected JSON object response"
+            assert isinstance(body, dict), (
+                f"{scenario['use_case_id']}: expected JSON object response"
+            )
             assert ("result" in body) or ("error" in body), (
                 f"{scenario['use_case_id']}: expected JSON-RPC result/error envelope"
             )

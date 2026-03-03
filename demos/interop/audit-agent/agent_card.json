@@ -2,6 +2,19 @@
   "name": "Audit Agent",
   "protocol": "NEXUS-A2A",
   "protocolVersion": "1.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "multiTransport": false,
+    "websocket": false
+  },
+  "authentication": {
+    "type": "bearer",
+    "scheme": "JWT",
+    "requiredScopes": [
+      "nexus:invoke"
+    ]
+  },
   "methods": [
     "tasks/send",
     "tasks/get",

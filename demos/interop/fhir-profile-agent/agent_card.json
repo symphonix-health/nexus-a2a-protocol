@@ -2,6 +2,20 @@
   "name": "FHIR Profile Agent",
   "protocol": "NEXUS-A2A",
   "protocolVersion": "1.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "multiTransport": false,
+    "websocket": false
+  },
+  "authentication": {
+    "type": "bearer",
+    "scheme": "JWT",
+    "requiredScopes": [
+      "nexus:invoke",
+      "fhir.write"
+    ]
+  },
   "profiles": [
     {
       "profileId": "health.fhir.r4.core",
