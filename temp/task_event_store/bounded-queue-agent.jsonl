@@ -1,3 +1,0 @@
-{"task_id":"task-queue-cap","event":"nexus.task.status","data":{"state":"accepted"},"seq":1,"stream_epoch":"e3dfca6bb49f4af898cd07d3a73ebbd8","ts_unix_ms":1772212157933}
-{"task_id":"task-queue-cap","event":"nexus.task.status","data":{"state":"working"},"seq":2,"stream_epoch":"e3dfca6bb49f4af898cd07d3a73ebbd8","ts_unix_ms":1772212157935}
-{"task_id":"task-queue-cap","event":"nexus.task.final","data":{"state":"final"},"seq":3,"stream_epoch":"e3dfca6bb49f4af898cd07d3a73ebbd8","ts_unix_ms":1772212157937}
