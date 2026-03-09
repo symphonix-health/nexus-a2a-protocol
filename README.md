@@ -393,6 +393,33 @@ python tools/generate_conformance_report.py
 python tools/generate_traceability_matrix.py
 ```
 
+### SDK Transport Harness
+
+```bash
+# Smoke profile (default CI profile for PRs)
+$env:SDK_HARNESS_MODE="mock"
+$env:SDK_HARNESS_PROFILE="smoke"
+python -m pytest tests/sdk_harness/test_sdk_transport.py -q
+
+# Full profile (all 44 baseline SDK scenarios)
+$env:SDK_HARNESS_MODE="mock"
+$env:SDK_HARNESS_PROFILE="full"
+python -m pytest tests/sdk_harness/test_sdk_transport.py -q
+
+# Live Nexus runtime validation (optional)
+$env:SDK_HARNESS_MODE="live"
+$env:SDK_HARNESS_PROFILE="smoke"
+$env:NEXUS_ROUTER_URL="http://localhost:9000"
+$env:NEXUS_ROUTER_RPC_URL="http://localhost:9000/rpc"
+$env:NEXUS_WS_URL_TEMPLATE="ws://localhost:9000/ws/{task_id}?token={token}"
+$env:NEXUS_JWT_TOKEN="<token>"
+python -m pytest tests/sdk_harness/test_sdk_transport.py -q
+```
+
+SDK report output:
+
+- `docs/sdk-conformance-report.json`
+
 ---
 
 ## 🔍 Troubleshooting
@@ -590,6 +617,10 @@ my_scenario = PatientScenario(
 | [Compliance Guide](docs/compliance_guide.md) | EU AI Act, HIPAA, GDPR, shared responsibility model |
 | [Command Centre](docs/command-centre-summary.md) | Dashboard implementation — heatmaps, metrics, WebSocket protocol |
 | [MCP Server](docs/mcp_server.md) | MCP Server facade for VS Code Copilot / Claude Desktop |
+| [SDK Transport](docs/sdk_transport.md) | Transport contract, unified event schema, mode selection |
+| [SDK Harness](docs/sdk_harness.md) | Matrix schema, mock/live execution, conformance report usage |
+| [BulletTrain Integration](docs/bullettrain_integration.md) | Consumption guide for external BulletTrain adoption |
+| [Legacy Shim Migration](docs/migration_legacy_adapter.md) | mcp_adapter deprecation and migration path |
 | [Adopter Guide](docs/nexus_adopter_guide.md) | National digital health adoption guide |
 | [Traceability Matrix](docs/traceability-matrix.md) | Requirements → test → code mapping |
 
