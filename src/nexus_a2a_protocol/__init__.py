@@ -12,6 +12,18 @@ from .jsonrpc import (
 )
 from .models import Message, Task, TaskStatus, TextPart, new_agent_message, new_user_message
 from .poc import AgentCard, InMemoryAgent, InMemoryNexus
+from .sdk import (
+    AgentTransport,
+    HttpSseTransport,
+    SimulationTransport,
+    TaskEnvelope,
+    TaskEvent,
+    TaskSubmission,
+    TransportError,
+    TransportFactory,
+    WebSocketTransport,
+    map_nexus_event_to_progress,
+)
 
 __all__ = [
     "A2A_METHODS",
@@ -23,8 +35,18 @@ __all__ = [
     "Message",
     "ProtocolValidationError",
     "Task",
+    "TaskEnvelope",
+    "TaskEvent",
+    "TaskSubmission",
     "TaskStatus",
     "TextPart",
+    "TransportError",
+    "TransportFactory",
+    "AgentTransport",
+    "SimulationTransport",
+    "HttpSseTransport",
+    "WebSocketTransport",
+    "map_nexus_event_to_progress",
     "make_error",
     "make_error_data",
     "make_request",

@@ -6,6 +6,8 @@ The NEXUS-A2A MCP Server is a **thin Model Context Protocol (MCP) façade** over
 
 The server does **not** run clinical logic itself — it routes calls to already-running NEXUS agents and translates their SSE task events into MCP progress notifications.
 
+Adapter note: `shared/nexus_common/mcp_adapter.py` is now a compatibility shim that delegates to the installable SDK transport/client layer (`nexus_a2a_protocol.sdk`).
+
 ```
 ┌───────────┐      STDIO / JSON-RPC 2.0      ┌────────────────────┐
 │  MCP Host  │ ◄──────────────────────────────► │  nexus-a2a-mcp     │

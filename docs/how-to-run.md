@@ -315,6 +315,33 @@ NEXUS_JWT_SECRET=dev-secret-change-me \
   pytest tests/nexus_harness/test_local_llm_profile.py -v --tb=short
 ```
 
+### SDK Transport Harness
+
+```bash
+# Smoke profile against deterministic in-process runtime
+$env:SDK_HARNESS_MODE="mock"
+$env:SDK_HARNESS_PROFILE="smoke"
+python -m pytest tests/sdk_harness/test_sdk_transport.py -q
+
+# Full profile (all SDK transport scenarios)
+$env:SDK_HARNESS_MODE="mock"
+$env:SDK_HARNESS_PROFILE="full"
+python -m pytest tests/sdk_harness/test_sdk_transport.py -q
+
+# Optional live runtime validation
+$env:SDK_HARNESS_MODE="live"
+$env:SDK_HARNESS_PROFILE="smoke"
+$env:NEXUS_ROUTER_URL="http://localhost:9000"
+$env:NEXUS_ROUTER_RPC_URL="http://localhost:9000/rpc"
+$env:NEXUS_WS_URL_TEMPLATE="ws://localhost:9000/ws/{task_id}?token={token}"
+$env:NEXUS_JWT_TOKEN="<token>"
+python -m pytest tests/sdk_harness/test_sdk_transport.py -q
+```
+
+SDK conformance output:
+
+- `docs/sdk-conformance-report.json`
+
 ## System Architecture
 
 ```

@@ -1,0 +1,406 @@
+{
+  "generated_at": "2026-03-08T22:29:27.390180+00:00",
+  "total": 44,
+  "passed": 44,
+  "failed": 0,
+  "skipped": 0,
+  "errors": 0,
+  "results": [
+    {
+      "use_case_id": "UC-SDK-PARITY-0001",
+      "scenario_title": "simulation send task via tasks/send",
+      "scenario_type": "positive",
+      "transport": "simulation",
+      "status": "pass",
+      "message": "task_id=47d8c1cd-c462-4930-bd53-d21bcd8f797a",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-PARITY-0002",
+      "scenario_title": "simulation send task via tasks/sendSubscribe",
+      "scenario_type": "positive",
+      "transport": "simulation",
+      "status": "pass",
+      "message": "task_id=5ec54fa1-9229-4220-9a61-422e5b5af31c",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-PARITY-0003",
+      "scenario_title": "simulation stream lifecycle events",
+      "scenario_type": "positive",
+      "transport": "simulation",
+      "status": "pass",
+      "message": "events=3",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-PARITY-0004",
+      "scenario_title": "simulation send with explicit task_id",
+      "scenario_type": "positive",
+      "transport": "simulation",
+      "status": "pass",
+      "message": "task_id=task-simulation",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-PARITY-0005",
+      "scenario_title": "http_sse send task via tasks/send",
+      "scenario_type": "positive",
+      "transport": "http_sse",
+      "status": "pass",
+      "message": "task_id=feccf054-63fb-47f1-8957-7867f3aebf2a",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-PARITY-0006",
+      "scenario_title": "http_sse send task via tasks/sendSubscribe",
+      "scenario_type": "positive",
+      "transport": "http_sse",
+      "status": "pass",
+      "message": "task_id=cc75e1a1-1d23-454e-9f5c-ea28248c8281",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-PARITY-0007",
+      "scenario_title": "http_sse stream lifecycle events",
+      "scenario_type": "positive",
+      "transport": "http_sse",
+      "status": "pass",
+      "message": "events=3",
+      "duration_ms": 15.999999945051968
+    },
+    {
+      "use_case_id": "UC-SDK-PARITY-0008",
+      "scenario_title": "http_sse send with explicit task_id",
+      "scenario_type": "positive",
+      "transport": "http_sse",
+      "status": "pass",
+      "message": "task_id=task-http_sse",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-PARITY-0009",
+      "scenario_title": "websocket send task via tasks/send",
+      "scenario_type": "positive",
+      "transport": "websocket",
+      "status": "pass",
+      "message": "task_id=558e8f45-732a-4c8d-a5ee-75306549aa4e",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-PARITY-0010",
+      "scenario_title": "websocket send task via tasks/sendSubscribe",
+      "scenario_type": "positive",
+      "transport": "websocket",
+      "status": "pass",
+      "message": "task_id=51d0a008-1dd7-4055-97a3-f333431d86c7",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-PARITY-0011",
+      "scenario_title": "websocket stream lifecycle events",
+      "scenario_type": "positive",
+      "transport": "websocket",
+      "status": "pass",
+      "message": "events=3",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-PARITY-0012",
+      "scenario_title": "websocket send with explicit task_id",
+      "scenario_type": "positive",
+      "transport": "websocket",
+      "status": "pass",
+      "message": "task_id=task-websocket",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-STREAM-0013",
+      "scenario_title": "simulation streaming reports monotonic progress",
+      "scenario_type": "positive",
+      "transport": "simulation",
+      "status": "pass",
+      "message": "events=3",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-STREAM-0014",
+      "scenario_title": "simulation streaming emits terminal error event",
+      "scenario_type": "edge",
+      "transport": "simulation",
+      "status": "pass",
+      "message": "events=2",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-STREAM-0015",
+      "scenario_title": "http_sse streaming reports monotonic progress",
+      "scenario_type": "positive",
+      "transport": "http_sse",
+      "status": "pass",
+      "message": "events=3",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-STREAM-0016",
+      "scenario_title": "http_sse streaming emits terminal error event",
+      "scenario_type": "edge",
+      "transport": "http_sse",
+      "status": "pass",
+      "message": "events=2",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-STREAM-0017",
+      "scenario_title": "websocket streaming reports monotonic progress",
+      "scenario_type": "positive",
+      "transport": "websocket",
+      "status": "pass",
+      "message": "events=3",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-STREAM-0018",
+      "scenario_title": "websocket streaming emits terminal error event",
+      "scenario_type": "edge",
+      "transport": "websocket",
+      "status": "pass",
+      "message": "events=2",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-STREAM-0019",
+      "scenario_title": "http_sse streaming supports early consumer cutoff",
+      "scenario_type": "edge",
+      "transport": "http_sse",
+      "status": "pass",
+      "message": "events=2",
+      "duration_ms": 15.000000013969839
+    },
+    {
+      "use_case_id": "UC-SDK-STREAM-0020",
+      "scenario_title": "websocket streaming supports early consumer cutoff",
+      "scenario_type": "edge",
+      "transport": "websocket",
+      "status": "pass",
+      "message": "events=2",
+      "duration_ms": 15.000000013969839
+    },
+    {
+      "use_case_id": "UC-SDK-STREAM-0021",
+      "scenario_title": "simulation stream has deterministic event order",
+      "scenario_type": "positive",
+      "transport": "simulation",
+      "status": "pass",
+      "message": "events=3",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-STREAM-0022",
+      "scenario_title": "http_sse stream terminal final event remains consistent",
+      "scenario_type": "positive",
+      "transport": "http_sse",
+      "status": "pass",
+      "message": "events=3",
+      "duration_ms": 16.00000006146729
+    },
+    {
+      "use_case_id": "UC-SDK-NEG-0023",
+      "scenario_title": "simulation rejects unknown RPC method",
+      "scenario_type": "negative",
+      "transport": "simulation",
+      "status": "pass",
+      "message": "error=-32601",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-NEG-0024",
+      "scenario_title": "http_sse rejects unknown RPC method",
+      "scenario_type": "negative",
+      "transport": "http_sse",
+      "status": "pass",
+      "message": "error=-32601",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-NEG-0025",
+      "scenario_title": "websocket rejects unknown RPC method",
+      "scenario_type": "negative",
+      "transport": "websocket",
+      "status": "pass",
+      "message": "error=-32601",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-NEG-0026",
+      "scenario_title": "http_sse rejects missing auth token",
+      "scenario_type": "negative",
+      "transport": "http_sse",
+      "status": "pass",
+      "message": "auth_failed",
+      "duration_ms": 15.999999945051968
+    },
+    {
+      "use_case_id": "UC-SDK-NEG-0027",
+      "scenario_title": "websocket rejects missing auth token",
+      "scenario_type": "negative",
+      "transport": "websocket",
+      "status": "pass",
+      "message": "auth_failed",
+      "duration_ms": 15.999999945051968
+    },
+    {
+      "use_case_id": "UC-SDK-NEG-0028",
+      "scenario_title": "http_sse rejects invalid auth token",
+      "scenario_type": "negative",
+      "transport": "http_sse",
+      "status": "pass",
+      "message": "auth_failed",
+      "duration_ms": 16.00000006146729
+    },
+    {
+      "use_case_id": "UC-SDK-NEG-0029",
+      "scenario_title": "websocket rejects invalid auth token",
+      "scenario_type": "negative",
+      "transport": "websocket",
+      "status": "pass",
+      "message": "auth_failed",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-NEG-0030",
+      "scenario_title": "simulation deterministic auth failure branch",
+      "scenario_type": "negative",
+      "transport": "simulation",
+      "status": "pass",
+      "message": "auth_failed",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-NEG-0031",
+      "scenario_title": "http_sse invalid method with malformed params fails deterministically",
+      "scenario_type": "negative",
+      "transport": "http_sse",
+      "status": "pass",
+      "message": "error=-32601",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-NEG-0032",
+      "scenario_title": "websocket invalid method with malformed params fails deterministically",
+      "scenario_type": "negative",
+      "transport": "websocket",
+      "status": "pass",
+      "message": "error=-32601",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-EDGE-0033",
+      "scenario_title": "simulation idempotent replay returns stable task_id",
+      "scenario_type": "edge",
+      "transport": "simulation",
+      "status": "pass",
+      "message": "task_id=54f09227-d818-46e3-915f-9af629b90442",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-EDGE-0034",
+      "scenario_title": "http_sse idempotent replay returns stable task_id",
+      "scenario_type": "edge",
+      "transport": "http_sse",
+      "status": "pass",
+      "message": "task_id=9381a7f8-7a94-430e-a6c0-23b6ba882d55",
+      "duration_ms": 15.000000013969839
+    },
+    {
+      "use_case_id": "UC-SDK-EDGE-0035",
+      "scenario_title": "websocket idempotent replay returns stable task_id",
+      "scenario_type": "edge",
+      "transport": "websocket",
+      "status": "pass",
+      "message": "task_id=06be669a-82a8-4e3f-a880-83968eb798f0",
+      "duration_ms": 15.000000013969839
+    },
+    {
+      "use_case_id": "UC-SDK-EDGE-0036",
+      "scenario_title": "simulation stream resilience on terminal error",
+      "scenario_type": "edge",
+      "transport": "simulation",
+      "status": "pass",
+      "message": "events=2",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-EDGE-0037",
+      "scenario_title": "http_sse stream resilience on terminal error",
+      "scenario_type": "edge",
+      "transport": "http_sse",
+      "status": "pass",
+      "message": "events=2",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-EDGE-0038",
+      "scenario_title": "websocket stream resilience on terminal error",
+      "scenario_type": "edge",
+      "transport": "websocket",
+      "status": "pass",
+      "message": "events=2",
+      "duration_ms": 15.999999945051968
+    },
+    {
+      "use_case_id": "UC-SDK-EDGE-0039",
+      "scenario_title": "http_sse handles reduced event windows",
+      "scenario_type": "edge",
+      "transport": "http_sse",
+      "status": "pass",
+      "message": "events=2",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-EDGE-0040",
+      "scenario_title": "websocket handles reduced event windows",
+      "scenario_type": "edge",
+      "transport": "websocket",
+      "status": "pass",
+      "message": "events=2",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-LEGACY-0041",
+      "scenario_title": "legacy shim registry loading parity",
+      "scenario_type": "positive",
+      "transport": "legacy",
+      "status": "pass",
+      "message": "registry_size=33",
+      "duration_ms": 265.99999994505197
+    },
+    {
+      "use_case_id": "UC-SDK-LEGACY-0042",
+      "scenario_title": "legacy shim sse parsing parity",
+      "scenario_type": "positive",
+      "transport": "legacy",
+      "status": "pass",
+      "message": "sse_parse_ok",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-LEGACY-0043",
+      "scenario_title": "legacy shim progress mapping parity",
+      "scenario_type": "positive",
+      "transport": "legacy",
+      "status": "pass",
+      "message": "progress_map_ok",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-SDK-LEGACY-0044",
+      "scenario_title": "legacy shim emits deprecation warning",
+      "scenario_type": "positive",
+      "transport": "legacy",
+      "status": "pass",
+      "message": "deprecation_warning_ok",
+      "duration_ms": 0.0
+    }
+  ]
+}
