@@ -11,7 +11,13 @@ from tests.sdk_harness.runner import SdkScenarioResult, execute_scenario, get_re
 
 MATRIX = "nexus_sdk_transport_matrix.json"
 PROFILE = os.getenv("SDK_HARNESS_PROFILE", "full").strip().lower()
-SCENARIOS = scenarios_for(MATRIX, profile=PROFILE)
+try:
+    SCENARIOS = scenarios_for(MATRIX, profile=PROFILE)
+except FileNotFoundError:
+    SCENARIOS = []
+    pytestmark = pytest.mark.skip(
+        reason=f"SDK matrix {MATRIX} not found (requires nexus-a2a repo)"
+    )
 
 
 @pytest.mark.parametrize("scenario", SCENARIOS, ids=pytest_ids(SCENARIOS))

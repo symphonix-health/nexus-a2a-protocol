@@ -11,17 +11,32 @@
  */
 
 const COLORS = {
+  // ── Brand palette (from design-template) ─────────────────────────
+  brand: {
+    50:  '#E0F7FA',
+    100: '#B2EBF2',
+    200: '#80DEEA',
+    300: '#4DD0E1',
+    400: '#26C6DA',
+    500: '#14919B',
+    600: '#0D7377',
+    700: '#095E61',
+    800: '#064A4D',
+    900: '#033638',
+    950: '#012224',
+  },
+
   // Status Colors (colorblind-safe)
   status: {
     healthy: '#10b981',    // emerald-500
     degraded: '#f59e0b',   // amber-500
     unhealthy: '#ef4444',  // red-500
-    unknown: '#6b7280',    // gray-500
+    unknown: '#64748B',    // surface-500
   },
 
-  // Task State Colors
+  // Task State Colors (brand-tinted)
   task: {
-    accepted: '#3b82f6',   // blue-500
+    accepted: '#0D7377',   // brand-600
     working: '#8b5cf6',    // violet-500
     final: '#10b981',      // emerald-500
     error: '#dc2626',      // red-600
@@ -32,37 +47,40 @@ const COLORS = {
   heatmap: {
     // Latency: green (fast) → red (slow), 0-5000ms
     latency: ['#ecfdf5', '#6ee7b7', '#10b981', '#047857', '#064e3b'],
-    
-    // Throughput: blue spectrum, 0-100 tasks/min
-    throughput: ['#eff6ff', '#93c5fd', '#3b82f6', '#1d4ed8', '#1e3a8a'],
-    
+
+    // Throughput: brand spectrum, 0-100 tasks/min
+    throughput: ['#E0F7FA', '#80DEEA', '#14919B', '#0D7377', '#012224'],
+
     // Error Rate: white → red, 0-100%
     errorRate: ['#fef2f2', '#fecaca', '#f87171', '#dc2626', '#991b1b'],
-    
+
     // Load: cool → hot, 0-100%
-    load: ['#dbeafe', '#93c5fd', '#60a5fa', '#f59e0b', '#dc2626'],
+    load: ['#E0F7FA', '#80DEEA', '#26C6DA', '#f59e0b', '#dc2626'],
   },
 
-  // UI Elements
+  // UI Elements (design-system surface palette)
   ui: {
-    background: '#0f172a',    // slate-900
-    surface: '#1e293b',       // slate-800
-    border: '#334155',        // slate-700
-    text: '#f1f5f9',          // slate-100
-    textMuted: '#94a3b8',     // slate-400
-    accent: '#3b82f6',        // blue-500
+    background: '#020617',    // surface-950
+    surface: '#0F172A',       // surface-900
+    elevated: '#1E293B',      // surface-800
+    border: '#334155',        // surface-700
+    text: '#F1F5F7',          // surface-100
+    textMuted: '#8E9BAA',     // surface-400
+    accent: '#0D7377',        // brand-600
   },
 
-  // Chart Colors (distinct, colorblind-safe)
+  // Chart Colors (distinct, colorblind-safe — brand-first)
   chart: [
-    '#3b82f6', // blue
-    '#10b981', // emerald
+    '#0D7377', // brand-600
+    '#6366f1', // indigo
     '#f59e0b', // amber
-    '#8b5cf6', // violet
     '#ec4899', // pink
+    '#8b5cf6', // violet
+    '#14b8a6', // teal-light
+    '#f97316', // orange
     '#06b6d4', // cyan
     '#84cc16', // lime
-    '#f97316', // orange
+    '#e11d48', // rose
   ],
 };
 

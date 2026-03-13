@@ -13,9 +13,12 @@ def _load_scenarios():
     os.chdir(tools_dir)
     from additional_scenarios import ADDITIONAL_SCENARIOS
     from clinical_negative_scenarios import CLINICAL_NEGATIVE_SCENARIOS
-    from helixcare_scenarios import SCENARIOS
+    from helixcare_scenarios import SCENARIOS, enrich_scenario_handoff_contracts
 
-    return list(SCENARIOS), list(ADDITIONAL_SCENARIOS), list(CLINICAL_NEGATIVE_SCENARIOS)
+    additional = list(ADDITIONAL_SCENARIOS)
+    enrich_scenario_handoff_contracts(additional)
+
+    return list(SCENARIOS), additional, list(CLINICAL_NEGATIVE_SCENARIOS)
 
 
 def test_all_25_journeys_have_explicit_handoff_contracts():

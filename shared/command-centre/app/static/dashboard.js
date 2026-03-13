@@ -853,7 +853,7 @@ function updateHeatmapCell(td, agent, metric) {
             const ageMs = Date.now() - lastSeen.getTime();
             const ageSec = Math.floor(ageMs / 1000);
             const opacity = getPulseOpacity(ageMs, 30000); // 30s fade
-            td.style.backgroundColor = `rgba(59, 130, 246, ${opacity})`;
+            td.style.backgroundColor = `rgba(13, 115, 119, ${opacity})`;
             td.innerHTML = `<div class="value">${ageSec}s</div><div class="label">ago</div>`;
             break;
         }
@@ -2448,7 +2448,7 @@ function urgencyColor(urgency) {
     switch ((urgency || '').toLowerCase()) {
         case 'critical': return '#ef4444';
         case 'high':     return '#f59e0b';
-        case 'medium':   return '#3b82f6';
+        case 'medium':   return '#0D7377';
         case 'low':      return '#10b981';
         default:         return '#6b7280';
     }
