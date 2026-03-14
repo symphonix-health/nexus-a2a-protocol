@@ -172,6 +172,11 @@ body {
     border-color: var(--accent);
 }
 
+/* Spacer pushes theme toggle to bottom of nav */
+.nx-nav-spacer {
+    flex: 1 1 auto;
+}
+
 /* Focus-visible for nav items */
 .nx-nav-item:focus-visible,
 .nx-nav-toggle:focus-visible {

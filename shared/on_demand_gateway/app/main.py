@@ -22,6 +22,11 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 
 from shared.nexus_common.authorization import AuthorizationError, authorize_rpc_request
+from shared.nexus_common.route_admission import (
+    RouteAdmissionError,
+    evaluate_route_admission,
+)
+from shared.nexus_common.gharra_models import parse_gharra_record
 
 ROOT = Path(__file__).resolve().parents[3]
 CONFIG_FILE = ROOT / "config" / "agents.json"
@@ -528,6 +533,32 @@ async def proxy_rpc(agent_alias: str, request: Request) -> Response:
             )
         except AuthorizationError as exc:
             raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
+
+    # --- GHARRA route admission (optional) ---
+    # BulletTrain passes the resolved GHARRA record via X-Gharra-Record header.
+    # When present, Nexus validates trust before opening the route.
+    gharra_header = request.headers.get("x-gharra-record", "").strip()
+    if gharra_header:
+        try:
+            gharra_data = json.loads(gharra_header)
+            gharra_record = parse_gharra_record(gharra_data)
+            admission = evaluate_route_admission(
+                gharra_record,
+                method=method,
+                session_id=request.headers.get("x-session-id"),
+                route_source="on-demand-gateway",
+            )
+            if not admission.admitted:
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Route admission denied: {'; '.join(admission.reasons)}",
+                )
+        except json.JSONDecodeError as exc:
+            raise HTTPException(
+                status_code=400, detail=f"Invalid X-Gharra-Record JSON: {exc}"
+            ) from exc
+        except RouteAdmissionError as exc:
+            raise HTTPException(status_code=403, detail=str(exc)) from exc
 
     try:
         spec = await _manager.ensure_started(agent_alias)
