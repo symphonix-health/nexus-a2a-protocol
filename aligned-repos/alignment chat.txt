@@ -1,0 +1,1485 @@
+Good catch. The phrase “mock GHARRA” in that acceptance criterion is not because GHARRA is unavailable; it reflects a standard integration-testing pattern. Let me clarify precisely what happened and how it should be corrected now that the real registry exists.
+
+1. Why the earlier integration used a mock GHARRA
+
+During early integration work, a mock registry is often used so that:
+
+BulletTrain orchestration can be tested before the registry API stabilises.
+
+Nexus transport can be exercised without external dependencies.
+
+CI pipelines remain deterministic.
+
+This is common in distributed systems.
+
+Example test flow used in many systems:
+
+SignalBox
+   ↓
+Mock registry
+   ↓
+Return endpoint
+   ↓
+Nexus transport
+
+The mock simply returns a static response such as:
+
+{
+  "name": "patient-registry.nhs.uk.health",
+  "endpoint": "https://localhost:9000/a2a",
+  "protocol": "nexus-a2a"
+}
+
+That allows orchestration tests to run even when the real registry is offline.
+
+2. Why a mock should NOT be used now
+
+In your architecture the real registry exists:
+
+BulletTrain
+
+Nexus-A2A protocol
+
+GHARRA global agent registry
+
+Therefore production integration must be:
+
+SignalBox (BulletTrain)
+     ↓
+GHARRA registry
+     ↓
+Nexus-A2A router
+     ↓
+Remote agent
+
+Using the real registry ensures:
+
+correct namespace resolution
+
+correct trust verification
+
+realistic routing behaviour
+
+3. Where the code currently shows the placeholder
+
+From the repository references surfaced in the analysis:
+
+BulletTrain still references a generic registry abstraction
+
+The design spec contains an AgentRegistry component:
+
+AgentRegistry → validates agent_id exists
+
+This is visible in the SignalBox design documentation.
+
+Originally that abstraction allowed plugging in:
+
+static registry
+
+mock registry
+
+future global registry
+
+The correct step now is to replace that abstraction with a GHARRA client implementation.
+
+4. What the correct integration should look like
+
+The final architecture should be:
+
+SignalBox (BulletTrain)
+      │
+      │ resolve(agent_name)
+      ▼
+GHARRA
+      │
+      │ endpoint + trust metadata
+      ▼
+Nexus-A2A transport
+      │
+      ▼
+Agent
+
+No mock component in production.
+
+5. Required change in BulletTrain
+
+The existing registry abstraction should become a GHARRA client adapter.
+
+Example replacement:
+
+class AgentRegistry:
+
+    def resolve(self, name: str):
+        resp = requests.get(
+            f"{GHARRA_URL}/v1/agents/{name}",
+            cert=(CLIENT_CERT, CLIENT_KEY)
+        )
+        resp.raise_for_status()
+        return resp.json()
+
+SignalBox then uses:
+
+agent = registry.resolve("patient-registry.nhs.uk.health")
+nexus.send(agent["endpoint"], payload)
+6. Why Nexus requires the real registry
+
+The Nexus protocol enforces certificate-bound authentication.
+
+The authentication logic checks the certificate thumbprint inside the token:
+
+cnf.x5t#S256 claim required for cert-bound validation
+
+This behaviour is implemented in the Nexus service authentication code.
+
+That means the registry must supply:
+
+endpoint
+
+trust anchor
+
+certificate information
+
+A mock registry cannot realistically validate those security properties.
+
+7. Correct testing strategy going forward
+
+Instead of a mock registry, tests should use:
+
+Local GHARRA container
+docker compose
+   ├── bullettrain
+   ├── nexus-router
+   └── gharra
+
+Then tests call:
+
+GET /v1/agents/{name}
+8. Updated acceptance criteria
+
+Replace the earlier line:
+
+BulletTrain logs show successful GHARRA resolution (mock GHARRA)
+
+with:
+
+BulletTrain logs show successful GHARRA resolution against the
+running GHARRA registry instance.
+9. What the final production stack should be
+BulletTrain
+   │
+   ├─ SignalBox
+   ├─ Bevan router
+   │
+   ▼
+GHARRA registry
+   │
+   ▼
+Nexus-A2A transport
+   │
+   ▼
+Healthcare agents
+10. Key takeaway
+
+The mock registry was only a temporary testing scaffold.
+Now that GHARRA exists, BulletTrain must:
+
+replace the mock registry client
+
+call the real GHARRA API
+
+use registry-provided trust metadata
+
+route through Nexus-A2A
+
+If you want, I can also show you the one architectural change that will make GHARRA far more powerful:
+
+A global healthcare agent namespace root (.health) with delegated zones (like DNS), allowing automatic discovery of agents worldwide.
+
+Proceed
+
+Below is the next architectural step that makes the GHARRA registry capable of operating at global scale, enabling any BulletTrain deployment to discover agents anywhere in the world using a single identifier.
+
+This is the Global Healthcare Agent Namespace (.health).
+
+1. Concept: A Global Healthcare Agent Namespace
+
+GHARRA should implement a hierarchical namespace similar to the Domain Name System used on the internet.
+
+Instead of resolving IP addresses, GHARRA resolves agent endpoints and trust metadata.
+
+Example identifier:
+
+patient-registry.nhs.uk.health
+
+BulletTrain can resolve this name to discover:
+
+endpoint
+
+protocol
+
+certificate trust anchor
+
+capabilities
+
+2. Namespace Structure
+
+The namespace should follow a predictable hierarchy.
+
+<agent>.<facility>.<organisation>.<country>.health
+
+Example:
+
+patient-registry.st-thomas.nhs.uk.health
+
+Breakdown:
+
+Segment	Meaning
+patient-registry	service agent
+st-thomas	hospital
+nhs	organisation
+uk	country
+health	global namespace root
+3. Shorter Form (Common Case)
+
+When facility-level segmentation is unnecessary:
+
+<agent>.<organisation>.<country>.health
+
+Example:
+
+claims-adjudicator.nhif.ke.health
+4. BulletTrain Namespace
+
+Each BulletTrain deployment should operate its own namespace branch.
+
+Examples:
+
+telemedicine.orchestra.bullettrain.uk.health
+signalbox.router.bullettrain.global.health
+claims-ai.bullettrain.ke.health
+
+This allows external systems to discover BulletTrain agents safely.
+
+5. Namespace Delegation
+
+Like DNS zones, control should be delegated.
+
+health
+ ├── uk.health
+ │    └── nhs.uk.health
+ │         └── st-thomas.nhs.uk.health
+ ├── ke.health
+ │    └── nhif.ke.health
+ └── gh.health
+      └── ghs.gh.health
+
+Authority levels:
+
+Zone	Governing authority
+health	GHARRA global root
+uk.health	UK national health authority
+nhs.uk.health	NHS digital
+hospital zone	hospital operator
+
+This preserves national healthcare sovereignty.
+
+6. Example Discovery Workflow
+
+A hospital in Kenya needs a UK patient registry.
+
+Kenya hospital agent
+      │
+      ▼
+SignalBox (BulletTrain)
+      │
+      ▼
+resolve("patient-registry.nhs.uk.health")
+      │
+      ▼
+GHARRA registry
+      │
+      ▼
+endpoint + trust metadata
+      │
+      ▼
+Nexus-A2A transport
+      │
+      ▼
+UK registry agent
+
+No preconfigured integration required.
+
+7. Required GHARRA APIs
+
+The registry must expose two core endpoints.
+
+Resolve by name
+GET /v1/agents/{name}
+
+Example:
+
+GET /v1/agents/patient-registry.nhs.uk.health
+
+Response:
+
+{
+  "name": "patient-registry.nhs.uk.health",
+  "endpoint": "https://router.nhs.uk/a2a/patient-registry",
+  "protocol": "nexus-a2a",
+  "capabilities": ["FHIR.Patient.read"],
+  "trust_anchor": "nhs.uk.health"
+}
+Capability search
+GET /v1/discovery?capability=identity.match
+
+Response:
+
+{
+  "agents": [
+    "patient-registry.nhs.uk.health",
+    "mpi.eu.health"
+  ]
+}
+
+This enables dynamic workflows in SignalBox.
+
+8. Trust Chain Model
+
+Each namespace level should provide trust anchors.
+
+health
+ ├── root certificate authority
+ │
+ ├── uk.health
+ │     └── NHS trust anchor
+ │
+ └── nhs.uk.health
+       └── hospital certificates
+
+Before calling an agent, BulletTrain verifies the trust chain.
+
+Guidance aligns with zero-trust models recommended by the National Institute of Standards and Technology.
+
+9. Federation Between Registries
+
+Global scaling requires federated GHARRA instances.
+
+Global GHARRA
+     │
+     ├── Europe GHARRA
+     ├── Africa GHARRA
+     └── Asia GHARRA
+
+Each region synchronises namespace records.
+
+This allows:
+
+regional sovereignty
+
+global discoverability
+
+10. GHARRA Record Format
+
+A namespace entry should contain more than a DNS record.
+
+Example:
+
+{
+  "name": "telemedicine.orchestra.bullettrain.uk.health",
+  "type": "agent",
+  "endpoint": "https://nexus.bullettrain.uk/a2a/orchestra",
+  "protocol": "nexus-a2a",
+  "capabilities": [
+    "telemedicine.session.create",
+    "clinical.note.generate"
+  ],
+  "authentication": {
+    "mtls": true,
+    "jwks_uri": "https://auth.bullettrain.uk/jwks"
+  },
+  "jurisdiction": "UK",
+  "policy_tags": ["clinical", "phi"]
+}
+11. Why This Architecture Matters
+
+Healthcare ecosystems contain thousands of independent systems.
+
+Without a global registry:
+
+N systems → N² integrations
+
+With GHARRA:
+
+systems → registry → discover agents
+
+Integration complexity becomes linear instead of exponential.
+
+12. Final Global Architecture
+Discovery layer
+   GHARRA registry
+
+Network layer
+   Nexus-A2A protocol
+
+Orchestration layer
+   SignalBox / Bevan
+
+Service layer
+   BulletTrain services
+13. Strategic Outcome
+
+Together these components form a global healthcare agent infrastructure analogous to the internet:
+
+Internet layer	Healthcare agent layer
+DNS	GHARRA
+BGP	Nexus-A2A
+Web servers	BulletTrain
+
+If you want, the next step I recommend is extremely important for GHARRA:
+
+I can define the AgentCard specification and .well-known/agent.json standard that allows agents to self-publish their capabilities and automatically register in GHARRA. This will allow thousands of healthcare agents to join the network without manual registry entries.
+
+Proceed 
+
+To make GHARRA + Nexus-A2A + BulletTrain operate as a real global agent network, the next critical piece is a standard way for agents to publish their metadata so the registry can discover and verify them automatically.
+
+The most robust mechanism is a self-describing agent document, analogous to .well-known/openid-configuration used in identity systems.
+
+Below is the AgentCard specification and .well-known/agent.json standard designed specifically for your ecosystem.
+
+1. Purpose of the AgentCard
+
+The AgentCard allows an agent to publish:
+
+its canonical name
+
+endpoint(s)
+
+supported protocols
+
+capabilities
+
+trust anchors
+
+jurisdiction policy
+
+GHARRA reads this document and creates the registry entry automatically.
+
+This removes manual registration.
+
+2. Location of the AgentCard
+
+Each agent must expose:
+
+https://<agent-host>/.well-known/agent.json
+
+Example:
+
+https://agents.nhs.uk/.well-known/agent.json
+3. Basic AgentCard Structure
+
+Example:
+
+{
+  "agent_name": "patient-registry.nhs.uk.health",
+  "agent_version": "1.0.0",
+  "organisation": "NHS England",
+  "jurisdiction": "UK",
+
+  "transport": {
+    "protocol": "nexus-a2a",
+    "endpoint": "https://router.nhs.uk/a2a/patient-registry"
+  },
+
+  "capabilities": [
+    "FHIR.Patient.read",
+    "identity.match"
+  ],
+
+  "authentication": {
+    "mtls_required": true,
+    "jwks_uri": "https://auth.nhs.uk/.well-known/jwks.json"
+  },
+
+  "policy": {
+    "phi": true,
+    "jurisdiction_restrictions": ["UK", "EU"]
+  }
+}
+4. How GHARRA Uses the AgentCard
+
+GHARRA performs the following workflow.
+
+Agent publishes AgentCard
+       │
+       ▼
+GHARRA crawler
+       │
+       ▼
+Retrieve /.well-known/agent.json
+       │
+       ▼
+Validate trust metadata
+       │
+       ▼
+Create or update registry record
+5. GHARRA Registration API
+
+Agents can also push registration directly.
+
+POST /v1/agents/register
+
+Payload:
+
+{
+  "agent_card_url": "https://agents.nhs.uk/.well-known/agent.json"
+}
+
+GHARRA then validates the document.
+
+6. Required Validation Steps
+
+The registry must validate:
+
+agent name matches namespace rules
+
+endpoint is reachable
+
+certificate trust chain is valid
+
+JWKS endpoint is accessible
+
+capabilities conform to schema
+
+Only then is the agent activated.
+
+7. Agent Namespace Validation
+
+The AgentCard must use a valid namespace.
+
+Example:
+
+patient-registry.nhs.uk.health
+
+Validation rules:
+
+<service>.<organisation>.<country>.health
+
+This ensures global uniqueness.
+
+8. BulletTrain AgentCard Example
+
+Example for SignalBox orchestration agent.
+
+{
+  "agent_name": "signalbox.bullettrain.global.health",
+
+  "transport": {
+    "protocol": "nexus-a2a",
+    "endpoint": "https://nexus.bullettrain.global/a2a/signalbox"
+  },
+
+  "capabilities": [
+    "workflow.orchestrate",
+    "agent.discovery",
+    "agent.routing"
+  ],
+
+  "authentication": {
+    "mtls_required": true,
+    "jwks_uri": "https://auth.bullettrain.global/jwks"
+  }
+}
+9. Orchestra Telemedicine AgentCard
+
+Example for telemedicine service.
+
+{
+  "agent_name": "telemedicine.orchestra.bullettrain.uk.health",
+
+  "transport": {
+    "protocol": "nexus-a2a",
+    "endpoint": "https://nexus.bullettrain.uk/a2a/orchestra"
+  },
+
+  "capabilities": [
+    "telemedicine.session.create",
+    "telemedicine.session.join",
+    "clinical.note.generate"
+  ],
+
+  "policy": {
+    "phi": true,
+    "jurisdiction_restrictions": ["UK"]
+  }
+}
+10. Nexus Integration
+
+When GHARRA returns an agent record:
+
+SignalBox
+   │
+   ▼
+GHARRA resolve
+   │
+   ▼
+AgentCard metadata
+   │
+   ▼
+Nexus-A2A transport
+
+The endpoint field directly feeds Nexus routing.
+
+11. BulletTrain GHARRA Client
+
+Example client implementation.
+
+class GharraClient:
+
+    def resolve(self, name):
+        r = requests.get(f"{GHARRA_URL}/v1/agents/{name}")
+        r.raise_for_status()
+        return r.json()
+
+    def lookup(self, capability):
+        r = requests.get(
+            f"{GHARRA_URL}/v1/discovery",
+            params={"capability": capability}
+        )
+        return r.json()
+
+SignalBox can dynamically discover agents.
+
+12. Automatic Agent Discovery
+
+GHARRA should run a crawler.
+
+Example sources:
+
+https://*.nhs.uk/.well-known/agent.json
+https://*.bullettrain.global/.well-known/agent.json
+
+The crawler discovers new agents automatically.
+
+13. Security Model
+
+AgentCard security requirements:
+
+Requirement	Purpose
+mutual TLS	machine identity
+JWKS endpoint	token verification
+certificate pinning	endpoint trust
+namespace validation	avoid spoofing
+
+This aligns with zero-trust guidance from the National Institute of Standards and Technology.
+
+14. Global Healthcare Agent Discovery
+
+Once deployed globally:
+
+hospital agent
+      │
+      ▼
+resolve("patient-registry.nhs.uk.health")
+      │
+      ▼
+GHARRA
+      │
+      ▼
+AgentCard
+      │
+      ▼
+Nexus-A2A transport
+
+No manual integrations required.
+
+15. Resulting Ecosystem
+
+Your architecture now forms a layered system.
+
+Layer	Component
+discovery	GHARRA
+routing	Nexus-A2A
+orchestration	SignalBox / Bevan
+services	BulletTrain
+16. Strategic Impact
+
+With AgentCards:
+
+agents self-publish
+
+GHARRA auto-indexes them
+
+BulletTrain discovers them dynamically
+
+This allows the ecosystem to scale from dozens to thousands of healthcare agents worldwide.
+
+If you want, the next design step would make the system orders of magnitude more powerful:
+
+I can define the federated GHARRA protocol that allows multiple national registries to synchronise automatically, creating a true global healthcare agent network rather than a single registry.
+
+Proceed 
+
+To turn GHARRA from a single registry into a global discovery infrastructure, the next step is a federated registry protocol. Instead of one central registry, multiple national or organisational registries cooperate and exchange information securely. This enables scalability, sovereignty, and resilience for a worldwide healthcare agent ecosystem.
+
+1. Federation Principle
+
+Each region or authority operates its own GHARRA instance, while sharing selected agent records with trusted peers.
+
+Global ecosystem
+     │
+     ├── Europe GHARRA
+     │     ├── UK GHARRA
+     │     └── Germany GHARRA
+     │
+     ├── Africa GHARRA
+     │     ├── Kenya GHARRA
+     │     └── Ghana GHARRA
+     │
+     └── Global vendor registries
+           └── BulletTrain GHARRA
+
+A BulletTrain deployment can therefore discover agents outside its jurisdiction while maintaining local control.
+
+2. Federation Architecture
+
+A registry participates in two roles:
+
+Role	Description
+Authoritative registry	owns a namespace zone
+Peer registry	mirrors records from other zones
+
+Resolution flow:
+
+SignalBox
+   │
+   ▼
+Local GHARRA
+   │
+   ├── check local zone
+   │
+   └── forward query to peer registry
+3. Federation Protocol Endpoints
+
+Each GHARRA node should implement federation APIs.
+
+Zone discovery
+GET /v1/zones
+
+Returns authoritative zones.
+
+Example:
+
+{
+  "zones": [
+    "nhs.uk.health",
+    "bullettrain.global.health"
+  ]
+}
+Zone transfer
+GET /v1/zones/{zone}/records
+
+Returns records within a namespace.
+
+Example:
+
+{
+  "zone": "nhs.uk.health",
+  "records": [
+    "patient-registry.nhs.uk.health",
+    "radiology-ai.nhs.uk.health"
+  ]
+}
+Record resolution
+GET /v1/resolve/{agent-name}
+
+This remains the main lookup interface used by BulletTrain.
+
+4. Synchronisation Mechanism
+
+Registries synchronise through incremental updates.
+
+Example model:
+
+Registry A
+     │
+     │ push update
+     ▼
+Registry B
+
+Updates contain:
+
+record changes
+
+revocations
+
+trust updates
+
+Example update payload:
+
+{
+  "event": "agent_update",
+  "agent": "patient-registry.nhs.uk.health",
+  "timestamp": "2026-03-15T10:20:00Z"
+}
+5. Trust Between Registries
+
+Federation requires mutual trust.
+
+Registries exchange:
+
+root certificates
+
+JWKS endpoints
+
+policy declarations
+
+Trust model:
+
+GHARRA root
+     │
+     ├── national registry trust anchors
+     │
+     └── organisation registries
+
+Each registry verifies records using the same zero-trust principles.
+
+6. Jurisdiction-Aware Discovery
+
+Healthcare data has legal restrictions.
+
+Therefore GHARRA responses should include policy metadata.
+
+Example:
+
+{
+  "agent": "patient-registry.nhs.uk.health",
+  "policy": {
+    "allowed_regions": ["UK", "EU"],
+    "phi": true
+  }
+}
+
+BulletTrain must check these policies before invoking the agent.
+
+7. BulletTrain Federation Workflow
+
+Example: Ghana hospital locating UK patient data.
+
+SignalBox
+   │
+   ▼
+Local GHARRA (Ghana)
+   │
+   └── query UK GHARRA
+        │
+        ▼
+Return registry record
+   │
+   ▼
+SignalBox
+   │
+   ▼
+Nexus-A2A connection
+
+The process is transparent to the application.
+
+8. Caching Strategy
+
+To reduce latency, registries should cache peer records.
+
+Example:
+
+Cache type	Duration
+positive resolution	10 minutes
+negative resolution	1 minute
+policy updates	immediate
+
+This mirrors strategies used by the Domain Name System.
+
+9. Conflict Resolution
+
+When duplicate records appear:
+
+authoritative zone wins
+
+higher trust level wins
+
+newest signed record wins
+
+Records must be cryptographically signed.
+
+10. Federation Security
+
+Key protections:
+
+mutual TLS between registries
+
+signed registry updates
+
+audit logs of replication events
+
+replay protection
+
+These practices follow zero-trust guidelines promoted by the National Institute of Standards and Technology.
+
+11. Operational Model
+
+Each registry operator manages:
+
+Responsibility	Example
+namespace delegation	nhs.uk.health
+record validation	verify AgentCards
+trust management	maintain certificates
+policy enforcement	jurisdiction rules
+12. Example Global Discovery
+Kenya hospital
+   │
+   ▼
+resolve(patient-registry.nhs.uk.health)
+   │
+   ▼
+Kenya GHARRA
+   │
+   ▼
+UK GHARRA
+   │
+   ▼
+registry record
+   │
+   ▼
+Nexus-A2A transport
+
+This is equivalent to how DNS resolves internet hosts.
+
+13. Final Layered System
+Discovery layer
+    GHARRA federation
+
+Routing layer
+    Nexus-A2A
+
+Orchestration layer
+    SignalBox / Bevan
+
+Service layer
+    BulletTrain
+14. Strategic Outcome
+
+With federation:
+
+thousands of registries can coexist
+
+each country keeps sovereignty
+
+agents remain globally discoverable
+
+This transforms GHARRA from a simple service registry into a planet-scale healthcare agent network.
+
+If you wish, the next step would be to design the governance and root authority model for the .health namespace, which determines who controls zone delegation and how global trust anchors are managed.
+
+Proceed. all github repositories are accessible now
+Thought for 19s
+
+Below is a governance and root authority model for the .health namespace that fits the three-repository split you now have:
+
+BulletTrain = orchestration/runtime platform
+
+Nexus-A2A-protocol = agent transport/routing layer
+
+GHARRA = global registry, naming, discovery, and trust authority
+
+This also aligns with the A2A direction that agents should publish discoverable metadata through Agent Cards, and that discovery/auth schemes should be formalised rather than improvised.
+
+1. The core principle
+
+Do not let one repository own everything.
+
+The clean model is:
+
+Concern	Owning repo	Role
+Runtime orchestration	BulletTrain	executes workflows, calls registry, uses Nexus
+Transport/routing protocol	Nexus-A2A-protocol	secure inter-agent messaging and routing
+Naming, discovery, trust, delegation	GHARRA	.health namespace root, registry federation, trust anchors
+
+So the .health root authority belongs in GHARRA, not BulletTrain and not Nexus.
+
+2. What the .health root authority actually is
+
+The root authority is the top governance layer for the healthcare agent namespace.
+
+It is responsible for:
+
+creating and protecting the .health root zone
+
+delegating sub-zones such as uk.health, ke.health, eu.health
+
+publishing the root trust anchors
+
+defining namespace policy
+
+accrediting subordinate registries
+
+handling revocation, disputes, and incident response
+
+This is similar in shape to DNS governance, but richer because GHARRA must also govern:
+
+agent capability metadata
+
+zero-trust identity
+
+policy tags
+
+jurisdiction controls
+
+federation rules
+
+3. The governance stack
+
+A practical model is a four-tier governance structure.
+
+Tier 1 — Global Root Authority
+
+Namespace:
+
+.health
+
+Responsibilities:
+
+root policy
+
+root signing keys
+
+root trust anchor publication
+
+delegation to regional or national authorities
+
+global dispute handling
+
+cross-border interoperability rules
+
+This should be run by a multi-stakeholder authority, not a private company alone.
+
+Recommended model:
+
+Global Health Agent Namespace Council
+
+Membership should include:
+
+public health authorities
+
+standards bodies
+
+legal/compliance representatives
+
+technical stewards
+
+accredited infrastructure operators
+
+Tier 2 — Regional / National Authorities
+
+Examples:
+
+eu.health
+africa.health
+uk.health
+gh.health
+ke.health
+
+Responsibilities:
+
+manage country or regional policies
+
+delegate organisation namespaces
+
+validate sovereign trust anchors
+
+publish federation endpoints
+
+define regional compliance overlays
+
+Tier 3 — Organisational Namespace Authorities
+
+Examples:
+
+nhs.uk.health
+nhif.ke.health
+ghs.gh.health
+bullettrain.global.health
+
+Responsibilities:
+
+onboard facilities and agents
+
+validate organisational AgentCards
+
+maintain org-level trust chain
+
+enforce local naming conventions
+
+revoke compromised agents
+
+Tier 4 — Facility / Service Operators
+
+Examples:
+
+st-thomas.nhs.uk.health
+teaching-hospital.accra.gh.health
+orchestra.bullettrain.uk.health
+
+Responsibilities:
+
+publish actual agent records
+
+expose .well-known/agent.json
+
+maintain certificates, JWKS, policy tags
+
+keep metadata current
+
+4. Which repo implements which governance capability
+GHARRA
+
+This is where governance must live in code.
+
+GHARRA should implement:
+
+zone model
+
+delegation tables
+
+authority metadata
+
+trust anchor registry
+
+record signing / verification
+
+federation APIs
+
+policy enforcement engine
+
+audit and revocation ledger
+
+Nexus-A2A-protocol
+
+This should consume GHARRA trust and addressing outputs, not govern names.
+
+Nexus should implement:
+
+transport validation
+
+certificate-bound session enforcement
+
+route selection using GHARRA metadata
+
+policy-aware admission checks
+
+BulletTrain
+
+This should use the governance outputs operationally.
+
+BulletTrain should implement:
+
+GHARRA client
+
+namespace resolution
+
+policy-aware orchestration
+
+fallback / retry logic
+
+audit trail of discovery and routing decisions
+
+5. The root zone model
+
+The .health namespace should be defined as a signed, delegated tree.
+
+Example:
+
+.health
+ ├── uk.health
+ │    ├── nhs.uk.health
+ │    │    ├── st-thomas.nhs.uk.health
+ │    │    └── patient-registry.nhs.uk.health
+ │    └── bullettrain.uk.health
+ │         └── orchestra.bullettrain.uk.health
+ │
+ ├── ke.health
+ │    ├── nhif.ke.health
+ │    └── bullettrain.ke.health
+ │
+ ├── gh.health
+ │    ├── ghs.gh.health
+ │    └── bullettrain.gh.health
+ │
+ └── global.health
+      └── bullettrain.global.health
+
+Each node has:
+
+authoritative registry endpoint
+
+trust anchor reference
+
+policy metadata
+
+delegation signature
+
+6. Root authority data objects
+
+GHARRA should support at least these record types.
+
+Zone Delegation Record
+{
+  "zone": "uk.health",
+  "delegated_to": "UK Health Namespace Authority",
+  "registry_endpoint": "https://gharra.uk.health",
+  "jwks_uri": "https://gharra.uk.health/.well-known/jwks.json",
+  "signing_cert_fingerprint": "sha256:...",
+  "delegation_status": "active"
+}
+Trust Anchor Record
+{
+  "zone": "nhs.uk.health",
+  "issuer": "UK Health Namespace Authority",
+  "jwks_uri": "https://trust.nhs.uk/.well-known/jwks.json",
+  "mtls_ca_bundle_uri": "https://trust.nhs.uk/ca.pem",
+  "status": "active"
+}
+Policy Record
+{
+  "zone": "uk.health",
+  "rules": {
+    "phi_export_default": "deny",
+    "cross_border_allowed_regions": ["EU", "UK"],
+    "mtls_required": true,
+    "signed_agentcard_required": true
+  }
+}
+7. How discovery should work under governance
+
+When BulletTrain tries to resolve:
+
+patient-registry.nhs.uk.health
+
+the flow should be:
+
+SignalBox
+   → local GHARRA client
+   → resolve zone path
+   → validate delegation chain
+   → validate trust chain
+   → obtain agent record
+   → pass endpoint + trust metadata to Nexus
+   → connect
+
+So the registry is not merely a phone book. It is a policy and trust decision point.
+
+8. Root authority operating rules
+
+The .health root authority should publish a Root Governance Charter with these minimum rules.
+
+Rule 1 — No anonymous authoritative registries
+
+Every authoritative GHARRA node must have:
+
+signed operator identity
+
+published legal owner
+
+published security contact
+
+incident response contact
+
+Rule 2 — Signed delegation only
+
+No zone may be delegated without a signed delegation record from its parent.
+
+Rule 3 — Mutual TLS for registry federation
+
+All inter-registry synchronisation must use mTLS and signed update envelopes.
+
+Rule 4 — Mandatory AgentCard validation
+
+No agent record may become active unless:
+
+name is valid
+
+.well-known/agent.json is reachable
+
+signature is valid
+
+trust metadata is valid
+
+transport endpoint is validated
+
+Rule 5 — Revocation propagation
+
+Revocations must propagate within a bounded SLA, for example:
+
+critical trust revocation: under 5 minutes
+
+normal metadata update: under 15 minutes
+
+Rule 6 — Jurisdiction policy must be machine-readable
+
+Every zone must publish its policy so BulletTrain and Nexus can enforce it automatically.
+
+9. Who should control the root
+
+My recommendation is:
+
+Short term
+
+Use a stewarded model operated initially by your ecosystem for speed.
+
+Example:
+
+GHARRA Root Stewardship Board
+
+with technical administration possibly led by Symphonix Health while governance is documented as transitional.
+
+Medium term
+
+Move to an independent non-profit or consortium model.
+
+Example participants:
+
+national digital health authorities
+
+standards organisations
+
+major public provider networks
+
+accredited infrastructure vendors
+
+privacy / legal oversight members
+
+Long term
+
+Evolve into a public-interest trust model.
+
+This will matter if GHARRA becomes foundational infrastructure across countries.
+
+10. What each repo should add now
+GHARRA repository
+
+Add:
+
+root/ or zones/ module for zone authority logic
+
+governance/ module for charter, delegation, revocation, disputes
+
+trust/ module for anchors, JWKS, mTLS CA bundles
+
+federation/ module for signed zone sync
+
+openapi/ specs for zone, delegation, trust, revocation APIs
+
+Key APIs:
+
+GET  /v1/zones
+GET  /v1/zones/{zone}
+POST /v1/zones/{zone}/delegate
+POST /v1/zones/{zone}/revoke
+GET  /v1/trust/{zone}
+GET  /v1/policy/{zone}
+Nexus-A2A-protocol repository
+
+Add:
+
+resolver hooks that consume GHARRA delegation and trust outputs
+
+route admission checks based on zone policy
+
+validation that target agent record is rooted in a trusted .health chain
+
+BulletTrain repository
+
+Add:
+
+GHARRA resolver client
+
+policy evaluation before orchestration
+
+explicit logging of:
+
+resolved name
+
+authoritative zone
+
+trust anchor used
+
+policy decision
+
+Nexus route chosen
+
+11. Governance workflow example
+Delegating uk.health
+Root Authority
+   → verifies UK operator identity
+   → issues signed delegation for uk.health
+   → publishes trust anchor
+   → UK GHARRA becomes authoritative for uk.health
+Registering patient-registry.nhs.uk.health
+NHS operator
+   → publishes AgentCard
+   → submits to NHS GHARRA
+   → NHS GHARRA validates
+   → record becomes authoritative
+   → peer registries receive signed update
+BulletTrain discovery
+BulletTrain
+   → resolve patient-registry.nhs.uk.health
+   → local GHARRA validates uk.health delegation
+   → validates nhs.uk.health trust chain
+   → returns agent endpoint
+   → Nexus connects
+12. Why this model is strong
+
+It avoids three common failures:
+
+Failure A — centralised bottleneck
+
+One registry for the whole world would be politically and operationally fragile.
+
+Failure B — vendor capture
+
+If BulletTrain or Nexus owns the root, external adoption becomes harder.
+
+Failure C — weak trust inheritance
+
+Without signed delegation and trust anchors, name resolution is not enough for healthcare.
+
+13. Strategic conclusion
+
+The right answer is:
+
+GHARRA owns the .health namespace and trust governance
+
+Nexus-A2A consumes GHARRA outputs for secure routing
+
+BulletTrain consumes GHARRA outputs for policy-aware orchestration
+
+So your three repositories already map naturally to the three critical infrastructure layers.
+A fourth repository is not required for function, though you may later want one for ecosystem-wide deployment artefacts and governance documents.
+
+14. Immediate next move
+
+The most valuable next artefact is a formal .health Root Governance Specification with:
+
+namespace rules
+
+delegation rules
+
+trust anchor rules
+
+revocation rules
+
+dispute model
+
+federation protocol
+
+API definitions
+
+compliance obligations

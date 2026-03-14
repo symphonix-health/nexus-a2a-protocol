@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-14T09:33:13.703381+00:00",
+  "generated_at": "2026-03-14T16:50:39.535442+00:00",
   "total": 44,
   "passed": 44,
   "failed": 0,
@@ -12,7 +12,7 @@
       "scenario_type": "positive",
       "transport": "simulation",
       "status": "pass",
-      "message": "task_id=3a1dcba2-d82c-4065-9fd6-1729ef291828",
+      "message": "task_id=aeebccea-3f96-4e6f-9af8-1f0b2e62cbcd",
       "duration_ms": 0.0
     },
     {
@@ -21,8 +21,8 @@
       "scenario_type": "positive",
       "transport": "simulation",
       "status": "pass",
-      "message": "task_id=2eeeeee6-83a0-46db-8f2e-e100619c5f3a",
-      "duration_ms": 0.0
+      "message": "task_id=0f1c6c76-efd7-457a-a0c2-431904570ad6",
+      "duration_ms": 16.00000000325963
     },
     {
       "use_case_id": "UC-SDK-PARITY-0003",
@@ -48,7 +48,7 @@
       "scenario_type": "positive",
       "transport": "http_sse",
       "status": "pass",
-      "message": "task_id=dabb4f3f-e467-4345-8701-880fed272c8a",
+      "message": "task_id=aecc4bcd-f3c3-4f2e-b25c-ce09309545fa",
       "duration_ms": 0.0
     },
     {
@@ -57,8 +57,8 @@
       "scenario_type": "positive",
       "transport": "http_sse",
       "status": "pass",
-      "message": "task_id=766cd000-72d4-4428-9914-f5258ab97957",
-      "duration_ms": 0.0
+      "message": "task_id=b02cbe74-53a1-4d9b-8849-9777d9a55308",
+      "duration_ms": 14.999999999417923
     },
     {
       "use_case_id": "UC-SDK-PARITY-0007",
@@ -84,7 +84,7 @@
       "scenario_type": "positive",
       "transport": "websocket",
       "status": "pass",
-      "message": "task_id=2d631074-3a5a-43ff-948c-c9d21b08d9aa",
+      "message": "task_id=b595257c-3805-41e4-b9f3-84ca709262b7",
       "duration_ms": 0.0
     },
     {
@@ -93,7 +93,7 @@
       "scenario_type": "positive",
       "transport": "websocket",
       "status": "pass",
-      "message": "task_id=3d2193fc-344d-4855-845e-0e7439bd5a12",
+      "message": "task_id=b7286745-fcea-44aa-a864-b7d9e77f87b8",
       "duration_ms": 0.0
     },
     {
@@ -139,7 +139,7 @@
       "transport": "http_sse",
       "status": "pass",
       "message": "events=3",
-      "duration_ms": 16.00000000325963
+      "duration_ms": 0.0
     },
     {
       "use_case_id": "UC-SDK-STREAM-0016",
@@ -148,7 +148,7 @@
       "transport": "http_sse",
       "status": "pass",
       "message": "events=2",
-      "duration_ms": 0.0
+      "duration_ms": 16.00000000325963
     },
     {
       "use_case_id": "UC-SDK-STREAM-0017",
@@ -175,7 +175,7 @@
       "transport": "http_sse",
       "status": "pass",
       "message": "events=2",
-      "duration_ms": 0.0
+      "duration_ms": 16.00000000325963
     },
     {
       "use_case_id": "UC-SDK-STREAM-0020",
@@ -238,7 +238,7 @@
       "transport": "http_sse",
       "status": "pass",
       "message": "auth_failed",
-      "duration_ms": 0.0
+      "duration_ms": 14.999999999417923
     },
     {
       "use_case_id": "UC-SDK-NEG-0027",
@@ -283,7 +283,7 @@
       "transport": "http_sse",
       "status": "pass",
       "message": "error=-32601",
-      "duration_ms": 16.00000000325963
+      "duration_ms": 0.0
     },
     {
       "use_case_id": "UC-SDK-NEG-0032",
@@ -300,7 +300,7 @@
       "scenario_type": "edge",
       "transport": "simulation",
       "status": "pass",
-      "message": "task_id=7faddbe9-1a59-4d9e-9799-8734973cc28a",
+      "message": "task_id=82c4e1dc-1304-4b8d-b2c8-0682479c85e9",
       "duration_ms": 0.0
     },
     {
@@ -309,7 +309,7 @@
       "scenario_type": "edge",
       "transport": "http_sse",
       "status": "pass",
-      "message": "task_id=87aa834d-1c7b-44d4-bac1-993e12d7d0d4",
+      "message": "task_id=568bdf5a-e4e1-4bb8-86d0-89e523e05e90",
       "duration_ms": 0.0
     },
     {
@@ -318,7 +318,7 @@
       "scenario_type": "edge",
       "transport": "websocket",
       "status": "pass",
-      "message": "task_id=5e7c3f05-cc24-4d48-ac72-9a74b3879ce3",
+      "message": "task_id=e7f254e0-a7b6-439e-a590-a3ccadfbb4cc",
       "duration_ms": 0.0
     },
     {
@@ -400,7 +400,7 @@
       "transport": "legacy",
       "status": "pass",
       "message": "deprecation_warning_ok",
-      "duration_ms": 0.0
+      "duration_ms": 14.999999999417923
     }
   ]
 }
