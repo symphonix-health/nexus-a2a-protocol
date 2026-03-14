@@ -6,6 +6,7 @@ import asyncio
 import json
 import logging
 import os
+from contextlib import asynccontextmanager
 from inspect import isawaitable
 from pathlib import Path
 from typing import Any
@@ -107,10 +108,21 @@ def _build_common_result(
 
 def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
-    app = FastAPI(title=default_name)
     bus = TaskEventBus(agent_name=default_name)
     health_monitor = HealthMonitor(default_name)
     inflight_tasks = 0
+
+    @asynccontextmanager
+    async def _lifespan(application: FastAPI):  # noqa: ARG001
+        yield
+        close_method = getattr(idempotency_store, "close", None)
+        if callable(close_method):
+            result = close_method()
+            if isawaitable(result):
+                await result
+        await bus.close()
+
+    app = FastAPI(title=default_name, lifespan=_lifespan)
 
     required_scope = os.getenv("NEXUS_REQUIRED_SCOPE", "nexus:invoke")
     agent_id = os.getenv("NEXUS_AGENT_ID", default_name.strip().lower().replace("-", "_"))
@@ -587,14 +599,5 @@ def build_generic_demo_app(*, default_name: str, app_dir: str) -> FastAPI:
                     tracestate=tracestate_in,
                 ),
             )
-
-    @app.on_event("shutdown")
-    async def _shutdown() -> None:
-        close_method = getattr(idempotency_store, "close", None)
-        if callable(close_method):
-            result = close_method()
-            if isawaitable(result):
-                await result
-        await bus.close()
 
     return app

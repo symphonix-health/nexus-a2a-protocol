@@ -5,8 +5,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Clinician Console</title>
+  <link rel="stylesheet" href="/static/nexus-theme.css" />
   <link rel="stylesheet" href="/static/styles.css" />
-  <!-- Three.js removed — avatar now uses a real video element (avatar_renderer.js) -->
+  <!-- Clinician video rendered by avatar_renderer.js; Three.js removed -->
 </head>
 
 <body>
@@ -14,7 +15,7 @@
     <h1>Clinician Console</h1>
     <div class="controls">
       <label>
-        Avatar
+        Clinician
         <select id="avatar-select">
           <option value="male_black">Male · Black</option>
           <option value="male_white">Male · White</option>
@@ -44,6 +45,9 @@
       </label>
       <button id="start-btn" type="button">Start Session</button>
       <button id="audio-enable-btn" type="button" title="Enable speech output">Enable Audio</button>
+      <button id="export-transcript-btn" type="button" title="Download consultation transcript" disabled>Export Transcript</button>
+      <button id="panel-toggle-btn" class="nx-theme-toggle" title="Show/hide session controls" aria-expanded="true" aria-controls="side-panel">⊟</button>
+      <button id="theme-toggle" class="nx-theme-toggle" title="Toggle light / dark mode" aria-label="Toggle light/dark mode">🌙</button>
     </div>
   </header>
 
@@ -111,7 +115,7 @@
       </div>
     </section>
 
-    <aside class="side-panel">
+    <aside class="side-panel" id="side-panel">
       <h3>Framework Progress</h3>
       <pre id="framework-state">{}</pre>
       <div class="llm-controls">
@@ -141,6 +145,42 @@
   <script src="/static/realtime_client.js?v=10"></script>
   <script src="/static/tts_client.js?v=9"></script>
   <script src="/static/chat_controller.js?v=9"></script>
+  <script>
+    (function () {
+      // Theme toggle
+      const KEY = 'nexus-theme';
+      const btn = document.getElementById('theme-toggle');
+      function applyTheme(light) {
+        document.documentElement.dataset.theme = light ? 'light' : '';
+        btn.textContent = light ? '☀️' : '🌙';
+        btn.title = light ? 'Switch to dark mode' : 'Switch to light mode';
+      }
+      const stored = localStorage.getItem(KEY);
+      applyTheme(stored ? stored === 'light' : window.matchMedia('(prefers-color-scheme: light)').matches);
+      btn.addEventListener('click', function () {
+        const next = document.documentElement.dataset.theme !== 'light';
+        localStorage.setItem(KEY, next ? 'light' : 'dark');
+        applyTheme(next);
+      });
+
+      // Side panel collapse/expand
+      const panelBtn = document.getElementById('panel-toggle-btn');
+      const sidePanel = document.getElementById('side-panel');
+      const PANEL_KEY = 'nexus-side-panel';
+      function applyPanel(open) {
+        sidePanel.classList.toggle('collapsed', !open);
+        panelBtn.textContent = open ? '⊟' : '⊞';
+        panelBtn.title = open ? 'Hide session controls' : 'Show session controls';
+        panelBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
+      applyPanel(localStorage.getItem(PANEL_KEY) !== 'closed');
+      panelBtn.addEventListener('click', function () {
+        const next = sidePanel.classList.contains('collapsed');
+        localStorage.setItem(PANEL_KEY, next ? 'open' : 'closed');
+        applyPanel(next);
+      });
+    })();
+  </script>
 </body>
 
 </html>

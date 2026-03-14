@@ -1,18 +1,17 @@
-html,
-body {
+/* Clinician Consultation UI — design tokens from nexus-theme.css */
+
+/* ── Base ──────────────────────────────────────────────────────────────── */
+html, body {
   height: 100%;
   margin: 0;
-  font-family: Segoe UI, Arial, sans-serif;
-  background: #0f172a;
-  color: #e2e8f0;
+  font-family: var(--font-sans);
+  background: var(--bg-primary);
+  color: var(--text-body);
   overflow: hidden;
 }
+body { display: flex; flex-direction: column; }
 
-body {
-  display: flex;
-  flex-direction: column;
-}
-
+/* ── Top bar ───────────────────────────────────────────────────────────── */
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -20,26 +19,40 @@ body {
   flex-wrap: wrap;
   gap: 8px;
   padding: 10px 16px;
-  background: #111827;
-  border-bottom: 1px solid #334155;
+  background: var(--bg-overlay);
+  border-bottom: 1px solid var(--border-medium);
   flex: 0 0 auto;
+  box-shadow: var(--shadow-sm);
 }
 
 .topbar h1 {
   margin: 0;
-  font-size: 18px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
 }
 
 .controls {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
   flex-wrap: wrap;
 }
 
+.controls label {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* ── Main 3-column layout ─────────────────────────────────────────────── */
 .layout {
   display: grid;
   grid-template-columns: 2fr 2fr 1fr;
+  grid-template-rows: 1fr;
   gap: 12px;
   padding: 12px;
   flex: 1 1 auto;
@@ -48,30 +61,51 @@ body {
   overflow: hidden;
 }
 
+/* ── Panel base ────────────────────────────────────────────────────────── */
 .avatar-panel,
 .chat-panel,
 .side-panel {
-  background: #111827;
-  border: 1px solid #334155;
-  border-radius: 10px;
-  padding: 10px;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  padding: 12px;
   display: flex;
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
+  transition: box-shadow var(--transition-normal);
+}
+.avatar-panel:focus-within,
+.chat-panel:focus-within {
+  box-shadow: var(--shadow-elevated);
 }
 
-/* Video container — fills the panel, video preserves its own aspect ratio */
+/* ── Collapsible side panel ────────────────────────────────────────────── */
+.side-panel {
+  transition: width var(--transition-smooth), opacity var(--transition-smooth),
+              padding var(--transition-smooth);
+  overflow: hidden;
+}
+.side-panel.collapsed {
+  width: 0;
+  padding: 0;
+  border-width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.layout:has(.side-panel.collapsed) {
+  grid-template-columns: 2fr 2fr;
+}
+
+/* ── Clinician video panel ─────────────────────────────────────────────── */
 #avatar-canvas {
   flex: 1;
   min-height: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   overflow: hidden;
-  background: #020617;
+  background: var(--bg-base);
   position: relative;
 }
-
-/* Video element written by AvatarRenderer inherits 100%/100% via inline style */
 
 .avatar-footer {
   display: flex;
@@ -84,28 +118,65 @@ body {
 .pill {
   font-size: 12px;
   display: inline-block;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: #1f2937;
-  border: 1px solid #475569;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-pill);
+  border: 1px solid var(--border-color);
   white-space: nowrap;
 }
 
-/* Animated state label beside the pill */
 .state-bar {
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--text-muted);
   letter-spacing: 0.04em;
   min-width: 80px;
-  transition: color 0.2s;
+  transition: color var(--transition-normal);
 }
+.state-bar[data-state="speaking"]  { color: var(--state-speaking);  font-weight: 600; }
+.state-bar[data-state="thinking"]  { color: var(--state-thinking);  font-weight: 600; }
+.state-bar[data-state="listening"] { color: var(--state-listening); font-weight: 600; }
 
-.state-bar[data-state="speaking"]  { color: #34d399; }
-.state-bar[data-state="thinking"]  { color: #38bdf8; }
-.state-bar[data-state="listening"] { color: #a78bfa; }
-
+/* ── Chat panel ────────────────────────────────────────────────────────── */
 .chat-panel { gap: 0; }
 
+.chat-log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  background: var(--bg-deep);
+}
+
+/* Empty state for chat log */
+.chat-log:empty::before {
+  content: "Session not yet started. Press Start Session to begin.";
+  display: block;
+  color: var(--text-faint);
+  font-size: 13px;
+  text-align: center;
+  padding: 40px 16px;
+}
+
+.msg {
+  margin: 6px 0;
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  color: var(--chat-msg-color);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--chat-msg-border);
+  font-size: 13.5px;
+  line-height: 1.5;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.msg.user      { background: var(--chat-user-bg); }
+.msg.assistant { background: var(--chat-assistant-bg); }
+
+/* ── Patient tools ─────────────────────────────────────────────────────── */
 .patient-tools {
   display: flex;
   gap: 8px;
@@ -125,16 +196,13 @@ body {
 
 .mode-label {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-.mode-opt {
-  font-weight: 500;
-  cursor: pointer;
-}
+.mode-opt { font-weight: 500; cursor: pointer; }
 
 .ai-patient-controls,
 .human-patient-controls {
@@ -146,17 +214,17 @@ body {
 
 #patient-context-bar {
   font-size: 0.75rem;
-  color: #4ade80;
+  color: var(--patient-ctx-color);
   margin: 2px 0;
   min-height: 1.2em;
 }
 
 #ai-patient-respond-btn {
-  background: #1e40af;
-  color: #e2e8f0;
-  border: 1px solid #3b82f6;
+  background: var(--ai-btn-bg);
+  color: var(--text-body);
+  border: 1px solid var(--ai-btn-border);
 }
-#ai-patient-respond-btn:not(:disabled):hover { background: #1d4ed8; }
+#ai-patient-respond-btn:not(:disabled):hover { background: var(--ai-btn-hover); }
 #ai-patient-respond-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .upload-inline {
@@ -165,93 +233,80 @@ body {
   gap: 8px;
 }
 
-.tiny-meta {
-  font-size: 0.7rem;
-  color: #64748b;
-  margin: 0 0 8px;
-}
-
-.chat-log {
-  flex: 1;
-  min-height: 180px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  padding: 8px;
-  background: #0b1220;
-}
-
-.msg {
-  margin: 6px 0;
-  padding: 8px;
-  border-radius: 8px;
-  color: #f8fafc;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-}
-
-.msg.user      { background: #1d4ed8; }
-.msg.assistant { background: #065f46; }
-
+/* ── Composer ──────────────────────────────────────────────────────────── */
 .composer {
   margin-top: 8px;
   display: flex;
   gap: 8px;
   flex-shrink: 0;
 }
-
 #chat-input {
   flex: 1 1 auto;
   min-width: 0;
 }
 
-input, select, button {
-  background: #0b1220;
-  color: #e2e8f0;
-  border: 1px solid #475569;
-  border-radius: 6px;
-  padding: 8px;
-}
-
-button { cursor: pointer; }
-
-button:disabled { opacity: 0.55; cursor: default; }
-
-#start-btn.session-active {
-  background: #14532d;
-  border-color: #16a34a;
-  color: #86efac;
-  cursor: default;
-}
-
-pre {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  margin: 0;
+/* ── Side panel: session controls ─────────────────────────────────────── */
+.side-panel h3 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 #framework-state {
   flex: 1 1 auto;
   min-height: 0;
+  max-height: 260px;
   overflow: auto;
-  border: 1px solid #334155;
-  border-radius: 8px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
   padding: 8px;
-  background: #0b1220;
+  background: var(--bg-deep);
+  font-size: 11px;
+  color: var(--text-subtle);
 }
 
 .llm-controls {
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid #334155;
+  border-top: 1px solid var(--border-medium);
 }
 
 .llm-controls h4 {
   margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Shared form elements ──────────────────────────────────────────────── */
+input, select, button {
+  background: var(--bg-deep);
+  color: var(--text-body);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  font-family: var(--font-sans);
   font-size: 13px;
-  color: #cbd5e1;
+}
+
+select { padding-right: 28px; }
+button { cursor: pointer; transition: background var(--transition-fast), border-color var(--transition-fast); }
+button:not(:disabled):hover { border-color: var(--accent); }
+button:disabled { opacity: 0.5; cursor: default; }
+button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent);
+}
+
+#start-btn.session-active {
+  background: var(--session-active-bg);
+  border-color: var(--session-active-border);
+  color: var(--session-active-color);
 }
 
 .inline-check {
@@ -260,19 +315,76 @@ pre {
   align-items: center;
   margin-bottom: 8px;
   font-size: 12px;
+  cursor: pointer;
 }
 
 .tiny-meta {
-  font-size: 12px;
-  color: #94a3b8;
+  font-size: 11px;
+  color: var(--text-faint);
+  margin: 0 0 8px;
 }
 
-@media (max-width: 1200px) {
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+
+/* ── Three-tier responsive ─────────────────────────────────────────────── */
+
+/* Tablet: 768–1199px — collapse side panel to icon drawer */
+@media (max-width: 1199px) and (min-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+  }
+  .avatar-panel {
+    grid-column: 1;
+    min-height: 320px;
+  }
+  .chat-panel {
+    grid-column: 2;
+  }
+  .side-panel {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 16px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .side-panel.collapsed {
+    max-height: 0;
+    padding: 0;
+    border-width: 0;
+    opacity: 0;
+  }
+  #framework-state { max-height: 140px; min-width: 200px; flex: 1; }
+  .llm-controls { flex: 2; min-width: 260px; margin-top: 0; padding-top: 0; border-top: none;
+                  border-left: 1px solid var(--border-medium); padding-left: 16px; }
+}
+
+/* Mobile: <768px — single column, topbar wraps */
+@media (max-width: 767px) {
+  html, body { overflow: auto; }
   .layout {
     grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    overflow: visible;
   }
+  .avatar-panel  { min-height: 260px; }
+  .chat-panel    { min-height: 360px; }
+  .side-panel    { min-height: 0; }
+  .side-panel.collapsed { display: none; }
+  .topbar { padding: 8px 12px; }
+  .topbar h1 { font-size: 15px; }
+  .controls { gap: 6px; }
+}
 
-  .avatar-panel {
-    min-height: 320px;
+/* ── Reduced motion ────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

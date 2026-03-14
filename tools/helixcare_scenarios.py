@@ -10,6 +10,12 @@ import os
 import random
 import sys
 import time
+
+# Ensure Unicode output works on Windows consoles with narrow codepages
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if sys.stderr and hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
