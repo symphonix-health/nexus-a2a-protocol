@@ -28,3 +28,15 @@
 {"task_id":"task-queue-cap","event":"nexus.task.status","data":{"state":"accepted"},"seq":28,"stream_epoch":"a857b057aaa94e2b9822f69d35001387","ts_unix_ms":1773507058963}
 {"task_id":"task-queue-cap","event":"nexus.task.status","data":{"state":"working"},"seq":29,"stream_epoch":"a857b057aaa94e2b9822f69d35001387","ts_unix_ms":1773507058963}
 {"task_id":"task-queue-cap","event":"nexus.task.final","data":{"state":"final"},"seq":30,"stream_epoch":"a857b057aaa94e2b9822f69d35001387","ts_unix_ms":1773507058963}
+{"task_id":"task-queue-cap","event":"nexus.task.status","data":{"state":"accepted"},"seq":31,"stream_epoch":"a857b057aaa94e2b9822f69d35001387","ts_unix_ms":1773508122890}
+{"task_id":"task-queue-cap","event":"nexus.task.status","data":{"state":"working"},"seq":32,"stream_epoch":"a857b057aaa94e2b9822f69d35001387","ts_unix_ms":1773508122890}
+{"task_id":"task-queue-cap","event":"nexus.task.final","data":{"state":"final"},"seq":33,"stream_epoch":"a857b057aaa94e2b9822f69d35001387","ts_unix_ms":1773508122890}
+{"task_id":"task-queue-cap","event":"nexus.task.status","data":{"state":"accepted"},"seq":34,"stream_epoch":"a857b057aaa94e2b9822f69d35001387","ts_unix_ms":1773508173700}
+{"task_id":"task-queue-cap","event":"nexus.task.status","data":{"state":"working"},"seq":35,"stream_epoch":"a857b057aaa94e2b9822f69d35001387","ts_unix_ms":1773508173700}
+{"task_id":"task-queue-cap","event":"nexus.task.final","data":{"state":"final"},"seq":36,"stream_epoch":"a857b057aaa94e2b9822f69d35001387","ts_unix_ms":1773508173700}
+{"task_id":"task-queue-cap","event":"nexus.task.status","data":{"state":"accepted"},"seq":37,"stream_epoch":"a857b057aaa94e2b9822f69d35001387","ts_unix_ms":1773508918862}
+{"task_id":"task-queue-cap","event":"nexus.task.status","data":{"state":"working"},"seq":38,"stream_epoch":"a857b057aaa94e2b9822f69d35001387","ts_unix_ms":1773508918862}
+{"task_id":"task-queue-cap","event":"nexus.task.final","data":{"state":"final"},"seq":39,"stream_epoch":"a857b057aaa94e2b9822f69d35001387","ts_unix_ms":1773508918862}
+{"task_id":"task-queue-cap","event":"nexus.task.status","data":{"state":"accepted"},"seq":40,"stream_epoch":"a857b057aaa94e2b9822f69d35001387","ts_unix_ms":1773508989868}
+{"task_id":"task-queue-cap","event":"nexus.task.status","data":{"state":"working"},"seq":41,"stream_epoch":"a857b057aaa94e2b9822f69d35001387","ts_unix_ms":1773508989869}
+{"task_id":"task-queue-cap","event":"nexus.task.final","data":{"state":"final"},"seq":42,"stream_epoch":"a857b057aaa94e2b9822f69d35001387","ts_unix_ms":1773508989870}
