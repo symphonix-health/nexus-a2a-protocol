@@ -1,0 +1,142 @@
+<!--
+  ═══════════════════════════════════════════════════════════════════════════════
+  Logo Template — Design System
+  ═══════════════════════════════════════════════════════════════════════════════
+
+  Copy this file and customise it for each new project.
+  See logo-guide.md for the full specification.
+
+  CANVAS:   400 × 120 px  (viewBox="0 0 400 120")
+  ICON:     Centred at x=60 y=56, fits within an 88 × 88 bounding box
+  WORDMARK: Starts at x=120
+
+  ── HOW TO CUSTOMISE ──────────────────────────────────────────────────────────
+
+  1. SHIELD — keep the outer path exactly as-is for brand consistency.
+     The gradient colours come from your brand ramp:
+       shieldGrad  stop 0%  = brand-600  (primary)
+       shieldGrad  stop 100%= brand-500  (lighter)
+       stroke      = brand-700           (darker outline)
+
+  2. INNER ICON — replace the content between "Inner icon" comments.
+     The safe area is a 44 × 44 circle centred at (60, 52).
+     Use the overlayGrad / nodeGrad gradients or add your own.
+     Keep strokes ≤ 1 px and use opacity 0.5–0.8 for layering.
+
+  3. DOMAIN BADGE — replace the small shape at the shield base (y ≈ 78–92).
+     GHARRA uses a healthcare cross; yours might be a lock, leaf, cog, etc.
+     Keep it within a 14 × 14 box centred at x=60.
+
+  4. TEXT — update PROJECT_NAME, SUBTITLE_LINE_1, SUBTITLE_LINE_2.
+     Font sizes and positions are fixed for alignment consistency:
+       Name:      x=120  y=58   38px  bold   letter-spacing 4
+       Subtitle1: x=121  y=78    9px  normal  letter-spacing 1.8
+       Subtitle2: x=121  y=91    9px  normal  letter-spacing 1.8
+       Accent:    x=120  y=64   → x=340  (thin line under name)
+
+  5. COLOURS — only change the gradient <stop> values.
+     Replace every hex below with your project's brand ramp:
+       #0D7377  → your brand-600
+       #14919B  → your brand-500
+       #095E61  → your brand-700
+       #E0F7FA  → your brand-50
+       #B2EBF2  → your brand-100
+       #4DD0E1  → your brand-300
+       #00ACC1  → your brand-400
+       #5C8A8C  → muted text (blend brand-600 toward gray)
+  ─────────────────────────────────────────────────────────────────────────────
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="400" height="120">
+  <defs>
+    <!-- Primary gradient — fills the shield container -->
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   style="stop-color:#0D7377;stop-opacity:1"/>   <!-- brand-600 -->
+      <stop offset="100%" style="stop-color:#14919B;stop-opacity:1"/>   <!-- brand-500 -->
+    </linearGradient>
+
+    <!-- Overlay gradient — used for wireframe/decorative lines inside shield -->
+    <linearGradient id="overlayGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   style="stop-color:#E0F7FA;stop-opacity:0.9"/> <!-- brand-50  -->
+      <stop offset="100%" style="stop-color:#B2EBF2;stop-opacity:0.7"/> <!-- brand-100 -->
+    </linearGradient>
+
+    <!-- Node/accent gradient — used for focal points, dots, key shapes -->
+    <linearGradient id="nodeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   style="stop-color:#4DD0E1;stop-opacity:1"/>   <!-- brand-300 -->
+      <stop offset="100%" style="stop-color:#00ACC1;stop-opacity:1"/>   <!-- brand-400 -->
+    </linearGradient>
+  </defs>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- LAYER 1: Shield container (do not change shape, only gradient colours) -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <path d="M60,12 L92,24 L92,52 C92,76 60,100 60,100 C60,100 28,76 28,52 L28,24 Z"
+        fill="url(#shieldGrad)" stroke="#095E61" stroke-width="1.5"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- LAYER 2: Inner icon — REPLACE this section with your project's motif  -->
+  <!--          Safe area: 44×44 circle centred at (60, 52)                  -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Example: network-on-globe (from GHARRA) -->
+  <!-- Globe wireframe -->
+  <ellipse cx="60" cy="52" rx="22" ry="22" fill="none" stroke="url(#overlayGrad)" stroke-width="0.8" opacity="0.6"/>
+  <ellipse cx="60" cy="52" rx="11" ry="22" fill="none" stroke="url(#overlayGrad)" stroke-width="0.8" opacity="0.6"/>
+  <line x1="38" y1="45" x2="82" y2="45" stroke="url(#overlayGrad)" stroke-width="0.8" opacity="0.5"/>
+  <line x1="38" y1="59" x2="82" y2="59" stroke="url(#overlayGrad)" stroke-width="0.8" opacity="0.5"/>
+
+  <!-- Network nodes -->
+  <circle cx="60" cy="38" r="3.5" fill="url(#nodeGrad)" stroke="#fff" stroke-width="1"/>
+  <circle cx="45" cy="52" r="3"   fill="url(#nodeGrad)" stroke="#fff" stroke-width="1"/>
+  <circle cx="75" cy="52" r="3"   fill="url(#nodeGrad)" stroke="#fff" stroke-width="1"/>
+  <circle cx="52" cy="66" r="3"   fill="url(#nodeGrad)" stroke="#fff" stroke-width="1"/>
+  <circle cx="68" cy="66" r="3"   fill="url(#nodeGrad)" stroke="#fff" stroke-width="1"/>
+  <circle cx="60" cy="52" r="4"   fill="#fff" stroke="#00ACC1" stroke-width="1.5"/>
+
+  <!-- Network connections -->
+  <line x1="60" y1="38" x2="45" y2="52" stroke="#B2EBF2" stroke-width="1" opacity="0.8"/>
+  <line x1="60" y1="38" x2="75" y2="52" stroke="#B2EBF2" stroke-width="1" opacity="0.8"/>
+  <line x1="45" y1="52" x2="52" y2="66" stroke="#B2EBF2" stroke-width="1" opacity="0.8"/>
+  <line x1="75" y1="52" x2="68" y2="66" stroke="#B2EBF2" stroke-width="1" opacity="0.8"/>
+  <line x1="52" y1="66" x2="68" y2="66" stroke="#B2EBF2" stroke-width="1" opacity="0.8"/>
+  <line x1="60" y1="52" x2="60" y2="38" stroke="#E0F7FA" stroke-width="0.8" opacity="0.7"/>
+  <line x1="60" y1="52" x2="45" y2="52" stroke="#E0F7FA" stroke-width="0.8" opacity="0.7"/>
+  <line x1="60" y1="52" x2="75" y2="52" stroke="#E0F7FA" stroke-width="0.8" opacity="0.7"/>
+  <line x1="60" y1="52" x2="52" y2="66" stroke="#E0F7FA" stroke-width="0.8" opacity="0.7"/>
+  <line x1="60" y1="52" x2="68" y2="66" stroke="#E0F7FA" stroke-width="0.8" opacity="0.7"/>
+  <!-- End inner icon -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- LAYER 3: Domain badge — small shape at shield base (y ≈ 78–92)        -->
+  <!--          REPLACE with your domain symbol (lock, leaf, cog, etc.)      -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Example: healthcare cross (from GHARRA) -->
+  <rect x="57" y="78" width="6"  height="14" rx="1" fill="#E0F7FA" opacity="0.85"/>
+  <rect x="53" y="82" width="14" height="6"  rx="1" fill="#E0F7FA" opacity="0.85"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- LAYER 4: Wordmark — update text content only, keep positions fixed    -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Project name -->
+  <text x="120" y="58" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+        font-size="38" font-weight="700" letter-spacing="4" fill="#0D7377">
+    PROJECT
+  </text>
+
+  <!-- Accent line (auto-aligns under name) -->
+  <line x1="120" y1="64" x2="340" y2="64" stroke="#14919B" stroke-width="1" opacity="0.4"/>
+
+  <!-- Subtitle line 1 -->
+  <text x="121" y="78" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+        font-size="9" font-weight="400" letter-spacing="1.8" fill="#5C8A8C">
+    YOUR PROJECT FULL NAME
+  </text>
+
+  <!-- Subtitle line 2 (optional — remove if single-line subtitle) -->
+  <text x="121" y="91" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+        font-size="9" font-weight="400" letter-spacing="1.8" fill="#5C8A8C">
+    &amp; SECONDARY TAGLINE
+  </text>
+</svg>
