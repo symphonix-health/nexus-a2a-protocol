@@ -124,6 +124,30 @@ def _redact_dict(
     return result
 
 
+def detect_structured_phi(text: str) -> list[dict[str, str]]:
+    """Detect structured PHI patterns in free text (Layer 3 -- Mitigation 2.3).
+
+    Scans for common PHI format patterns: SSN, NHS numbers, phone numbers,
+    email addresses, dates of birth, MRN formats, Irish PPS numbers.
+
+    Returns a list of dicts with 'pattern' and 'match' keys.
+    """
+    _patterns: dict[str, str] = {
+        "us_ssn": r"\b\d{3}-\d{2}-\d{4}\b",
+        "nhs_number": r"\b\d{3}\s?\d{3}\s?\d{4}\b",
+        "us_phone": r"\b\(\d{3}\)\s?\d{3}-\d{4}\b",
+        "email": r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b",
+        "date_of_birth": r"\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b",
+        "mrn_format": r"\bMRN[\s:-]?\d{4,}\b",
+        "ie_pps": r"\b\d{7}[A-Z]{1,2}\b",
+    }
+    findings: list[dict[str, str]] = []
+    for name, pattern in _patterns.items():
+        for match in re.finditer(pattern, text):
+            findings.append({"pattern": name, "match": match.group()})
+    return findings
+
+
 def redact_payload(
     data: dict[str, Any] | None,
     policy: str = "v1",

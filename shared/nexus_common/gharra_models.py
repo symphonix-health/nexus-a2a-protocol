@@ -38,6 +38,11 @@ class GharraRecord:
 
     BulletTrain resolves the agent via GHARRA and passes this record.
     Nexus validates it before opening a transport connection.
+
+    Identifier layers (Mitigation 5.2):
+      - agent_name: registry-scoped identifier (gharra://...)
+      - did_uri: W3C DID (did:web:...) per DID Core v1.0
+      - organisation_lei: ISO 17442 LEI of owning organisation
     """
 
     agent_name: str
@@ -51,6 +56,8 @@ class GharraRecord:
     status: str = "active"
     federated: bool = False
     last_verified_at: str | None = None
+    did_uri: str | None = None
+    organisation_lei: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -75,6 +82,8 @@ class GharraRecord:
             "status": self.status,
             "federated": self.federated,
             "last_verified_at": self.last_verified_at,
+            "did_uri": self.did_uri,
+            "organisation_lei": self.organisation_lei,
         }
 
 
@@ -234,4 +243,6 @@ def parse_gharra_record(data: dict[str, Any]) -> GharraRecord:
         status=str(data.get("status") or "active").strip(),
         federated=bool(data.get("federated")),
         last_verified_at=str(data.get("last_verified_at") or "").strip() or None,
+        did_uri=str(data.get("did_uri") or "").strip() or None,
+        organisation_lei=str(data.get("organisation_lei") or "").strip() or None,
     )
