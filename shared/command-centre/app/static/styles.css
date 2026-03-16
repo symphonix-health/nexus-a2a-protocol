@@ -1,14 +1,29 @@
 /**
  * NEXUS-A2A Command Centre Styles
- * Features: Dark theme, color-coded heatmaps, smooth animations
+ * Design tokens are defined in nexus-theme.css (loaded before this file).
+ *
+ * v2 — Comprehensive frontend upgrade:
+ *   - Nav rail (.nx-nav) + .dashboard-shell CSS grid
+ *   - Three-tier responsive layout (≥1024 / 768-1023 / <768)
+ *   - Loading skeletons with shimmer animation
+ *   - Sticky heatmap left column
+ *   - Kanban lane overflow + overflow badge
+ *   - prefers-reduced-motion support
+ *   - Focus-visible ring on all interactive elements
+ *   - .nx-view section switching
+ *   - .nx-drawer slide-in from right
  */
 
+/* ─────────────────────────────────────────────────────────────
+   Reset
+───────────────────────────────────────────────────────────── */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+<<<<<<< claude/silly-driscoll
 :root {
     /* ── Design System tokens (from design-template) ──────────────── */
     --brand-50:  #E0F7FA;
@@ -44,6 +59,8 @@
     --transition-smooth: 350ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+=======
+>>>>>>> main
 body {
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     background: var(--bg-primary);
@@ -71,14 +88,312 @@ h1, h2, h3, h4, h5, h6 {
     letter-spacing: -0.025em;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Dashboard shell — CSS grid: [nav] [main]
+   Default: nav 180px (labels visible). Tablet: 56px icon-only.
+   .dashboard-shell replaces .dashboard as the root layout
+   wrapper. .dashboard is kept as an alias for compatibility.
+───────────────────────────────────────────────────────────── */
+.dashboard-shell,
 .dashboard {
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+        "nav  header"
+        "nav  main";
 }
 
-/* Header */
+/* When nav is expanded (JS adds .nav-expanded to .dashboard-shell) */
+.dashboard-shell.nav-expanded,
+.dashboard.nav-expanded {
+    grid-template-columns: 200px 1fr;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Nav Rail — .nx-nav
+───────────────────────────────────────────────────────────── */
+.nx-nav {
+    grid-area: nav;
+    width: 180px;
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.5rem 0;
+    gap: 0.25rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+    transition: width var(--transition-smooth, 350ms cubic-bezier(0.16, 1, 0.3, 1));
+    z-index: 200;
+}
+
+/* Expanded nav rail */
+.nav-expanded .nx-nav {
+    width: 200px;
+    align-items: flex-start;
+}
+
+.nx-nav-logo {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    flex-shrink: 0;
+}
+
+.nx-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    width: 164px;
+    height: 40px;
+    border-radius: 8px;
+    padding: 0 0.75rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    transition:
+        color var(--transition-fast, 150ms ease),
+        background-color var(--transition-fast, 150ms ease),
+        width var(--transition-smooth, 350ms cubic-bezier(0.16, 1, 0.3, 1));
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.nx-nav-item:hover {
+    color: var(--text-primary);
+    background: var(--bg-elevated);
+}
+
+.nx-nav-item.active {
+    color: var(--accent);
+    background: rgba(59, 130, 246, 0.12);
+    font-weight: 600;
+}
+
+/* In expanded nav, items grow to full rail width */
+.nav-expanded .nx-nav-item {
+    width: 184px;
+    padding: 0 0.75rem;
+}
+
+.nx-nav-item .nx-nav-icon {
+    flex-shrink: 0;
+    width: 20px;
+    text-align: center;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.nx-nav-label {
+    opacity: 1;
+    transition: opacity var(--transition-smooth, 350ms cubic-bezier(0.16, 1, 0.3, 1));
+    pointer-events: auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.nav-expanded .nx-nav-label {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Hamburger toggle button (always visible in nav) */
+.nx-nav-toggle {
+    margin-top: auto;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-muted);
+    padding: 0.35rem 0.45rem;
+    font-size: 0.9rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.nx-nav-toggle:hover {
+    color: var(--text-primary);
+    border-color: var(--accent);
+}
+
+/* Spacer pushes theme toggle to bottom of nav */
+.nx-nav-spacer {
+    flex: 1 1 auto;
+}
+
+/* Focus-visible for nav items */
+.nx-nav-item:focus-visible,
+.nx-nav-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Section views — .nx-view
+   Only the .active view is visible. JS toggles the class.
+───────────────────────────────────────────────────────────── */
+.nx-view {
+    display: none;
+}
+
+.nx-view.active {
+    display: block;
+}
+
+/* Views that use flex or grid at top level */
+.nx-view.active.nx-view--flex {
+    display: flex;
+}
+
+.nx-view.active.nx-view--grid {
+    display: grid;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Drawer — slides in from the right
+───────────────────────────────────────────────────────────── */
+.nx-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: clamp(320px, 38vw, 520px);
+    background: var(--bg-surface);
+    border-left: 1px solid var(--border-color);
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.35);
+    transform: translateX(100%);
+    transition: transform var(--transition-smooth, 350ms cubic-bezier(0.16, 1, 0.3, 1));
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.nx-drawer.open {
+    transform: translateX(0);
+}
+
+.nx-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.nx-drawer-title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.nx-drawer-close {
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem 0.5rem;
+    line-height: 1;
+}
+
+.nx-drawer-close:hover {
+    color: var(--text-primary);
+    border-color: var(--accent);
+}
+
+.nx-drawer-close:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.nx-drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 1.25rem;
+}
+
+/* Overlay backdrop */
+.nx-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 499;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-smooth, 350ms cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.nx-drawer-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Loading Skeletons
+───────────────────────────────────────────────────────────── */
+@keyframes nx-shimmer {
+    0% {
+        background-position: -400px 0;
+    }
+    100% {
+        background-position: 400px 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--bg-elevated) 25%,
+        var(--bg-surface) 50%,
+        var(--bg-elevated) 75%
+    );
+    background-size: 800px 100%;
+    animation: nx-shimmer 1.6s ease-in-out infinite;
+    border-radius: 4px;
+}
+
+.skeleton-line {
+    height: 0.85rem;
+    border-radius: var(--radius-pill, 999px);
+    margin-bottom: 0.4rem;
+}
+
+.skeleton-line:last-child {
+    margin-bottom: 0;
+    width: 65%;
+}
+
+.skeleton-card {
+    height: 80px;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.skeleton-cell {
+    height: 2.25rem;
+    border-radius: 4px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Header
+───────────────────────────────────────────────────────────── */
 .dashboard-header {
+    grid-area: header;
     background: var(--bg-surface);
     border-bottom: 2px solid var(--brand-700);
     padding: 1rem 2rem;
@@ -114,7 +429,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @keyframes pulse {
-
     0%,
     100% {
         opacity: 1;
@@ -125,7 +439,18 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
-/* Main Content Grid */
+/* ─────────────────────────────────────────────────────────────
+   Main content area
+───────────────────────────────────────────────────────────── */
+.dashboard-main {
+    grid-area: main;
+    overflow: auto;
+    min-width: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Main Content Grid
+───────────────────────────────────────────────────────────── */
 .dashboard-content {
     display: grid;
     grid-template-columns: minmax(0, 1fr) clamp(320px, 26vw, 420px);
@@ -153,7 +478,9 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
 }
 
-/* Topology Panel */
+/* ─────────────────────────────────────────────────────────────
+   Topology Panel
+───────────────────────────────────────────────────────────── */
 .topology-panel {
     grid-column: 1;
     grid-row: 1;
@@ -221,7 +548,9 @@ h1, h2, h3, h4, h5, h6 {
     cursor: grabbing;
 }
 
-/* SVG Node Styles */
+/* ─────────────────────────────────────────────────────────────
+   SVG Node Styles
+───────────────────────────────────────────────────────────── */
 .node-circle {
     stroke-width: 2px;
     cursor: pointer;
@@ -250,26 +579,37 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .edge-agent {
-    stroke: rgba(148, 163, 184, 0.35);
+    stroke: var(--border-mid);
 }
 
 .edge-hub-link {
+<<<<<<< claude/silly-driscoll
     stroke: rgba(13, 115, 119, 0.7);
+=======
+    stroke: var(--hub-edge-color);
+>>>>>>> main
     stroke-width: 2.2px;
     stroke-dasharray: 7 9;
     animation: hubFlow 1.8s linear infinite;
 }
 
 .hub-node {
+<<<<<<< claude/silly-driscoll
     fill: var(--brand-700);
     stroke: var(--brand-300);
     stroke-width: 2.5px;
     filter: drop-shadow(0 0 10px var(--brand-glow));
+=======
+    fill: var(--hub-fill);
+    stroke: var(--hub-stroke);
+    stroke-width: 2.5px;
+    filter: var(--hub-glow);
+>>>>>>> main
 }
 
 .hub-ring {
     fill: none;
-    stroke: rgba(147, 197, 253, 0.55);
+    stroke: var(--hub-ring-color);
     transform-box: fill-box;
     transform-origin: center;
 }
@@ -286,7 +626,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hub-label {
-    fill: #bfdbfe;
+    fill: var(--hub-label);
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.2px;
@@ -339,7 +679,9 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
-/* Heatmap Panel */
+/* ─────────────────────────────────────────────────────────────
+   Heatmap Panel — sticky left column
+───────────────────────────────────────────────────────────── */
 .heatmap-panel {
     grid-column: 1 / -1;
     grid-row: 2;
@@ -371,11 +713,20 @@ h1, h2, h3, h4, h5, h6 {
     z-index: 10;
 }
 
+/* Sticky left column for metric labels */
 .heatmap-table .metric-label {
-    background: var(--bg-elevated);
+    background: var(--bg-surface);
     font-weight: 600;
     text-align: left;
     min-width: 120px;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+}
+
+/* Ensure the top-left corner cell is above both sticky axes */
+.heatmap-table th.metric-label {
+    z-index: 11;
 }
 
 .heatmap-cell {
@@ -390,6 +741,11 @@ h1, h2, h3, h4, h5, h6 {
     transform: scale(1.05);
 }
 
+.heatmap-cell:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
 .heatmap-cell .value {
     font-weight: 600;
 }
@@ -399,7 +755,9 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--text-muted);
 }
 
-/* Timeline Panel */
+/* ─────────────────────────────────────────────────────────────
+   Timeline Panel
+───────────────────────────────────────────────────────────── */
 .timeline-panel {
     grid-column: 2;
     grid-row: 1;
@@ -447,14 +805,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .timeline-stream-state.live {
-    color: #86efac;
-    border-color: rgba(16, 185, 129, 0.6);
+    color: var(--timeline-live-color);
+    border-color: var(--timeline-live-border);
 }
 
 .timeline-stream-state.paused {
-    color: #fde68a;
-    border-color: rgba(245, 158, 11, 0.6);
-    background: rgba(120, 53, 15, 0.2);
+    color: var(--timeline-paused-color);
+    border-color: var(--timeline-paused-border);
+    background: var(--timeline-paused-bg);
 }
 
 .timeline-ops-actions {
@@ -479,24 +837,38 @@ h1, h2, h3, h4, h5, h6 {
     border-color: rgba(148, 163, 184, 0.75);
 }
 
+.timeline-op-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
 .timeline-op-btn[aria-pressed='true'] {
-    color: #fde68a;
-    border-color: rgba(245, 158, 11, 0.65);
-    background: rgba(120, 53, 15, 0.2);
+    color: var(--timeline-paused-color);
+    border-color: var(--timeline-paused-border);
+    background: var(--timeline-paused-bg);
 }
 
 .timeline-jump-btn {
+<<<<<<< claude/silly-driscoll
     color: #bfdbfe;
     border-color: rgba(13, 115, 119, 0.6);
     background: rgba(30, 64, 175, 0.2);
+=======
+    color: var(--timeline-btn-blue-color);
+    border-color: var(--timeline-btn-blue-border);
+    background: var(--timeline-btn-blue-bg);
+>>>>>>> main
 }
 
 .timeline-jump-btn:hover {
-    color: #dbeafe;
-    border-color: rgba(96, 165, 250, 0.8);
-    background: rgba(30, 64, 175, 0.28);
+    color: var(--timeline-btn-blue-hover-color);
+    border-color: var(--timeline-btn-blue-hover-border);
+    background: var(--timeline-btn-blue-hover-bg);
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Scenario Flow Panel
+───────────────────────────────────────────────────────────── */
 .scenario-flow-panel {
     grid-column: 1 / -1;
     grid-row: 3;
@@ -505,6 +877,9 @@ h1, h2, h3, h4, h5, h6 {
     max-width: none;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Telemetry + Roadmap Panel
+───────────────────────────────────────────────────────────── */
 .telemetry-roadmap-panel {
     grid-column: 1 / -1;
     display: grid;
@@ -627,11 +1002,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .memory-trend.up {
-    color: #fca5a5;
+    color: var(--trend-up);
 }
 
 .memory-trend.down {
-    color: #86efac;
+    color: var(--trend-down);
 }
 
 .memory-sparkline svg {
@@ -654,6 +1029,9 @@ h1, h2, h3, h4, h5, h6 {
     stroke-dasharray: 4 4;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Roadmap
+───────────────────────────────────────────────────────────── */
 .roadmap-status-pill {
     border-radius: 999px;
     border: 1px solid var(--border-color);
@@ -665,18 +1043,23 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .roadmap-status-pill.active {
+<<<<<<< claude/silly-driscoll
     color: #bfdbfe;
     border-color: rgba(13, 115, 119, 0.65);
+=======
+    color: var(--roadmap-active-color);
+    border-color: var(--roadmap-active-border);
+>>>>>>> main
 }
 
 .roadmap-status-pill.complete {
-    color: #86efac;
-    border-color: rgba(16, 185, 129, 0.65);
+    color: var(--roadmap-complete-color);
+    border-color: var(--roadmap-complete-border);
 }
 
 .roadmap-status-pill.risk {
-    color: #fecaca;
-    border-color: rgba(239, 68, 68, 0.7);
+    color: var(--roadmap-risk-color);
+    border-color: var(--roadmap-risk-border);
 }
 
 .roadmap-context-row {
@@ -740,17 +1123,18 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .roadmap-step.complete {
-    border-color: rgba(16, 185, 129, 0.55);
-    background: rgba(16, 185, 129, 0.1);
+    border-color: var(--roadmap-complete-step-border);
+    background: var(--roadmap-complete-step-bg);
 }
 
 .roadmap-step.complete .roadmap-step-index {
-    background: rgba(16, 185, 129, 0.2);
-    color: #86efac;
-    border-color: rgba(16, 185, 129, 0.65);
+    background: var(--roadmap-complete-idx-bg);
+    color: var(--roadmap-complete-color);
+    border-color: var(--roadmap-complete-idx-border);
 }
 
 .roadmap-step.active {
+<<<<<<< claude/silly-driscoll
     border-color: rgba(13, 115, 119, 0.6);
     background: rgba(13, 115, 119, 0.14);
 }
@@ -759,8 +1143,21 @@ h1, h2, h3, h4, h5, h6 {
     background: rgba(13, 115, 119, 0.2);
     color: #bfdbfe;
     border-color: rgba(13, 115, 119, 0.7);
+=======
+    border-color: var(--roadmap-active-border);
+    background: var(--roadmap-active-step-bg);
 }
 
+.roadmap-step.active .roadmap-step-index {
+    background: var(--roadmap-active-idx-bg);
+    color: var(--roadmap-active-color);
+    border-color: var(--roadmap-active-idx-border);
+>>>>>>> main
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Flow Board Controls + Status
+───────────────────────────────────────────────────────────── */
 .flow-board-source {
     font-size: 0.75rem;
     padding: 0.25rem 0.5rem;
@@ -782,17 +1179,17 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .flow-board-source.stale {
-    color: #fca5a5;
-    border-color: rgba(239, 68, 68, 0.5);
+    color: var(--flow-stale-color);
+    border-color: var(--flow-stale-border);
 }
 
 .flow-live-stale-warning {
     margin: -0.3rem 0 0.6rem;
     padding: 0.45rem 0.6rem;
     border-radius: 6px;
-    border: 1px solid rgba(239, 68, 68, 0.55);
-    color: #fecaca;
-    background: rgba(127, 29, 29, 0.25);
+    border: 1px solid var(--flow-stale-warn-border);
+    color: var(--risk-critical-color);
+    background: var(--flow-stale-warn-bg);
     font-size: 0.76rem;
 }
 
@@ -830,14 +1227,19 @@ h1, h2, h3, h4, h5, h6 {
     padding: 0.22rem 0.45rem;
 }
 
+.flow-select:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
 .flow-board-source.live {
-    color: #86efac;
-    border-color: rgba(16, 185, 129, 0.5);
+    color: var(--flow-live-color);
+    border-color: var(--flow-live-border);
 }
 
 .flow-board-source.synthetic {
-    color: #fcd34d;
-    border-color: rgba(245, 158, 11, 0.5);
+    color: var(--flow-synth-color);
+    border-color: var(--flow-synth-border);
 }
 
 .flow-board-summary {
@@ -898,6 +1300,9 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Scenario Flow Board (Kanban)
+───────────────────────────────────────────────────────────── */
 .scenario-flow-board {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -906,14 +1311,18 @@ h1, h2, h3, h4, h5, h6 {
     width: 100%;
 }
 
+/* Kanban lane — overflow with max height */
 .flow-lane {
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 0.75rem;
     min-height: 260px;
+    max-height: 600px;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
+    position: relative;
 }
 
 .flow-lane h3 {
@@ -922,6 +1331,41 @@ h1, h2, h3, h4, h5, h6 {
     letter-spacing: 0.4px;
     color: var(--text-muted);
     margin-bottom: 0.5rem;
+    /* Keep header visible while lane scrolls */
+    position: sticky;
+    top: 0;
+    background: var(--bg-primary);
+    z-index: 1;
+    padding-bottom: 0.25rem;
+}
+
+/* "+N more" overflow badge */
+.flow-lane-overflow-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.4rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    border: 1px dashed var(--border-color);
+    background: var(--bg-surface);
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.flow-lane-overflow-badge:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.flow-lane-overflow-badge:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 .flow-cards {
@@ -940,6 +1384,9 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 6px;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Flow Cards
+───────────────────────────────────────────────────────────── */
 .flow-card {
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
@@ -958,7 +1405,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .flow-card.lane-queued {
-    border-left-color: #8b5cf6;
+    border-left-color: var(--task-working);
 }
 
 .flow-card.lane-in-progress {
@@ -1034,23 +1481,23 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .flow-card .risk-low {
-    color: #86efac;
-    background: rgba(16, 185, 129, 0.2);
+    color: var(--risk-low-color);
+    background: var(--risk-low-bg);
 }
 
 .flow-card .risk-medium {
-    color: #fde68a;
-    background: rgba(245, 158, 11, 0.2);
+    color: var(--risk-medium-color);
+    background: var(--risk-medium-bg);
 }
 
 .flow-card .risk-high {
-    color: #fdba74;
-    background: rgba(249, 115, 22, 0.2);
+    color: var(--risk-high-color);
+    background: var(--risk-high-bg);
 }
 
 .flow-card .risk-critical {
-    color: #fecaca;
-    background: rgba(239, 68, 68, 0.22);
+    color: var(--risk-critical-color);
+    background: var(--risk-critical-bg);
 }
 
 .flow-why-row {
@@ -1063,8 +1510,8 @@ h1, h2, h3, h4, h5, h6 {
 .flow-why-badge {
     font-size: 0.66rem;
     color: var(--text-muted);
-    background: rgba(148, 163, 184, 0.12);
-    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: var(--flow-why-bg);
+    border: 1px solid var(--flow-why-border);
     border-radius: 999px;
     padding: 0.08rem 0.4rem;
 }
@@ -1090,9 +1537,15 @@ h1, h2, h3, h4, h5, h6 {
     cursor: pointer;
 }
 
+.flow-action-btn:focus-visible,
+.flow-assign-select:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
 .flow-action-btn.warn {
-    border-color: rgba(239, 68, 68, 0.6);
-    color: #fecaca;
+    border-color: var(--alert-critical-border);
+    color: var(--risk-critical-color);
 }
 
 .observer-state {
@@ -1132,11 +1585,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .flow-alert-item.severity-critical {
-    border-color: rgba(239, 68, 68, 0.6);
+    border-color: var(--alert-critical-border);
 }
 
 .flow-alert-item.severity-high {
-    border-color: rgba(249, 115, 22, 0.6);
+    border-color: var(--alert-high-border);
 }
 
 .flow-alert-title {
@@ -1153,25 +1606,33 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .flow-card .phase-accepted {
+<<<<<<< claude/silly-driscoll
     background: rgba(13, 115, 119, 0.2);
     color: var(--brand-200);
+=======
+    background: var(--phase-accepted-bg);
+    color: var(--phase-accepted-color);
+>>>>>>> main
 }
 
 .flow-card .phase-working {
-    background: rgba(139, 92, 246, 0.2);
-    color: #c4b5fd;
+    background: var(--phase-working-bg);
+    color: var(--phase-working-color);
 }
 
 .flow-card .phase-final {
-    background: rgba(16, 185, 129, 0.2);
-    color: #86efac;
+    background: var(--phase-final-bg);
+    color: var(--phase-final-color);
 }
 
 .flow-card .phase-error {
-    background: rgba(239, 68, 68, 0.2);
-    color: #fca5a5;
+    background: var(--phase-error-bg);
+    color: var(--phase-error-color);
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Timeline Filters & Events
+───────────────────────────────────────────────────────────── */
 .timeline-filters {
     display: flex;
     flex-wrap: wrap;
@@ -1205,9 +1666,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .timeline-filters label:has(input:checked) {
+<<<<<<< claude/silly-driscoll
     color: #dbeafe;
     border-color: rgba(13, 115, 119, 0.75);
     background: rgba(30, 64, 175, 0.22);
+=======
+    color: var(--timeline-filter-color);
+    border-color: var(--timeline-filter-border);
+    background: var(--timeline-filter-bg);
+>>>>>>> main
 }
 
 .timeline-events {
@@ -1277,7 +1744,9 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 0.75rem;
 }
 
-/* Performance Panel */
+/* ─────────────────────────────────────────────────────────────
+   Performance Panel
+───────────────────────────────────────────────────────────── */
 .performance-panel {
     grid-column: 1 / 3;
     margin: 0 1rem 1rem;
@@ -1295,6 +1764,11 @@ h1, h2, h3, h4, h5, h6 {
     cursor: pointer;
     font-size: 1rem;
     transition: transform 0.3s ease;
+}
+
+.performance-panel .toggle-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 .performance-panel.collapsed .toggle-btn {
@@ -1334,18 +1808,9 @@ h1, h2, h3, h4, h5, h6 {
     height: auto !important;
 }
 
-@media (max-width: 1024px) {
-    .charts-grid {
-        grid-template-columns: 1fr;
-        max-height: none;
-    }
-
-    .chart-card {
-        height: 280px;
-    }
-}
-
-/* Toast Notifications */
+/* ─────────────────────────────────────────────────────────────
+   Toast Notifications
+───────────────────────────────────────────────────────────── */
 #toast-container {
     position: fixed;
     top: 1rem;
@@ -1390,11 +1855,17 @@ h1, h2, h3, h4, h5, h6 {
     border-left: 4px solid var(--status-healthy);
 }
 
+<<<<<<< claude/silly-driscoll
 /* Scrollbar Styling (design-system: thin custom scrollbar) */
 * {
     scrollbar-width: thin;
     scrollbar-color: var(--border-color) transparent;
 }
+=======
+/* ─────────────────────────────────────────────────────────────
+   Scrollbar Styling
+───────────────────────────────────────────────────────────── */
+>>>>>>> main
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -1413,6 +1884,7 @@ h1, h2, h3, h4, h5, h6 {
     background: var(--text-muted);
 }
 
+<<<<<<< claude/silly-driscoll
 /* Design system utilities */
 .glow-brand {
     box-shadow: 0 0 20px var(--brand-glow), 0 0 40px rgba(13, 115, 119, 0.05);
@@ -1436,7 +1908,251 @@ h1, h2, h3, h4, h5, h6 {
 .transition-fast   { transition: all var(--transition-fast); }
 
 /* Responsive */
+=======
+/* ─────────────────────────────────────────────────────────────
+   Focus-visible — all interactive elements
+   Uses var(--accent) outline as required by spec.
+   nexus-theme.css sets a brand-tinted box-shadow as the base
+   :focus-visible rule; these per-component rules add the accent
+   outline on top for clear legibility.
+───────────────────────────────────────────────────────────── */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible,
+[role="button"]:focus-visible,
+[role="tab"]:focus-visible,
+[role="checkbox"]:focus-visible,
+[role="menuitem"]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Responsive — 768–1023px (tablet)
+   Nav stays icon-only (56px); sidebar panels become drawers.
+───────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) and (min-width: 768px) {
+    /* Tablet: collapse nav to icon-only */
+    .dashboard-shell,
+    .dashboard {
+        grid-template-columns: 56px 1fr;
+    }
+
+    .nx-nav {
+        width: 56px;
+        align-items: center;
+    }
+
+    .nx-nav-label {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .nx-nav-item {
+        width: 40px;
+        padding: 0 0.5rem;
+    }
+
+    .nav-expanded .nx-nav {
+        width: 56px;
+    }
+
+    .nav-expanded .nx-nav-label {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .nav-expanded .nx-nav-item {
+        width: 40px;
+        padding: 0 0.5rem;
+    }
+
+    /* Panels that are sidebar-style at wide layout become drawers */
+    .timeline-panel {
+        /* Promote to drawer mode — JS should also add .nx-drawer to it */
+        grid-column: 1 / -1;
+        grid-row: 4;
+        max-height: 400px;
+        position: static;
+        top: auto;
+    }
+
+    .charts-grid {
+        grid-template-columns: 1fr;
+        max-height: none;
+    }
+
+    .chart-card {
+        height: 280px;
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Responsive — <768px (mobile)
+   Nav hidden behind hamburger; single column layout.
+───────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+    .dashboard-shell,
+    .dashboard {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "header"
+            "main";
+    }
+
+    /* Nav hidden by default on mobile */
+    .nx-nav {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 200px;
+        z-index: 600;
+    }
+
+    /* Show nav when .mobile-nav-open on shell */
+    .mobile-nav-open .nx-nav {
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .mobile-nav-open .nx-nav-label {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .mobile-nav-open .nx-nav-item {
+        width: 184px;
+        padding: 0 0.75rem;
+    }
+
+    /* Hamburger button shown only on mobile — hidden on wider screens */
+    .nx-hamburger {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 0.4rem 0.55rem;
+        font-size: 1rem;
+    }
+
+    .nx-hamburger:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+
+    .dashboard-content {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto auto;
+    }
+
+    .heatmap-panel,
+    .scenario-flow-panel {
+        grid-column: 1;
+    }
+
+    .timeline-panel {
+        grid-column: 1;
+        grid-row: 4;
+        max-height: 400px;
+        position: static;
+        top: auto;
+    }
+
+    .scenario-flow-board {
+        grid-template-columns: 1fr;
+    }
+
+    .flow-board-summary {
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+    }
+
+    .flow-kpi-strip {
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+    }
+
+    .telemetry-roadmap-panel {
+        grid-template-columns: 1fr;
+    }
+
+    .memory-kpi-row {
+        grid-template-columns: 1fr;
+    }
+
+    .roadmap-context-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .trace-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .trace-run-list,
+    .trace-step-timeline,
+    .trace-context-sidebar {
+        max-height: 400px;
+    }
+
+    .telemetry-roadmap-panel {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-header {
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* Hamburger hidden at ≥768px */
+@media (min-width: 768px) {
+    .nx-hamburger {
+        display: none;
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Responsive — ≥1024px (full layout, nav labels visible)
+───────────────────────────────────────────────────────────── */
+@media (min-width: 1024px) {
+    /* Allow full expansion at wide viewports */
+    .nav-expanded .nx-nav {
+        width: 200px;
+    }
+
+    .nav-expanded .nx-nav-item {
+        width: 184px;
+        padding: 0 0.75rem;
+    }
+
+    .nav-expanded .nx-nav-label {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Legacy responsive — ≤1024px (kept for backward compat)
+───────────────────────────────────────────────────────────── */
+>>>>>>> main
 @media (max-width: 1024px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+        max-height: none;
+    }
+
+    .chart-card {
+        height: 280px;
+    }
+
     .dashboard-content {
         grid-template-columns: 1fr;
         grid-template-rows: auto auto auto auto;
@@ -1492,7 +2208,22 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
-/* ── Clinical Trace Panel ─────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   Wide layout — force full-width panels
+───────────────────────────────────────────────────────────── */
+@media (min-width: 1025px) {
+    .dashboard-content>.heatmap-panel,
+    .dashboard-content>.scenario-flow-panel {
+        grid-column: 1 / -1 !important;
+        justify-self: stretch;
+        width: 100%;
+        max-width: none;
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Clinical Trace Panel
+───────────────────────────────────────────────────────────── */
 .trace-panel {
     margin: 0.75rem 1rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
@@ -1570,6 +2301,11 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 0.5rem;
 }
 
+.trace-search:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
 .trace-search::placeholder {
     color: var(--text-muted);
 }
@@ -1592,6 +2328,11 @@ h1, h2, h3, h4, h5, h6 {
 .trace-run-card:hover,
 .trace-run-card.active {
     background: var(--border-color);
+}
+
+.trace-run-card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 .trace-run-card.status-final {
@@ -1882,6 +2623,11 @@ h1, h2, h3, h4, h5, h6 {
     border-color: var(--accent);
 }
 
+.trace-copy-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
 .step-payload-toggle {
     background: none;
     border: none;
@@ -1894,6 +2640,12 @@ h1, h2, h3, h4, h5, h6 {
 
 .step-payload-toggle:hover {
     text-decoration: underline;
+}
+
+.step-payload-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
 }
 
 .trace-json-block {
@@ -2026,6 +2778,11 @@ h1, h2, h3, h4, h5, h6 {
     opacity: 0.85;
 }
 
+.trace-export-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
 .trace-empty {
     font-size: 0.8rem;
     color: var(--text-muted);
@@ -2035,17 +2792,9 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 6px;
 }
 
-@media (min-width: 1025px) {
-    .dashboard-content>.heatmap-panel,
-    .dashboard-content>.scenario-flow-panel {
-        grid-column: 1 / -1 !important;
-        justify-self: stretch;
-        width: 100%;
-        max-width: none;
-    }
-}
-
-/* ── Avatar conversation bubbles ────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   Avatar conversation bubbles
+───────────────────────────────────────────────────────────── */
 .avatar-step { border-left: 3px solid #6366f1; }
 
 .avatar-badge {
@@ -2110,7 +2859,9 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--text-primary);
 }
 
-/* ── Delegation chain ───────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   Delegation chain
+───────────────────────────────────────────────────────────── */
 .delegation-chain {
     margin: 0.5rem 0;
     border: 1px solid var(--border-color);
@@ -2127,6 +2878,11 @@ h1, h2, h3, h4, h5, h6 {
     cursor: pointer;
     font-size: 0.78rem;
     font-weight: 600;
+}
+
+.delegation-header:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 .delegation-toggle {
@@ -2191,4 +2947,81 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 0.65rem;
     color: var(--text-secondary);
     margin-left: 0.3rem;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   prefers-reduced-motion
+   Strips all animations and transitions for users who have
+   requested reduced motion in their OS settings.
+───────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        transition-delay: 0ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    /* Skeleton shimmer — replace with solid background */
+    .skeleton {
+        animation: none;
+        background: var(--bg-elevated);
+    }
+
+    /* Status dot pulse */
+    .status-dot {
+        animation: none;
+    }
+
+    /* Hub topology animations */
+    .hub-ring-outer,
+    .hub-ring-inner,
+    .edge-hub-link,
+    .edge-particle {
+        animation: none;
+    }
+
+    /* Timeline slide-in */
+    .timeline-event {
+        animation: none;
+    }
+
+    /* Toast slide-in */
+    .toast {
+        animation: none;
+    }
+
+    /* Nav rail + drawer transitions */
+    .nx-nav,
+    .nx-nav-item,
+    .nx-nav-label,
+    .nx-drawer,
+    .nx-drawer-overlay {
+        transition: none;
+    }
+
+    /* Node hover */
+    .node-circle {
+        transition: none;
+    }
+
+    /* Timeline filters */
+    .timeline-filters label {
+        transition: none;
+    }
+
+    /* Timeline op buttons */
+    .timeline-op-btn {
+        transition: none;
+    }
+
+    /* Performance panel toggle */
+    .performance-panel,
+    .performance-panel .toggle-btn,
+    .step-toggle {
+        transition: none;
+    }
 }

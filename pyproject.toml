@@ -42,6 +42,16 @@ where = ["src"]
 addopts = "-q"
 testpaths = ["tests"]
 asyncio_mode = "auto"
+filterwarnings = [
+    # Legacy shim tests intentionally exercise the deprecated mcp_adapter module.
+    "ignore:shared.nexus_common.mcp_adapter is deprecated:DeprecationWarning",
+    # FastAPI on_event is deprecated — suppress residual warnings from third-party
+    # or agent code not yet migrated to lifespan.
+    "ignore:on_event is deprecated:DeprecationWarning",
+    # datetime.utcnow() Python 3.12 nudge — fixed in first-party code, suppress
+    # any remaining occurrences in third-party dependencies.
+    "ignore:datetime.datetime.utcnow\\(\\) is deprecated:DeprecationWarning",
+]
 
 [tool.ruff]
 line-length = 100

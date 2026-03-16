@@ -74,6 +74,26 @@
     _persistTranscript();
   }
 
+  function exportTranscript() {
+    const key  = _transcriptStorageKey();
+    const raw  = localStorage.getItem(key) || localStorage.getItem('avatar_consultation_transcript_latest');
+    const data = raw ? JSON.parse(raw) : { session_id: sessionId || null, entries: transcriptEntries };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `consultation-transcript-${sessionId || 'session'}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    if (statusPill) {
+      const prev = statusPill.textContent;
+      statusPill.textContent = 'Transcript exported';
+      setTimeout(() => { statusPill.textContent = prev; }, 2000);
+    }
+  }
+
   // ── Patient mode ─────────────────────────────────────────────────────────
 
   function _applyPatientMode(mode) {
@@ -369,6 +389,33 @@
     return !!authToken;
   }
 
+  /**
+   * Re-fetch /dev/token if the current token is within 5 minutes of expiry.
+   * Decodes the JWT payload (middle base64 segment) and inspects the `exp` claim.
+   * No-ops silently if the token cannot be decoded or /dev/token is unavailable.
+   */
+  async function _ensureFreshToken() {
+    if (!authToken) return;
+    try {
+      const parts = authToken.split('.');
+      if (parts.length !== 3) return;
+      // Base64url → Base64 → JSON
+      const padded = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const json   = atob(padded.padEnd(padded.length + (4 - padded.length % 4) % 4, '='));
+      const payload = JSON.parse(json);
+      const exp = Number(payload.exp);
+      if (!exp) return;
+      const secsUntilExpiry = exp - Math.floor(Date.now() / 1000);
+      if (secsUntilExpiry > 300) return;   // still has more than 5 minutes — nothing to do
+      // Token is expiring — attempt a silent refresh
+      const resp = await fetch('/dev/token');
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.token) authToken = data.token;
+      }
+    } catch (_) {}
+  }
+
   // ── Session lifecycle ────────────────────────────────────────────────────
 
   async function startSession() {
@@ -487,6 +534,8 @@
 
   async function sendMessage(overrideText = null, options = {}) {
     if (readOnly) return;
+    // Refresh token if it is within 5 minutes of expiry before every send.
+    await _ensureFreshToken();
     // Same AudioContext unlock — must be before any `await`.
     window.TTSClient.enableAudio().catch(() => {});
 
@@ -801,8 +850,18 @@
     updateTemp();
     temperatureInput.addEventListener('input', updateTemp);
   }
+  const exportTranscriptBtn = document.getElementById('export-transcript-btn');
+  if (exportTranscriptBtn) {
+    exportTranscriptBtn.addEventListener('click', exportTranscript);
+  }
 
   // ── Boot ─────────────────────────────────────────────────────────────────
+
+  // Apply system colour-scheme preference when the user has not set an explicit override.
+  if (localStorage.getItem('nexus-theme') === null) {
+    const preferLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+    document.documentElement.dataset.theme = preferLight ? 'light' : 'dark';
+  }
 
   window.AvatarRenderer.init('avatar-canvas');
   window.AvatarRenderer.setAvatar(avatarSelect.value);

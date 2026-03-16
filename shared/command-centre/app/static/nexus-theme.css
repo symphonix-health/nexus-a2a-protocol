@@ -1,0 +1,592 @@
+/**
+ * NEXUS Design System — Theme Tokens
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * Single source of truth for all design values across the NEXUS A2A platform.
+ *
+ * Canonical copy : shared/command-centre/app/static/nexus-theme.css
+ * Mirrored to    : demos/helixcare/clinician-avatar-agent/app/static/nexus-theme.css
+ * Derived from   : design-template/tailwind.config.ts + design-template/src/globals.css
+ *
+ * REBRAND  → Change the brand ramp in Layer 1 only. Everything cascades.
+ * DARK/LIGHT → Add a [data-theme="light"] :root override block.
+ * ═══════════════════════════════════════════════════════════════════════════════
+ */
+
+/* ── Google Fonts ──────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+
+  /* ════════════════════════════════════════════════════════════════════════════
+     LAYER 1 — Palette Primitives
+     Raw perceptual-uniform colour values. Never reference these directly in
+     component rules — use the semantic tokens in Layer 2/3 instead.
+     ════════════════════════════════════════════════════════════════════════════ */
+
+  /* Slate  (cool neutral-grey — backgrounds, text, borders) */
+  --nx-slate-100: #f1f5f9;
+  --nx-slate-200: #e2e8f0;
+  --nx-slate-300: #cbd5e1;
+  --nx-slate-400: #94a3b8;
+  --nx-slate-500: #64748b;
+  --nx-slate-600: #475569;
+  --nx-slate-700: #334155;
+  --nx-slate-800: #1e293b;
+  --nx-slate-900: #0f172a;
+  --nx-slate-950: #020617;
+
+  /* Ink  (deeper navy-black — chat wells, code areas, dense overlays) */
+  --nx-ink-900: #0b1220;
+  --nx-ink-950: #111827;
+  --nx-ink-pill: #1f2937;
+
+  /* Blue  (primary accent — links, focus, hub topology, interactive) */
+  --nx-blue-100: #dbeafe;
+  --nx-blue-200: #bfdbfe;
+  --nx-blue-300: #93c5fd;
+  --nx-blue-400: #60a5fa;
+  --nx-blue-500: #3b82f6;
+  --nx-blue-700: #1d4ed8;
+  --nx-blue-800: #1e40af;
+  --nx-blue-900: #1e3a8a;
+
+  /* Emerald / Green  (healthy, success, session-active, live) */
+  --nx-green-300: #86efac;
+  --nx-green-400: #4ade80;
+  --nx-green-500: #10b981;
+  --nx-green-600: #16a34a;
+  --nx-green-700: #065f46;
+  --nx-green-800: #14532d;
+  --nx-green-900: #064e3b;
+
+  /* Brand  (teal/cyan ramp — from design-template/tailwind.config.ts)
+     Swap this entire ramp to rebrand the platform. */
+  --nx-brand-50:  #E0F7FA;
+  --nx-brand-100: #B2EBF2;
+  --nx-brand-200: #80DEEA;
+  --nx-brand-300: #4DD0E1;
+  --nx-brand-400: #26C6DA;
+  --nx-brand-500: #14919B;
+  --nx-brand-600: #0D7377;
+  --nx-brand-700: #095E61;
+  --nx-brand-800: #064A4D;
+  --nx-brand-900: #033638;
+  --nx-brand-950: #012224;
+
+  /* Teal accent aliases (speaking state, accent highlights) */
+  --nx-teal-400: #34d399;
+  --nx-teal-600: var(--nx-brand-600);
+
+  /* Sky  (thinking / info state) */
+  --nx-sky-400: #38bdf8;
+
+  /* Violet  (working state, listening, queued lane) */
+  --nx-violet-300: #c4b5fd;
+  --nx-violet-400: #a78bfa;
+  --nx-violet-500: #8b5cf6;
+
+  /* Amber  (degraded, paused, soft warnings) */
+  --nx-amber-200: #fde68a;
+  --nx-amber-300: #fcd34d;
+  --nx-amber-500: #f59e0b;
+
+  /* Orange  (high-risk, severity-high alerts) */
+  --nx-orange-300: #fdba74;
+  --nx-orange-500: #f97316;
+
+  /* Red  (unhealthy, error, critical) */
+  --nx-red-200: #fecaca;
+  --nx-red-300: #fca5a5;
+  --nx-red-500: #ef4444;
+  --nx-red-600: #dc2626;
+
+
+  /* ════════════════════════════════════════════════════════════════════════════
+     LAYER 2 — Semantic Tokens
+     What a colour means, not what it looks like. Components reference these.
+     ════════════════════════════════════════════════════════════════════════════ */
+
+  /* — Backgrounds  (darkest → lightest) — */
+  --bg-base:     var(--nx-slate-950); /* #020617  deepest canvas            */
+  --bg-deep:     var(--nx-ink-900);   /* #0b1220  chat wells, code panels    */
+  --bg-overlay:  var(--nx-ink-950);   /* #111827  topbars, modals, drawers   */
+  --bg-primary:  var(--nx-slate-900); /* #0f172a  main page background       */
+  --bg-surface:  var(--nx-slate-800); /* #1e293b  cards, panels              */
+  --bg-elevated: var(--nx-slate-700); /* #334155  raised elements, th cells  */
+  --bg-pill:     var(--nx-ink-pill);  /* #1f2937  pill / badge fills         */
+
+  /* — Borders — */
+  --border-color:  var(--nx-slate-600);       /* #475569  standard rule             */
+  --border-medium: var(--nx-slate-700);       /* #334155  softer internal dividers  */
+  --border-mid:    rgba(148, 163, 184, 0.35); /* slate-400/35  edge lines, msg ring */
+  --border-subtle: rgba(148, 163, 184, 0.22); /* ultra-soft section dividers        */
+  --border-faint:  rgba(148, 163, 184, 0.15); /* barely-there separators            */
+
+  /* — Text — */
+  --text-primary: var(--nx-slate-100); /* #f1f5f9  headings, strong copy      */
+  --text-body:    var(--nx-slate-200); /* #e2e8f0  body / readable prose      */
+  --text-subtle:  var(--nx-slate-300); /* #cbd5e1  secondary labels           */
+  --text-muted:   var(--nx-slate-400); /* #94a3b8  placeholders, meta         */
+  --text-faint:   var(--nx-slate-500); /* #64748b  disabled, hint text        */
+
+  /* — Brand & Accent — */
+  --accent:       var(--nx-blue-500); /* #3b82f6  primary interactive colour  */
+  --accent-light: var(--nx-blue-200); /* #bfdbfe  text on accent bg           */
+  --accent-muted: var(--nx-blue-100); /* #dbeafe  active filter labels        */
+  --accent-glow:  rgba(59, 130, 246, 0.15);
+  --brand:        var(--nx-brand-600); /* #0D7377  brand identity              */
+  --brand-light:  var(--nx-brand-400); /* #26C6DA  brand on dark bg            */
+  --brand-glow:   rgba(13, 115, 119, 0.15);
+
+  /* — Status indicators (agent health) — */
+  --status-healthy:   var(--nx-green-500); /* #10b981 */
+  --status-degraded:  var(--nx-amber-500); /* #f59e0b */
+  --status-unhealthy: var(--nx-red-500);   /* #ef4444 */
+  --status-unknown:   var(--nx-slate-500); /* #64748b */
+
+  /* — Task state colours — */
+  --task-accepted:  var(--nx-blue-500);   /* #3b82f6 */
+  --task-working:   var(--nx-violet-500); /* #8b5cf6 */
+  --task-final:     var(--nx-green-500);  /* #10b981 */
+  --task-error:     var(--nx-red-600);    /* #dc2626 */
+  --task-cancelled: var(--nx-slate-500);  /* #64748b */
+
+  /* — Avatar clinician states — */
+  --state-speaking:  var(--nx-teal-400);   /* #34d399 */
+  --state-thinking:  var(--nx-sky-400);    /* #38bdf8 */
+  --state-listening: var(--nx-violet-400); /* #a78bfa */
+
+  /* — Typography — */
+  --font-sans: Inter, 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+
+  /* — Geometry — */
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   10px;
+  --radius-xl:   12px;
+  --radius-pill: 999px;
+
+  /* — Elevation / Shadows  (from design-template/tailwind.config.ts) — */
+  --shadow-card:        0 1px 3px rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  --shadow-card-hover:  0 4px 12px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+  --shadow-sm:          0 1px 3px rgb(0 0 0 / 0.12), 0 1px 2px -1px rgb(0 0 0 / 0.08);
+  --shadow-md:          0 4px 6px rgb(0 0 0 / 0.30);
+  --shadow-elevated:    0 8px 24px rgb(0 0 0 / 0.12), 0 2px 8px -2px rgb(0 0 0 / 0.06);
+  --shadow-lg:          0 8px 24px rgb(0 0 0 / 0.18), 0 2px 8px -2px rgb(0 0 0 / 0.10);
+  --shadow-xl:          0 10px 24px rgb(0 0 0 / 0.35);
+  --hub-glow:           drop-shadow(0 0 10px rgba(59, 130, 246, 0.45));
+
+  /* — Animation — */
+  --transition-fast:   150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 350ms cubic-bezier(0.16, 1, 0.3, 1);
+
+
+  /* ════════════════════════════════════════════════════════════════════════════
+     LAYER 3 — Component Tokens
+     Semantic aliases scoped to specific UI components. Override at the
+     component level by reassigning inside a scoped selector or theme variant.
+     ════════════════════════════════════════════════════════════════════════════ */
+
+  /* Chat bubbles */
+  --chat-user-bg:      var(--nx-blue-700);  /* #1d4ed8 */
+  --chat-assistant-bg: var(--nx-green-700); /* #065f46 */
+  --chat-msg-border:   rgba(148, 163, 184, 0.35);
+  --chat-msg-color:    var(--nx-slate-100);
+
+  /* Hub / topology graph */
+  --hub-fill:       var(--nx-blue-700);          /* #1d4ed8 */
+  --hub-stroke:     var(--nx-blue-300);           /* #93c5fd */
+  --hub-label:      var(--nx-blue-200);           /* #bfdbfe */
+  --hub-ring-color: rgba(147, 197, 253, 0.55);
+  --hub-edge-color: rgba(59, 130, 246, 0.70);
+
+  /* Timeline panel */
+  --timeline-live-color:        var(--nx-green-300);          /* #86efac */
+  --timeline-live-border:       rgba(16, 185, 129, 0.60);
+  --timeline-paused-color:      var(--nx-amber-200);          /* #fde68a */
+  --timeline-paused-border:     rgba(245, 158, 11, 0.60);
+  --timeline-paused-bg:         rgba(120, 53, 15, 0.20);
+  --timeline-filter-color:      var(--nx-blue-100);           /* #dbeafe */
+  --timeline-filter-border:     rgba(59, 130, 246, 0.75);
+  --timeline-filter-bg:         rgba(30, 64, 175, 0.22);
+  --timeline-btn-blue-color:    var(--nx-blue-200);           /* #bfdbfe */
+  --timeline-btn-blue-border:   rgba(59, 130, 246, 0.60);
+  --timeline-btn-blue-bg:       rgba(30, 64, 175, 0.20);
+  --timeline-btn-blue-hover-color:  var(--nx-blue-100);       /* #dbeafe */
+  --timeline-btn-blue-hover-border: rgba(96, 165, 250, 0.80);
+  --timeline-btn-blue-hover-bg:     rgba(30, 64, 175, 0.28);
+
+  /* Flow / scenario board */
+  --flow-live-color:       var(--nx-green-300);          /* #86efac */
+  --flow-live-border:      rgba(16, 185, 129, 0.50);
+  --flow-synth-color:      var(--nx-amber-300);          /* #fcd34d */
+  --flow-synth-border:     rgba(245, 158, 11, 0.50);
+  --flow-stale-color:      var(--nx-red-300);            /* #fca5a5 */
+  --flow-stale-border:     rgba(239, 68, 68, 0.50);
+  --flow-stale-warn-bg:    rgba(127, 29, 29, 0.25);
+  --flow-stale-warn-border: rgba(239, 68, 68, 0.55);
+  --flow-why-bg:           rgba(148, 163, 184, 0.12);
+  --flow-why-border:       rgba(148, 163, 184, 0.25);
+
+  /* Phase badges (task state labels on flow cards) */
+  --phase-accepted-color: var(--nx-blue-300);   /* #93c5fd */
+  --phase-accepted-bg:    rgba(59, 130, 246, 0.20);
+  --phase-working-color:  var(--nx-violet-300); /* #c4b5fd */
+  --phase-working-bg:     rgba(139, 92, 246, 0.20);
+  --phase-final-color:    var(--nx-green-300);  /* #86efac */
+  --phase-final-bg:       rgba(16, 185, 129, 0.20);
+  --phase-error-color:    var(--nx-red-300);    /* #fca5a5 */
+  --phase-error-bg:       rgba(239, 68, 68, 0.20);
+
+  /* Risk badges */
+  --risk-low-color:      var(--nx-green-300);  /* #86efac */
+  --risk-low-bg:         rgba(16, 185, 129, 0.20);
+  --risk-medium-color:   var(--nx-amber-200);  /* #fde68a */
+  --risk-medium-bg:      rgba(245, 158, 11, 0.20);
+  --risk-high-color:     var(--nx-orange-300); /* #fdba74 */
+  --risk-high-bg:        rgba(249, 115, 22, 0.20);
+  --risk-critical-color: var(--nx-red-200);    /* #fecaca */
+  --risk-critical-bg:    rgba(239, 68, 68, 0.22);
+
+  /* Roadmap progress steps */
+  --roadmap-active-color:          var(--nx-blue-200);       /* #bfdbfe */
+  --roadmap-active-border:         rgba(59, 130, 246, 0.65);
+  --roadmap-active-step-bg:        rgba(59, 130, 246, 0.14);
+  --roadmap-active-idx-bg:         rgba(59, 130, 246, 0.20);
+  --roadmap-active-idx-border:     rgba(59, 130, 246, 0.70);
+  --roadmap-complete-color:        var(--nx-green-300);      /* #86efac */
+  --roadmap-complete-border:       rgba(16, 185, 129, 0.65);
+  --roadmap-complete-step-bg:      rgba(16, 185, 129, 0.10);
+  --roadmap-complete-step-border:  rgba(16, 185, 129, 0.55);
+  --roadmap-complete-idx-bg:       rgba(16, 185, 129, 0.20);
+  --roadmap-complete-idx-border:   rgba(16, 185, 129, 0.65);
+  --roadmap-risk-color:            var(--nx-red-200);        /* #fecaca */
+  --roadmap-risk-border:           rgba(239, 68, 68, 0.70);
+
+  /* Alert severity borders */
+  --alert-critical-border: rgba(239, 68, 68, 0.60);
+  --alert-high-border:     rgba(249, 115, 22, 0.60);
+
+  /* Session / button states */
+  --session-active-bg:     var(--nx-green-800); /* #14532d */
+  --session-active-border: var(--nx-green-600); /* #16a34a */
+  --session-active-color:  var(--nx-green-300); /* #86efac */
+
+  /* AI patient respond button */
+  --ai-btn-bg:     var(--nx-blue-800); /* #1e40af */
+  --ai-btn-border: var(--nx-blue-500); /* #3b82f6 */
+  --ai-btn-hover:  var(--nx-blue-700); /* #1d4ed8 */
+
+  /* Patient context bar */
+  --patient-ctx-color: var(--nx-green-400); /* #4ade80 */
+
+  /* Memory telemetry sparklines */
+  --trend-up:   var(--nx-red-300);   /* #fca5a5  growing   */
+  --trend-down: var(--nx-green-300); /* #86efac  shrinking */
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Global Base Styles
+   Ported from design-template/src/globals.css — applied to all NEXUS UIs.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Smooth scrolling + sub-pixel font rendering */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Brand-tinted text selection */
+::selection {
+  background-color: rgba(13, 115, 119, 0.30);
+  color: inherit;
+}
+
+/* Accessible focus ring — brand coloured, no outline flash */
+*:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px rgba(13, 115, 119, 0.50);
+  transition: box-shadow var(--transition-fast);
+}
+
+/* Thin branded scrollbar */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  border-radius: var(--radius-pill);
+  background: var(--border-color);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* Firefox */
+* { scrollbar-width: thin; scrollbar-color: var(--border-color) transparent; }
+
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Animation Keyframes
+   Shared across Command Centre and Avatar UI.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@keyframes nx-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes nx-slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes nx-slide-in-right {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes nx-pulse-soft {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
+/* Convenience classes */
+.nx-fade-in       { animation: nx-fade-in       var(--transition-smooth) ease-out; }
+.nx-slide-up      { animation: nx-slide-up      var(--transition-smooth) ease-out; }
+.nx-slide-in-right{ animation: nx-slide-in-right var(--transition-smooth) ease-out; }
+.nx-pulse-soft    { animation: nx-pulse-soft 2s infinite; }
+
+
+/* ════════════════════════════════════════════════════════════════════════════
+   LIGHT THEME  —  [data-theme="light"] on <html>
+   Overrides Layer 2 & 3 semantic tokens only. Layer 1 primitives are shared.
+   Toggle via JS: document.documentElement.dataset.theme = 'light' | ''
+   ════════════════════════════════════════════════════════════════════════════ */
+
+:root[data-theme="light"] {
+
+  /* — Backgrounds — */
+  --bg-base:     #f8fafc;
+  --bg-deep:     #f1f5f9;
+  --bg-overlay:  #ffffff;
+  --bg-primary:  #f8fafc;
+  --bg-surface:  #ffffff;
+  --bg-elevated: #f1f5f9;
+  --bg-pill:     #e2e8f0;
+
+  /* — Borders — */
+  --border-color:  #cbd5e1;
+  --border-medium: #e2e8f0;
+  --border-mid:    rgba(71, 85, 105, 0.25);
+  --border-subtle: rgba(71, 85, 105, 0.15);
+  --border-faint:  rgba(71, 85, 105, 0.10);
+
+  /* — Text — */
+  --text-primary: #0f172a;
+  --text-body:    #1e293b;
+  --text-subtle:  #334155;
+  --text-muted:   #475569;
+  --text-faint:   #64748b;
+
+  /* — Brand & Accent — */
+  --accent:       var(--nx-blue-500);
+  --accent-light: var(--nx-blue-700);
+  --accent-muted: var(--nx-blue-800);
+  --accent-glow:  rgba(59, 130, 246, 0.12);
+  --brand:        var(--nx-brand-600);
+  --brand-light:  var(--nx-brand-700);
+  --brand-glow:   rgba(13, 115, 119, 0.12);
+
+  /* — Shadows (stronger on light canvas) — */
+  --shadow-card:        0 1px 3px rgb(0 0 0/0.08), 0 1px 2px -1px rgb(0 0 0/0.08);
+  --shadow-card-hover:  0 4px 12px rgb(0 0 0/0.12), 0 2px 4px -2px rgb(0 0 0/0.08);
+  --shadow-sm:          0 1px 3px rgb(0 0 0/0.15), 0 1px 2px -1px rgb(0 0 0/0.12);
+  --shadow-md:          0 4px 6px rgb(0 0 0/0.12);
+  --shadow-elevated:    0 8px 24px rgb(0 0 0/0.10), 0 2px 8px -2px rgb(0 0 0/0.06);
+  --shadow-lg:          0 8px 24px rgb(0 0 0/0.12), 0 2px 8px -2px rgb(0 0 0/0.08);
+  --shadow-xl:          0 10px 24px rgb(0 0 0/0.16);
+  --hub-glow:           drop-shadow(0 0 8px rgba(59, 130, 246, 0.35));
+
+  /* — Chat bubbles — */
+  --chat-user-bg:      var(--nx-blue-500);
+  --chat-assistant-bg: var(--nx-green-600);
+  --chat-msg-border:   rgba(71, 85, 105, 0.25);
+  --chat-msg-color:    #ffffff;
+
+  /* — Hub / topology — */
+  --hub-fill:       var(--nx-blue-500);
+  --hub-stroke:     var(--nx-blue-700);
+  --hub-label:      var(--nx-blue-800);
+  --hub-ring-color: rgba(59, 130, 246, 0.40);
+  --hub-edge-color: rgba(59, 130, 246, 0.55);
+
+  /* — Timeline — */
+  --timeline-live-color:        var(--nx-green-600);
+  --timeline-live-border:       rgba(22, 163, 74, 0.50);
+  --timeline-paused-color:      #92400e;
+  --timeline-paused-border:     rgba(245, 158, 11, 0.50);
+  --timeline-paused-bg:         rgba(254, 243, 199, 0.70);
+  --timeline-filter-color:      var(--nx-blue-700);
+  --timeline-filter-border:     rgba(59, 130, 246, 0.60);
+  --timeline-filter-bg:         rgba(219, 234, 254, 0.70);
+  --timeline-btn-blue-color:    var(--nx-blue-700);
+  --timeline-btn-blue-border:   rgba(59, 130, 246, 0.50);
+  --timeline-btn-blue-bg:       rgba(219, 234, 254, 0.60);
+  --timeline-btn-blue-hover-color:  var(--nx-blue-800);
+  --timeline-btn-blue-hover-border: rgba(59, 130, 246, 0.70);
+  --timeline-btn-blue-hover-bg:     rgba(191, 219, 254, 0.80);
+
+  /* — Flow / scenario board — */
+  --flow-live-color:        var(--nx-green-600);
+  --flow-live-border:       rgba(22, 163, 74, 0.40);
+  --flow-synth-color:       #92400e;
+  --flow-synth-border:      rgba(245, 158, 11, 0.40);
+  --flow-stale-color:       var(--nx-red-600);
+  --flow-stale-border:      rgba(220, 38, 38, 0.40);
+  --flow-stale-warn-bg:     rgba(254, 202, 202, 0.40);
+  --flow-stale-warn-border: rgba(220, 38, 38, 0.45);
+  --flow-why-bg:            rgba(71, 85, 105, 0.08);
+  --flow-why-border:        rgba(71, 85, 105, 0.18);
+
+  /* — Phase badges — */
+  --phase-accepted-color: var(--nx-blue-700);
+  --phase-accepted-bg:    rgba(59, 130, 246, 0.12);
+  --phase-working-color:  #5b21b6;
+  --phase-working-bg:     rgba(139, 92, 246, 0.12);
+  --phase-final-color:    var(--nx-green-700);
+  --phase-final-bg:       rgba(16, 185, 129, 0.12);
+  --phase-error-color:    var(--nx-red-600);
+  --phase-error-bg:       rgba(220, 38, 38, 0.12);
+
+  /* — Risk badges — */
+  --risk-low-color:      var(--nx-green-700);
+  --risk-low-bg:         rgba(16, 185, 129, 0.12);
+  --risk-medium-color:   #92400e;
+  --risk-medium-bg:      rgba(245, 158, 11, 0.12);
+  --risk-high-color:     #9a3412;
+  --risk-high-bg:        rgba(249, 115, 22, 0.12);
+  --risk-critical-color: var(--nx-red-600);
+  --risk-critical-bg:    rgba(220, 38, 38, 0.12);
+
+  /* — Roadmap steps — */
+  --roadmap-active-color:         var(--nx-blue-700);
+  --roadmap-active-border:        rgba(59, 130, 246, 0.55);
+  --roadmap-active-step-bg:       rgba(219, 234, 254, 0.70);
+  --roadmap-active-idx-bg:        rgba(59, 130, 246, 0.15);
+  --roadmap-active-idx-border:    rgba(59, 130, 246, 0.55);
+  --roadmap-complete-color:       var(--nx-green-700);
+  --roadmap-complete-border:      rgba(22, 163, 74, 0.55);
+  --roadmap-complete-step-bg:     rgba(240, 253, 244, 0.80);
+  --roadmap-complete-step-border: rgba(22, 163, 74, 0.45);
+  --roadmap-complete-idx-bg:      rgba(22, 163, 74, 0.15);
+  --roadmap-complete-idx-border:  rgba(22, 163, 74, 0.55);
+  --roadmap-risk-color:           var(--nx-red-600);
+  --roadmap-risk-border:          rgba(220, 38, 38, 0.60);
+
+  /* — Alerts — */
+  --alert-critical-border: rgba(220, 38, 38, 0.50);
+  --alert-high-border:     rgba(249, 115, 22, 0.50);
+
+  /* — Session / button states — */
+  --session-active-bg:     rgba(220, 252, 231, 0.80);
+  --session-active-border: var(--nx-green-600);
+  --session-active-color:  var(--nx-green-700);
+
+  /* — AI patient respond button — */
+  --ai-btn-bg:     var(--nx-blue-100);
+  --ai-btn-border: var(--nx-blue-500);
+  --ai-btn-hover:  var(--nx-blue-200);
+
+  /* — Patient context bar — */
+  --patient-ctx-color: var(--nx-green-700);
+
+  /* — Memory telemetry trends — */
+  --trend-up:   var(--nx-red-600);
+  --trend-down: var(--nx-green-600);
+
+  /* — Avatar clinician states (readable on light bg) — */
+  --state-speaking:  var(--nx-brand-600);
+  --state-thinking:  #0369a1;
+  --state-listening: #6d28d9;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   SYSTEM PREFERENCES — auto-apply without JS when no explicit choice is made
+   The JS theme toggle writes data-theme="light" which takes priority via
+   specificity (:root[data-theme="light"] > @media). These rules serve as
+   sensible defaults before the script runs (no flash-of-wrong-theme).
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]):not([data-theme="light"]) {
+    --bg-base:     #f8fafc;
+    --bg-deep:     #f1f5f9;
+    --bg-overlay:  #ffffff;
+    --bg-primary:  #f8fafc;
+    --bg-surface:  #ffffff;
+    --bg-elevated: #f1f5f9;
+    --bg-pill:     #e2e8f0;
+    --border-color:  #cbd5e1;
+    --border-medium: #e2e8f0;
+    --border-mid:    rgba(71,85,105,0.25);
+    --border-subtle: rgba(71,85,105,0.15);
+    --border-faint:  rgba(71,85,105,0.10);
+    --text-primary: #0f172a;
+    --text-body:    #1e293b;
+    --text-subtle:  #334155;
+    --text-muted:   #475569;
+    --text-faint:   #64748b;
+    --chat-user-bg:      var(--nx-blue-500);
+    --chat-assistant-bg: var(--nx-green-600);
+    --chat-msg-color:    #ffffff;
+    --hub-fill:   var(--nx-blue-500);
+    --hub-stroke: var(--nx-blue-700);
+    --hub-label:  var(--nx-blue-800);
+  }
+}
+
+/* Disable all motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Strengthen borders and text contrast for high-contrast mode */
+@media (prefers-contrast: more) {
+  :root {
+    --border-color:  #475569;
+    --border-medium: #334155;
+    --text-muted:    var(--text-subtle);
+    --text-faint:    var(--text-muted);
+  }
+  :root[data-theme="light"] {
+    --border-color:  #334155;
+    --border-medium: #475569;
+  }
+}
+
+/* Theme toggle button */
+.nx-theme-toggle {
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 4px 8px;
+  transition: border-color var(--transition-fast), color var(--transition-fast),
+              background var(--transition-fast);
+}
+.nx-theme-toggle:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}

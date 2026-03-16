@@ -29,6 +29,13 @@ import sys
 import time
 import urllib.error
 import urllib.request
+import webbrowser
+
+# Ensure Unicode output works on Windows consoles with narrow codepages
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if sys.stderr and hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 PYTHON = sys.executable
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -695,11 +702,6 @@ def start_all(
             os.getenv("NEXUS_HEALTHCHECK_INTERVAL_SECONDS", "1.5"),
         )
     )
-    strict_backend_health = os.getenv("NEXUS_STRICT_BACKEND_HEALTHCHECK", "true").lower() not in {
-        "0",
-        "false",
-        "no",
-    }
     gateway_final_health_attempts = int(
         os.getenv(
             "NEXUS_GATEWAY_FINAL_HEALTHCHECK_ATTEMPTS",
@@ -764,7 +766,8 @@ def start_all(
                     backend_failures.append(failure)
                     print(f"  [fail] {failure}")
 
-    if strict_backend_health and (include_backend or include_gateway):
+    # Backend and gateway failures are always showstoppers — downstream agents depend on them.
+    if include_backend or include_gateway:
         expected_backend_count = len(backend) if include_backend else 0
         expected_gateway_count = 0 if gateway_existing else (1 if include_gateway else 0)
 
@@ -785,7 +788,14 @@ def start_all(
         backend_failures.extend(managed_start_failures)
 
         if backend_failures:
-            raise RuntimeError("Managed backend strict-fail: " + "; ".join(backend_failures))
+            print("\nFATAL: Backend/gateway failure - tearing down all started services.")
+            stop_all()
+            raise RuntimeError("Backend start failed: " + "; ".join(backend_failures))
+
+    # Auto-open Command Centre in the default browser once everything is confirmed healthy
+    if include_backend and backend_effective_url and not backend_failures:
+        print(f"\nOpening Command Centre: {backend_effective_url}")
+        webbrowser.open(backend_effective_url)
 
 
 def stop_all():

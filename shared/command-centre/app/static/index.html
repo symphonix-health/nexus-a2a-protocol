@@ -5,370 +5,430 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEXUS-A2A Command Centre</title>
+<<<<<<< claude/silly-driscoll
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+=======
+    <!-- Theme applied before paint to prevent flash-of-wrong-theme -->
+    <script>
+      (function(){
+        var k=localStorage.getItem('nexus-theme');
+        if(k){document.documentElement.dataset.theme=k==='light'?'light':'';}
+        else if(window.matchMedia('(prefers-color-scheme: light)').matches){document.documentElement.dataset.theme='light';}
+      })();
+    </script>
+    <link rel="stylesheet" href="/nexus-theme.css?v=__ASSET_VERSION__">
+>>>>>>> main
     <link rel="stylesheet" href="/styles.css?v=__ASSET_VERSION__">
 </head>
 
 <body>
-    <div class="dashboard">
-        <!-- Header -->
-        <header class="dashboard-header">
-            <h1>🎛️ NEXUS-A2A Command Centre</h1>
-            <div class="header-status">
-                <span id="connection-status" class="status-dot"></span>
-                <span id="connection-text">Connecting...</span>
-            </div>
-        </header>
+  <div class="dashboard-shell">
 
-        <!-- Main Content Grid -->
-        <div class="dashboard-content">
-            <!-- Topology Panel (Top) -->
-            <section class="panel topology-panel">
-                <h2>Network Topology</h2>
-                <div id="topology-hint" class="topology-hint" role="note" aria-label="Topology interaction hint">
-                    <span>Scroll to zoom, drag to pan, double-click to reset.</span>
-                    <button id="dismiss-topology-hint" type="button" aria-label="Dismiss topology hint">Dismiss</button>
-                </div>
-                <div id="topology-container">
-                    <svg id="topology-svg" width="100%" height="400"></svg>
-                </div>
-            </section>
+    <!-- ── Nav Rail ───────────────────────────────────────────────────────── -->
+    <nav class="nx-nav" aria-label="Main navigation">
+      <button class="nx-nav-hamburger" id="nav-hamburger" aria-label="Toggle navigation" aria-expanded="false">☰</button>
 
-            <!-- Heatmap Grid (Middle) -->
-            <section class="panel heatmap-panel">
-                <h2>Agent Metrics Heatmap</h2>
-                <div id="heatmap-container">
-                    <table id="heatmap-table" class="heatmap-table">
-                        <thead>
-                            <tr>
-                                <th>Metric</th>
-                                <!-- Agent columns populated dynamically -->
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr data-metric="throughput">
-                                <td class="metric-label">Throughput</td>
-                            </tr>
-                            <tr data-metric="latency">
-                                <td class="metric-label">Latency (ms)</td>
-                            </tr>
-                            <tr data-metric="error-rate">
-                                <td class="metric-label">Error Rate</td>
-                            </tr>
-                            <tr data-metric="status">
-                                <td class="metric-label">Status</td>
-                            </tr>
-                            <tr data-metric="last-activity">
-                                <td class="metric-label">Last Activity</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+      <button class="nx-nav-item active" data-nav-target="view-overview" aria-label="Overview" title="Overview">
+        <span class="nx-nav-icon" aria-hidden="true">&#9632;</span>
+        <span class="nx-nav-label">Overview</span>
+      </button>
 
-            <section class="panel scenario-flow-panel">
-                <h2>
-                    Scenario Flow Board
-                    <span class="flow-board-status-group">
-                        <span id="flow-board-source" class="flow-board-source idle">Waiting for events</span>
-                        <span id="flow-live-freshness" class="flow-live-freshness">No live heartbeat</span>
-                    </span>
-                </h2>
-                <div id="flow-live-stale-warning" class="flow-live-stale-warning hidden" role="status"
-                    aria-live="polite">
-                    Live event feed appears stale. Displayed journeys may be delayed.
-                </div>
-                <div class="flow-board-controls">
-                    <label class="flow-toggle">
-                        <input id="flow-hide-synthetic" type="checkbox">
-                        Hide synthetic scenarios
-                    </label>
-                    <label class="flow-select-label" for="flow-risk-filter">Severity filter</label>
-                    <select id="flow-risk-filter" class="flow-select" aria-label="Risk severity filter">
-                        <option value="all">All</option>
-                        <option value="medium">Medium+</option>
-                        <option value="high">High+</option>
-                        <option value="critical">Critical only</option>
-                    </select>
-                    <label class="flow-toggle">
-                        <input id="flow-needs-action" type="checkbox">
-                        Needs observer action
-                    </label>
-                </div>
-                <div class="flow-board-summary">
-                    <div class="flow-summary-card">
-                        <span class="label">In Progress</span>
-                        <span id="flow-in-progress-count" class="value">0</span>
-                    </div>
-                    <div class="flow-summary-card">
-                        <span class="label">Queued / HITL</span>
-                        <span id="flow-queued-count" class="value">0</span>
-                    </div>
-                    <div class="flow-summary-card">
-                        <span class="label">Blocked</span>
-                        <span id="flow-blocked-count" class="value">0</span>
-                    </div>
-                    <div class="flow-summary-card">
-                        <span class="label">Completed</span>
-                        <span id="flow-completed-count" class="value">0</span>
-                    </div>
-                    <div class="flow-summary-card">
-                        <span class="label">Critical Risk</span>
-                        <span id="flow-critical-count" class="value">0</span>
-                    </div>
-                </div>
-                <div class="flow-kpi-strip" aria-label="Observer KPI strip">
-                    <div class="flow-kpi-card">
-                        <span class="label">P95 At-Risk Age</span>
-                        <span id="flow-kpi-p95-risk-age" class="value">--</span>
-                    </div>
-                    <div class="flow-kpi-card">
-                        <span class="label">SLA Breach Rate</span>
-                        <span id="flow-kpi-sla-breach-rate" class="value">--</span>
-                    </div>
-                    <div class="flow-kpi-card">
-                        <span class="label">Mean Ack Time</span>
-                        <span id="flow-kpi-mean-ack-seconds" class="value">--</span>
-                    </div>
-                    <div class="flow-kpi-card">
-                        <span class="label">Escalations</span>
-                        <span id="flow-kpi-escalations" class="value">0</span>
-                    </div>
-                </div>
-                <div class="scenario-flow-board">
-                    <section class="flow-lane" aria-label="Queued and HITL lane">
-                        <h3>Queued / HITL</h3>
-                        <div id="flow-lane-queued" class="flow-cards"></div>
-                    </section>
-                    <section class="flow-lane" aria-label="In progress lane">
-                        <h3>In Progress</h3>
-                        <div id="flow-lane-in-progress" class="flow-cards"></div>
-                    </section>
-                    <section class="flow-lane" aria-label="Blocked lane">
-                        <h3>Blocked</h3>
-                        <div id="flow-lane-blocked" class="flow-cards"></div>
-                    </section>
-                    <section class="flow-lane" aria-label="Completed lane">
-                        <h3>Completed</h3>
-                        <div id="flow-lane-completed" class="flow-cards"></div>
-                    </section>
-                </div>
-                <div class="flow-alert-panel" aria-label="Flow alert feed">
-                    <h3>Observer Alerts</h3>
-                    <div id="flow-alert-feed" class="flow-alert-feed">
-                        <div class="flow-empty">No active flow alerts.</div>
-                    </div>
-                </div>
-            </section>
+      <button class="nx-nav-item" data-nav-target="view-agents" aria-label="Agents" title="Agents">
+        <span class="nx-nav-icon" aria-hidden="true">&#9881;</span>
+        <span class="nx-nav-label">Agents</span>
+      </button>
 
-            <section class="panel telemetry-roadmap-panel" aria-label="Operational telemetry and patient roadmap">
-                <div class="telemetry-card" aria-live="polite">
-                    <div class="telemetry-card-header">
-                        <h2>Live Memory Telemetry</h2>
-                        <button id="memory-telemetry-refresh" class="trace-export-btn" type="button">Refresh</button>
-                    </div>
-                    <p class="telemetry-subtitle">RSS trend by process to detect runaway growth before failure.</p>
-                    <div class="memory-kpi-row">
-                        <div class="memory-kpi-card">
-                            <span class="label">Total RSS</span>
-                            <span id="memory-total-rss" class="value">--</span>
-                        </div>
-                        <div class="memory-kpi-card">
-                            <span class="label">Tracked Processes</span>
-                            <span id="memory-process-count" class="value">--</span>
-                        </div>
-                        <div class="memory-kpi-card">
-                            <span class="label">Sample Cadence</span>
-                            <span id="memory-sample-cadence" class="value">--</span>
-                        </div>
-                    </div>
-                    <div id="memory-process-list" class="memory-process-list">
-                        <div class="flow-empty">Awaiting memory telemetry samples...</div>
-                    </div>
-                </div>
+      <button class="nx-nav-item" data-nav-target="view-scenarios" aria-label="Scenarios" title="Scenarios">
+        <span class="nx-nav-icon" aria-hidden="true">&#9654;</span>
+        <span class="nx-nav-label">Scenarios</span>
+      </button>
 
-                <div class="roadmap-card" aria-live="polite">
-                    <div class="roadmap-card-header">
-                        <h2>Patient Visit Roadmap</h2>
-                        <span id="roadmap-status-pill" class="roadmap-status-pill">Awaiting trace</span>
-                    </div>
-                    <p class="telemetry-subtitle">A clear visual journey from registration through follow-up for clinician and patient awareness.</p>
-                    <div class="roadmap-context-row">
-                        <span id="roadmap-scenario-name" class="roadmap-context-main">No scenario selected</span>
-                        <span id="roadmap-progress" class="roadmap-context-sub">0% complete</span>
-                    </div>
-                    <ol id="patient-journey-roadmap" class="patient-journey-roadmap">
-                        <li class="roadmap-step pending" data-stage="registration">
-                            <span class="roadmap-step-index">1</span>
-                            <div class="roadmap-step-content">
-                                <span class="roadmap-step-title">Registration</span>
-                                <span class="roadmap-step-meta">Identity, consent, and intake readiness</span>
-                            </div>
-                        </li>
-                        <li class="roadmap-step pending" data-stage="triage">
-                            <span class="roadmap-step-index">2</span>
-                            <div class="roadmap-step-content">
-                                <span class="roadmap-step-title">Triage</span>
-                                <span class="roadmap-step-meta">Acuity and immediate risk screening</span>
-                            </div>
-                        </li>
-                        <li class="roadmap-step pending" data-stage="diagnosis">
-                            <span class="roadmap-step-index">3</span>
-                            <div class="roadmap-step-content">
-                                <span class="roadmap-step-title">Diagnosis</span>
-                                <span class="roadmap-step-meta">Clinical reasoning and differential refinement</span>
-                            </div>
-                        </li>
-                        <li class="roadmap-step pending" data-stage="treatment">
-                            <span class="roadmap-step-index">4</span>
-                            <div class="roadmap-step-content">
-                                <span class="roadmap-step-title">Treatment</span>
-                                <span class="roadmap-step-meta">Medication, intervention, and care actions</span>
-                            </div>
-                        </li>
-                        <li class="roadmap-step pending" data-stage="disposition">
-                            <span class="roadmap-step-index">5</span>
-                            <div class="roadmap-step-content">
-                                <span class="roadmap-step-title">Disposition</span>
-                                <span class="roadmap-step-meta">Admission, discharge, or transfer planning</span>
-                            </div>
-                        </li>
-                        <li class="roadmap-step pending" data-stage="followup">
-                            <span class="roadmap-step-index">6</span>
-                            <div class="roadmap-step-content">
-                                <span class="roadmap-step-title">Follow-up</span>
-                                <span class="roadmap-step-meta">Continuity, monitoring, and safety netting</span>
-                            </div>
-                        </li>
-                    </ol>
-                </div>
-            </section>
+      <button class="nx-nav-item" data-nav-target="view-traces" aria-label="Patient Traces" title="Patient Traces">
+        <span class="nx-nav-icon" aria-hidden="true">&#8942;</span>
+        <span class="nx-nav-label">Traces</span>
+      </button>
 
-            <!-- Timeline Panel (Right Sidebar) -->
-            <aside class="panel timeline-panel">
-                <div class="timeline-controls" role="region" aria-label="Timeline controls">
-                    <h2>Event Timeline</h2>
-                    <p class="timeline-controls-hint">Live stream (newest first). Filter by lifecycle state.</p>
-                    <div class="timeline-ops-row" role="status" aria-live="polite">
-                        <span id="timeline-event-count" class="timeline-count-pill">0 events</span>
-                        <span id="timeline-stream-state" class="timeline-stream-state live">Live</span>
-                        <div class="timeline-ops-actions">
-                            <button id="timeline-jump-btn" class="timeline-op-btn timeline-jump-btn hidden"
-                                type="button">Jump to latest</button>
-                            <button id="timeline-pause-btn" class="timeline-op-btn" type="button"
-                                aria-pressed="false">Pause</button>
-                            <button id="timeline-clear-btn" class="timeline-op-btn" type="button">Clear</button>
-                        </div>
-                    </div>
-                    <div class="timeline-filters" role="group" aria-label="Timeline event filters">
-                        <label>
-                            <input type="checkbox" checked data-filter="accepted"> Accepted
-                        </label>
-                        <label>
-                            <input type="checkbox" checked data-filter="working"> Working
-                        </label>
-                        <label>
-                            <input type="checkbox" checked data-filter="final"> Final
-                        </label>
-                        <label>
-                            <input type="checkbox" checked data-filter="error"> Error
-                        </label>
-                    </div>
-                </div>
-                <div id="timeline-container" class="timeline-events" role="log" aria-live="polite"
-                    aria-label="Timeline event stream">
-                    <!-- Events populated dynamically -->
-                </div>
-            </aside>
+      <button class="nx-nav-item" data-nav-target="view-performance" aria-label="Performance" title="Performance">
+        <span class="nx-nav-icon" aria-hidden="true">&#9650;</span>
+        <span class="nx-nav-label">Performance</span>
+      </button>
+
+      <button class="nx-nav-item" data-nav-target="view-consultation" aria-label="Live Consultation" title="Live Consultation">
+        <span class="nx-nav-icon" aria-hidden="true">&#9673;</span>
+        <span class="nx-nav-label">Consultation</span>
+      </button>
+
+      <div class="nx-nav-spacer"></div>
+
+      <button id="theme-toggle" class="nx-nav-item nx-nav-theme" title="Toggle light/dark mode" aria-label="Toggle light/dark mode">
+        <span class="nx-nav-icon" id="theme-icon" aria-hidden="true">🌙</span>
+        <span class="nx-nav-label" id="theme-label">Dark mode</span>
+      </button>
+    </nav>
+
+    <!-- ── Main Area ──────────────────────────────────────────────────────── -->
+    <div class="nx-main">
+
+      <!-- Top bar -->
+      <header class="dashboard-header">
+        <div class="dashboard-header-left">
+          <h1>NEXUS-A2A Command Centre</h1>
+          <div class="header-status">
+            <span id="connection-status" class="status-dot" role="status" aria-label="Connection status"></span>
+            <span id="connection-text">Connecting…</span>
+          </div>
         </div>
+      </header>
 
-        <!-- Performance Dashboard (Bottom, Collapsible) -->
-        <section class="panel performance-panel">
-            <h2>
-                Performance Charts
-                <button id="toggle-performance" class="toggle-btn">▲</button>
-            </h2>
-            <div id="performance-charts" class="charts-grid">
-                <div class="chart-card">
-                    <h3>System Throughput</h3>
-                    <canvas id="throughput-chart"></canvas>
+      <!-- ── VIEW: Overview ───────────────────────────────────────────────── -->
+      <section class="nx-view active" id="view-overview" aria-label="Overview">
+
+        <div class="dashboard-content">
+
+          <!-- Topology + Timeline side-by-side -->
+          <div class="overview-top-row">
+            <section class="panel topology-panel" aria-labelledby="topology-heading">
+              <h2 id="topology-heading">Network Topology</h2>
+              <div id="topology-hint" class="topology-hint" role="note" aria-label="Topology interaction hint">
+                <span>Scroll to zoom · drag to pan · double-click to reset</span>
+                <button id="dismiss-topology-hint" type="button" aria-label="Dismiss topology hint">Dismiss</button>
+              </div>
+              <div id="topology-container">
+                <svg id="topology-svg" width="100%" height="400" role="img" aria-label="Agent network topology graph"></svg>
+              </div>
+            </section>
+
+            <aside class="panel timeline-panel" aria-labelledby="timeline-heading">
+              <div class="timeline-controls" role="region" aria-label="Timeline controls">
+                <h2 id="timeline-heading">Event Timeline</h2>
+                <p class="timeline-controls-hint">Live stream, newest first. Filter by state.</p>
+                <div class="timeline-ops-row" role="status" aria-live="polite">
+                  <span id="timeline-event-count" class="timeline-count-pill">0 events</span>
+                  <span id="timeline-stream-state" class="timeline-stream-state live">Live</span>
+                  <div class="timeline-ops-actions">
+                    <button id="timeline-jump-btn" class="timeline-op-btn timeline-jump-btn hidden" type="button">Jump to latest</button>
+                    <button id="timeline-pause-btn" class="timeline-op-btn" type="button" aria-pressed="false">Pause</button>
+                    <button id="timeline-clear-btn" class="timeline-op-btn" type="button">Clear</button>
+                  </div>
                 </div>
-                <div class="chart-card">
-                    <h3>Latency Distribution</h3>
-                    <canvas id="latency-chart"></canvas>
+                <div class="timeline-filters" role="group" aria-label="Timeline event filters">
+                  <label><input type="checkbox" checked data-filter="accepted"> Accepted</label>
+                  <label><input type="checkbox" checked data-filter="working"> Working</label>
+                  <label><input type="checkbox" checked data-filter="final"> Final</label>
+                  <label><input type="checkbox" checked data-filter="error"> Error</label>
                 </div>
-                <div class="chart-card">
-                    <h3>Agent Load Balance</h3>
-                    <canvas id="load-chart"></canvas>
-                </div>
-                <div class="chart-card">
-                    <h3>Error Budget</h3>
-                    <canvas id="error-gauge"></canvas>
-                </div>
+              </div>
+              <div id="timeline-container" class="timeline-events" role="log" aria-live="polite" aria-label="Timeline event stream"></div>
+            </aside>
+          </div>
+
+          <!-- Heatmap full-width -->
+          <section class="panel heatmap-panel" aria-labelledby="heatmap-heading">
+            <h2 id="heatmap-heading">Agent Metrics</h2>
+            <div id="heatmap-container" class="heatmap-scroll-wrap">
+              <table id="heatmap-table" class="heatmap-table" aria-label="Agent metrics heatmap">
+                <thead>
+                  <tr><th class="metric-label-head" scope="col">Metric</th></tr>
+                </thead>
+                <tbody>
+                  <tr data-metric="throughput"><td class="metric-label" scope="row">Throughput</td></tr>
+                  <tr data-metric="latency"><td class="metric-label" scope="row">Latency (ms)</td></tr>
+                  <tr data-metric="error-rate"><td class="metric-label" scope="row">Error Rate</td></tr>
+                  <tr data-metric="status"><td class="metric-label" scope="row">Status</td></tr>
+                  <tr data-metric="last-activity"><td class="metric-label" scope="row">Last Activity</td></tr>
+                </tbody>
+              </table>
             </div>
-        </section>
+          </section>
 
-        <!-- Clinical Scenario Trace Panel -->
-        <section class="panel trace-panel">
-            <h2>
-                Patient Journey Trace
-                <span id="trace-count-badge" class="trace-count-badge">0 runs</span>
+          <!-- Telemetry + Roadmap -->
+          <section class="panel telemetry-roadmap-panel" aria-label="Operational telemetry and patient roadmap">
+            <div class="telemetry-card" aria-live="polite">
+              <div class="telemetry-card-header">
+                <h2>Live Memory Telemetry</h2>
+                <button id="memory-telemetry-refresh" class="trace-export-btn" type="button">Refresh</button>
+              </div>
+              <p class="telemetry-subtitle">RSS trend by process — detect runaway growth before failure.</p>
+              <div class="memory-kpi-row">
+                <div class="memory-kpi-card"><span class="label">Total RSS</span><span id="memory-total-rss" class="value">--</span></div>
+                <div class="memory-kpi-card"><span class="label">Tracked Processes</span><span id="memory-process-count" class="value">--</span></div>
+                <div class="memory-kpi-card"><span class="label">Sample Cadence</span><span id="memory-sample-cadence" class="value">--</span></div>
+              </div>
+              <div id="memory-process-list" class="memory-process-list">
+                <div class="flow-empty">Awaiting memory telemetry samples…</div>
+              </div>
+            </div>
+
+            <div class="roadmap-card" aria-live="polite">
+              <div class="roadmap-card-header">
+                <h2>Patient Visit Roadmap</h2>
+                <span id="roadmap-status-pill" class="roadmap-status-pill">Awaiting trace</span>
+              </div>
+              <p class="telemetry-subtitle">Journey from registration through follow-up.</p>
+              <div class="roadmap-context-row">
+                <span id="roadmap-scenario-name" class="roadmap-context-main">No scenario selected</span>
+                <span id="roadmap-progress" class="roadmap-context-sub">0% complete</span>
+              </div>
+              <ol id="patient-journey-roadmap" class="patient-journey-roadmap" aria-label="Patient visit stages">
+                <li class="roadmap-step pending" data-stage="registration">
+                  <span class="roadmap-step-index" aria-hidden="true">1</span>
+                  <div class="roadmap-step-content">
+                    <span class="roadmap-step-title">Registration</span>
+                    <span class="roadmap-step-meta">Identity, consent, and intake readiness</span>
+                  </div>
+                </li>
+                <li class="roadmap-step pending" data-stage="triage">
+                  <span class="roadmap-step-index" aria-hidden="true">2</span>
+                  <div class="roadmap-step-content">
+                    <span class="roadmap-step-title">Triage</span>
+                    <span class="roadmap-step-meta">Acuity and immediate risk screening</span>
+                  </div>
+                </li>
+                <li class="roadmap-step pending" data-stage="diagnosis">
+                  <span class="roadmap-step-index" aria-hidden="true">3</span>
+                  <div class="roadmap-step-content">
+                    <span class="roadmap-step-title">Diagnosis</span>
+                    <span class="roadmap-step-meta">Clinical reasoning and differential refinement</span>
+                  </div>
+                </li>
+                <li class="roadmap-step pending" data-stage="treatment">
+                  <span class="roadmap-step-index" aria-hidden="true">4</span>
+                  <div class="roadmap-step-content">
+                    <span class="roadmap-step-title">Treatment</span>
+                    <span class="roadmap-step-meta">Medication, intervention, and care actions</span>
+                  </div>
+                </li>
+                <li class="roadmap-step pending" data-stage="disposition">
+                  <span class="roadmap-step-index" aria-hidden="true">5</span>
+                  <div class="roadmap-step-content">
+                    <span class="roadmap-step-title">Disposition</span>
+                    <span class="roadmap-step-meta">Admission, discharge, or transfer planning</span>
+                  </div>
+                </li>
+                <li class="roadmap-step pending" data-stage="followup">
+                  <span class="roadmap-step-index" aria-hidden="true">6</span>
+                  <div class="roadmap-step-content">
+                    <span class="roadmap-step-title">Follow-up</span>
+                    <span class="roadmap-step-meta">Continuity, monitoring, and safety netting</span>
+                  </div>
+                </li>
+              </ol>
+            </div>
+          </section>
+
+        </div><!-- /.dashboard-content -->
+      </section><!-- /#view-overview -->
+
+      <!-- ── VIEW: Agents ─────────────────────────────────────────────────── -->
+      <section class="nx-view" id="view-agents" aria-label="Agents">
+        <div class="dashboard-content">
+          <section class="panel topology-panel" aria-labelledby="agents-topology-heading">
+            <h2 id="agents-topology-heading">Network Topology</h2>
+            <div id="topology-hint-agents" class="topology-hint hidden" role="note">
+              <span>Scroll to zoom · drag to pan · double-click to reset</span>
+            </div>
+            <div id="topology-container-agents">
+              <!-- Topology SVG is rendered once in overview; this view shares heatmap -->
+            </div>
+          </section>
+          <section class="panel heatmap-panel" aria-labelledby="agents-heatmap-heading">
+            <h2 id="agents-heatmap-heading">Agent Metrics Heatmap</h2>
+            <p class="telemetry-subtitle">Live health, latency, throughput, and error budget per agent.</p>
+            <div class="heatmap-scroll-wrap">
+              <!-- Heatmap is rendered in the shared #heatmap-table in overview;
+                   JS clones/syncs between views. For now this view links back. -->
+              <div class="flow-empty skeleton skeleton-card">Loading agent metrics…</div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- ── VIEW: Scenarios ──────────────────────────────────────────────── -->
+      <section class="nx-view" id="view-scenarios" aria-label="Scenarios">
+        <div class="dashboard-content">
+          <section class="panel scenario-flow-panel" aria-labelledby="scenarios-heading">
+            <h2 id="scenarios-heading">
+              Scenario Flow Board
+              <span class="flow-board-status-group">
+                <span id="flow-board-source" class="flow-board-source idle">Waiting for events</span>
+                <span id="flow-live-freshness" class="flow-live-freshness">No live heartbeat</span>
+              </span>
+            </h2>
+            <div id="flow-live-stale-warning" class="flow-live-stale-warning hidden" role="status" aria-live="polite">
+              Live event feed appears stale. Displayed journeys may be delayed.
+            </div>
+            <div class="flow-board-controls">
+              <label class="flow-toggle">
+                <input id="flow-hide-synthetic" type="checkbox"> Hide synthetic
+              </label>
+              <label class="flow-select-label" for="flow-risk-filter">Severity</label>
+              <select id="flow-risk-filter" class="flow-select" aria-label="Risk severity filter">
+                <option value="all">All</option>
+                <option value="medium">Medium+</option>
+                <option value="high">High+</option>
+                <option value="critical">Critical only</option>
+              </select>
+              <label class="flow-toggle">
+                <input id="flow-needs-action" type="checkbox"> Needs action
+              </label>
+            </div>
+            <div class="flow-board-summary" role="region" aria-label="Scenario summary counts">
+              <div class="flow-summary-card"><span class="label">In Progress</span><span id="flow-in-progress-count" class="value">0</span></div>
+              <div class="flow-summary-card"><span class="label">Queued / HITL</span><span id="flow-queued-count" class="value">0</span></div>
+              <div class="flow-summary-card"><span class="label">Blocked</span><span id="flow-blocked-count" class="value">0</span></div>
+              <div class="flow-summary-card"><span class="label">Completed</span><span id="flow-completed-count" class="value">0</span></div>
+              <div class="flow-summary-card"><span class="label">Critical Risk</span><span id="flow-critical-count" class="value">0</span></div>
+            </div>
+            <div class="flow-kpi-strip" aria-label="Observer KPI strip">
+              <div class="flow-kpi-card"><span class="label">P95 At-Risk Age</span><span id="flow-kpi-p95-risk-age" class="value">--</span></div>
+              <div class="flow-kpi-card"><span class="label">SLA Breach Rate</span><span id="flow-kpi-sla-breach-rate" class="value">--</span></div>
+              <div class="flow-kpi-card"><span class="label">Mean Ack Time</span><span id="flow-kpi-mean-ack-seconds" class="value">--</span></div>
+              <div class="flow-kpi-card"><span class="label">Escalations</span><span id="flow-kpi-escalations" class="value">0</span></div>
+            </div>
+            <div class="scenario-flow-board" role="region" aria-label="Scenario Kanban board">
+              <section class="flow-lane" aria-label="Queued and HITL lane">
+                <h3>Queued / HITL</h3>
+                <div id="flow-lane-queued" class="flow-cards"></div>
+              </section>
+              <section class="flow-lane" aria-label="In progress lane">
+                <h3>In Progress</h3>
+                <div id="flow-lane-in-progress" class="flow-cards"></div>
+              </section>
+              <section class="flow-lane" aria-label="Blocked lane">
+                <h3>Blocked</h3>
+                <div id="flow-lane-blocked" class="flow-cards"></div>
+              </section>
+              <section class="flow-lane" aria-label="Completed lane">
+                <h3>Completed</h3>
+                <div id="flow-lane-completed" class="flow-cards"></div>
+              </section>
+            </div>
+            <div class="flow-alert-panel" aria-label="Flow alert feed" aria-live="polite">
+              <h3>Observer Alerts</h3>
+              <div id="flow-alert-feed" class="flow-alert-feed">
+                <div class="flow-empty">No active flow alerts.</div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- ── VIEW: Traces ─────────────────────────────────────────────────── -->
+      <section class="nx-view" id="view-traces" aria-label="Patient Journey Traces">
+        <div class="dashboard-content">
+          <section class="panel trace-panel" aria-labelledby="traces-heading">
+            <h2 id="traces-heading">
+              Patient Journey Trace
+              <span id="trace-count-badge" class="trace-count-badge">0 runs</span>
             </h2>
             <div class="trace-layout">
-                <!-- Run list (left rail) -->
-                <div class="trace-run-list">
-                    <h3>Patient Runs</h3>
-                    <div class="trace-run-list-header">
-                        <input id="trace-search" type="text" placeholder="Search by complaint, scenario, urgency…"
-                            class="trace-search">
-                    </div>
-                    <div id="trace-run-items" class="trace-run-items">
-                        <div class="trace-empty">No trace runs yet. Run a scenario to begin.</div>
-                    </div>
+              <div class="trace-run-list">
+                <h3>Patient Runs</h3>
+                <div class="trace-run-list-header">
+                  <input id="trace-search" type="text" placeholder="Search by complaint, scenario, urgency…" class="trace-search" aria-label="Search trace runs">
                 </div>
-                <!-- Step timeline (centre) -->
-                <div class="trace-step-timeline">
-                    <h3>Clinical Timeline</h3>
-                    <div id="trace-step-container" class="trace-step-container">
-                        <div class="trace-empty">Select a run to view step-by-step trace.</div>
-                    </div>
+                <div id="trace-run-items" class="trace-run-items" role="list" aria-label="Trace run list">
+                  <div class="trace-empty">No trace runs yet. Run a scenario to begin.</div>
                 </div>
-                <!-- Patient context sidebar (right) -->
-                <aside class="trace-context-sidebar">
-                    <h3>Patient Context</h3>
-                    <div id="trace-patient-context">
-                        <div class="trace-empty">Patient context will appear here.</div>
-                    </div>
-                    <div class="trace-redaction-notice">
-                        <span class="redaction-badge">🔒 Redacted for display (policy v1)</span>
-                    </div>
-                    <button id="trace-export-btn" class="trace-export-btn" disabled>Export JSON</button>
-                </aside>
+              </div>
+              <div class="trace-step-timeline">
+                <h3>Clinical Timeline</h3>
+                <div id="trace-step-container" class="trace-step-container" role="list" aria-label="Clinical trace steps">
+                  <div class="trace-empty">Select a run to view the step-by-step trace.</div>
+                </div>
+              </div>
+              <aside class="trace-context-sidebar" aria-label="Patient context">
+                <h3>Patient Context</h3>
+                <div id="trace-patient-context">
+                  <div class="trace-empty">Patient context will appear here.</div>
+                </div>
+                <div class="trace-redaction-notice">
+                  <span class="redaction-badge">🔒 Redacted for display (policy v1)</span>
+                </div>
+                <button id="trace-export-btn" class="trace-export-btn" disabled aria-disabled="true">Export JSON</button>
+              </aside>
             </div>
-        </section>
+          </section>
+        </div>
+      </section>
 
-        <section class="panel live-avatar-panel">
-            <h2>
-                Live Clinician
-                <button id="live-avatar-refresh" class="trace-export-btn" type="button">Refresh</button>
+      <!-- ── VIEW: Performance ────────────────────────────────────────────── -->
+      <section class="nx-view" id="view-performance" aria-label="Performance">
+        <div class="dashboard-content">
+          <section class="panel performance-panel" aria-labelledby="performance-heading">
+            <h2 id="performance-heading">Performance Charts</h2>
+            <div id="performance-charts" class="charts-grid">
+              <div class="chart-card"><h3>System Throughput</h3><canvas id="throughput-chart" aria-label="System throughput chart"></canvas></div>
+              <div class="chart-card"><h3>Latency Distribution</h3><canvas id="latency-chart" aria-label="Latency distribution chart"></canvas></div>
+              <div class="chart-card"><h3>Agent Load Balance</h3><canvas id="load-chart" aria-label="Agent load balance chart"></canvas></div>
+              <div class="chart-card"><h3>Error Budget</h3><canvas id="error-gauge" aria-label="Error budget gauge"></canvas></div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- ── VIEW: Consultation ───────────────────────────────────────────── -->
+      <section class="nx-view" id="view-consultation" aria-label="Live Consultation">
+        <div class="dashboard-content">
+          <section class="panel live-avatar-panel" aria-labelledby="consultation-heading">
+            <h2 id="consultation-heading">
+              Live Consultation
+              <button id="live-avatar-refresh" class="trace-export-btn" type="button">Refresh</button>
             </h2>
             <div class="live-avatar-body">
-                <iframe id="live-avatar-frame" class="live-avatar-frame" title="Live clinician" src="about:blank"
-                    loading="eager" allow="autoplay"></iframe>
-                <p class="live-avatar-note">
-                    If blank, ensure <code>clinician-avatar-agent</code> is running on port <code>8039</code>.
-                </p>
+              <iframe id="live-avatar-frame" class="live-avatar-frame" title="Live clinician consultation" src="about:blank"
+                loading="eager" allow="autoplay" aria-label="Embedded clinician consultation interface"></iframe>
+              <p class="live-avatar-note">
+                If blank, ensure the <code>clinician consultation service</code> is running on port <code>8039</code>.
+              </p>
             </div>
-        </section>
-    </div>
-    <div id="toast-container"></div>
+          </section>
+        </div>
+      </section>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="/colors.js?v=__ASSET_VERSION__"></script>
-    <script src="/dashboard.js?v=__ASSET_VERSION__"></script>
+    </div><!-- /.nx-main -->
+  </div><!-- /.dashboard-shell -->
+
+  <div id="toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="/colors.js?v=__ASSET_VERSION__"></script>
+  <script src="/dashboard.js?v=__ASSET_VERSION__"></script>
+  <script>
+    (function () {
+      const KEY = 'nexus-theme';
+      const btn = document.getElementById('theme-toggle');
+      const icon = document.getElementById('theme-icon');
+      const label = document.getElementById('theme-label');
+      function apply(light) {
+        document.documentElement.dataset.theme = light ? 'light' : '';
+        if (icon) icon.textContent = light ? '☀️' : '🌙';
+        if (label) label.textContent = light ? 'Light mode' : 'Dark mode';
+        btn.title = light ? 'Switch to dark mode' : 'Switch to light mode';
+        btn.setAttribute('aria-label', light ? 'Switch to dark mode' : 'Switch to light mode');
+      }
+      const stored = localStorage.getItem(KEY);
+      apply(stored ? stored === 'light' : window.matchMedia('(prefers-color-scheme: light)').matches);
+      btn.addEventListener('click', function () {
+        const next = document.documentElement.dataset.theme !== 'light';
+        localStorage.setItem(KEY, next ? 'light' : 'dark');
+        apply(next);
+      });
+
+      // Hamburger for mobile
+      const hamburger = document.getElementById('nav-hamburger');
+      const nav = document.querySelector('.nx-nav');
+      if (hamburger && nav) {
+        hamburger.addEventListener('click', function () {
+          const expanded = nav.classList.toggle('mobile-open');
+          hamburger.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        });
+      }
+    })();
+  </script>
 </body>
 
 </html>

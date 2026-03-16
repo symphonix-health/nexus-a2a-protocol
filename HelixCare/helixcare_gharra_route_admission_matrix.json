@@ -1,0 +1,394 @@
+[
+  {
+    "use_case_id": "GHARRA-POS-001",
+    "scenario_title": "Valid GHARRA record admits route to triage agent",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "triage-agent",
+    "agent_url_key": "triage-agent",
+    "gharra_record": {
+      "agent_name": "triage.nhs.uk.health",
+      "zone": "nhs.uk.health",
+      "trust_anchor": "uk.health",
+      "transport": {
+        "endpoint": "http://localhost:8021/rpc",
+        "protocol": "nexus-a2a",
+        "protocol_versions": ["1.0", "1.1"],
+        "feature_flags": ["routing.v1"]
+      },
+      "authentication": {
+        "mtls_required": false,
+        "cert_bound_tokens_required": false
+      },
+      "capabilities": ["FHIR.Patient.read", "triage.assess"],
+      "policy_tags": ["clinical"],
+      "jurisdiction": "UK",
+      "status": "active",
+      "federated": false
+    },
+    "test_tags": ["gharra", "positive", "triage", "route-admission"],
+    "requirement_ids": ["NEXUS-GHARRA-001", "NEXUS-GHARRA-002"],
+    "expected_result": {
+      "admitted": true,
+      "policy_result": "admit"
+    },
+    "notes": "Baseline positive: valid record with matching zone/anchor should be admitted."
+  },
+  {
+    "use_case_id": "GHARRA-POS-002",
+    "scenario_title": "Federated agent with trusted anchor is admitted",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "diagnosis-agent",
+    "agent_url_key": "diagnosis-agent",
+    "gharra_record": {
+      "agent_name": "diagnosis.nhif.ke.health",
+      "zone": "nhif.ke.health",
+      "trust_anchor": "ke.health",
+      "transport": {
+        "endpoint": "http://localhost:8022/rpc",
+        "protocol": "nexus-a2a",
+        "protocol_versions": ["1.0"],
+        "feature_flags": []
+      },
+      "authentication": {
+        "mtls_required": false,
+        "cert_bound_tokens_required": false
+      },
+      "capabilities": ["FHIR.Observation.write"],
+      "policy_tags": ["clinical"],
+      "jurisdiction": "KE",
+      "status": "active",
+      "federated": true
+    },
+    "test_tags": ["gharra", "positive", "federation", "route-admission"],
+    "requirement_ids": ["NEXUS-GHARRA-005"],
+    "expected_result": {
+      "admitted": true,
+      "policy_result": "admit"
+    },
+    "notes": "Federated record with open trust model should be admitted."
+  },
+  {
+    "use_case_id": "GHARRA-POS-003",
+    "scenario_title": "Record with unsupported optional features admits with warnings",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "imaging-agent",
+    "agent_url_key": "imaging-agent",
+    "gharra_record": {
+      "agent_name": "imaging.nhs.uk.health",
+      "zone": "nhs.uk.health",
+      "trust_anchor": "uk.health",
+      "transport": {
+        "endpoint": "http://localhost:8024/rpc",
+        "protocol": "nexus-a2a",
+        "protocol_versions": ["1.0"],
+        "feature_flags": ["routing.v1", "experimental.v99"]
+      },
+      "authentication": {
+        "mtls_required": false,
+        "cert_bound_tokens_required": false
+      },
+      "policy_tags": ["clinical"],
+      "status": "active"
+    },
+    "test_tags": ["gharra", "positive", "features", "route-admission"],
+    "requirement_ids": ["NEXUS-GHARRA-006"],
+    "expected_result": {
+      "admitted": true,
+      "policy_result": "warn"
+    },
+    "notes": "Unknown feature flags produce warnings, not denial, in relaxed mode."
+  },
+  {
+    "use_case_id": "GHARRA-NEG-001",
+    "scenario_title": "Inactive GHARRA record denies route",
+    "poc_demo": "helixcare",
+    "scenario_type": "negative",
+    "agent": "triage-agent",
+    "agent_url_key": "triage-agent",
+    "gharra_record": {
+      "agent_name": "triage.nhs.uk.health",
+      "zone": "nhs.uk.health",
+      "trust_anchor": "uk.health",
+      "transport": {
+        "endpoint": "http://localhost:8021/rpc",
+        "protocol": "nexus-a2a",
+        "protocol_versions": ["1.0"],
+        "feature_flags": []
+      },
+      "authentication": {},
+      "policy_tags": [],
+      "status": "revoked"
+    },
+    "test_tags": ["gharra", "negative", "status", "route-admission"],
+    "requirement_ids": ["NEXUS-GHARRA-001"],
+    "expected_result": {
+      "admitted": false,
+      "policy_result": "deny"
+    },
+    "notes": "Revoked records must be denied."
+  },
+  {
+    "use_case_id": "GHARRA-NEG-002",
+    "scenario_title": "Zone mismatch denies route",
+    "poc_demo": "helixcare",
+    "scenario_type": "negative",
+    "agent": "diagnosis-agent",
+    "agent_url_key": "diagnosis-agent",
+    "gharra_record": {
+      "agent_name": "diagnosis.us.health",
+      "zone": "nhs.uk.health",
+      "trust_anchor": "uk.health",
+      "transport": {
+        "endpoint": "http://localhost:8022/rpc",
+        "protocol": "nexus-a2a",
+        "protocol_versions": ["1.0"],
+        "feature_flags": []
+      },
+      "authentication": {},
+      "policy_tags": [],
+      "status": "active"
+    },
+    "test_tags": ["gharra", "negative", "zone", "route-admission"],
+    "requirement_ids": ["NEXUS-GHARRA-002"],
+    "expected_result": {
+      "admitted": false,
+      "policy_result": "deny"
+    },
+    "notes": "Agent name not belonging to declared zone must be denied."
+  },
+  {
+    "use_case_id": "GHARRA-NEG-003",
+    "scenario_title": "Unsupported protocol denies route",
+    "poc_demo": "helixcare",
+    "scenario_type": "negative",
+    "agent": "pharmacy-agent",
+    "agent_url_key": "pharmacy-agent",
+    "gharra_record": {
+      "agent_name": "pharmacy.nhs.uk.health",
+      "zone": "nhs.uk.health",
+      "trust_anchor": "uk.health",
+      "transport": {
+        "endpoint": "http://localhost:8025/rpc",
+        "protocol": "grpc",
+        "protocol_versions": ["1.0"],
+        "feature_flags": []
+      },
+      "authentication": {},
+      "policy_tags": [],
+      "status": "active"
+    },
+    "test_tags": ["gharra", "negative", "protocol", "route-admission"],
+    "requirement_ids": ["NEXUS-GHARRA-003"],
+    "expected_result": {
+      "admitted": false,
+      "policy_result": "deny"
+    },
+    "notes": "Only nexus-a2a protocol is supported."
+  },
+  {
+    "use_case_id": "GHARRA-NEG-004",
+    "scenario_title": "Empty transport endpoint denies route",
+    "poc_demo": "helixcare",
+    "scenario_type": "negative",
+    "agent": "bed-manager-agent",
+    "agent_url_key": "bed-manager-agent",
+    "gharra_record": {
+      "agent_name": "bed-manager.nhs.uk.health",
+      "zone": "nhs.uk.health",
+      "trust_anchor": "uk.health",
+      "transport": {
+        "endpoint": "",
+        "protocol": "nexus-a2a",
+        "protocol_versions": ["1.0"],
+        "feature_flags": []
+      },
+      "authentication": {},
+      "policy_tags": [],
+      "status": "active"
+    },
+    "test_tags": ["gharra", "negative", "endpoint", "route-admission"],
+    "requirement_ids": ["NEXUS-GHARRA-003"],
+    "expected_result": {
+      "admitted": false,
+      "policy_result": "deny"
+    },
+    "notes": "Empty endpoint must be denied."
+  },
+  {
+    "use_case_id": "GHARRA-NEG-005",
+    "scenario_title": "Denied policy tag blocks route",
+    "poc_demo": "helixcare",
+    "scenario_type": "negative",
+    "agent": "discharge-agent",
+    "agent_url_key": "discharge-agent",
+    "gharra_record": {
+      "agent_name": "discharge.nhs.uk.health",
+      "zone": "nhs.uk.health",
+      "trust_anchor": "uk.health",
+      "transport": {
+        "endpoint": "http://localhost:8027/rpc",
+        "protocol": "nexus-a2a",
+        "protocol_versions": ["1.0"]
+      },
+      "authentication": {},
+      "policy_tags": ["restricted"],
+      "status": "active"
+    },
+    "env_overrides": {
+      "NEXUS_GHARRA_DENIED_TAGS": "restricted"
+    },
+    "test_tags": ["gharra", "negative", "policy", "route-admission"],
+    "requirement_ids": ["NEXUS-GHARRA-004"],
+    "expected_result": {
+      "admitted": false,
+      "policy_result": "deny"
+    },
+    "notes": "Tags in NEXUS_GHARRA_DENIED_TAGS must block admission."
+  },
+  {
+    "use_case_id": "GHARRA-NEG-006",
+    "scenario_title": "Untrusted anchor with restricted trust set denies route",
+    "poc_demo": "helixcare",
+    "scenario_type": "negative",
+    "agent": "triage-agent",
+    "agent_url_key": "triage-agent",
+    "gharra_record": {
+      "agent_name": "triage.evil.ru.health",
+      "zone": "evil.ru.health",
+      "trust_anchor": "ru.health",
+      "transport": {
+        "endpoint": "http://localhost:8021/rpc",
+        "protocol": "nexus-a2a",
+        "protocol_versions": ["1.0"]
+      },
+      "authentication": {},
+      "policy_tags": [],
+      "status": "active"
+    },
+    "env_overrides": {
+      "NEXUS_GHARRA_TRUSTED_ANCHORS": "uk.health,ke.health"
+    },
+    "test_tags": ["gharra", "negative", "trust", "route-admission"],
+    "requirement_ids": ["NEXUS-GHARRA-002"],
+    "expected_result": {
+      "admitted": false,
+      "policy_result": "deny"
+    },
+    "notes": "Trust anchor not in allowed set must be denied."
+  },
+  {
+    "use_case_id": "GHARRA-NEG-007",
+    "scenario_title": "PHI agent without jurisdiction denied when jurisdictions restricted",
+    "poc_demo": "helixcare",
+    "scenario_type": "negative",
+    "agent": "imaging-agent",
+    "agent_url_key": "imaging-agent",
+    "gharra_record": {
+      "agent_name": "imaging.nhs.uk.health",
+      "zone": "nhs.uk.health",
+      "trust_anchor": "uk.health",
+      "transport": {
+        "endpoint": "http://localhost:8024/rpc",
+        "protocol": "nexus-a2a",
+        "protocol_versions": ["1.0"]
+      },
+      "authentication": {},
+      "policy_tags": ["phi"],
+      "jurisdiction": "",
+      "status": "active"
+    },
+    "env_overrides": {
+      "NEXUS_GHARRA_ALLOWED_JURISDICTIONS": "UK,EU"
+    },
+    "test_tags": ["gharra", "negative", "jurisdiction", "phi", "route-admission"],
+    "requirement_ids": ["NEXUS-GHARRA-007"],
+    "expected_result": {
+      "admitted": false,
+      "policy_result": "deny"
+    },
+    "notes": "PHI agent declaring no jurisdiction cannot pass residency check."
+  },
+  {
+    "use_case_id": "GHARRA-NEG-008",
+    "scenario_title": "Incompatible protocol version denies route",
+    "poc_demo": "helixcare",
+    "scenario_type": "negative",
+    "agent": "triage-agent",
+    "agent_url_key": "triage-agent",
+    "gharra_record": {
+      "agent_name": "triage.nhs.uk.health",
+      "zone": "nhs.uk.health",
+      "trust_anchor": "uk.health",
+      "transport": {
+        "endpoint": "http://localhost:8021/rpc",
+        "protocol": "nexus-a2a",
+        "protocol_versions": ["99.0"],
+        "feature_flags": []
+      },
+      "authentication": {},
+      "policy_tags": [],
+      "status": "active"
+    },
+    "test_tags": ["gharra", "negative", "version", "route-admission"],
+    "requirement_ids": ["NEXUS-GHARRA-003"],
+    "expected_result": {
+      "admitted": false,
+      "policy_result": "deny"
+    },
+    "notes": "No compatible version means no route."
+  },
+  {
+    "use_case_id": "GHARRA-EDGE-001",
+    "scenario_title": "Record with 'name' field alias instead of 'agent_name'",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "triage-agent",
+    "agent_url_key": "triage-agent",
+    "gharra_record": {
+      "name": "triage.nhs.uk.health",
+      "zone": "nhs.uk.health",
+      "trust_anchor": "uk.health",
+      "transport": {
+        "endpoint": "http://localhost:8021/rpc",
+        "protocol": "nexus-a2a",
+        "protocol_versions": ["1.0"]
+      },
+      "authentication": {},
+      "policy_tags": [],
+      "status": "active"
+    },
+    "test_tags": ["gharra", "edge", "parsing", "route-admission"],
+    "requirement_ids": ["NEXUS-GHARRA-001"],
+    "expected_result": {
+      "admitted": true,
+      "policy_result": "admit"
+    },
+    "notes": "GHARRA records may use 'name' instead of 'agent_name'."
+  },
+  {
+    "use_case_id": "GHARRA-EDGE-002",
+    "scenario_title": "Minimal record with only required fields",
+    "poc_demo": "helixcare",
+    "scenario_type": "positive",
+    "agent": "triage-agent",
+    "agent_url_key": "triage-agent",
+    "gharra_record": {
+      "agent_name": "triage.nhs.uk.health",
+      "zone": "nhs.uk.health",
+      "trust_anchor": "uk.health",
+      "transport": {
+        "endpoint": "http://localhost:8021/rpc"
+      }
+    },
+    "test_tags": ["gharra", "edge", "minimal", "route-admission"],
+    "requirement_ids": ["NEXUS-GHARRA-001"],
+    "expected_result": {
+      "admitted": true,
+      "policy_result": "admit"
+    },
+    "notes": "Minimal record with defaults should be admitted."
+  }
+]

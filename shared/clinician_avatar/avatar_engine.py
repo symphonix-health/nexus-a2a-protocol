@@ -128,7 +128,7 @@ class AvatarEngine:
 
     @staticmethod
     def _is_valid_dob(raw: str) -> bool:
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         text = str(raw or "").strip()
         try:
@@ -136,7 +136,7 @@ class AvatarEngine:
         except ValueError:
             return False
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
         if dt > now:
             return False
         age_years = (now - dt).days / 365.25

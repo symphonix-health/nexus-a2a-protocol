@@ -99,7 +99,53 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeLiveAvatarPanel();
     initializeMemoryTelemetryPanel();
     initializeJourneyRoadmapPanel();
+    initNavSections();
 });
+
+const NAV_SECTION_STORAGE_KEY = 'nexus-nav-section';
+
+function initNavSections() {
+    const navButtons = document.querySelectorAll('.nx-nav [data-nav-target]');
+    const views = document.querySelectorAll('.nx-view');
+
+    if (!navButtons.length) return;
+
+    function activateSection(targetId) {
+        views.forEach((view) => {
+            view.classList.toggle('active', view.id === targetId || view.dataset.navId === targetId);
+        });
+        navButtons.forEach((btn) => {
+            btn.classList.toggle('active', btn.dataset.navTarget === targetId);
+        });
+        try {
+            window.localStorage.setItem(NAV_SECTION_STORAGE_KEY, targetId);
+        } catch (_) {
+            // Ignore storage errors
+        }
+    }
+
+    navButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const target = btn.dataset.navTarget;
+            if (target) activateSection(target);
+        });
+    });
+
+    // Restore saved section on load
+    try {
+        const saved = window.localStorage.getItem(NAV_SECTION_STORAGE_KEY);
+        if (saved) {
+            activateSection(saved);
+            return;
+        }
+    } catch (_) {
+        // Ignore storage errors
+    }
+
+    // Fall back to first nav target
+    const firstTarget = navButtons[0]?.dataset.navTarget;
+    if (firstTarget) activateSection(firstTarget);
+}
 
 function initializeLiveAvatarPanel() {
     const frame = document.getElementById('live-avatar-frame');
@@ -112,7 +158,7 @@ function initializeLiveAvatarPanel() {
     if (refreshBtn) {
         refreshBtn.addEventListener('click', () => {
             frame.src = `${avatarUrl}&r=${Date.now()}`;
-            showToast('Live avatar panel refreshed', 'success');
+            showToast('Live consultation refreshed', 'success');
         });
     }
 }
@@ -383,6 +429,22 @@ function setTopologyHintDismissed(value) {
     }
 }
 
+// ── WebSocket debounce batch ──────────────────────────────────────────
+const _wsBatch = {
+    queue: [],
+    timer: null,
+};
+
+function _wsEnqueue(message) {
+    _wsBatch.queue.push(message);
+    if (_wsBatch.timer !== null) return;
+    _wsBatch.timer = window.setTimeout(() => {
+        _wsBatch.timer = null;
+        const pending = _wsBatch.queue.splice(0);
+        pending.forEach((msg) => handleWebSocketMessage(msg));
+    }, 100);
+}
+
 // ── WebSocket Connection ──────────────────────────────────────────────
 function initializeWebSocket() {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -399,7 +461,7 @@ function initializeWebSocket() {
     state.ws.onmessage = (event) => {
         try {
             const message = JSON.parse(event.data);
-            handleWebSocketMessage(message);
+            _wsEnqueue(message);
         } catch (error) {
             console.warn('Dropped malformed WebSocket JSON payload:', error);
         }
@@ -776,40 +838,59 @@ function boundsOverlap(a, b, padding = 0) {
 
 // ── Heatmap Rendering ─────────────────────────────────────────────────
 function renderHeatmap() {
+    showLoadingState('heatmap-table');
     const table = document.getElementById('heatmap-table');
+    if (!table) return;
 
-    // Clear existing agent columns
     const thead = table.querySelector('thead tr');
-    while (thead.children.length > 1) {
-        thead.removeChild(thead.lastChild);
-    }
-
-    // Add agent column headers
-    state.agents.forEach(agent => {
-        const th = document.createElement('th');
-        th.textContent = agent.name;
-        th.style.minWidth = '120px';
-        thead.appendChild(th);
-    });
-
-    // Update metric rows
     const tbody = table.querySelector('tbody');
-    tbody.querySelectorAll('tr').forEach(row => {
-        const metric = row.dataset.metric;
 
-        // Remove existing cells (except label)
-        while (row.children.length > 1) {
-            row.removeChild(row.lastChild);
+    // Detect whether the agent list has changed
+    const currentAgentNames = state.agents.map(a => a.name);
+    const existingHeaders = Array.from(thead.children).slice(1).map(th => th.dataset.agentName);
+    const agentListChanged = currentAgentNames.length !== existingHeaders.length
+        || currentAgentNames.some((name, i) => name !== existingHeaders[i]);
+
+    if (agentListChanged) {
+        // Rebuild header columns
+        while (thead.children.length > 1) {
+            thead.removeChild(thead.lastChild);
         }
-
-        // Add cells for each agent
         state.agents.forEach(agent => {
-            const td = document.createElement('td');
-            td.classList.add('heatmap-cell');
-            updateHeatmapCell(td, agent, metric);
-            row.appendChild(td);
+            const th = document.createElement('th');
+            th.textContent = agent.name;
+            th.dataset.agentName = agent.name;
+            th.style.minWidth = '120px';
+            thead.appendChild(th);
         });
-    });
+
+        // Rebuild all cells in body rows
+        tbody.querySelectorAll('tr').forEach(row => {
+            const metric = row.dataset.metric;
+            while (row.children.length > 1) {
+                row.removeChild(row.lastChild);
+            }
+            state.agents.forEach(agent => {
+                const td = document.createElement('td');
+                td.classList.add('heatmap-cell');
+                td.dataset.agent = agent.name;
+                td.dataset.metric = metric;
+                updateHeatmapCell(td, agent, metric);
+                row.appendChild(td);
+            });
+        });
+    } else {
+        // Diff-update: only update changed cells
+        tbody.querySelectorAll('tr').forEach(row => {
+            const metric = row.dataset.metric;
+            state.agents.forEach(agent => {
+                const td = row.querySelector(`td[data-agent="${CSS.escape(agent.name)}"][data-metric="${metric}"]`);
+                if (td) {
+                    updateHeatmapCell(td, agent, metric);
+                }
+            });
+        });
+    }
 }
 
 function updateHeatmapCell(td, agent, metric) {
@@ -1252,8 +1333,7 @@ function renderScenarioFlowBoard() {
         .sort((a, b) => {
             if (b.risk.score !== a.risk.score) return b.risk.score - a.risk.score;
             return b.updatedAt - a.updatedAt;
-        })
-        .slice(0, 24);
+        });
 
     const lanes = {
         queued: [],
@@ -1295,6 +1375,8 @@ function applyFlowFilters(scenario) {
     return true;
 }
 
+const FLOW_LANE_DEFAULT_VISIBLE = 12;
+
 function renderFlowLane(container, scenarios, emptyMessage, laneName = '') {
     container.innerHTML = '';
 
@@ -1306,7 +1388,14 @@ function renderFlowLane(container, scenarios, emptyMessage, laneName = '') {
         return;
     }
 
-    scenarios.forEach((scenario) => {
+    // Preserve expanded state across re-renders
+    const laneKey = `flow-lane-expanded-${laneName}`;
+    const isExpanded = container.dataset.expanded === 'true';
+    const visibleCount = isExpanded ? scenarios.length : FLOW_LANE_DEFAULT_VISIBLE;
+    const visibleScenarios = scenarios.slice(0, visibleCount);
+    const hiddenCount = scenarios.length - visibleCount;
+
+    visibleScenarios.forEach((scenario) => {
         const card = document.createElement('article');
         card.className = `flow-card ${scenario.isSynthetic ? 'synthetic' : ''} lane-${laneName}`;
         card.dataset.scenarioId = scenario.id;
@@ -1378,6 +1467,26 @@ function renderFlowLane(container, scenarios, emptyMessage, laneName = '') {
 
         container.appendChild(card);
     });
+
+    if (hiddenCount > 0) {
+        const showMoreBtn = document.createElement('button');
+        showMoreBtn.className = 'flow-lane-show-more';
+        showMoreBtn.textContent = `+${hiddenCount} more`;
+        showMoreBtn.addEventListener('click', () => {
+            container.dataset.expanded = 'true';
+            renderScenarioFlowBoard();
+        });
+        container.appendChild(showMoreBtn);
+    } else if (isExpanded && scenarios.length > FLOW_LANE_DEFAULT_VISIBLE) {
+        const showLessBtn = document.createElement('button');
+        showLessBtn.className = 'flow-lane-show-more';
+        showLessBtn.textContent = 'Show less';
+        showLessBtn.addEventListener('click', () => {
+            container.dataset.expanded = 'false';
+            renderScenarioFlowBoard();
+        });
+        container.appendChild(showLessBtn);
+    }
 }
 
 function updateFlowSummaryCounts(lanes, scenarios) {
@@ -1988,6 +2097,8 @@ function addEvent(event) {
     renderTimeline();
 }
 
+const TIMELINE_PAGE_SIZE = 50;
+
 function renderTimeline() {
     const container = document.getElementById('timeline-container');
     if (!container) return;
@@ -1995,8 +2106,15 @@ function renderTimeline() {
     // Filter events based on active filters
     const filteredEvents = getFilteredTimelineEvents(getTimelineSourceEvents());
 
+    // Respect currently displayed page count (preserved via dataset)
+    const visibleCount = Math.max(
+        TIMELINE_PAGE_SIZE,
+        Number(container.dataset.visibleCount) || TIMELINE_PAGE_SIZE
+    );
+    const pageEvents = filteredEvents.slice(0, visibleCount);
+
     // Render (showing most recent first)
-    container.innerHTML = filteredEvents.slice(0, 50).map(event => {
+    container.innerHTML = pageEvents.map(event => {
         const timestamp = new Date(event.timestamp).toLocaleTimeString();
         const eventType = event.event.split('.').pop();
         const stateColor = getTaskColor(eventType);
@@ -2019,6 +2137,22 @@ function renderTimeline() {
             </div>
         `;
     }).join('');
+
+    container.dataset.visibleCount = String(visibleCount);
+
+    // Add "Load 50 more" button if there are more events
+    if (filteredEvents.length > visibleCount) {
+        const remaining = filteredEvents.length - visibleCount;
+        const loadMoreBtn = document.createElement('button');
+        loadMoreBtn.id = 'timeline-load-more';
+        loadMoreBtn.className = 'timeline-op-btn';
+        loadMoreBtn.textContent = `Load ${Math.min(TIMELINE_PAGE_SIZE, remaining)} more`;
+        loadMoreBtn.addEventListener('click', () => {
+            container.dataset.visibleCount = String(visibleCount + TIMELINE_PAGE_SIZE);
+            renderTimeline();
+        });
+        container.appendChild(loadMoreBtn);
+    }
 
     updateTimelineOps(filteredEvents.length);
 }
@@ -2064,6 +2198,8 @@ function initializeTimelineOperations() {
             state.events = [];
             state.timelineBufferedCount = 0;
             state.timelineFrozenEvents = state.timelinePaused ? [] : null;
+            const tc = document.getElementById('timeline-container');
+            if (tc) tc.dataset.visibleCount = String(TIMELINE_PAGE_SIZE);
             renderTimeline();
             showToast('Timeline cleared', 'success');
         });
@@ -2408,6 +2544,15 @@ function initializeToggleButtons() {
     });
 }
 
+// ── Loading States ────────────────────────────────────────────────────
+function showLoadingState(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container || container.children.length > 0) return;
+    const skeleton = document.createElement('div');
+    skeleton.className = 'skeleton skeleton-card';
+    container.appendChild(skeleton);
+}
+
 // ── Toast Notifications ───────────────────────────────────────────────
 function showToast(message, type = 'info') {
     const container = document.getElementById('toast-container');
@@ -2584,12 +2729,24 @@ async function selectTraceRun(traceId) {
     }
 }
 
+const TRACE_RUNS_PER_PAGE = 20;
+
+// Trace run list pagination state (module-level so Prev/Next handlers can mutate it)
+let _traceRunPage = 0;
+
 function renderTraceRunList() {
+    showLoadingState('trace-run-items');
     const container = document.getElementById('trace-run-items');
     if (!container) return;
 
     const searchInput = document.getElementById('trace-search');
     const filter = searchInput ? searchInput.value.toLowerCase() : '';
+
+    // Reset to first page when filter changes
+    if (filter !== (container.dataset.lastFilter || '')) {
+        _traceRunPage = 0;
+        container.dataset.lastFilter = filter;
+    }
 
     const filtered = state.traceRuns.filter(run => {
         if (!filter) return true;
@@ -2608,7 +2765,12 @@ function renderTraceRunList() {
         return;
     }
 
-    container.innerHTML = filtered.map(run => {
+    const totalPages = Math.max(1, Math.ceil(filtered.length / TRACE_RUNS_PER_PAGE));
+    _traceRunPage = Math.min(_traceRunPage, totalPages - 1);
+    const pageStart = _traceRunPage * TRACE_RUNS_PER_PAGE;
+    const pageRuns = filtered.slice(pageStart, pageStart + TRACE_RUNS_PER_PAGE);
+
+    container.innerHTML = pageRuns.map(run => {
         const profile = run.patient_profile || {};
         const statusCss = (run.status === 'final' || run.status === 'completed') ? 'status-final'
             : (run.status === 'error' || run.status === 'failed') ? 'status-error' : 'status-working';
@@ -2638,6 +2800,35 @@ function renderTraceRunList() {
             <div class="run-time">${escapeHtml(ts)}</div>
         </div>`;
     }).join('');
+
+    // Pagination controls
+    if (totalPages > 1) {
+        const paginationHtml = `<div class="trace-pagination">
+            <button class="trace-pagination-btn" id="trace-page-prev" ${_traceRunPage === 0 ? 'disabled' : ''}>&#8592; Prev</button>
+            <span class="trace-pagination-counter">Page ${_traceRunPage + 1} / ${totalPages}</span>
+            <button class="trace-pagination-btn" id="trace-page-next" ${_traceRunPage >= totalPages - 1 ? 'disabled' : ''}>Next &#8594;</button>
+        </div>`;
+        container.insertAdjacentHTML('beforeend', paginationHtml);
+
+        const prevBtn = container.querySelector('#trace-page-prev');
+        const nextBtn = container.querySelector('#trace-page-next');
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (_traceRunPage > 0) {
+                    _traceRunPage -= 1;
+                    renderTraceRunList();
+                }
+            });
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (_traceRunPage < totalPages - 1) {
+                    _traceRunPage += 1;
+                    renderTraceRunList();
+                }
+            });
+        }
+    }
 }
 
 function renderTraceStepTimeline(run) {

@@ -216,3 +216,40 @@ def verify_service_request(
         cert_thumbprint=cert_thumbprint,
         agent_principal=agent_principal,
     )
+
+
+# ---------------------------------------------------------------------------
+# GHARRA cert-bound token helpers
+# ---------------------------------------------------------------------------
+
+def verify_gharra_cert_binding(
+    payload: dict[str, Any],
+    headers: Mapping[str, str],
+    *,
+    gharra_cert_bound_required: bool = False,
+) -> tuple[bool, str | None]:
+    """Validate cnf.x5t#S256 binding for a GHARRA-resolved route.
+
+    Unlike _enforce_cert_bound_token (which reads from env), this function
+    accepts the requirement as a parameter — allowing GHARRA's per-agent
+    authentication.cert_bound_tokens_required to drive enforcement.
+
+    Returns (valid, reason) — valid=True when binding is satisfied or not required.
+    """
+    if not gharra_cert_bound_required:
+        return True, None
+
+    cnf = payload.get("cnf")
+    expected = None
+    if isinstance(cnf, dict):
+        expected = str(cnf.get("x5t#S256") or "").strip()
+
+    presented = _extract_client_cert_thumbprint(headers) or ""
+
+    if not expected:
+        return False, "Token cnf.x5t#S256 claim required by GHARRA agent"
+    if not presented:
+        return False, "Client certificate thumbprint required by GHARRA agent"
+    if not _thumbprints_match(expected, presented):
+        return False, "Certificate-bound token mismatch for GHARRA route"
+    return True, None

@@ -18,6 +18,7 @@ import os
 import platform
 import subprocess
 from collections import OrderedDict
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -40,7 +41,22 @@ logger = logging.getLogger("nexus.command-centre")
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("httpcore").setLevel(logging.WARNING)
 
-app = FastAPI(title="command-centre", description="NEXUS-A2A Agent Monitoring Dashboard")
+@asynccontextmanager
+async def _lifespan(application: FastAPI):  # noqa: ARG001
+    """Start background tasks on startup."""
+    global poll_task_started, scenario_catalog
+    scenario_catalog = _load_scenario_catalog()
+    restored = _restore_trace_store_from_disk()
+    asyncio.create_task(poll_agents())
+    asyncio.create_task(poll_memory_telemetry())
+    poll_task_started = True
+    if restored:
+        logger.info(f"Restored {restored} trace runs from {TRACE_STORE_FILE}")
+    logger.info(f"Command Centre started. Monitoring {len(AGENT_URLS)} agents.")
+    yield
+
+
+app = FastAPI(title="command-centre", description="NEXUS-A2A Agent Monitoring Dashboard", lifespan=_lifespan)
 
 # CORS for development
 app.add_middleware(
@@ -681,19 +697,6 @@ async def poll_agents():
                 logger.error(f"Error in poll_agents: {exc}")
                 await asyncio.sleep(5.0)
 
-
-@app.on_event("startup")
-async def startup_event():
-    """Start background polling on startup."""
-    global poll_task_started, scenario_catalog
-    scenario_catalog = _load_scenario_catalog()
-    restored = _restore_trace_store_from_disk()
-    asyncio.create_task(poll_agents())
-    asyncio.create_task(poll_memory_telemetry())
-    poll_task_started = True
-    if restored:
-        logger.info(f"Restored {restored} trace runs from {TRACE_STORE_FILE}")
-    logger.info(f"Command Centre started. Monitoring {len(AGENT_URLS)} agents.")
 
 
 # ── API Endpoints ─────────────────────────────────────────────────────

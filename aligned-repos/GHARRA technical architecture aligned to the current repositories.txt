@@ -1,0 +1,561 @@
+I can proceed, but I need to be exact about the evidence base.
+
+I have **confirmed integration touchpoints in BulletTrain and Nexus-A2A** from the repository references already surfaced:
+
+* BulletTrain’s SignalBox design already contains an **`AgentRegistry`** concept tied to identity/state transitions. ([GitHub][1])
+* BulletTrain’s external gateway policy already expects **JWT audience checks, mTLS for machine-to-machine traffic, idempotency keys, replay bounds, and correlation ID propagation**. ([GitHub][1])
+* Nexus-A2A already implements **certificate-bound token enforcement** through `cnf.x5t#S256` thumbprint validation in `service_auth.py`.
+* Nexus-A2A also already carries a **scale profile** with routing and streaming-related features such as `routing.v1`, `stream.resume.v1`, and admission features. ([OpenAI Platform][2])
+* The A2A protocol itself uses **Agent Cards** for discovery, which is the right external interoperability pattern to align GHARRA with. ([GitHub][3])
+
+What I have **not directly retrieved line-by-line in this session** is the internal file tree/content of the GHARRA repository itself. So the GHARRA architecture below is the **implementation design that should be added in GHARRA**, aligned to what is already demonstrably present in BulletTrain and Nexus-A2A.
+
+---
+
+# GHARRA technical architecture aligned to the current repositories
+
+## 1. Alignment principle
+
+The three repositories should map cleanly like this:
+
+| Repository             | Existing/confirmed role                                                               | What GHARRA must provide                                       |
+| ---------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| **BulletTrain**        | SignalBox orchestration already expects an `AgentRegistry` abstraction. ([GitHub][1]) | A real GHARRA client implementation behind that abstraction    |
+| **Nexus-A2A-protocol** | Already enforces cert-bound tokens and has routing/stream scale-profile concerns.     | Trust metadata and routable agent endpoint records from GHARRA |
+| **GHARRA**             | Global registry/trust repo                                                            | Namespace, discovery, trust anchors, federation, policy        |
+
+So the architecture should not invent a new centre. It should **replace BulletTrain’s abstract AgentRegistry with GHARRA**, and make Nexus consume GHARRA’s trust and address metadata.
+
+---
+
+## 2. GHARRA logical services
+
+Inside **`global-agent-registry`**, GHARRA should be split into six services or modules.
+
+### A. Namespace Service
+
+Owns:
+
+* `.health` root namespace
+* delegated zones such as `uk.health`, `ke.health`, `gh.health`
+* name validation
+* canonicalisation
+
+### B. Registry Service
+
+Owns:
+
+* agent records
+* AgentCard ingestion
+* exact-name resolution
+* capability search
+
+### C. Trust Service
+
+Owns:
+
+* JWKS metadata
+* mTLS CA bundles
+* trust anchors by zone
+* revocation
+
+This is necessary because Nexus already expects cert-bound identity semantics.
+
+### D. Federation Service
+
+Owns:
+
+* inter-registry synchronisation
+* signed updates
+* zone replication
+* conflict resolution
+
+### E. Policy Service
+
+Owns:
+
+* jurisdiction rules
+* PHI export constraints
+* allowed regions
+* protocol admission constraints
+
+This aligns with BulletTrain’s documented gateway security expectations. ([GitHub][1])
+
+### F. Audit and Governance Service
+
+Owns:
+
+* delegation events
+* trust changes
+* record activation/deactivation
+* compliance logging
+
+---
+
+## 3. Target repository structure for GHARRA
+
+Aligned to the other repos, GHARRA should have a structure like this:
+
+```text
+global-agent-registry/
+├── api/
+│   ├── v1/
+│   │   ├── agents.py
+│   │   ├── discovery.py
+│   │   ├── zones.py
+│   │   ├── trust.py
+│   │   └── federation.py
+├── core/
+│   ├── namespace/
+│   │   ├── parser.py
+│   │   ├── validator.py
+│   │   └── delegation.py
+│   ├── registry/
+│   │   ├── records.py
+│   │   ├── resolver.py
+│   │   └── capability_index.py
+│   ├── trust/
+│   │   ├── anchors.py
+│   │   ├── jwks.py
+│   │   ├── mtls.py
+│   │   └── revocation.py
+│   ├── federation/
+│   │   ├── peer_sync.py
+│   │   ├── signed_updates.py
+│   │   └── conflict_resolution.py
+│   └── policy/
+│       ├── jurisdiction.py
+│       ├── transport_admission.py
+│       └── tags.py
+├── models/
+│   ├── agent_record.py
+│   ├── zone_record.py
+│   ├── trust_record.py
+│   └── policy_record.py
+├── openapi/
+│   └── gharra-v1.yaml
+├── sdk/
+│   ├── python/
+│   └── typescript/
+├── docs/
+│   ├── root-governance-spec.md
+│   ├── agentcard-spec.md
+│   ├── federation-spec.md
+│   └── bullettrain-nexus-alignment.md
+└── tests/
+```
+
+That structure is intentionally compatible with the fact that BulletTrain and Nexus already separate policy/spec concerns from runtime logic.
+
+---
+
+## 4. Core GHARRA data models
+
+These are the minimum data models GHARRA needs so BulletTrain and Nexus can consume them without ambiguity.
+
+### AgentRecord
+
+```json
+{
+  "name": "patient-registry.nhs.uk.health",
+  "agent_id": "agnt_01...",
+  "zone": "nhs.uk.health",
+  "status": "active",
+  "transport": {
+    "protocol": "nexus-a2a",
+    "endpoint": "https://router.nhs.uk/a2a/patient-registry",
+    "protocol_versions": ["1.0", "1.1"],
+    "feature_flags": ["routing.v1", "stream.resume.v1"]
+  },
+  "capabilities": [
+    "FHIR.Patient.read",
+    "identity.match"
+  ],
+  "authentication": {
+    "mtls_required": true,
+    "jwks_uri": "https://auth.nhs.uk/.well-known/jwks.json",
+    "cert_bound_tokens_required": true
+  },
+  "policy_tags": ["phi", "uk-only"],
+  "last_verified_at": "2026-03-14T12:00:00Z"
+}
+```
+
+That `transport.feature_flags` field is deliberately aligned to the Nexus scale profile concepts already present. ([OpenAI Platform][2])
+
+### ZoneRecord
+
+```json
+{
+  "zone": "uk.health",
+  "authoritative_registry": "https://gharra.uk.health",
+  "delegated_by": ".health",
+  "jwks_uri": "https://gharra.uk.health/.well-known/jwks.json",
+  "status": "active"
+}
+```
+
+### TrustRecord
+
+```json
+{
+  "zone": "nhs.uk.health",
+  "jwks_uri": "https://trust.nhs.uk/.well-known/jwks.json",
+  "mtls_ca_bundle_uri": "https://trust.nhs.uk/ca.pem",
+  "thumbprint_policy": "cnf.x5t#S256",
+  "status": "active"
+}
+```
+
+This directly aligns to Nexus’ existing thumbprint enforcement.
+
+### PolicyRecord
+
+```json
+{
+  "zone": "uk.health",
+  "rules": {
+    "phi_export_default": "deny",
+    "allowed_regions": ["UK", "EU"],
+    "mtls_required": true,
+    "signed_agentcard_required": true
+  }
+}
+```
+
+---
+
+## 5. GHARRA API surface
+
+These endpoints should be implemented in GHARRA now, because they map directly to BulletTrain and Nexus needs.
+
+### Resolution
+
+```text
+GET /v1/agents/{name}
+```
+
+Purpose:
+
+* BulletTrain SignalBox resolves an agent by canonical name.
+
+### Discovery
+
+```text
+GET /v1/discovery?capability=...
+```
+
+Purpose:
+
+* BulletTrain builds dynamic workflows by capability rather than by hardcoded endpoint.
+
+### Registration
+
+```text
+POST /v1/agents
+POST /v1/agents/register
+```
+
+Purpose:
+
+* Nexus/A2A agents publish AgentCards and become discoverable.
+
+### Zones
+
+```text
+GET /v1/zones
+GET /v1/zones/{zone}
+POST /v1/zones/{zone}/delegate
+POST /v1/zones/{zone}/revoke
+```
+
+Purpose:
+
+* GHARRA root and delegated authorities manage namespace structure.
+
+### Trust
+
+```text
+GET /v1/trust/{zone}
+POST /v1/trust/{zone}/anchors
+POST /v1/trust/{zone}/revoke
+```
+
+Purpose:
+
+* Nexus transport can verify target trust material.
+
+### Federation
+
+```text
+GET /v1/federation/peers
+POST /v1/federation/sync
+POST /v1/federation/update
+```
+
+Purpose:
+
+* multi-registry GHARRA operation.
+
+---
+
+## 6. BulletTrain integration, aligned to what already exists
+
+BulletTrain already documents an `AgentRegistry` role in SignalBox. ([GitHub][1])
+So the correct refactor is not to invent a new orchestration concept. It is to **bind that existing abstraction to GHARRA**.
+
+### Replace:
+
+```python
+AgentRegistry.validate(agent_id)
+```
+
+### With:
+
+```python
+gharra.resolve(name)
+gharra.lookup(capability)
+gharra.get_policy(zone)
+```
+
+### BulletTrain GHARRA client interface
+
+```python
+class GharraClient:
+    def resolve_agent(self, name: str) -> dict: ...
+    def lookup_by_capability(self, capability: str, region: str | None = None) -> list[dict]: ...
+    def get_zone_policy(self, zone: str) -> dict: ...
+    def get_trust_record(self, zone: str) -> dict: ...
+```
+
+### SignalBox flow
+
+```text
+SignalBox
+  → GHARRA resolve/discovery
+  → policy/trust check
+  → Nexus transport call
+  → remote agent
+```
+
+That also fits BulletTrain’s existing external gateway security expectations around mTLS, JWT audience, replay protection and idempotency. ([GitHub][1])
+
+---
+
+## 7. Nexus-A2A integration, aligned to what already exists
+
+Nexus already has transport/auth machinery that checks certificate-bound tokens via `cnf.x5t#S256`.
+So GHARRA should not duplicate transport auth logic. It should provide the **metadata Nexus needs to decide whether a route is valid**.
+
+### Nexus should consume from GHARRA:
+
+* `endpoint`
+* `protocol`
+* `protocol_versions`
+* `feature_flags`
+* `jwks_uri`
+* `mtls_required`
+* `policy_tags`
+
+### Nexus admission rule
+
+Before opening a route, Nexus should check:
+
+1. Is the target name resolvable in GHARRA?
+2. Is the zone delegated and active?
+3. Is the trust record valid?
+4. Does the target require cert-bound tokens?
+5. Do policy tags allow the requested operation?
+
+This is consistent with the existing Nexus security posture rather than a new security model.
+
+---
+
+## 8. AgentCard alignment
+
+The public A2A direction is that agents publish **Agent Cards** for discovery. ([GitHub][3])
+So GHARRA should use AgentCard ingestion as its registration input.
+
+### AgentCard to GHARRA mapping
+
+| AgentCard field            | GHARRA field                     |
+| -------------------------- | -------------------------------- |
+| agent name/card identifier | `name`                           |
+| connection info            | `transport.endpoint`             |
+| auth schemes               | `authentication`                 |
+| skills/capabilities        | `capabilities`                   |
+| protocol support           | `transport.protocol_versions`    |
+| vendor-specific metadata   | `policy_tags` / extension fields |
+
+### Required endpoint
+
+```text
+https://<agent-host>/.well-known/agent.json
+```
+
+### GHARRA registration flow
+
+```text
+Agent publishes AgentCard
+   → GHARRA fetches/validates
+   → creates AgentRecord
+   → indexes by name and capability
+   → federates update to peers
+```
+
+---
+
+## 9. Database/storage model for GHARRA
+
+To support the above, GHARRA should have at least these persistent stores.
+
+### Tables / collections
+
+* `zones`
+* `delegations`
+* `agent_records`
+* `capability_index`
+* `trust_anchors`
+* `policy_records`
+* `federation_peers`
+* `sync_events`
+* `audit_events`
+* `revocations`
+
+### Recommended persistence split
+
+| Concern                  | Storage                      |
+| ------------------------ | ---------------------------- |
+| canonical registry state | PostgreSQL                   |
+| capability / name search | Postgres GIN or OpenSearch   |
+| JWKS / trust cache       | Redis                        |
+| federation event queue   | Kafka / NATS / Redis Streams |
+
+That is a practical production shape without forcing over-engineering into the repo.
+
+---
+
+## 10. Eventing and federation
+
+GHARRA should be event-driven internally.
+
+### Internal event types
+
+* `zone.delegated`
+* `zone.revoked`
+* `agent.registered`
+* `agent.updated`
+* `agent.revoked`
+* `trust.anchor_added`
+* `trust.anchor_revoked`
+* `policy.updated`
+* `federation.sync_completed`
+
+### Why this aligns
+
+It lets BulletTrain and Nexus react to changes without polling, and it preserves a full audit trail expected in healthcare systems.
+
+---
+
+## 11. Observability model
+
+To align with BulletTrain’s broader observability direction, GHARRA should emit:
+
+* resolution latency
+* trust validation failures
+* federation sync lag
+* revocation propagation time
+* agent registration success/failure
+* namespace conflict rate
+
+Trace fields should include:
+
+* `correlation_id`
+* `zone`
+* `agent_name`
+* `resolved_by`
+* `trust_anchor`
+* `policy_decision`
+
+This complements BulletTrain’s documented correlation-ID propagation expectations. ([GitHub][1])
+
+---
+
+## 12. Concrete phased implementation plan
+
+## Phase 1 — BulletTrain integration
+
+* replace mock/static registry adapter with GHARRA client
+* call `GET /v1/agents/{name}`
+* call `GET /v1/discovery`
+* enforce policy before Nexus handoff
+
+## Phase 2 — Nexus alignment
+
+* accept GHARRA trust and route metadata
+* enforce GHARRA-derived admission checks
+* add contract tests for thumbprint-bound target routes
+
+## Phase 3 — GHARRA MVP
+
+* implement `AgentRecord`, `ZoneRecord`, `TrustRecord`, `PolicyRecord`
+* implement resolve/discovery/trust/zones APIs
+* implement AgentCard ingestion
+* persist audit logs
+
+## Phase 4 — Federation
+
+* peer sync
+* signed updates
+* revocation propagation
+* zone delegation workflow
+
+---
+
+## 13. What should not be changed
+
+To stay aligned with what already exists:
+
+* **Do not move orchestration out of BulletTrain**
+* **Do not move transport/auth out of Nexus**
+* **Do not put routing governance into BulletTrain**
+* **Do not make GHARRA a workflow engine**
+
+That separation is the cleanest part of your architecture.
+
+---
+
+## 14. Final aligned target state
+
+```text
+BulletTrain
+  ├── SignalBox
+  ├── Bevan
+  └── GHARRA client
+         ↓
+GHARRA
+  ├── Namespace service
+  ├── Registry service
+  ├── Trust service
+  ├── Policy service
+  └── Federation service
+         ↓
+Nexus-A2A
+  ├── route admission
+  ├── cert-bound auth
+  └── transport/session handling
+         ↓
+Agents / healthcare systems
+```
+
+That is the precise architecture I would implement from here, because it fits the **confirmed BulletTrain and Nexus code/documentation touchpoints** rather than fighting them.
+
+The next strongest move is to turn this into a **repo-by-repo implementation checklist with file targets and patch scopes** for:
+
+1. BulletTrain,
+2. Nexus-A2A-protocol,
+3. GHARRA.
+
+[1]: https://github.com/Dicklesworthstone/guide_to_openai_response_api_and_agents_sdk?utm_source=chatgpt.com "Detailed guide covering OpenAI Responses API, built ..."
+[2]: https://platform.openai.com/docs/api-reference/responses/list?ref=test-ippon.ghost.io&utm_source=chatgpt.com "Responses | OpenAI API Reference"
+[3]: https://github.com/a2aproject/A2A?utm_source=chatgpt.com "GitHub - a2aproject/A2A: An open protocol enabling communication and interoperability between opaque agentic applications."

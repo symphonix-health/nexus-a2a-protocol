@@ -22,6 +22,12 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 
 from shared.nexus_common.authorization import AuthorizationError, authorize_rpc_request
+from shared.nexus_common.route_admission import (
+    RouteAdmissionError,
+    evaluate_route_admission,
+)
+from shared.nexus_common.gharra_models import parse_gharra_record
+from shared.nexus_common.task_store import SqliteTaskEventStore, event_store_path_from_env
 
 ROOT = Path(__file__).resolve().parents[3]
 CONFIG_FILE = ROOT / "config" / "agents.json"
@@ -425,6 +431,14 @@ class OnDemandProcessManager:
 _config = _load_config()
 _manager = OnDemandProcessManager(_config)
 
+# --- Durable Event Sourcing (Mitigation 3.2) ---
+# Initialise the gateway-level task event store for tasks/replay support.
+_task_event_store: SqliteTaskEventStore | None = None
+_store_path = event_store_path_from_env()
+if _store_path:
+    _retention_ms = int(os.getenv("NEXUS_TASK_EVENT_STORE_RETENTION_MS", "3600000"))
+    _task_event_store = SqliteTaskEventStore(_store_path, retention_ms=_retention_ms)
+
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
@@ -433,6 +447,8 @@ async def lifespan(_: FastAPI):
         yield
     finally:
         await _manager.shutdown()
+        if _task_event_store is not None:
+            _task_event_store.close()
 
 
 app = FastAPI(
@@ -529,6 +545,32 @@ async def proxy_rpc(agent_alias: str, request: Request) -> Response:
         except AuthorizationError as exc:
             raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
 
+    # --- GHARRA route admission (optional) ---
+    # BulletTrain passes the resolved GHARRA record via X-Gharra-Record header.
+    # When present, Nexus validates trust before opening the route.
+    gharra_header = request.headers.get("x-gharra-record", "").strip()
+    if gharra_header:
+        try:
+            gharra_data = json.loads(gharra_header)
+            gharra_record = parse_gharra_record(gharra_data)
+            admission = evaluate_route_admission(
+                gharra_record,
+                method=method,
+                session_id=request.headers.get("x-session-id"),
+                route_source="on-demand-gateway",
+            )
+            if not admission.admitted:
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Route admission denied: {'; '.join(admission.reasons)}",
+                )
+        except json.JSONDecodeError as exc:
+            raise HTTPException(
+                status_code=400, detail=f"Invalid X-Gharra-Record JSON: {exc}"
+            ) from exc
+        except RouteAdmissionError as exc:
+            raise HTTPException(status_code=403, detail=str(exc)) from exc
+
     try:
         spec = await _manager.ensure_started(agent_alias)
     except KeyError as exc:
@@ -557,3 +599,161 @@ async def proxy_rpc(agent_alias: str, request: Request) -> Response:
             )
 
     return Response(content=resp.content, status_code=resp.status_code, media_type=content_type)
+
+
+# ---------------------------------------------------------------------------
+# Durable Event Sourcing: tasks/replay RPC handler (Mitigation 3.2)
+# ---------------------------------------------------------------------------
+
+
+@app.post("/rpc/{agent_alias}/replay")
+async def tasks_replay(agent_alias: str, request: Request) -> JSONResponse:
+    """Replay task events from the durable event store.
+
+    JSON-RPC method: tasks/replay
+    Params:
+      - task_id (str): required
+      - since_seq (int): replay events after this sequence number (default 0)
+      - max_events (int|null): limit number of replayed events (default null = all)
+
+    Returns JSON-RPC result with replayed events list and stream state.
+    """
+    if _task_event_store is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Task event store not configured",
+        )
+
+    try:
+        payload = await request.json()
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"Invalid JSON: {exc}") from exc
+
+    params = payload.get("params") if isinstance(payload.get("params"), dict) else {}
+    task_id = str(params.get("task_id") or "").strip()
+    if not task_id:
+        return JSONResponse(
+            status_code=200,
+            content={
+                "jsonrpc": "2.0",
+                "id": payload.get("id"),
+                "error": {"code": -32602, "message": "task_id is required"},
+            },
+        )
+
+    since_seq = int(params.get("since_seq", 0))
+    max_events = params.get("max_events")
+    if max_events is not None:
+        max_events = int(max_events)
+
+    # Check stream state
+    state = _task_event_store.get_stream_state(task_id)
+    if state is None:
+        return JSONResponse(
+            status_code=200,
+            content={
+                "jsonrpc": "2.0",
+                "id": payload.get("id"),
+                "error": {"code": -32001, "message": f"No events found for task {task_id}"},
+            },
+        )
+
+    stream_epoch, last_seq = state
+    events = _task_event_store.replay_after(
+        task_id, since_seq=since_seq, max_events=max_events,
+    )
+
+    return JSONResponse(
+        status_code=200,
+        content={
+            "jsonrpc": "2.0",
+            "id": payload.get("id"),
+            "result": {
+                "task_id": task_id,
+                "stream_epoch": stream_epoch,
+                "last_seq": last_seq,
+                "since_seq": since_seq,
+                "events": events,
+                "event_count": len(events),
+            },
+        },
+    )
+
+
+@app.get("/api/event-store/replay")
+async def event_store_replay(request: Request) -> JSONResponse:
+    """Cross-registry event replay from the gateway event store (Mitigation 3.3).
+
+    Query params:
+      - task_id (str): optional filter by task_id
+      - since_seq (int): replay events after this sequence (default 0)
+      - max_events (int): max events to return (default 100)
+
+    Returns a list of events with replay metadata.
+    """
+    if _task_event_store is None:
+        return JSONResponse(
+            status_code=200,
+            content={
+                "enabled": False,
+                "events": [],
+                "event_count": 0,
+                "detail": "Task event store not configured",
+            },
+        )
+
+    task_id = request.query_params.get("task_id", "").strip()
+    since_seq = int(request.query_params.get("since_seq", "0"))
+    max_events = int(request.query_params.get("max_events", "100"))
+
+    if task_id:
+        state = _task_event_store.get_stream_state(task_id)
+        if state is None:
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "enabled": True,
+                    "task_id": task_id,
+                    "events": [],
+                    "event_count": 0,
+                    "detail": f"No events found for task {task_id}",
+                },
+            )
+        stream_epoch, last_seq = state
+        events = _task_event_store.replay_after(task_id, since_seq=since_seq, max_events=max_events)
+        return JSONResponse(
+            status_code=200,
+            content={
+                "enabled": True,
+                "task_id": task_id,
+                "stream_epoch": stream_epoch,
+                "last_seq": last_seq,
+                "since_seq": since_seq,
+                "events": events,
+                "event_count": len(events),
+            },
+        )
+
+    # No task_id: return store status with available streams
+    return JSONResponse(
+        status_code=200,
+        content={
+            "enabled": True,
+            "events": [],
+            "event_count": 0,
+            "detail": "Provide task_id query parameter to replay specific task events",
+            "store_path": str(_task_event_store._path),
+        },
+    )
+
+
+@app.get("/api/event-store/status")
+async def event_store_status() -> dict[str, Any]:
+    """Return durable event store status for observability."""
+    if _task_event_store is None:
+        return {"enabled": False, "reason": "NEXUS_TASK_EVENT_STORE_ENABLE_DEFAULT=false"}
+    return {
+        "enabled": True,
+        "store_path": str(_task_event_store._path),
+        "retention_ms": _task_event_store._retention_ms,
+    }
