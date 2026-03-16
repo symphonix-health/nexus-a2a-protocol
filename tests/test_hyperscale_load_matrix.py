@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 MATRIX_PATH = (
     Path(__file__).resolve().parents[1]
     / "nexus-a2a"
@@ -12,16 +14,21 @@ MATRIX_PATH = (
 )
 GATE_DIR = MATRIX_PATH.parent / "gates"
 
+_skip = not MATRIX_PATH.exists()
+_reason = f"Load matrix not found (requires nexus-a2a repo): {MATRIX_PATH}"
+
 
 def _load_rows() -> list[dict]:
     return json.loads(MATRIX_PATH.read_text(encoding="utf-8"))
 
 
+@pytest.mark.skipif(_skip, reason=_reason)
 def test_load_matrix_is_expanded_for_hyperscale_backlog() -> None:
     rows = _load_rows()
     assert len(rows) >= 7000
 
 
+@pytest.mark.skipif(_skip, reason=_reason)
 def test_load_matrix_contains_high_concurrency_profiles() -> None:
     rows = _load_rows()
     counts: list[int] = []
@@ -34,6 +41,7 @@ def test_load_matrix_contains_high_concurrency_profiles() -> None:
     assert max(counts) >= 2000
 
 
+@pytest.mark.skipif(_skip, reason=_reason)
 def test_load_matrix_has_gate_tags_for_milestones() -> None:
     rows = _load_rows()
     expected = {"gate:g0", "gate:g1", "gate:g2", "gate:g3", "gate:g4"}
@@ -47,6 +55,7 @@ def test_load_matrix_has_gate_tags_for_milestones() -> None:
     assert expected.issubset(found)
 
 
+@pytest.mark.skipif(_skip, reason=_reason)
 def test_load_matrix_has_2m_target_gate_profile() -> None:
     rows = _load_rows()
     targets = []
@@ -59,6 +68,7 @@ def test_load_matrix_has_2m_target_gate_profile() -> None:
     assert max(targets) >= 2_000_000
 
 
+@pytest.mark.skipif(_skip, reason=_reason)
 def test_gate_matrix_artifacts_exist() -> None:
     expected = (
         GATE_DIR / "nexus_command_centre_load_matrix_gate_g0.json",
