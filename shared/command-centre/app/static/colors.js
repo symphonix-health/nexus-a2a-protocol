@@ -71,14 +71,16 @@ const COLORS = {
   // ── Chart dataset colours (distinct, colorblind-safe 8-step palette) ──────
   // Kept as literals; these are aesthetic chart series colours, not semantic.
   chart: [
-    '#3b82f6', // blue
-    '#10b981', // emerald
+    '#0D7377', // brand-600
+    '#6366f1', // indigo
     '#f59e0b', // amber
-    '#8b5cf6', // violet
     '#ec4899', // pink
+    '#8b5cf6', // violet
+    '#14b8a6', // teal-light
+    '#f97316', // orange
     '#06b6d4', // cyan
     '#84cc16', // lime
-    '#f97316', // orange
+    '#e11d48', // rose
   ],
 };
 

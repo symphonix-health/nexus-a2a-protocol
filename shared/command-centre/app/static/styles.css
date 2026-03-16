@@ -23,12 +23,69 @@
     box-sizing: border-box;
 }
 
+<<<<<<< claude/silly-driscoll
+:root {
+    /* ── Design System tokens (from design-template) ──────────────── */
+    --brand-50:  #E0F7FA;
+    --brand-100: #B2EBF2;
+    --brand-200: #80DEEA;
+    --brand-300: #4DD0E1;
+    --brand-400: #26C6DA;
+    --brand-500: #14919B;
+    --brand-600: #0D7377;
+    --brand-700: #095E61;
+    --brand-800: #064A4D;
+    --brand-900: #033638;
+    --brand-950: #012224;
+
+    --brand-primary: #0D7377;
+    --brand-glow:    rgba(13, 115, 119, 0.15);
+
+    --bg-primary: #020617;     /* surface-950 */
+    --bg-surface: #0F172A;     /* surface-900 */
+    --bg-elevated: #1E293B;    /* surface-800 */
+    --border-color: #334155;   /* surface-700 */
+    --text-primary: #F1F5F7;   /* surface-100 */
+    --text-muted: #8E9BAA;     /* surface-400 */
+    --accent: var(--brand-600);
+
+    --status-healthy: #10b981;
+    --status-degraded: #f59e0b;
+    --status-unhealthy: #ef4444;
+    --status-unknown: #64748B;
+
+    --transition-fast:   150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+=======
+>>>>>>> main
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    letter-spacing: -0.011em;
+}
+
+/* Brand-tinted text selection */
+::selection      { background-color: rgba(13, 115, 119, 0.35); color: inherit; }
+
+/* Accessible focus ring (design-system) */
+*:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px rgba(13, 115, 119, 0.4);
+    transition: box-shadow var(--transition-fast);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.025em;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -338,7 +395,7 @@ body {
 .dashboard-header {
     grid-area: header;
     background: var(--bg-surface);
-    border-bottom: 2px solid var(--border-color);
+    border-bottom: 2px solid var(--brand-700);
     padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
@@ -406,9 +463,10 @@ body {
 .panel {
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 0.875rem;
     padding: 1rem;
     overflow: hidden;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
 }
 
 .panel h2 {
@@ -525,17 +583,28 @@ body {
 }
 
 .edge-hub-link {
+<<<<<<< claude/silly-driscoll
+    stroke: rgba(13, 115, 119, 0.7);
+=======
     stroke: var(--hub-edge-color);
+>>>>>>> main
     stroke-width: 2.2px;
     stroke-dasharray: 7 9;
     animation: hubFlow 1.8s linear infinite;
 }
 
 .hub-node {
+<<<<<<< claude/silly-driscoll
+    fill: var(--brand-700);
+    stroke: var(--brand-300);
+    stroke-width: 2.5px;
+    filter: drop-shadow(0 0 10px var(--brand-glow));
+=======
     fill: var(--hub-fill);
     stroke: var(--hub-stroke);
     stroke-width: 2.5px;
     filter: var(--hub-glow);
+>>>>>>> main
 }
 
 .hub-ring {
@@ -780,9 +849,15 @@ body {
 }
 
 .timeline-jump-btn {
+<<<<<<< claude/silly-driscoll
+    color: #bfdbfe;
+    border-color: rgba(13, 115, 119, 0.6);
+    background: rgba(30, 64, 175, 0.2);
+=======
     color: var(--timeline-btn-blue-color);
     border-color: var(--timeline-btn-blue-border);
     background: var(--timeline-btn-blue-bg);
+>>>>>>> main
 }
 
 .timeline-jump-btn:hover {
@@ -968,8 +1043,13 @@ body {
 }
 
 .roadmap-status-pill.active {
+<<<<<<< claude/silly-driscoll
+    color: #bfdbfe;
+    border-color: rgba(13, 115, 119, 0.65);
+=======
     color: var(--roadmap-active-color);
     border-color: var(--roadmap-active-border);
+>>>>>>> main
 }
 
 .roadmap-status-pill.complete {
@@ -1054,6 +1134,16 @@ body {
 }
 
 .roadmap-step.active {
+<<<<<<< claude/silly-driscoll
+    border-color: rgba(13, 115, 119, 0.6);
+    background: rgba(13, 115, 119, 0.14);
+}
+
+.roadmap-step.active .roadmap-step-index {
+    background: rgba(13, 115, 119, 0.2);
+    color: #bfdbfe;
+    border-color: rgba(13, 115, 119, 0.7);
+=======
     border-color: var(--roadmap-active-border);
     background: var(--roadmap-active-step-bg);
 }
@@ -1062,6 +1152,7 @@ body {
     background: var(--roadmap-active-idx-bg);
     color: var(--roadmap-active-color);
     border-color: var(--roadmap-active-idx-border);
+>>>>>>> main
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -1323,7 +1414,7 @@ body {
 
 .flow-card .scenario-id {
     font-weight: 700;
-    font-family: 'Courier New', monospace;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
 .flow-card .journey-label {
@@ -1515,8 +1606,13 @@ body {
 }
 
 .flow-card .phase-accepted {
+<<<<<<< claude/silly-driscoll
+    background: rgba(13, 115, 119, 0.2);
+    color: var(--brand-200);
+=======
     background: var(--phase-accepted-bg);
     color: var(--phase-accepted-color);
+>>>>>>> main
 }
 
 .flow-card .phase-working {
@@ -1570,9 +1666,15 @@ body {
 }
 
 .timeline-filters label:has(input:checked) {
+<<<<<<< claude/silly-driscoll
+    color: #dbeafe;
+    border-color: rgba(13, 115, 119, 0.75);
+    background: rgba(30, 64, 175, 0.22);
+=======
     color: var(--timeline-filter-color);
     border-color: var(--timeline-filter-border);
     background: var(--timeline-filter-bg);
+>>>>>>> main
 }
 
 .timeline-events {
@@ -1618,7 +1720,7 @@ body {
 }
 
 .timeline-event .task-id {
-    font-family: 'Courier New', monospace;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
     font-size: 0.75rem;
     color: var(--accent);
     cursor: pointer;
@@ -1753,27 +1855,60 @@ body {
     border-left: 4px solid var(--status-healthy);
 }
 
+<<<<<<< claude/silly-driscoll
+/* Scrollbar Styling (design-system: thin custom scrollbar) */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+}
+=======
 /* ─────────────────────────────────────────────────────────────
    Scrollbar Styling
 ───────────────────────────────────────────────────────────── */
+>>>>>>> main
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--bg-primary);
+    background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
     background: var(--border-color);
-    border-radius: 4px;
+    border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--text-muted);
 }
 
+<<<<<<< claude/silly-driscoll
+/* Design system utilities */
+.glow-brand {
+    box-shadow: 0 0 20px var(--brand-glow), 0 0 40px rgba(13, 115, 119, 0.05);
+}
+
+.text-gradient-brand {
+    background: linear-gradient(to right, var(--brand-500), var(--brand-600));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.glass {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(51, 65, 85, 0.6);
+}
+
+.transition-smooth { transition: all var(--transition-smooth); }
+.transition-fast   { transition: all var(--transition-fast); }
+
+/* Responsive */
+=======
 /* ─────────────────────────────────────────────────────────────
    Focus-visible — all interactive elements
    Uses var(--accent) outline as required by spec.
@@ -2007,6 +2142,7 @@ textarea:focus-visible,
 /* ─────────────────────────────────────────────────────────────
    Legacy responsive — ≤1024px (kept for backward compat)
 ───────────────────────────────────────────────────────────── */
+>>>>>>> main
 @media (max-width: 1024px) {
     .charts-grid {
         grid-template-columns: 1fr;
@@ -2339,7 +2475,7 @@ textarea:focus-visible,
 .step-method {
     font-size: 0.72rem;
     color: var(--text-muted);
-    font-family: monospace;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
 .step-toggle {
@@ -2429,7 +2565,7 @@ textarea:focus-visible,
 .trace-step-card .step-method {
     font-size: 0.75rem;
     color: var(--text-muted);
-    font-family: monospace;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
 .trace-step-card .step-timing {
@@ -2458,7 +2594,7 @@ textarea:focus-visible,
 }
 
 .correlation-id {
-    font-family: monospace;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
     font-size: 0.68rem;
     color: var(--text-muted);
     cursor: pointer;
@@ -2517,7 +2653,7 @@ textarea:focus-visible,
     border: 1px solid var(--border-color);
     border-radius: 4px;
     padding: 0.5rem;
-    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
     font-size: 0.72rem;
     line-height: 1.5;
     color: var(--text-primary);
@@ -2709,8 +2845,8 @@ textarea:focus-visible,
 }
 
 .avatar-bubble.patient {
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.2);
+    background: rgba(13, 115, 119, 0.1);
+    border: 1px solid rgba(13, 115, 119, 0.2);
     margin-right: auto;
     color: var(--text-primary);
 }
