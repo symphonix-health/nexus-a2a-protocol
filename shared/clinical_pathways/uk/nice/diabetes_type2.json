@@ -1,0 +1,427 @@
+{
+  "pathway_id": "nice-ng28-diabetes-type2",
+  "title": "Type 2 Diabetes in Adults: Management",
+  "version": "1.0",
+  "status": "active",
+  "source_authority": "NICE",
+  "guideline_reference": "https://www.nice.org.uk/guidance/ng28",
+  "country": "GB",
+  "publication_date": "2022-06-29",
+  "description": "NICE NG28 pathway for management of type 2 diabetes in adults. Covers glycaemic control, cardiovascular risk management, complications screening, and escalation of pharmacotherapy.",
+  "governance": {
+    "sources": [
+      {
+        "authority": "NICE",
+        "authority_level": "national",
+        "guideline_id": "NG28",
+        "title": "Type 2 diabetes in adults: management",
+        "url": "https://www.nice.org.uk/guidance/ng28",
+        "version": "Last updated 2022-06-29",
+        "publication_date": "2015-12-02",
+        "last_updated": "2022-06-29",
+        "next_review_date": "2027-06-29",
+        "superseded_by": null
+      },
+      {
+        "authority": "ADA",
+        "authority_level": "international",
+        "guideline_id": "ADA-SOC-2024",
+        "title": "Standards of Care in Diabetes — 2024",
+        "url": "https://diabetesjournals.org/care/issue/47/Supplement_1",
+        "version": "2024",
+        "publication_date": "2024-01-01",
+        "last_updated": "2024-01-01",
+        "next_review_date": "2025-01-01",
+        "superseded_by": null
+      },
+      {
+        "authority": "NICE",
+        "authority_level": "national",
+        "guideline_id": "QS6",
+        "title": "Diabetes in adults",
+        "url": "https://www.nice.org.uk/guidance/qs6",
+        "version": "Last updated 2016-08-31",
+        "publication_date": "2011-03-24",
+        "last_updated": "2016-08-31",
+        "next_review_date": null,
+        "superseded_by": null
+      }
+    ],
+    "adopted_date": "2026-03-15",
+    "adopted_by": "BulletTrain Clinical Governance Board",
+    "last_reviewed_date": "2026-03-15",
+    "next_review_date": "2027-03-15",
+    "review_frequency_months": 12,
+    "revision_history": [
+      {
+        "revision_version": "1.0",
+        "author": "Clinical Pathways Team",
+        "reason": "Initial structured knowledge asset creation from NICE NG28 (June 2022 update) and ADA Standards of Care 2024.",
+        "source_update": "NICE NG28 update 2022-06-29",
+        "changes": [
+          "Encoded glycaemic target pathway (HbA1c 48→53→58 mmol/mol) per NG28 section 1.6",
+          "Added metformin first-line with GI intolerance alternative per NG28 section 1.6.4",
+          "Encoded treatment intensification (DPP-4i/SGLT2i/GLP-1 RA/sulfonylurea) per NG28 section 1.6.7",
+          "Added cardiovascular risk assessment node per NG28 section 1.3",
+          "Added complications screening (retinopathy, neuropathy, nephropathy, foot) per NG28 section 1.12"
+        ],
+        "approved_by": "Chief Clinical Information Officer",
+        "approval_date": "2026-03-15",
+        "revision_date": "2026-03-15"
+      }
+    ],
+    "clinical_owner": "Lead Diabetologist — Diabetes and Endocrinology Service",
+    "governance_committee": "Clinical Effectiveness Committee",
+    "local_adaptations": []
+  },
+  "entry_criteria": [
+    {
+      "criteria": [
+        {
+          "field": "demographics.age",
+          "operator": "ge",
+          "value": 18,
+          "description": "Adult patient"
+        },
+        {
+          "field": "conditions[].code",
+          "operator": "contains",
+          "value": "type_2_diabetes",
+          "description": "Type 2 diabetes diagnosis"
+        }
+      ],
+      "description": "Adult with type 2 diabetes"
+    },
+    {
+      "criteria": [
+        {
+          "field": "demographics.age",
+          "operator": "ge",
+          "value": 18
+        },
+        {
+          "field": "observations[].hba1c",
+          "operator": "ge",
+          "value": 48,
+          "description": "HbA1c ≥ 48 mmol/mol (6.5%) — diagnostic threshold"
+        }
+      ],
+      "description": "Adult with HbA1c at diagnostic threshold"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "entry-dm2",
+      "node_type": "entry",
+      "name": "Type 2 Diabetes Pathway Entry",
+      "activities": [],
+      "branches": [],
+      "default_next": "action-initial-assessment"
+    },
+    {
+      "node_id": "action-initial-assessment",
+      "node_type": "action",
+      "name": "Initial Assessment",
+      "description": "Comprehensive diabetes assessment",
+      "activities": [
+        {
+          "activity_id": "dm2-assessment",
+          "name": "Structured Assessment",
+          "category": "assessment",
+          "description": "Assess HbA1c, renal function, lipids, BP, BMI, foot examination, eye screening status, cardiovascular risk, smoking status",
+          "required_agent_capability": "clinical-assessment",
+          "urgency": "routine",
+          "estimated_duration_minutes": 30
+        },
+        {
+          "activity_id": "dm2-bloods",
+          "name": "Baseline Blood Tests",
+          "category": "diagnostic",
+          "description": "HbA1c, U&Es, eGFR, lipid profile, LFTs, urine ACR",
+          "required_agent_capability": "lab-diagnostics",
+          "urgency": "routine",
+          "fhir_resource_type": "ServiceRequest"
+        },
+        {
+          "activity_id": "dm2-foot-check",
+          "name": "Foot Examination",
+          "category": "assessment",
+          "description": "Annual foot check: pulses, sensation, skin integrity, deformity. Risk stratify.",
+          "required_agent_capability": "clinical-assessment",
+          "urgency": "routine",
+          "estimated_duration_minutes": 10
+        }
+      ],
+      "branches": [],
+      "default_next": "action-lifestyle"
+    },
+    {
+      "node_id": "action-lifestyle",
+      "node_type": "action",
+      "name": "Lifestyle Interventions",
+      "description": "Diet, exercise, weight management, structured education",
+      "activities": [
+        {
+          "activity_id": "dm2-education",
+          "name": "Structured Education",
+          "category": "counselling",
+          "description": "Refer to structured education programme (e.g. DESMOND, X-PERT). Cover self-management, diet, physical activity.",
+          "required_agent_capability": "counselling",
+          "urgency": "routine"
+        },
+        {
+          "activity_id": "dm2-diet",
+          "name": "Dietary Advice",
+          "category": "counselling",
+          "description": "Individualised dietary advice. Consider low-calorie diet for weight loss if BMI > 30.",
+          "required_agent_capability": "counselling",
+          "urgency": "routine"
+        }
+      ],
+      "branches": [],
+      "default_next": "decision-glycaemic-target"
+    },
+    {
+      "node_id": "decision-glycaemic-target",
+      "node_type": "decision",
+      "name": "Glycaemic Control Assessment",
+      "description": "Assess HbA1c against target after lifestyle interventions",
+      "activities": [],
+      "branches": [
+        {
+          "branch_id": "at-target",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "observations[].hba1c",
+                  "operator": "lt",
+                  "value": 48,
+                  "description": "HbA1c < 48 mmol/mol — at target"
+                }
+              ]
+            }
+          ],
+          "target_node_id": "action-monitoring",
+          "description": "At glycaemic target — continue monitoring"
+        },
+        {
+          "branch_id": "above-target-mild",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "observations[].hba1c",
+                  "operator": "ge",
+                  "value": 48
+                },
+                {
+                  "field": "observations[].hba1c",
+                  "operator": "lt",
+                  "value": 58
+                }
+              ]
+            }
+          ],
+          "target_node_id": "action-first-line",
+          "description": "HbA1c 48-57 — first-line pharmacotherapy"
+        },
+        {
+          "branch_id": "above-target-high",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "observations[].hba1c",
+                  "operator": "ge",
+                  "value": 58
+                }
+              ]
+            }
+          ],
+          "target_node_id": "action-intensification",
+          "description": "HbA1c ≥ 58 — consider intensification"
+        }
+      ],
+      "default_next": "action-first-line"
+    },
+    {
+      "node_id": "action-first-line",
+      "node_type": "action",
+      "name": "First-Line Pharmacotherapy",
+      "description": "Metformin as first-line per NICE NG28",
+      "activities": [
+        {
+          "activity_id": "dm2-metformin",
+          "name": "Metformin",
+          "category": "treatment",
+          "description": "Start standard-release metformin. Titrate gradually. Use modified-release if GI side-effects. Target dose 2g/day.",
+          "required_agent_capability": "prescribing",
+          "contraindications": [
+            {
+              "field": "observations[].egfr",
+              "operator": "lt",
+              "value": 30,
+              "description": "eGFR < 30 — contraindicated"
+            },
+            {
+              "field": "conditions[].code",
+              "operator": "contains",
+              "value": "metabolic_acidosis",
+              "description": "Risk of lactic acidosis"
+            },
+            {
+              "field": "allergies[].substance",
+              "operator": "contains",
+              "value": "metformin",
+              "description": "Metformin allergy"
+            }
+          ],
+          "urgency": "routine",
+          "fhir_resource_type": "MedicationRequest"
+        }
+      ],
+      "branches": [],
+      "default_next": "action-cv-risk"
+    },
+    {
+      "node_id": "action-intensification",
+      "node_type": "action",
+      "name": "Treatment Intensification",
+      "description": "Add second-line agent if HbA1c remains above target on metformin",
+      "activities": [
+        {
+          "activity_id": "dm2-second-line",
+          "name": "Second-Line Agent",
+          "category": "treatment",
+          "description": "Add one of: SGLT2 inhibitor (preferred if CVD/CKD risk), DPP-4 inhibitor, pioglitazone, or sulfonylurea. Choice depends on comorbidities, weight, hypoglycaemia risk.",
+          "required_agent_capability": "prescribing",
+          "urgency": "routine",
+          "fhir_resource_type": "MedicationRequest"
+        },
+        {
+          "activity_id": "dm2-insulin",
+          "name": "Insulin Consideration",
+          "category": "treatment",
+          "description": "Consider insulin if dual therapy inadequate. Start basal insulin (NPH or long-acting analogue). Provide SMBG training.",
+          "required_agent_capability": "prescribing",
+          "urgency": "routine",
+          "fhir_resource_type": "MedicationRequest"
+        }
+      ],
+      "branches": [],
+      "default_next": "action-cv-risk"
+    },
+    {
+      "node_id": "action-cv-risk",
+      "node_type": "action",
+      "name": "Cardiovascular Risk Management",
+      "description": "BP control, lipid management, antiplatelet therapy",
+      "activities": [
+        {
+          "activity_id": "dm2-bp",
+          "name": "Blood Pressure Management",
+          "category": "treatment",
+          "description": "Target BP < 140/80 (< 130/80 if kidney, eye, or cerebrovascular disease). First-line: ACE inhibitor or ARB.",
+          "required_agent_capability": "prescribing",
+          "urgency": "routine",
+          "fhir_resource_type": "MedicationRequest"
+        },
+        {
+          "activity_id": "dm2-statin",
+          "name": "Statin Therapy",
+          "category": "treatment",
+          "description": "Offer atorvastatin 20mg for primary prevention if QRISK2 ≥ 10%. Atorvastatin 80mg for secondary prevention.",
+          "required_agent_capability": "prescribing",
+          "contraindications": [
+            {
+              "field": "allergies[].substance",
+              "operator": "contains",
+              "value": "statin",
+              "description": "Statin allergy"
+            },
+            {
+              "field": "conditions[].code",
+              "operator": "contains",
+              "value": "active_liver_disease",
+              "description": "Active liver disease"
+            }
+          ],
+          "urgency": "routine",
+          "fhir_resource_type": "MedicationRequest"
+        }
+      ],
+      "branches": [],
+      "default_next": "action-complications-screening"
+    },
+    {
+      "node_id": "action-complications-screening",
+      "node_type": "action",
+      "name": "Complications Screening",
+      "description": "Annual screening for diabetic complications",
+      "activities": [
+        {
+          "activity_id": "dm2-retinal",
+          "name": "Retinal Screening",
+          "category": "diagnostic",
+          "description": "Annual digital retinal photography for diabetic retinopathy",
+          "required_agent_capability": "diagnostics",
+          "urgency": "routine",
+          "fhir_resource_type": "ServiceRequest"
+        },
+        {
+          "activity_id": "dm2-renal",
+          "name": "Renal Function Monitoring",
+          "category": "diagnostic",
+          "description": "Annual eGFR and urine ACR. If ACR ≥ 3 mg/mmol, repeat and consider ACEi/ARB.",
+          "required_agent_capability": "lab-diagnostics",
+          "urgency": "routine",
+          "fhir_resource_type": "ServiceRequest"
+        },
+        {
+          "activity_id": "dm2-neuropathy",
+          "name": "Neuropathy Assessment",
+          "category": "assessment",
+          "description": "Annual foot check for peripheral neuropathy and vascular assessment",
+          "required_agent_capability": "clinical-assessment",
+          "urgency": "routine"
+        }
+      ],
+      "branches": [],
+      "default_next": "action-monitoring"
+    },
+    {
+      "node_id": "action-monitoring",
+      "node_type": "action",
+      "name": "Ongoing Monitoring",
+      "description": "Regular diabetes reviews",
+      "activities": [
+        {
+          "activity_id": "dm2-monitoring",
+          "name": "Structured Review",
+          "category": "monitoring",
+          "description": "HbA1c 3-6 monthly until stable, then 6-monthly. Annual comprehensive review: weight, BP, lipids, renal, feet, eyes, smoking, mental health.",
+          "required_agent_capability": "monitoring",
+          "urgency": "routine",
+          "estimated_duration_minutes": 20
+        }
+      ],
+      "branches": [],
+      "default_next": "exit-dm2-managed"
+    },
+    {
+      "node_id": "exit-dm2-managed",
+      "node_type": "exit",
+      "name": "Diabetes Under Management",
+      "description": "Patient on optimised diabetes therapy with monitoring and screening plan",
+      "activities": [],
+      "branches": [],
+      "default_next": null
+    }
+  ],
+  "evidence_references": [
+    "NICE NG28 — Type 2 diabetes in adults: management (2015, updated 2022)",
+    "NICE QS6 — Diabetes in adults (2011, updated 2016)",
+    "ADA Standards of Care in Diabetes (2024)"
+  ]
+}

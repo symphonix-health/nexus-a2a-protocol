@@ -1,0 +1,336 @@
+{
+  "pathway_id": "who-maternal-anc",
+  "title": "WHO Recommendations on Antenatal Care for a Positive Pregnancy Experience",
+  "version": "1.0",
+  "status": "active",
+  "source_authority": "WHO",
+  "guideline_reference": "https://www.who.int/publications/i/item/9789241549912",
+  "country": "INT",
+  "publication_date": "2016-11-01",
+  "description": "WHO antenatal care pathway recommending a minimum of 8 contacts during pregnancy. Covers nutritional interventions, maternal and fetal assessment, preventive measures, and health system interventions.",
+  "governance": {
+    "sources": [
+      {
+        "authority": "WHO",
+        "authority_level": "international",
+        "guideline_id": "WHO-ANC-2016",
+        "title": "WHO Recommendations on Antenatal Care for a Positive Pregnancy Experience",
+        "url": "https://www.who.int/publications/i/item/9789241549912",
+        "version": "2016",
+        "publication_date": "2016-11-01",
+        "last_updated": "2016-11-01",
+        "next_review_date": "2027-11-01",
+        "superseded_by": null
+      },
+      {
+        "authority": "NICE",
+        "authority_level": "national",
+        "guideline_id": "NG201",
+        "title": "Antenatal care",
+        "url": "https://www.nice.org.uk/guidance/ng201",
+        "version": "Last updated 2024-01-09",
+        "publication_date": "2021-08-19",
+        "last_updated": "2024-01-09",
+        "next_review_date": "2027-08-19",
+        "superseded_by": null
+      },
+      {
+        "authority": "NICE",
+        "authority_level": "national",
+        "guideline_id": "CG62",
+        "title": "Antenatal care for uncomplicated pregnancies",
+        "url": "https://www.nice.org.uk/guidance/cg62",
+        "version": "Last updated 2019-02-04",
+        "publication_date": "2008-03-26",
+        "last_updated": "2019-02-04",
+        "next_review_date": null,
+        "superseded_by": "NG201"
+      }
+    ],
+    "adopted_date": "2026-03-15",
+    "adopted_by": "BulletTrain Clinical Governance Board",
+    "last_reviewed_date": "2026-03-15",
+    "next_review_date": "2027-03-15",
+    "review_frequency_months": 12,
+    "revision_history": [
+      {
+        "revision_version": "1.0",
+        "author": "Clinical Pathways Team",
+        "reason": "Initial structured knowledge asset creation from WHO ANC 2016 and NICE NG201.",
+        "source_update": "WHO ANC 2016, NICE NG201 update 2024-01-09",
+        "changes": [
+          "Encoded 8-contact ANC model per WHO 2016 recommendations",
+          "Added booking visit with comprehensive assessment per NICE NG201",
+          "Encoded risk stratification (low/high risk) per NICE NG201 section 1.3",
+          "Added routine and high-risk ANC contact schedules",
+          "Added birth planning and postnatal readiness node"
+        ],
+        "approved_by": "Chief Clinical Information Officer",
+        "approval_date": "2026-03-15",
+        "revision_date": "2026-03-15"
+      }
+    ],
+    "clinical_owner": "Lead Obstetrician / Head of Midwifery",
+    "governance_committee": "Clinical Effectiveness Committee",
+    "local_adaptations": [
+      "CG62 superseded by NG201 — pathway reflects NG201 recommendations where they diverge from CG62."
+    ]
+  },
+  "entry_criteria": [
+    {
+      "criteria": [
+        {
+          "field": "conditions[].code",
+          "operator": "contains",
+          "value": "pregnancy",
+          "description": "Confirmed pregnancy"
+        },
+        {
+          "field": "demographics.gender",
+          "operator": "eq",
+          "value": "female",
+          "description": "Female patient"
+        }
+      ],
+      "description": "Pregnant woman presenting for antenatal care"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "entry-anc",
+      "node_type": "entry",
+      "name": "Antenatal Care Pathway Entry",
+      "description": "Pregnant woman enters ANC pathway",
+      "activities": [],
+      "branches": [],
+      "default_next": "action-first-contact"
+    },
+    {
+      "node_id": "action-first-contact",
+      "node_type": "action",
+      "name": "First ANC Contact (up to 12 weeks)",
+      "description": "Booking visit — comprehensive assessment and care planning",
+      "activities": [
+        {
+          "activity_id": "anc-booking",
+          "name": "Booking Assessment",
+          "category": "assessment",
+          "description": "Full history, obstetric history, medical/surgical history, medications, allergies, social history, mental health screening, domestic abuse inquiry",
+          "required_agent_capability": "clinical-assessment",
+          "urgency": "routine",
+          "estimated_duration_minutes": 45
+        },
+        {
+          "activity_id": "anc-bloods",
+          "name": "Booking Blood Tests",
+          "category": "diagnostic",
+          "description": "FBC, blood group and antibodies, HIV, hepatitis B, syphilis, rubella immunity, haemoglobin electrophoresis",
+          "required_agent_capability": "lab-diagnostics",
+          "urgency": "routine",
+          "fhir_resource_type": "ServiceRequest"
+        },
+        {
+          "activity_id": "anc-dating-scan",
+          "name": "Dating Ultrasound",
+          "category": "diagnostic",
+          "description": "Ultrasound at 10-13+6 weeks for gestational dating and viability",
+          "required_agent_capability": "imaging-diagnostics",
+          "urgency": "routine",
+          "fhir_resource_type": "DiagnosticReport"
+        },
+        {
+          "activity_id": "anc-supplements",
+          "name": "Nutritional Supplements",
+          "category": "treatment",
+          "description": "Folic acid 400mcg daily (5mg if high risk). Iron supplementation if anaemic. Vitamin D.",
+          "required_agent_capability": "prescribing",
+          "urgency": "routine",
+          "fhir_resource_type": "MedicationRequest"
+        }
+      ],
+      "branches": [],
+      "default_next": "decision-risk-stratification"
+    },
+    {
+      "node_id": "decision-risk-stratification",
+      "node_type": "decision",
+      "name": "Risk Stratification",
+      "description": "Classify pregnancy as low-risk (midwifery-led) or high-risk (consultant-led)",
+      "activities": [],
+      "branches": [
+        {
+          "branch_id": "high-risk",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "demographics.age",
+                  "operator": "ge",
+                  "value": 40,
+                  "description": "Maternal age ≥ 40"
+                }
+              ]
+            },
+            {
+              "criteria": [
+                {
+                  "field": "conditions[].code",
+                  "operator": "contains",
+                  "value": "gestational_diabetes",
+                  "description": "Gestational diabetes"
+                }
+              ]
+            },
+            {
+              "criteria": [
+                {
+                  "field": "conditions[].code",
+                  "operator": "contains",
+                  "value": "pre_eclampsia",
+                  "description": "Pre-eclampsia history"
+                }
+              ]
+            },
+            {
+              "criteria": [
+                {
+                  "field": "conditions[].code",
+                  "operator": "contains",
+                  "value": "hypertension",
+                  "description": "Chronic hypertension"
+                }
+              ]
+            },
+            {
+              "criteria": [
+                {
+                  "field": "observations[].bmi",
+                  "operator": "ge",
+                  "value": 35,
+                  "description": "BMI ≥ 35"
+                }
+              ]
+            }
+          ],
+          "target_node_id": "action-high-risk-pathway",
+          "description": "High-risk pregnancy — consultant-led care"
+        }
+      ],
+      "default_next": "action-routine-anc"
+    },
+    {
+      "node_id": "action-routine-anc",
+      "node_type": "action",
+      "name": "Routine ANC Contacts",
+      "description": "Standard antenatal contacts schedule",
+      "activities": [
+        {
+          "activity_id": "anc-anomaly-scan",
+          "name": "Anomaly Scan (18-20+6 weeks)",
+          "category": "diagnostic",
+          "description": "Detailed fetal anomaly ultrasound screening",
+          "required_agent_capability": "imaging-diagnostics",
+          "urgency": "routine",
+          "fhir_resource_type": "DiagnosticReport"
+        },
+        {
+          "activity_id": "anc-bp-monitoring",
+          "name": "Blood Pressure Monitoring",
+          "category": "monitoring",
+          "description": "BP and urinalysis at every contact. Screen for pre-eclampsia.",
+          "required_agent_capability": "monitoring",
+          "urgency": "routine"
+        },
+        {
+          "activity_id": "anc-growth",
+          "name": "Fetal Growth Assessment",
+          "category": "assessment",
+          "description": "Symphysis-fundal height from 24 weeks. Refer for growth scan if concerns.",
+          "required_agent_capability": "clinical-assessment",
+          "urgency": "routine"
+        }
+      ],
+      "branches": [],
+      "default_next": "action-birth-planning"
+    },
+    {
+      "node_id": "action-high-risk-pathway",
+      "node_type": "action",
+      "name": "High-Risk ANC",
+      "description": "Enhanced monitoring for high-risk pregnancy",
+      "activities": [
+        {
+          "activity_id": "anc-consultant-review",
+          "name": "Consultant-Led Review",
+          "category": "assessment",
+          "description": "Obstetrician review. Individualised care plan. Additional monitoring as indicated.",
+          "required_agent_capability": "clinical-assessment",
+          "urgency": "urgent",
+          "estimated_duration_minutes": 30
+        },
+        {
+          "activity_id": "anc-gtt",
+          "name": "Glucose Tolerance Test",
+          "category": "diagnostic",
+          "description": "OGTT at 24-28 weeks if risk factors for gestational diabetes",
+          "required_agent_capability": "lab-diagnostics",
+          "urgency": "routine",
+          "fhir_resource_type": "ServiceRequest"
+        },
+        {
+          "activity_id": "anc-growth-scans",
+          "name": "Serial Growth Scans",
+          "category": "diagnostic",
+          "description": "Serial ultrasound growth scans every 2-4 weeks if high risk",
+          "required_agent_capability": "imaging-diagnostics",
+          "urgency": "routine",
+          "fhir_resource_type": "DiagnosticReport"
+        }
+      ],
+      "branches": [],
+      "default_next": "action-birth-planning"
+    },
+    {
+      "node_id": "action-birth-planning",
+      "node_type": "action",
+      "name": "Birth Planning (36+ weeks)",
+      "description": "Birth plan discussion and preparation",
+      "activities": [
+        {
+          "activity_id": "anc-birth-plan",
+          "name": "Birth Plan Discussion",
+          "category": "counselling",
+          "description": "Discuss birth preferences, place of birth, pain relief options, feeding intentions. Review risk factors.",
+          "required_agent_capability": "counselling",
+          "urgency": "routine",
+          "estimated_duration_minutes": 20
+        },
+        {
+          "activity_id": "anc-gbs",
+          "name": "Group B Strep Screening",
+          "category": "diagnostic",
+          "description": "Discuss GBS screening. Offer prophylactic antibiotics in labour if positive.",
+          "required_agent_capability": "lab-diagnostics",
+          "urgency": "routine",
+          "fhir_resource_type": "ServiceRequest"
+        }
+      ],
+      "branches": [],
+      "default_next": "exit-anc-complete"
+    },
+    {
+      "node_id": "exit-anc-complete",
+      "node_type": "exit",
+      "name": "Antenatal Care Complete",
+      "description": "ANC pathway complete — patient transitions to intrapartum care",
+      "activities": [],
+      "branches": [],
+      "default_next": null
+    }
+  ],
+  "evidence_references": [
+    "WHO Recommendations on Antenatal Care for a Positive Pregnancy Experience (2016)",
+    "NICE NG201 — Antenatal care (2021)",
+    "NICE CG62 — Antenatal care for uncomplicated pregnancies (2008, updated 2019)"
+  ]
+}

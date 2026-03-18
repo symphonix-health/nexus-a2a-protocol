@@ -1,0 +1,520 @@
+{
+  "pathway_id": "nice-ng106-heart-failure",
+  "title": "Chronic Heart Failure in Adults: Diagnosis and Management",
+  "version": "2.0",
+  "status": "active",
+  "source_authority": "NICE",
+  "guideline_reference": "https://www.nice.org.uk/guidance/ng106",
+  "country": "GB",
+  "publication_date": "2018-09-12",
+  "description": "NICE NG106 pathway for diagnosis and management of chronic heart failure in adults. Covers initial assessment, diagnostic investigations, pharmacological and non-pharmacological management, specialist referral, and monitoring.",
+  "governance": {
+    "sources": [
+      {
+        "authority": "NICE",
+        "authority_level": "national",
+        "guideline_id": "NG106",
+        "title": "Chronic heart failure in adults: diagnosis and management",
+        "url": "https://www.nice.org.uk/guidance/ng106",
+        "version": "Last updated 2023-01-18",
+        "publication_date": "2018-09-12",
+        "last_updated": "2023-01-18",
+        "next_review_date": "2027-07-21",
+        "superseded_by": null
+      },
+      {
+        "authority": "ESC",
+        "authority_level": "international",
+        "guideline_id": "ESC-HF-2021",
+        "title": "2021 ESC Guidelines for the diagnosis and treatment of acute and chronic heart failure",
+        "url": "https://doi.org/10.1093/eurheartj/ehab368",
+        "version": "2021",
+        "publication_date": "2021-08-27",
+        "last_updated": "2021-08-27",
+        "next_review_date": "2026-08-27",
+        "superseded_by": null
+      },
+      {
+        "authority": "NICE",
+        "authority_level": "national",
+        "guideline_id": "QS9",
+        "title": "Heart failure in adults",
+        "url": "https://www.nice.org.uk/guidance/qs9",
+        "version": "Last updated 2021-07-28",
+        "publication_date": "2011-06-23",
+        "last_updated": "2021-07-28",
+        "next_review_date": null,
+        "superseded_by": null
+      }
+    ],
+    "adopted_date": "2026-03-15",
+    "adopted_by": "BulletTrain Clinical Governance Board",
+    "last_reviewed_date": "2026-03-15",
+    "next_review_date": "2027-03-15",
+    "review_frequency_months": 12,
+    "revision_history": [
+      {
+        "revision_version": "2.0",
+        "author": "Clinical Pathways Team",
+        "reason": "Initial structured knowledge asset creation from NICE NG106 (Jan 2023 update) and ESC 2021 guidelines.",
+        "source_update": "NICE NG106 update 2023-01-18",
+        "changes": [
+          "Encoded BNP-gated echocardiography decision pathway per NG106 section 1.2",
+          "Added HFrEF/HFpEF classification node per NG106 section 1.3",
+          "Encoded first-line pharmacotherapy (ACEi/BB/MRA) with contraindications per NG106 section 1.4",
+          "Added structured entry criteria for both suspected and known heart failure"
+        ],
+        "approved_by": "Chief Clinical Information Officer",
+        "approval_date": "2026-03-15",
+        "revision_date": "2026-03-15"
+      }
+    ],
+    "clinical_owner": "Lead Cardiologist — Heart Failure Service",
+    "governance_committee": "Clinical Effectiveness Committee",
+    "local_adaptations": []
+  },
+  "entry_criteria": [
+    {
+      "criteria": [
+        {
+          "field": "demographics.age",
+          "operator": "ge",
+          "value": 18,
+          "description": "Adult patient"
+        },
+        {
+          "field": "chief_complaint",
+          "operator": "in",
+          "value": [
+            "breathlessness",
+            "fatigue",
+            "ankle swelling",
+            "exercise intolerance",
+            "orthopnoea",
+            "paroxysmal nocturnal dyspnoea"
+          ],
+          "description": "Symptoms suggestive of heart failure"
+        }
+      ],
+      "description": "Adult presenting with symptoms suggestive of heart failure"
+    },
+    {
+      "criteria": [
+        {
+          "field": "demographics.age",
+          "operator": "ge",
+          "value": 18,
+          "description": "Adult patient"
+        },
+        {
+          "field": "conditions[].code",
+          "operator": "contains",
+          "value": "heart_failure",
+          "description": "Known heart failure diagnosis"
+        }
+      ],
+      "description": "Adult with existing heart failure diagnosis"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "entry-hf",
+      "node_type": "entry",
+      "name": "Heart Failure Pathway Entry",
+      "description": "Patient enters the heart failure pathway",
+      "activities": [],
+      "branches": [],
+      "default_next": "decision-known-hf"
+    },
+    {
+      "node_id": "decision-known-hf",
+      "node_type": "decision",
+      "name": "Known or Suspected HF",
+      "description": "Determine whether patient has known HF or requires initial workup",
+      "activities": [],
+      "branches": [
+        {
+          "branch_id": "known-hf",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "conditions[].code",
+                  "operator": "contains",
+                  "value": "heart_failure",
+                  "description": "Existing HF diagnosis"
+                }
+              ]
+            }
+          ],
+          "target_node_id": "action-medication-review",
+          "description": "Patient has known heart failure — proceed to medication review"
+        },
+        {
+          "branch_id": "suspected-hf",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "conditions[].code",
+                  "operator": "contains",
+                  "value": "heart_failure",
+                  "description": "No existing HF diagnosis"
+                }
+              ]
+            }
+          ],
+          "target_node_id": "action-initial-assessment",
+          "description": "Suspected heart failure — begin initial assessment"
+        }
+      ],
+      "default_next": "action-initial-assessment"
+    },
+    {
+      "node_id": "action-initial-assessment",
+      "node_type": "action",
+      "name": "Initial Clinical Assessment",
+      "description": "History, examination, ECG, blood tests (including BNP/NT-proBNP)",
+      "activities": [
+        {
+          "activity_id": "hf-history",
+          "name": "Take Focused History",
+          "category": "assessment",
+          "description": "Assess symptoms, functional capacity, past medical history, medications, allergies, social history",
+          "required_agent_capability": "clinical-assessment",
+          "urgency": "routine",
+          "estimated_duration_minutes": 20
+        },
+        {
+          "activity_id": "hf-ecg",
+          "name": "12-lead ECG",
+          "category": "diagnostic",
+          "description": "Obtain 12-lead ECG to assess rhythm, ischaemia, LVH",
+          "required_agent_capability": "diagnostics",
+          "urgency": "routine",
+          "estimated_duration_minutes": 10,
+          "fhir_resource_type": "DiagnosticReport"
+        },
+        {
+          "activity_id": "hf-bloods",
+          "name": "Blood Tests",
+          "category": "diagnostic",
+          "description": "FBC, U&Es, eGFR, LFTs, TFTs, HbA1c, lipids, ferritin, TSAT",
+          "required_agent_capability": "lab-diagnostics",
+          "urgency": "routine",
+          "estimated_duration_minutes": 5,
+          "fhir_resource_type": "ServiceRequest"
+        },
+        {
+          "activity_id": "hf-bnp",
+          "name": "BNP/NT-proBNP Test",
+          "category": "diagnostic",
+          "description": "Natriuretic peptide test — key gatekeeper for echocardiography referral. NT-proBNP >400 ng/L suggests HF.",
+          "required_agent_capability": "lab-diagnostics",
+          "urgency": "urgent",
+          "estimated_duration_minutes": 5,
+          "fhir_resource_type": "ServiceRequest"
+        }
+      ],
+      "branches": [],
+      "default_next": "decision-bnp-result"
+    },
+    {
+      "node_id": "decision-bnp-result",
+      "node_type": "decision",
+      "name": "Evaluate BNP Result",
+      "description": "Route based on NT-proBNP level per NICE NG106",
+      "activities": [],
+      "branches": [
+        {
+          "branch_id": "bnp-high",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "observations[].nt_pro_bnp",
+                  "operator": "gt",
+                  "value": 400,
+                  "description": "NT-proBNP > 400 ng/L — refer for echocardiography within 2 weeks"
+                }
+              ]
+            }
+          ],
+          "target_node_id": "action-echocardiography",
+          "description": "Elevated BNP — urgent echocardiography"
+        },
+        {
+          "branch_id": "bnp-very-high",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "observations[].nt_pro_bnp",
+                  "operator": "gt",
+                  "value": 2000,
+                  "description": "NT-proBNP > 2000 ng/L — urgent specialist referral within 2 weeks"
+                }
+              ]
+            }
+          ],
+          "target_node_id": "action-specialist-referral",
+          "description": "Very elevated BNP — direct specialist referral"
+        },
+        {
+          "branch_id": "bnp-normal",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "observations[].nt_pro_bnp",
+                  "operator": "le",
+                  "value": 400,
+                  "description": "NT-proBNP ≤ 400 ng/L — HF unlikely"
+                }
+              ]
+            }
+          ],
+          "target_node_id": "exit-hf-unlikely",
+          "description": "Normal BNP — heart failure unlikely, consider other diagnoses"
+        }
+      ],
+      "default_next": "action-echocardiography"
+    },
+    {
+      "node_id": "action-echocardiography",
+      "node_type": "action",
+      "name": "Echocardiography",
+      "description": "Transthoracic echocardiogram to assess LV function, valve disease, and structural abnormalities",
+      "activities": [
+        {
+          "activity_id": "hf-echo",
+          "name": "Transthoracic Echocardiogram",
+          "category": "diagnostic",
+          "description": "Assess LVEF, diastolic function, valve pathology, chamber sizes. Should be performed within 2 weeks of referral if NT-proBNP > 400.",
+          "required_agent_capability": "imaging-diagnostics",
+          "urgency": "urgent",
+          "estimated_duration_minutes": 30,
+          "fhir_resource_type": "DiagnosticReport"
+        }
+      ],
+      "branches": [],
+      "default_next": "decision-hf-type"
+    },
+    {
+      "node_id": "decision-hf-type",
+      "node_type": "decision",
+      "name": "Classify Heart Failure Type",
+      "description": "Classify as HFrEF (LVEF ≤ 40%) or HFpEF (LVEF > 40%)",
+      "activities": [],
+      "branches": [
+        {
+          "branch_id": "hfref",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "observations[].lvef",
+                  "operator": "le",
+                  "value": 40,
+                  "description": "LVEF ≤ 40% — HFrEF"
+                }
+              ]
+            }
+          ],
+          "target_node_id": "action-hfref-treatment",
+          "description": "Heart failure with reduced ejection fraction"
+        },
+        {
+          "branch_id": "hfpef",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "observations[].lvef",
+                  "operator": "gt",
+                  "value": 40,
+                  "description": "LVEF > 40% — HFpEF"
+                }
+              ]
+            }
+          ],
+          "target_node_id": "action-specialist-referral",
+          "description": "Heart failure with preserved ejection fraction — specialist management"
+        }
+      ],
+      "default_next": "action-specialist-referral"
+    },
+    {
+      "node_id": "action-hfref-treatment",
+      "node_type": "action",
+      "name": "HFrEF First-Line Treatment",
+      "description": "Initiate evidence-based pharmacotherapy per NICE NG106",
+      "activities": [
+        {
+          "activity_id": "hf-acei",
+          "name": "ACE Inhibitor / ARB",
+          "category": "treatment",
+          "description": "Start ACE inhibitor (or ARB if intolerant). Titrate to maximum tolerated dose. Monitor renal function and potassium.",
+          "required_agent_capability": "prescribing",
+          "contraindications": [
+            {
+              "field": "allergies[].substance",
+              "operator": "contains",
+              "value": "ace_inhibitor",
+              "description": "Allergy to ACE inhibitors"
+            },
+            {
+              "field": "observations[].potassium",
+              "operator": "gt",
+              "value": 5.5,
+              "description": "Hyperkalaemia"
+            },
+            {
+              "field": "conditions[].code",
+              "operator": "contains",
+              "value": "bilateral_renal_artery_stenosis",
+              "description": "Bilateral renal artery stenosis"
+            }
+          ],
+          "urgency": "routine",
+          "fhir_resource_type": "MedicationRequest"
+        },
+        {
+          "activity_id": "hf-beta-blocker",
+          "name": "Beta-Blocker",
+          "category": "treatment",
+          "description": "Start licensed beta-blocker (bisoprolol, carvedilol, or nebivolol). Titrate to maximum tolerated dose.",
+          "required_agent_capability": "prescribing",
+          "contraindications": [
+            {
+              "field": "allergies[].substance",
+              "operator": "contains",
+              "value": "beta_blocker",
+              "description": "Allergy to beta-blockers"
+            },
+            {
+              "field": "conditions[].code",
+              "operator": "contains",
+              "value": "severe_asthma",
+              "description": "Severe asthma — relative contraindication"
+            },
+            {
+              "field": "observations[].heart_rate",
+              "operator": "lt",
+              "value": 50,
+              "description": "Bradycardia < 50 bpm"
+            }
+          ],
+          "urgency": "routine",
+          "fhir_resource_type": "MedicationRequest"
+        },
+        {
+          "activity_id": "hf-mra",
+          "name": "Mineralocorticoid Receptor Antagonist",
+          "category": "treatment",
+          "description": "Add MRA (spironolactone or eplerenone) if symptomatic despite ACEi + BB. Monitor potassium and renal function.",
+          "required_agent_capability": "prescribing",
+          "contraindications": [
+            {
+              "field": "observations[].potassium",
+              "operator": "gt",
+              "value": 5.0,
+              "description": "Potassium > 5.0 mmol/L"
+            },
+            {
+              "field": "observations[].egfr",
+              "operator": "lt",
+              "value": 30,
+              "description": "eGFR < 30 — significant renal impairment"
+            }
+          ],
+          "urgency": "routine",
+          "fhir_resource_type": "MedicationRequest"
+        }
+      ],
+      "branches": [],
+      "default_next": "action-specialist-referral"
+    },
+    {
+      "node_id": "action-medication-review",
+      "node_type": "action",
+      "name": "Medication Review",
+      "description": "Review current heart failure medications, assess adherence, titration status, and interactions",
+      "activities": [
+        {
+          "activity_id": "hf-med-review",
+          "name": "Comprehensive Medication Review",
+          "category": "review",
+          "description": "Review all current medications. Assess polypharmacy burden. Check for drug interactions. Evaluate adherence. Consider deprescribing where appropriate.",
+          "required_agent_capability": "medication-review",
+          "urgency": "routine",
+          "estimated_duration_minutes": 20
+        }
+      ],
+      "branches": [],
+      "default_next": "action-specialist-referral"
+    },
+    {
+      "node_id": "action-specialist-referral",
+      "node_type": "action",
+      "name": "Specialist Referral",
+      "description": "Refer to heart failure specialist or multidisciplinary team",
+      "activities": [
+        {
+          "activity_id": "hf-referral",
+          "name": "Cardiology / HF Specialist Referral",
+          "category": "referral",
+          "description": "Refer to heart failure specialist for ongoing management, advanced therapies consideration, and MDT involvement.",
+          "required_agent_capability": "care-navigation",
+          "urgency": "urgent",
+          "estimated_duration_minutes": 10,
+          "fhir_resource_type": "ServiceRequest"
+        }
+      ],
+      "branches": [],
+      "default_next": "action-monitoring"
+    },
+    {
+      "node_id": "action-monitoring",
+      "node_type": "action",
+      "name": "Ongoing Monitoring",
+      "description": "Regular follow-up: clinical review, bloods, weight, functional status",
+      "activities": [
+        {
+          "activity_id": "hf-monitoring",
+          "name": "Structured Follow-Up",
+          "category": "monitoring",
+          "description": "Regular monitoring: weight, symptoms, functional class, renal function, electrolytes. Frequency depends on stability and treatment phase.",
+          "required_agent_capability": "monitoring",
+          "urgency": "routine",
+          "estimated_duration_minutes": 15
+        }
+      ],
+      "branches": [],
+      "default_next": "exit-hf-managed"
+    },
+    {
+      "node_id": "exit-hf-unlikely",
+      "node_type": "exit",
+      "name": "Heart Failure Unlikely",
+      "description": "BNP normal — consider alternative diagnoses. Discharge from HF pathway.",
+      "activities": [],
+      "branches": [],
+      "default_next": null
+    },
+    {
+      "node_id": "exit-hf-managed",
+      "node_type": "exit",
+      "name": "Heart Failure Under Management",
+      "description": "Patient established on optimised HF therapy with monitoring plan in place.",
+      "activities": [],
+      "branches": [],
+      "default_next": null
+    }
+  ],
+  "evidence_references": [
+    "NICE NG106 — Chronic heart failure in adults: diagnosis and management (2018)",
+    "NICE QS9 — Heart failure in adults (2021 update)",
+    "ESC Guidelines for diagnosis and treatment of acute and chronic heart failure (2021)"
+  ]
+}

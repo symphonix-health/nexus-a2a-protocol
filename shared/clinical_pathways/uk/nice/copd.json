@@ -1,0 +1,454 @@
+{
+  "pathway_id": "nice-ng115-copd",
+  "title": "Chronic Obstructive Pulmonary Disease in Over 16s: Diagnosis and Management",
+  "version": "1.0",
+  "status": "active",
+  "source_authority": "NICE",
+  "guideline_reference": "https://www.nice.org.uk/guidance/ng115",
+  "country": "GB",
+  "publication_date": "2019-07-26",
+  "description": "NICE NG115 pathway for diagnosis and management of COPD. Covers spirometry, pharmacological and non-pharmacological management, exacerbation management, and pulmonary rehabilitation.",
+  "governance": {
+    "sources": [
+      {
+        "authority": "NICE",
+        "authority_level": "national",
+        "guideline_id": "NG115",
+        "title": "Chronic obstructive pulmonary disease in over 16s: diagnosis and management",
+        "url": "https://www.nice.org.uk/guidance/ng115",
+        "version": "Last updated 2019-07-26",
+        "publication_date": "2019-07-26",
+        "last_updated": "2019-07-26",
+        "next_review_date": "2027-07-26",
+        "superseded_by": null
+      },
+      {
+        "authority": "GOLD",
+        "authority_level": "international",
+        "guideline_id": "GOLD-2024",
+        "title": "Global Strategy for Prevention, Diagnosis and Management of COPD: 2024 Report",
+        "url": "https://goldcopd.org/2024-gold-report/",
+        "version": "2024",
+        "publication_date": "2023-11-13",
+        "last_updated": "2023-11-13",
+        "next_review_date": "2025-11-01",
+        "superseded_by": null
+      },
+      {
+        "authority": "NICE",
+        "authority_level": "national",
+        "guideline_id": "QS10",
+        "title": "COPD in adults",
+        "url": "https://www.nice.org.uk/guidance/qs10",
+        "version": "Last updated 2016-02-18",
+        "publication_date": "2011-07-13",
+        "last_updated": "2016-02-18",
+        "next_review_date": null,
+        "superseded_by": null
+      }
+    ],
+    "adopted_date": "2026-03-15",
+    "adopted_by": "BulletTrain Clinical Governance Board",
+    "last_reviewed_date": "2026-03-15",
+    "next_review_date": "2027-03-15",
+    "review_frequency_months": 12,
+    "revision_history": [
+      {
+        "revision_version": "1.0",
+        "author": "Clinical Pathways Team",
+        "reason": "Initial structured knowledge asset creation from NICE NG115 and GOLD 2024 report.",
+        "source_update": "NICE NG115, GOLD 2024 Report",
+        "changes": [
+          "Encoded spirometry-based diagnosis pathway per NG115 section 1.1",
+          "Added GOLD severity classification (mild/moderate/severe/very severe) per GOLD 2024",
+          "Encoded stepwise pharmacotherapy (SABA→LAMA→ICS+LABA) per NG115 section 1.2",
+          "Added exacerbation management pathway per NG115 section 1.3",
+          "Added pulmonary rehabilitation referral node"
+        ],
+        "approved_by": "Chief Clinical Information Officer",
+        "approval_date": "2026-03-15",
+        "revision_date": "2026-03-15"
+      }
+    ],
+    "clinical_owner": "Lead Respiratory Physician",
+    "governance_committee": "Clinical Effectiveness Committee",
+    "local_adaptations": []
+  },
+  "entry_criteria": [
+    {
+      "criteria": [
+        {
+          "field": "demographics.age",
+          "operator": "ge",
+          "value": 16,
+          "description": "Patient aged 16 or over"
+        },
+        {
+          "field": "chief_complaint",
+          "operator": "in",
+          "value": [
+            "breathlessness",
+            "chronic cough",
+            "sputum production",
+            "wheeze",
+            "frequent chest infections"
+          ],
+          "description": "Symptoms suggestive of COPD"
+        }
+      ],
+      "description": "Person over 16 with respiratory symptoms suggestive of COPD"
+    },
+    {
+      "criteria": [
+        {
+          "field": "demographics.age",
+          "operator": "ge",
+          "value": 16
+        },
+        {
+          "field": "conditions[].code",
+          "operator": "contains",
+          "value": "copd",
+          "description": "Known COPD diagnosis"
+        }
+      ],
+      "description": "Person with existing COPD diagnosis"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "entry-copd",
+      "node_type": "entry",
+      "name": "COPD Pathway Entry",
+      "description": "Patient enters the COPD pathway",
+      "activities": [],
+      "branches": [],
+      "default_next": "decision-known-copd"
+    },
+    {
+      "node_id": "decision-known-copd",
+      "node_type": "decision",
+      "name": "Known or Suspected COPD",
+      "description": "Determine whether patient has confirmed COPD or requires diagnostic workup",
+      "activities": [],
+      "branches": [
+        {
+          "branch_id": "known-copd",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "conditions[].code",
+                  "operator": "contains",
+                  "value": "copd"
+                }
+              ]
+            }
+          ],
+          "target_node_id": "decision-exacerbation",
+          "description": "Known COPD — assess for exacerbation vs stable management"
+        }
+      ],
+      "default_next": "action-initial-assessment"
+    },
+    {
+      "node_id": "action-initial-assessment",
+      "node_type": "action",
+      "name": "Initial Assessment",
+      "description": "Clinical assessment and spirometry",
+      "activities": [
+        {
+          "activity_id": "copd-history",
+          "name": "Clinical History",
+          "category": "assessment",
+          "description": "Assess symptoms, smoking history, occupational exposures, exercise tolerance, exacerbation frequency, comorbidities",
+          "required_agent_capability": "clinical-assessment",
+          "urgency": "routine",
+          "estimated_duration_minutes": 20
+        },
+        {
+          "activity_id": "copd-spirometry",
+          "name": "Post-Bronchodilator Spirometry",
+          "category": "diagnostic",
+          "description": "Post-bronchodilator FEV1/FVC < 0.7 confirms airflow obstruction. Classify severity by FEV1 % predicted.",
+          "required_agent_capability": "diagnostics",
+          "urgency": "routine",
+          "estimated_duration_minutes": 20,
+          "fhir_resource_type": "DiagnosticReport"
+        },
+        {
+          "activity_id": "copd-chest-xray",
+          "name": "Chest X-ray",
+          "category": "diagnostic",
+          "description": "Exclude other lung pathology (malignancy, pneumonia, pneumothorax)",
+          "required_agent_capability": "imaging-diagnostics",
+          "urgency": "routine",
+          "estimated_duration_minutes": 15,
+          "fhir_resource_type": "DiagnosticReport"
+        },
+        {
+          "activity_id": "copd-bloods",
+          "name": "Blood Tests",
+          "category": "diagnostic",
+          "description": "FBC, BMI assessment, alpha-1 antitrypsin if onset < 40 or family history",
+          "required_agent_capability": "lab-diagnostics",
+          "urgency": "routine",
+          "fhir_resource_type": "ServiceRequest"
+        }
+      ],
+      "branches": [],
+      "default_next": "decision-severity"
+    },
+    {
+      "node_id": "decision-severity",
+      "node_type": "decision",
+      "name": "COPD Severity Classification",
+      "description": "Classify by FEV1 % predicted: mild (≥80%), moderate (50-79%), severe (30-49%), very severe (<30%)",
+      "activities": [],
+      "branches": [
+        {
+          "branch_id": "mild-moderate",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "observations[].fev1_percent",
+                  "operator": "ge",
+                  "value": 50
+                }
+              ]
+            }
+          ],
+          "target_node_id": "action-initial-pharmacotherapy",
+          "description": "Mild to moderate COPD"
+        },
+        {
+          "branch_id": "severe-very-severe",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "observations[].fev1_percent",
+                  "operator": "lt",
+                  "value": 50
+                }
+              ]
+            }
+          ],
+          "target_node_id": "action-specialist-referral",
+          "description": "Severe or very severe COPD — specialist referral"
+        }
+      ],
+      "default_next": "action-initial-pharmacotherapy"
+    },
+    {
+      "node_id": "decision-exacerbation",
+      "node_type": "decision",
+      "name": "Exacerbation Assessment",
+      "description": "Assess whether patient is in acute exacerbation or stable",
+      "activities": [],
+      "branches": [
+        {
+          "branch_id": "acute-exacerbation",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "chief_complaint",
+                  "operator": "in",
+                  "value": [
+                    "worsening breathlessness",
+                    "increased sputum",
+                    "sputum purulence"
+                  ]
+                }
+              ]
+            }
+          ],
+          "target_node_id": "action-exacerbation-management",
+          "description": "Acute exacerbation of COPD"
+        }
+      ],
+      "default_next": "action-stable-review"
+    },
+    {
+      "node_id": "action-initial-pharmacotherapy",
+      "node_type": "action",
+      "name": "Initial Pharmacotherapy",
+      "description": "Step-wise inhaler therapy per NICE NG115",
+      "activities": [
+        {
+          "activity_id": "copd-saba",
+          "name": "Short-Acting Bronchodilator",
+          "category": "treatment",
+          "description": "SABA (salbutamol) or SAMA (ipratropium) PRN for breathlessness relief",
+          "required_agent_capability": "prescribing",
+          "urgency": "routine",
+          "fhir_resource_type": "MedicationRequest"
+        },
+        {
+          "activity_id": "copd-laba-lama",
+          "name": "LABA or LAMA",
+          "category": "treatment",
+          "description": "If no asthmatic features: LABA + LAMA. If asthmatic features: LABA + ICS. Assess inhaler technique.",
+          "required_agent_capability": "prescribing",
+          "urgency": "routine",
+          "fhir_resource_type": "MedicationRequest"
+        },
+        {
+          "activity_id": "copd-inhaler-technique",
+          "name": "Inhaler Technique Assessment",
+          "category": "counselling",
+          "description": "Assess and teach correct inhaler technique. Consider spacer if MDI.",
+          "required_agent_capability": "clinical-assessment",
+          "urgency": "routine",
+          "estimated_duration_minutes": 10
+        }
+      ],
+      "branches": [],
+      "default_next": "action-non-pharmacological"
+    },
+    {
+      "node_id": "action-non-pharmacological",
+      "node_type": "action",
+      "name": "Non-Pharmacological Management",
+      "description": "Pulmonary rehabilitation, smoking cessation, vaccination",
+      "activities": [
+        {
+          "activity_id": "copd-smoking-cessation",
+          "name": "Smoking Cessation Support",
+          "category": "counselling",
+          "description": "Offer smoking cessation support at every contact if current smoker",
+          "required_agent_capability": "counselling",
+          "urgency": "routine"
+        },
+        {
+          "activity_id": "copd-pulm-rehab",
+          "name": "Pulmonary Rehabilitation Referral",
+          "category": "referral",
+          "description": "Refer for pulmonary rehabilitation if MRC dyspnoea grade ≥ 3. Supervised exercise + education programme.",
+          "required_agent_capability": "care-navigation",
+          "urgency": "routine",
+          "fhir_resource_type": "ServiceRequest"
+        },
+        {
+          "activity_id": "copd-vaccination",
+          "name": "Vaccination",
+          "category": "treatment",
+          "description": "Annual influenza and pneumococcal vaccination",
+          "required_agent_capability": "prescribing",
+          "urgency": "routine"
+        }
+      ],
+      "branches": [],
+      "default_next": "action-monitoring"
+    },
+    {
+      "node_id": "action-exacerbation-management",
+      "node_type": "action",
+      "name": "Exacerbation Management",
+      "description": "Acute exacerbation treatment",
+      "activities": [
+        {
+          "activity_id": "copd-rescue-pack",
+          "name": "Rescue Medication",
+          "category": "treatment",
+          "description": "Short course oral corticosteroids (prednisolone 30mg for 5 days). Antibiotics if purulent sputum.",
+          "required_agent_capability": "prescribing",
+          "contraindications": [
+            {
+              "field": "allergies[].substance",
+              "operator": "contains",
+              "value": "prednisolone",
+              "description": "Allergy to prednisolone"
+            }
+          ],
+          "urgency": "urgent",
+          "fhir_resource_type": "MedicationRequest"
+        },
+        {
+          "activity_id": "copd-nebuliser",
+          "name": "Nebulised Bronchodilators",
+          "category": "treatment",
+          "description": "Nebulised salbutamol and ipratropium if severe exacerbation",
+          "required_agent_capability": "prescribing",
+          "urgency": "urgent",
+          "fhir_resource_type": "MedicationRequest"
+        }
+      ],
+      "branches": [],
+      "default_next": "action-monitoring"
+    },
+    {
+      "node_id": "action-stable-review",
+      "node_type": "action",
+      "name": "Stable COPD Review",
+      "description": "Review for stable COPD patients",
+      "activities": [
+        {
+          "activity_id": "copd-annual-review",
+          "name": "Annual COPD Review",
+          "category": "review",
+          "description": "Assess symptoms, exacerbation frequency, inhaler technique, medication adherence, BMI, exercise tolerance, smoking status",
+          "required_agent_capability": "clinical-assessment",
+          "urgency": "routine",
+          "estimated_duration_minutes": 20
+        }
+      ],
+      "branches": [],
+      "default_next": "action-monitoring"
+    },
+    {
+      "node_id": "action-specialist-referral",
+      "node_type": "action",
+      "name": "Specialist Referral",
+      "description": "Refer to respiratory specialist",
+      "activities": [
+        {
+          "activity_id": "copd-specialist",
+          "name": "Respiratory Specialist Referral",
+          "category": "referral",
+          "description": "Refer for specialist assessment: severe COPD, diagnostic uncertainty, frequent exacerbations, cor pulmonale, assessment for surgery or LTOT",
+          "required_agent_capability": "care-navigation",
+          "urgency": "urgent",
+          "fhir_resource_type": "ServiceRequest"
+        }
+      ],
+      "branches": [],
+      "default_next": "action-monitoring"
+    },
+    {
+      "node_id": "action-monitoring",
+      "node_type": "action",
+      "name": "Ongoing Monitoring",
+      "description": "Regular follow-up appropriate to severity",
+      "activities": [
+        {
+          "activity_id": "copd-monitoring",
+          "name": "COPD Monitoring",
+          "category": "monitoring",
+          "description": "Symptom assessment, spirometry, exacerbation count, inhaler adherence, BMI, pulse oximetry",
+          "required_agent_capability": "monitoring",
+          "urgency": "routine",
+          "estimated_duration_minutes": 15
+        }
+      ],
+      "branches": [],
+      "default_next": "exit-copd-managed"
+    },
+    {
+      "node_id": "exit-copd-managed",
+      "node_type": "exit",
+      "name": "COPD Under Management",
+      "description": "Patient established on optimised COPD therapy with monitoring plan",
+      "activities": [],
+      "branches": [],
+      "default_next": null
+    }
+  ],
+  "evidence_references": [
+    "NICE NG115 — Chronic obstructive pulmonary disease in over 16s: diagnosis and management (2019)",
+    "NICE QS10 — COPD in adults (2016 update)",
+    "GOLD 2024 Report — Global Strategy for Prevention, Diagnosis and Management of COPD"
+  ]
+}

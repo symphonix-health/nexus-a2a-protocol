@@ -1,0 +1,200 @@
+[
+  {
+    "use_case_id": "UC-01",
+    "title": "Personalised Encounter Journey",
+    "category": "Point-of-Care",
+    "description": "When a patient presents, the engine matches their clinical context against active pathways and produces a tailored step-by-step encounter plan with no modifications needed.",
+    "triggering_rules": [],
+    "safety_checks": [],
+    "pathways": ["all"],
+    "testable": true,
+    "scenario_prefix": "UC01"
+  },
+  {
+    "use_case_id": "UC-02",
+    "title": "Multi-morbidity Pathway Reconciliation",
+    "category": "Point-of-Care",
+    "description": "Patient triggers multiple pathways simultaneously. The engine detects conflicts between condition-specific treatments and reconciles them into a single coherent plan.",
+    "triggering_rules": ["hf_ckd_renal_safe", "copd_chf_comorbidity", "dm2_renal_impairment"],
+    "safety_checks": ["drug_interactions"],
+    "pathways": ["nice-ng106-heart-failure", "nice-ng115-copd", "nice-ng28-diabetes-type2"],
+    "testable": true,
+    "scenario_prefix": "UC02"
+  },
+  {
+    "use_case_id": "UC-03",
+    "title": "Safety Guardrail Enforcement",
+    "category": "Point-of-Care",
+    "description": "Before any activity reaches a clinician, the engine checks contraindications, allergy conflicts, critical lab thresholds, and drug interactions.",
+    "triggering_rules": [],
+    "safety_checks": ["contraindications", "allergy_conflicts", "critical_lab_values", "drug_interactions"],
+    "pathways": ["all"],
+    "testable": true,
+    "scenario_prefix": "UC03"
+  },
+  {
+    "use_case_id": "UC-04",
+    "title": "Urgency Escalation",
+    "category": "Point-of-Care",
+    "description": "Patient context triggers urgency elevation — sepsis with high lactate, immunocompromised status, or active foot ulcer with poor glycaemic control.",
+    "triggering_rules": ["sepsis_immunocompromised", "dm2_foot_ulcer_mdl"],
+    "safety_checks": ["critical_lab_values"],
+    "pathways": ["nice-ng51-sepsis", "nice-ng28-diabetes-type2"],
+    "testable": true,
+    "scenario_prefix": "UC04"
+  },
+  {
+    "use_case_id": "UC-05",
+    "title": "Specialist Referral Routing",
+    "category": "Clinical Workflow",
+    "description": "The engine determines which specialist the patient needs and adds appropriate referral activities based on comorbidity patterns.",
+    "triggering_rules": ["hf_ckd_renal_safe", "dm2_renal_impairment", "dm2_foot_ulcer_mdl", "copd_chf_comorbidity"],
+    "safety_checks": [],
+    "pathways": ["nice-ng106-heart-failure", "nice-ng28-diabetes-type2", "nice-ng115-copd"],
+    "testable": true,
+    "scenario_prefix": "UC05"
+  },
+  {
+    "use_case_id": "UC-06",
+    "title": "Contraindication-Driven Medication Adjustment",
+    "category": "Clinical Workflow",
+    "description": "The engine flags medications that are contraindicated for this patient and adds appropriate alternatives or specialist referral.",
+    "triggering_rules": ["dm2_renal_impairment", "hf_ckd_renal_safe", "sepsis_penicillin_allergy"],
+    "safety_checks": ["drug_interactions", "contraindications"],
+    "pathways": ["nice-ng28-diabetes-type2", "nice-ng106-heart-failure", "nice-ng51-sepsis"],
+    "testable": true,
+    "scenario_prefix": "UC06"
+  },
+  {
+    "use_case_id": "UC-07",
+    "title": "Monitoring Schedule Personalisation",
+    "category": "Clinical Workflow",
+    "description": "Monitoring frequency and follow-up approach are adapted based on frailty, recurrent admissions, and transport barriers.",
+    "triggering_rules": ["frailty_intensity_adjustment", "recurrent_admissions", "transport_barrier_followup"],
+    "safety_checks": [],
+    "pathways": ["all"],
+    "testable": true,
+    "scenario_prefix": "UC07"
+  },
+  {
+    "use_case_id": "UC-08",
+    "title": "Polypharmacy Medication Review",
+    "category": "Clinical Workflow",
+    "description": "Patients on multiple medications have medication review prioritised before any treatment changes.",
+    "triggering_rules": ["polypharmacy_medication_review", "hf_polypharmacy_review"],
+    "safety_checks": ["drug_interactions"],
+    "pathways": ["all"],
+    "testable": true,
+    "scenario_prefix": "UC08"
+  },
+  {
+    "use_case_id": "UC-09",
+    "title": "Language and Social Barrier Adaptation",
+    "category": "Clinical Workflow",
+    "description": "Encounter journey is adapted for patients with language barriers or transport difficulties.",
+    "triggering_rules": ["language_barrier_adaptation", "transport_barrier_followup"],
+    "safety_checks": [],
+    "pathways": ["all"],
+    "testable": true,
+    "scenario_prefix": "UC09"
+  },
+  {
+    "use_case_id": "UC-10",
+    "title": "Maternal Health — Advanced Age Monitoring",
+    "category": "Specialist",
+    "description": "Pregnant patients aged 40+ receive enhanced antenatal monitoring with increased scan frequency and consultant involvement.",
+    "triggering_rules": ["anc_advanced_maternal_age"],
+    "safety_checks": [],
+    "pathways": ["who-maternal-anc"],
+    "testable": true,
+    "scenario_prefix": "UC10"
+  },
+  {
+    "use_case_id": "UC-11",
+    "title": "Maternal Health — Pre-eclampsia Prevention",
+    "category": "Specialist",
+    "description": "Patients with pre-eclampsia history receive aspirin prophylaxis from 12 weeks and increased BP monitoring.",
+    "triggering_rules": ["anc_pre_eclampsia_history"],
+    "safety_checks": [],
+    "pathways": ["who-maternal-anc"],
+    "testable": true,
+    "scenario_prefix": "UC11"
+  },
+  {
+    "use_case_id": "UC-12",
+    "title": "Sepsis — Immunocompromised Escalation",
+    "category": "Specialist",
+    "description": "Immunocompromised patients with suspected sepsis receive broader antimicrobial coverage and lower red-flag thresholds.",
+    "triggering_rules": ["sepsis_immunocompromised"],
+    "safety_checks": ["critical_lab_values"],
+    "pathways": ["nice-ng51-sepsis"],
+    "testable": true,
+    "scenario_prefix": "UC12"
+  },
+  {
+    "use_case_id": "UC-13",
+    "title": "Sepsis — Allergy-Safe Antimicrobial Selection",
+    "category": "Specialist",
+    "description": "Patients with penicillin allergy receive alternative antimicrobial regimens for sepsis management.",
+    "triggering_rules": ["sepsis_penicillin_allergy"],
+    "safety_checks": ["allergy_conflicts"],
+    "pathways": ["nice-ng51-sepsis"],
+    "testable": true,
+    "scenario_prefix": "UC13"
+  },
+  {
+    "use_case_id": "UC-14",
+    "title": "Sepsis — Heart Failure Fluid Safety",
+    "category": "Specialist",
+    "description": "Patients with heart failure and sepsis receive cautious fluid resuscitation to avoid pulmonary oedema.",
+    "triggering_rules": ["sepsis_hf_cautious_fluids"],
+    "safety_checks": [],
+    "pathways": ["nice-ng51-sepsis"],
+    "testable": true,
+    "scenario_prefix": "UC14"
+  },
+  {
+    "use_case_id": "UC-15",
+    "title": "Governance — Pathway Currency Checking",
+    "category": "Governance",
+    "description": "Automated detection of overdue reviews, superseded source guidelines, missing clinical owners, and provenance gaps.",
+    "triggering_rules": [],
+    "safety_checks": [],
+    "pathways": ["all"],
+    "testable": true,
+    "scenario_prefix": "UC15"
+  },
+  {
+    "use_case_id": "UC-16",
+    "title": "Audit Trail — Decision Explainability",
+    "category": "Governance",
+    "description": "Every personalisation decision is logged with full provenance, modifications, safety warnings, and confidence assessment.",
+    "triggering_rules": [],
+    "safety_checks": [],
+    "pathways": ["all"],
+    "testable": true,
+    "scenario_prefix": "UC16"
+  },
+  {
+    "use_case_id": "UC-17",
+    "title": "Deviation Register — Standard vs Individualised",
+    "category": "Governance",
+    "description": "When individualisation changes anything in the standard clinical pathway, the deviation is explicitly documented showing the standard step, the individualised step, the reason, and the evidence reference.",
+    "triggering_rules": ["all"],
+    "safety_checks": ["all"],
+    "pathways": ["all"],
+    "testable": true,
+    "scenario_prefix": "UC17"
+  },
+  {
+    "use_case_id": "UC-18",
+    "title": "COPD — Frequent Exacerbator Management",
+    "category": "Specialist",
+    "description": "COPD patients with 2+ admissions in 12 months receive enhanced management including self-management plans and rescue packs.",
+    "triggering_rules": ["copd_frequent_exacerbations"],
+    "safety_checks": [],
+    "pathways": ["nice-ng115-copd"],
+    "testable": true,
+    "scenario_prefix": "UC18"
+  }
+]

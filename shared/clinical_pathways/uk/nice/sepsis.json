@@ -1,0 +1,533 @@
+{
+  "pathway_id": "nice-ng51-sepsis",
+  "title": "Sepsis: Recognition, Diagnosis and Early Management",
+  "version": "1.0",
+  "status": "active",
+  "source_authority": "NICE",
+  "guideline_reference": "https://www.nice.org.uk/guidance/ng51",
+  "country": "GB",
+  "publication_date": "2017-09-13",
+  "description": "NICE NG51 pathway for recognition, diagnosis and early management of sepsis. Covers risk stratification, Sepsis Six bundle, antimicrobial therapy, and escalation.",
+  "governance": {
+    "sources": [
+      {
+        "authority": "NICE",
+        "authority_level": "national",
+        "guideline_id": "NG51",
+        "title": "Sepsis: recognition, diagnosis and early management",
+        "url": "https://www.nice.org.uk/guidance/ng51",
+        "version": "Last updated 2017-09-13",
+        "publication_date": "2016-07-13",
+        "last_updated": "2017-09-13",
+        "next_review_date": "2027-01-13",
+        "superseded_by": null
+      },
+      {
+        "authority": "SCCM/ESICM",
+        "authority_level": "international",
+        "guideline_id": "SSC-2021",
+        "title": "Surviving Sepsis Campaign: International Guidelines for Management of Sepsis and Septic Shock 2021",
+        "url": "https://doi.org/10.1007/s00134-021-06506-y",
+        "version": "2021",
+        "publication_date": "2021-10-02",
+        "last_updated": "2021-10-02",
+        "next_review_date": "2026-10-02",
+        "superseded_by": null
+      },
+      {
+        "authority": "UK Sepsis Trust",
+        "authority_level": "national",
+        "guideline_id": "UKST-SEPSIS-SIX",
+        "title": "The Sepsis Six",
+        "url": "https://sepsistrust.org/professional-resources/clinical/",
+        "version": "2024",
+        "publication_date": "2024-01-01",
+        "last_updated": "2024-01-01",
+        "next_review_date": null,
+        "superseded_by": null
+      }
+    ],
+    "adopted_date": "2026-03-15",
+    "adopted_by": "BulletTrain Clinical Governance Board",
+    "last_reviewed_date": "2026-03-15",
+    "next_review_date": "2027-03-15",
+    "review_frequency_months": 12,
+    "revision_history": [
+      {
+        "revision_version": "1.0",
+        "author": "Clinical Pathways Team",
+        "reason": "Initial structured knowledge asset creation from NICE NG51 and Surviving Sepsis Campaign 2021.",
+        "source_update": "NICE NG51, SSC 2021",
+        "changes": [
+          "Encoded NEWS2-based risk stratification (red/amber/low) per NG51 section 1.4",
+          "Added Sepsis Six bundle (3 in, 3 out) per UK Sepsis Trust protocol",
+          "Encoded antimicrobial initiation within 1 hour per NG51 section 1.6",
+          "Added IV fluid resuscitation and lactate monitoring per SSC 2021",
+          "Added escalation pathway to critical care per NG51 section 1.10"
+        ],
+        "approved_by": "Chief Clinical Information Officer",
+        "approval_date": "2026-03-15",
+        "revision_date": "2026-03-15"
+      }
+    ],
+    "clinical_owner": "Lead Acute Medicine Consultant — Sepsis Lead",
+    "governance_committee": "Clinical Effectiveness Committee",
+    "local_adaptations": []
+  },
+  "entry_criteria": [
+    {
+      "criteria": [
+        {
+          "field": "chief_complaint",
+          "operator": "in",
+          "value": [
+            "fever",
+            "rigors",
+            "confusion",
+            "tachycardia",
+            "hypotension",
+            "suspected infection",
+            "sepsis"
+          ],
+          "description": "Presentation suggestive of sepsis"
+        },
+        {
+          "field": "vital_signs.temperature",
+          "operator": "gt",
+          "value": 38.0,
+          "description": "Pyrexia"
+        }
+      ],
+      "description": "Patient with suspected infection and pyrexia"
+    },
+    {
+      "criteria": [
+        {
+          "field": "chief_complaint",
+          "operator": "in",
+          "value": [
+            "fever",
+            "rigors",
+            "confusion",
+            "tachycardia",
+            "hypotension",
+            "suspected infection",
+            "sepsis"
+          ]
+        },
+        {
+          "field": "vital_signs.heart_rate",
+          "operator": "gt",
+          "value": 90,
+          "description": "Tachycardia"
+        }
+      ],
+      "description": "Patient with suspected infection and tachycardia"
+    },
+    {
+      "criteria": [
+        {
+          "field": "vital_signs.systolic_bp",
+          "operator": "lt",
+          "value": 90,
+          "description": "Hypotension"
+        },
+        {
+          "field": "chief_complaint",
+          "operator": "in",
+          "value": [
+            "fever",
+            "rigors",
+            "confusion",
+            "tachycardia",
+            "hypotension",
+            "suspected infection",
+            "sepsis"
+          ]
+        }
+      ],
+      "description": "Patient with suspected infection and hypotension"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "entry-sepsis",
+      "node_type": "entry",
+      "name": "Sepsis Pathway Entry",
+      "description": "Patient enters sepsis pathway based on clinical suspicion",
+      "activities": [],
+      "branches": [],
+      "default_next": "action-risk-stratification"
+    },
+    {
+      "node_id": "action-risk-stratification",
+      "node_type": "action",
+      "name": "Risk Stratification",
+      "description": "Assess for high-risk criteria per NICE NG51",
+      "activities": [
+        {
+          "activity_id": "sepsis-vitals",
+          "name": "Vital Signs Assessment",
+          "category": "assessment",
+          "description": "HR, BP, RR, SpO2, temperature, consciousness (AVPU/GCS), capillary refill, urine output",
+          "required_agent_capability": "clinical-assessment",
+          "urgency": "emergent",
+          "estimated_duration_minutes": 5
+        },
+        {
+          "activity_id": "sepsis-news",
+          "name": "NEWS2 Calculation",
+          "category": "assessment",
+          "description": "Calculate National Early Warning Score 2. Score ≥ 5 or any single parameter = 3 triggers urgent clinical review.",
+          "required_agent_capability": "clinical-assessment",
+          "urgency": "emergent",
+          "estimated_duration_minutes": 2
+        }
+      ],
+      "branches": [],
+      "default_next": "decision-sepsis-severity"
+    },
+    {
+      "node_id": "decision-sepsis-severity",
+      "node_type": "decision",
+      "name": "Sepsis Severity Assessment",
+      "description": "Classify as red flag (high risk), amber flag (moderate risk), or low risk",
+      "activities": [],
+      "branches": [
+        {
+          "branch_id": "red-flag",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "vital_signs.systolic_bp",
+                  "operator": "lt",
+                  "value": 90,
+                  "description": "Systolic BP < 90"
+                }
+              ]
+            },
+            {
+              "criteria": [
+                {
+                  "field": "vital_signs.heart_rate",
+                  "operator": "gt",
+                  "value": 130,
+                  "description": "HR > 130"
+                }
+              ]
+            },
+            {
+              "criteria": [
+                {
+                  "field": "vital_signs.respiratory_rate",
+                  "operator": "gt",
+                  "value": 25,
+                  "description": "RR > 25"
+                }
+              ]
+            },
+            {
+              "criteria": [
+                {
+                  "field": "vital_signs.spo2",
+                  "operator": "lt",
+                  "value": 91,
+                  "description": "SpO2 < 91%"
+                }
+              ]
+            },
+            {
+              "criteria": [
+                {
+                  "field": "vital_signs.consciousness",
+                  "operator": "in",
+                  "value": [
+                    "responds_to_voice",
+                    "responds_to_pain",
+                    "unresponsive"
+                  ],
+                  "description": "Altered consciousness"
+                }
+              ]
+            },
+            {
+              "criteria": [
+                {
+                  "field": "observations[].lactate",
+                  "operator": "gt",
+                  "value": 2.0,
+                  "description": "Lactate > 2 mmol/L"
+                }
+              ]
+            }
+          ],
+          "target_node_id": "action-sepsis-six",
+          "description": "Red flag sepsis — immediate Sepsis Six within 1 hour"
+        },
+        {
+          "branch_id": "amber-flag",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "vital_signs.heart_rate",
+                  "operator": "gt",
+                  "value": 90,
+                  "description": "HR 91-130"
+                }
+              ]
+            }
+          ],
+          "target_node_id": "action-amber-assessment",
+          "description": "Amber flag — senior clinical review within 1 hour"
+        }
+      ],
+      "default_next": "action-low-risk-management"
+    },
+    {
+      "node_id": "action-sepsis-six",
+      "node_type": "action",
+      "name": "Sepsis Six Bundle",
+      "description": "Complete within 1 hour of recognition per NICE NG51",
+      "activities": [
+        {
+          "activity_id": "sepsis-oxygen",
+          "name": "High-Flow Oxygen",
+          "category": "treatment",
+          "description": "Administer high-flow oxygen. Target SpO2 94-98% (88-92% if COPD risk).",
+          "required_agent_capability": "clinical-assessment",
+          "urgency": "emergent",
+          "estimated_duration_minutes": 2
+        },
+        {
+          "activity_id": "sepsis-cultures",
+          "name": "Blood Cultures",
+          "category": "diagnostic",
+          "description": "Take blood cultures BEFORE giving antibiotics. At least 2 sets from different sites.",
+          "required_agent_capability": "lab-diagnostics",
+          "urgency": "emergent",
+          "estimated_duration_minutes": 5,
+          "fhir_resource_type": "ServiceRequest"
+        },
+        {
+          "activity_id": "sepsis-antibiotics",
+          "name": "IV Antibiotics",
+          "category": "treatment",
+          "description": "Administer empirical broad-spectrum IV antibiotics within 1 hour. Follow local antimicrobial guidelines. Review at 48-72 hours.",
+          "required_agent_capability": "prescribing",
+          "contraindications": [
+            {
+              "field": "allergies[].substance",
+              "operator": "contains",
+              "value": "penicillin",
+              "description": "Penicillin allergy — use alternative regimen"
+            }
+          ],
+          "urgency": "emergent",
+          "fhir_resource_type": "MedicationRequest"
+        },
+        {
+          "activity_id": "sepsis-lactate",
+          "name": "Serum Lactate",
+          "category": "diagnostic",
+          "description": "Measure serum lactate. Lactate > 2 mmol/L indicates tissue hypoperfusion. Lactate > 4 = severe.",
+          "required_agent_capability": "lab-diagnostics",
+          "urgency": "emergent",
+          "fhir_resource_type": "ServiceRequest"
+        },
+        {
+          "activity_id": "sepsis-fluids",
+          "name": "IV Fluid Resuscitation",
+          "category": "treatment",
+          "description": "IV crystalloid fluid bolus (500ml over 15 min, reassess). Repeat as needed up to 30ml/kg.",
+          "required_agent_capability": "clinical-assessment",
+          "contraindications": [
+            {
+              "field": "conditions[].code",
+              "operator": "contains",
+              "value": "heart_failure",
+              "description": "Heart failure — cautious fluid administration"
+            }
+          ],
+          "urgency": "emergent"
+        },
+        {
+          "activity_id": "sepsis-urine-output",
+          "name": "Monitor Urine Output",
+          "category": "monitoring",
+          "description": "Insert urinary catheter. Monitor hourly urine output. Target > 0.5ml/kg/hr.",
+          "required_agent_capability": "monitoring",
+          "urgency": "emergent"
+        }
+      ],
+      "branches": [],
+      "default_next": "decision-response"
+    },
+    {
+      "node_id": "action-amber-assessment",
+      "node_type": "action",
+      "name": "Amber Flag Assessment",
+      "description": "Senior clinical review and targeted investigations",
+      "activities": [
+        {
+          "activity_id": "sepsis-senior-review",
+          "name": "Senior Clinical Review",
+          "category": "assessment",
+          "description": "Senior clinician review within 1 hour. Consider source of infection. Plan investigations.",
+          "required_agent_capability": "clinical-assessment",
+          "urgency": "urgent",
+          "estimated_duration_minutes": 15
+        },
+        {
+          "activity_id": "sepsis-bloods",
+          "name": "Blood Tests",
+          "category": "diagnostic",
+          "description": "FBC, U&Es, CRP, lactate, blood cultures, coagulation, blood gas",
+          "required_agent_capability": "lab-diagnostics",
+          "urgency": "urgent",
+          "fhir_resource_type": "ServiceRequest"
+        }
+      ],
+      "branches": [],
+      "default_next": "decision-response"
+    },
+    {
+      "node_id": "action-low-risk-management",
+      "node_type": "action",
+      "name": "Low Risk Management",
+      "description": "Safety-netting and appropriate follow-up",
+      "activities": [
+        {
+          "activity_id": "sepsis-safety-net",
+          "name": "Safety-Netting Advice",
+          "category": "counselling",
+          "description": "Provide written and verbal safety-netting. Advise when to seek urgent help. Consider antibiotics if bacterial infection likely.",
+          "required_agent_capability": "clinical-assessment",
+          "urgency": "routine",
+          "estimated_duration_minutes": 10
+        }
+      ],
+      "branches": [],
+      "default_next": "exit-sepsis-low-risk"
+    },
+    {
+      "node_id": "decision-response",
+      "node_type": "decision",
+      "name": "Response Assessment",
+      "description": "Assess response to initial treatment at 1-3 hours",
+      "activities": [],
+      "branches": [
+        {
+          "branch_id": "improving",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "vital_signs.systolic_bp",
+                  "operator": "ge",
+                  "value": 90,
+                  "description": "BP stabilising"
+                },
+                {
+                  "field": "observations[].lactate",
+                  "operator": "le",
+                  "value": 2.0,
+                  "description": "Lactate normalising"
+                }
+              ]
+            }
+          ],
+          "target_node_id": "action-ongoing-care",
+          "description": "Responding to treatment — continue ward-based care"
+        },
+        {
+          "branch_id": "not-improving",
+          "criteria": [
+            {
+              "criteria": [
+                {
+                  "field": "vital_signs.systolic_bp",
+                  "operator": "lt",
+                  "value": 90,
+                  "description": "Persistent hypotension"
+                }
+              ]
+            }
+          ],
+          "target_node_id": "action-escalation",
+          "description": "Not responding — escalate to critical care"
+        }
+      ],
+      "default_next": "action-ongoing-care"
+    },
+    {
+      "node_id": "action-escalation",
+      "node_type": "action",
+      "name": "Critical Care Escalation",
+      "description": "Escalate to ICU/HDU for organ support",
+      "activities": [
+        {
+          "activity_id": "sepsis-icu-referral",
+          "name": "ICU/HDU Referral",
+          "category": "referral",
+          "description": "Refer to critical care. Consider vasopressors, invasive monitoring, organ support.",
+          "required_agent_capability": "care-navigation",
+          "urgency": "emergent",
+          "fhir_resource_type": "ServiceRequest"
+        }
+      ],
+      "branches": [],
+      "default_next": "action-ongoing-care"
+    },
+    {
+      "node_id": "action-ongoing-care",
+      "node_type": "action",
+      "name": "Ongoing Sepsis Care",
+      "description": "Antibiotic review, source control, de-escalation",
+      "activities": [
+        {
+          "activity_id": "sepsis-abx-review",
+          "name": "Antibiotic Review at 48-72h",
+          "category": "review",
+          "description": "Review antibiotic choice with culture results. De-escalate or narrow spectrum. Plan duration (typically 5-7 days).",
+          "required_agent_capability": "prescribing",
+          "urgency": "urgent"
+        },
+        {
+          "activity_id": "sepsis-monitoring",
+          "name": "Ongoing Monitoring",
+          "category": "monitoring",
+          "description": "Regular NEWS2, lactate clearance, organ function monitoring",
+          "required_agent_capability": "monitoring",
+          "urgency": "urgent"
+        }
+      ],
+      "branches": [],
+      "default_next": "exit-sepsis-treated"
+    },
+    {
+      "node_id": "exit-sepsis-low-risk",
+      "node_type": "exit",
+      "name": "Low Risk — Safety-Netted",
+      "description": "Low-risk infection with safety-netting in place",
+      "activities": [],
+      "branches": [],
+      "default_next": null
+    },
+    {
+      "node_id": "exit-sepsis-treated",
+      "node_type": "exit",
+      "name": "Sepsis Treated",
+      "description": "Sepsis treated, antibiotics reviewed, recovery plan in place",
+      "activities": [],
+      "branches": [],
+      "default_next": null
+    }
+  ],
+  "evidence_references": [
+    "NICE NG51 — Sepsis: recognition, diagnosis and early management (2017)",
+    "UK Sepsis Trust — Sepsis Six pathway",
+    "Surviving Sepsis Campaign: International Guidelines (2021)"
+  ]
+}

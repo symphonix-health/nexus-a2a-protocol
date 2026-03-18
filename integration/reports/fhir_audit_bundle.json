@@ -1,0 +1,4707 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "total": 100,
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:10:42.498644Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRC651H23D6W6VVNW48EZ5H"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:10:42.553090Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKRC653HSY4K9ARFAE1PWRDT"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:10:42.581719Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRC654EKKCHKBTN7P0J2K6J"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:10:42.618054Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://ie/agents/triage-e2e"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:10:42.647530Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://gb/agents/referral-e2e"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:10:42.675128Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://us/agents/radiology-e2e"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:10:42.725660Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://de/agents/pathology-e2e"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:10:52.977276Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://ie.agents/01KKRC6F9DKZYT94KW1C6GD19M"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:12:25.878270Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRC9A0HVQ3KAPCPK5PR3X79"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:12:25.930540Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKRC9A28DSB92T89FZ5KVNN4"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:12:25.982289Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRC9A3WNRWTSTZ3EWMK2491"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:12:38.880641Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRC9PPX7JYZ1VGS4XWY375W"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:12:38.935125Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKRC9PRKQGD6VPQ7F0KTKFQV"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:12:38.986107Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRC9PT73NC19H5BFCX27Q96"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:45:45.404802Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRE6ANRM623C92573TS1X50"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:45:45.455490Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKRE6AQC194CKWCMHD71YHE0"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:45:45.507659Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRE6AS06FN69NCQ05A0AAX3"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:45:47.262722Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRE6CFT2TV4KC1WDCPTX2S5"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:45:47.315448Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKRE6CHFZ7D5CZ534RC0E2R5"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:45:47.366811Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRE6CK48K4Z8YXQZ6R30T91"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:50:37.548526Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKREF7Z78KPXT3PB4YA9DF16"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:50:37.599183Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKREF80WSZY4094QZVAZVQB6"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:50:37.651473Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKREF82G1XX4B19KM1DQ5HCR"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:50:39.488186Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKREF9VB8DXBKM8BZKC9Q7ZD"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:50:39.540763Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKREF9XGZS7JTFXQJ05HGP4S"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:50:39.595206Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKREF9Z8BNB94WFRS23B9KRW"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:52:10.024236Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKREJ295R3PTDRYBHTARYHYP"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:52:10.075150Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKREJ2ART66VV13FKWTDP4SV"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:52:10.127375Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKREJ2CCF44P0XHFYQ51DH94"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:55:18.529997Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKREQTBY5TTXBR8BXG2801C2"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:55:18.582323Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKREQTDJNY1C4TBQ1NSSJ94X"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:55:18.638323Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKREQTFAXMCMW7DW3RJ3X0ZV"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:59:08.091261Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKREYTHNV7YXDEZ5K0NBDENR"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:59:08.144500Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKREYTKCVAE1YEXSPTDNRNWK"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:59:08.195884Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKREYTN150377HP692K1F15R"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:59:46.001702Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKREZZJECDA2XK5F3RWGP4RD"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:59:46.053959Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKREZZM2CCSQ7618ZVBSEHPB"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T09:59:46.106004Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKREZZNP83TF55KACP8A5VMP"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:00:19.199347Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRF0ZZN8FJCGX7XPQEZVR07"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:00:19.254429Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKRF101JSXSBKJZ1REEK09P5"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:00:19.304481Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRF1036G01JDD9CKZ2E16X5"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:00:45.425919Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRF1SKE13P66YMZJY86SWV4"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:00:45.477642Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKRF1SN1EHQ691Q53X810WQ3"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:00:45.532000Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRF1SPSXKRFGQT9E5H18FN6"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:02:21.033441Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRF4PZ5WMGV6YG1A55D5CG1"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:02:21.083121Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKRF4Q0RFBME2GR61B4SXJBW"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:02:21.137568Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRF4Q2DV8DWAMDS8T062TC6"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:09:41.994849Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRFJ5K0S44JS1YR3T7X6M6X"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:09:42.060921Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKRFJ5N703KPAVEBPB8R45JM"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:09:42.115499Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRFJ5PZWCMXE33QR4REXABA"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:09:58.210959Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRFJNDYB94Y31RSD4V5YRM5"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:09:58.263432Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKRFJNFN29FBGGB9Q3VZFFKA"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:09:58.324103Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRFJNH5S3QJPFW8ZGW6C2H2"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:36:05.093964Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRH2FJVQK1XBJTK8KKDDNFC"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:36:05.160687Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKRH2FN3DB194SQCYCV166CB"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:36:05.214619Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRH2FPVQ8A7NZ29FCTQEZRM"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:52:36.767406Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRJ0R0VVPBHY6ZACP9SD0P3"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:52:36.825041Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKRJ0R2MVNRTAC7NQF4K1ETH"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:52:36.880156Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRJ0R4CWFZBJR0RP7VP1Q0H"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:53:14.383922Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRJ1WRBK27ZMGH7F4DKF76N"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:53:14.438465Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKRJ1WT1T9QTMP6AJB6GSQV0"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:53:14.493159Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRJ1WVSQY7A2E0SJK2EQDPZ"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:53:48.831189Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRJ2YCVHG59PRWC8K2R5PPG"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:53:48.891321Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKRJ2YERKZBY6B1JM05E52ZV"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:53:48.942645Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRJ2YGCKHPB5A1DYR6GR32E"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:56:43.279893Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRJ88RCNBAVY2HW5NEBY1MQ"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:56:43.337322Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKRJ88T6E60ENHV1S487RHG6"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:56:43.390003Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRJ88VV8R7FBAXWB4MVY5XP"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:59:42.452665Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRJDQQEEX5DG39Q5QC64BHX"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:59:42.512372Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/gb.01KKRJDQSAAHVKP64W200Z180S"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "registry.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T10:59:42.570946Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://registries/ie.01KKRJDQV76992G2EHFQMR66ZJ"
+            },
+            "type": {
+              "code": "Registry"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T11:45:03.190561Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://ie/agents/scale-triage"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T11:45:03.240496Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://gb/agents/scale-diagnosis"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T11:45:03.292599Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://us/agents/scale-imaging"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T11:45:03.345121Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://de/agents/scale-pharmacy"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T11:45:03.397263Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://ie/agents/scale-bed_manager"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T11:45:03.448757Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://gb/agents/scale-discharge"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T11:45:03.500899Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://ie/agents/scale-coordinator"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T11:45:03.552819Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://us/agents/scale-insurer"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T11:45:03.608694Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://gb/agents/scale-consent_analyser"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T11:45:03.661443Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://ie/agents/scale-telehealth"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T11:45:03.717631Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://gb/agents/scale-transcriber"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T11:45:03.768793Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://gb/agents/scale-summariser"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T11:45:03.824491Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://ie/agents/scale-primary_care"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T11:45:03.876861Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://gb/agents/scale-specialty_care"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T11:45:03.928489Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://ie/agents/scale-followup"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T13:21:19.007044Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://ie/agents/triage-agent"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T13:21:19.007470Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://gb/agents/diagnosis-agent"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T13:21:19.021775Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://ie/agents/hospital-reporter"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T13:21:19.134206Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://ie/agents/followup"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T13:21:19.154775Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://gb/agents/transcriber"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T13:21:19.162445Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://ie/agents/central-surveillance"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T13:21:19.183488Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://gb/agents/specialty-care"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T13:21:19.197744Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://gb/agents/discharge-agent"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T13:21:19.208607Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://ie/agents/coordinator"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T13:21:19.232992Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://ie/agents/primary-care"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T13:21:19.237424Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://ie/agents/telehealth"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T13:21:19.330483Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://gb/agents/summariser"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T13:21:19.391571Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://us/agents/insurer"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AuditEvent",
+        "type": {
+          "system": "http://dicom.nema.org/resources/ontology/DCM",
+          "code": "110100"
+        },
+        "subtype": [
+          {
+            "system": "https://gharra.health/audit-subtypes",
+            "code": "agent.registered"
+          }
+        ],
+        "action": "C",
+        "recorded": "2026-03-15T13:21:19.440833Z",
+        "outcome": "0",
+        "agent": [
+          {
+            "who": {
+              "display": "dev-user"
+            },
+            "type": {
+              "text": "machine"
+            },
+            "requestor": true
+          }
+        ],
+        "source": {
+          "site": "GHARRA",
+          "type": [
+            {
+              "code": "4"
+            }
+          ]
+        },
+        "entity": [
+          {
+            "what": {
+              "display": "gharra://ie/agents/bed-manager"
+            },
+            "type": {
+              "code": "AgentRecord"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
