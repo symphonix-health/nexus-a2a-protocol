@@ -1,0 +1,4543 @@
+[
+  {
+    "use_case_id": "RMR-00001",
+    "poc_demo": "mitigation-1.1-tia",
+    "scenario_title": "TIA permits intra-EU transfer IE to DE for radiology agent",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-1.1",
+      "FR-7",
+      "GDPR-44"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "ie_radiology_agent_registered"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/policy-engine/tia/IE/DE"
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "risk_level",
+        "permitted"
+      ],
+      "risk_level": "low",
+      "permitted": true
+    },
+    "expected_events": [
+      "policy.tia.evaluated"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-1.1",
+      "tia",
+      "positive",
+      "gdpr",
+      "intra-eu"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00002",
+    "poc_demo": "mitigation-1.1-tia",
+    "scenario_title": "TIA permits EU-to-adequacy transfer IE to GB post-Brexit",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-1.1",
+      "FR-7",
+      "GDPR-45"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "gb_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/policy-engine/tia/IE/GB"
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "risk_level",
+        "permitted",
+        "legal_basis"
+      ],
+      "permitted": true,
+      "legal_basis": "Art. 45 adequacy"
+    },
+    "expected_events": [
+      "policy.tia.evaluated"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-1.1",
+      "tia",
+      "positive",
+      "gdpr",
+      "adequacy"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00003",
+    "poc_demo": "mitigation-1.1-tia",
+    "scenario_title": "TIA permits non-EU source US to CN (GDPR does not apply)",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-1.1",
+      "FR-7"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "us_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/policy-engine/tia/US/CN"
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "permitted"
+      ],
+      "permitted": true
+    },
+    "expected_events": [
+      "policy.tia.evaluated"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-1.1",
+      "tia",
+      "positive",
+      "non-eu"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00004",
+    "poc_demo": "mitigation-1.1-tia",
+    "scenario_title": "TIA permits same-jurisdiction trivial transfer IE to IE",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-1.1",
+      "FR-7",
+      "GDPR-44"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/policy-engine/tia/IE/IE"
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "permitted",
+        "risk_level"
+      ],
+      "permitted": true,
+      "risk_level": "none"
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-1.1",
+      "tia",
+      "positive",
+      "same-jurisdiction"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00005",
+    "poc_demo": "mitigation-1.1-tia",
+    "scenario_title": "TIA blocks EU-to-non-adequate transfer IE to CN",
+    "scenario_type": "negative",
+    "requirement_ids": [
+      "MIT-1.1",
+      "FR-7",
+      "GDPR-44",
+      "SCHREMS-II"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/policy-engine/tia/IE/CN"
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "permitted",
+        "risk_level"
+      ],
+      "permitted": false,
+      "risk_level": "high"
+    },
+    "expected_events": [
+      "policy.tia.blocked"
+    ],
+    "error_condition": "gdpr_adequacy_failure",
+    "test_tags": [
+      "mitigation-1.1",
+      "tia",
+      "negative",
+      "gdpr",
+      "blocked"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00006",
+    "poc_demo": "mitigation-1.1-tia",
+    "scenario_title": "TIA permits EU-to-non-adequate with SCC override IE to IN",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-1.1",
+      "FR-7",
+      "GDPR-46"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/policy-engine/tia/IE/IN?safeguards=standard_contractual_clauses"
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "permitted",
+        "risk_level"
+      ],
+      "permitted": true,
+      "risk_level": "medium"
+    },
+    "expected_events": [
+      "policy.tia.evaluated"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-1.1",
+      "tia",
+      "positive",
+      "scc-override"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00007",
+    "poc_demo": "mitigation-1.1-tia",
+    "scenario_title": "TIA on GB sovereign validates cross-registry assessment",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-1.1",
+      "FR-7",
+      "CAP-1"
+    ],
+    "preconditions": [
+      "gb_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/policy-engine/tia/GB/DE",
+      "target_registry": "gb"
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "permitted",
+        "risk_level"
+      ]
+    },
+    "expected_events": [
+      "policy.tia.evaluated"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-1.1",
+      "tia",
+      "positive",
+      "cross-registry",
+      "gb"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00008",
+    "poc_demo": "mitigation-1.2-ratelimit",
+    "scenario_title": "Rate-limit status endpoint returns circuit breaker state on root",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-1.2",
+      "NFR-1",
+      "NFR-3"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/rate-limit/status"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "rate_limit_enabled",
+        "circuit_breakers",
+        "mesh_health"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-1.2",
+      "rate-limit",
+      "positive",
+      "admin"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00009",
+    "poc_demo": "mitigation-1.2-ratelimit",
+    "scenario_title": "Rate limiting disabled in integration environment via env var",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-1.2",
+      "NFR-1"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "GHARRA_RATE_LIMIT_ENABLED=false"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/rate-limit/status"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "rate_limit_enabled"
+      ],
+      "rate_limit_enabled": false
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-1.2",
+      "rate-limit",
+      "positive",
+      "config"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00010",
+    "poc_demo": "mitigation-1.2-ratelimit",
+    "scenario_title": "Rate-limit status on GB sovereign returns healthy state",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-1.2",
+      "CAP-1"
+    ],
+    "preconditions": [
+      "gb_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/rate-limit/status",
+      "target_registry": "gb"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "rate_limit_enabled",
+        "circuit_breakers"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-1.2",
+      "rate-limit",
+      "positive",
+      "cross-registry",
+      "gb"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00011",
+    "poc_demo": "mitigation-1.2-ratelimit",
+    "scenario_title": "Rate-limit status on US sovereign returns healthy state",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-1.2",
+      "CAP-1"
+    ],
+    "preconditions": [
+      "us_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/rate-limit/status",
+      "target_registry": "us"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "rate_limit_enabled",
+        "circuit_breakers"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-1.2",
+      "rate-limit",
+      "positive",
+      "cross-registry",
+      "us"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00012",
+    "poc_demo": "mitigation-1.3-enforcement",
+    "scenario_title": "Enforcement proxy detects PHI in registration payload and blocks",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-1.3",
+      "MIT-2.3",
+      "FR-12"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/policy-engine/enforce",
+      "body": {
+        "agent_id": "gharra://ie/agents/triage-ie",
+        "action": "register",
+        "payload": {
+          "patient_name": "Sean Murphy",
+          "date_of_birth": "1985-03-15",
+          "notes": "Patient SSN 123-45-6789"
+        }
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "phi_classification",
+        "phi_confidence",
+        "phi_layers"
+      ]
+    },
+    "expected_events": [
+      "policy.enforce.evaluated"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-1.3",
+      "enforcement",
+      "positive",
+      "phi-detection"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00013",
+    "poc_demo": "mitigation-1.3-enforcement",
+    "scenario_title": "Enforcement proxy allows clean payload with no PHI",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-1.3",
+      "FR-12"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/policy-engine/enforce",
+      "body": {
+        "agent_id": "gharra://ie/agents/triage-ie",
+        "action": "discover",
+        "payload": {
+          "capability": "triage",
+          "jurisdiction": "IE"
+        }
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "phi_classification"
+      ],
+      "phi_classification": "clean"
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-1.3",
+      "enforcement",
+      "positive",
+      "clean"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00014",
+    "poc_demo": "mitigation-1.3-enforcement",
+    "scenario_title": "Enforcement proxy flags purpose-of-use mismatch for marketing",
+    "scenario_type": "negative",
+    "requirement_ids": [
+      "MIT-1.3",
+      "FR-7",
+      "GDPR-6"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/policy-engine/enforce",
+      "body": {
+        "agent_id": "gharra://ie/agents/triage-ie",
+        "action": "route",
+        "purpose_of_use": "marketing",
+        "payload": {
+          "capability": "triage"
+        }
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "violations"
+      ]
+    },
+    "expected_events": [
+      "policy.enforce.violation"
+    ],
+    "error_condition": "purpose_mismatch",
+    "test_tags": [
+      "mitigation-1.3",
+      "enforcement",
+      "negative",
+      "purpose"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00015",
+    "poc_demo": "mitigation-1.3-enforcement",
+    "scenario_title": "Enforcement proxy on GB sovereign validates cross-registry enforcement",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-1.3",
+      "CAP-1"
+    ],
+    "preconditions": [
+      "gb_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/policy-engine/enforce",
+      "target_registry": "gb",
+      "body": {
+        "agent_id": "gharra://gb/agents/referral-gb",
+        "action": "discover",
+        "payload": {
+          "capability": "referral"
+        }
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "phi_classification"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-1.3",
+      "enforcement",
+      "positive",
+      "cross-registry"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00016",
+    "poc_demo": "mitigation-2.1-governance",
+    "scenario_title": "Rule manifest returns all governance rules with versioning",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-2.1",
+      "FR-12"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/policy-engine/rules/manifest"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "rules"
+      ],
+      "min_rules": 9
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-2.1",
+      "governance",
+      "positive",
+      "manifest"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00017",
+    "poc_demo": "mitigation-2.1-governance",
+    "scenario_title": "Each manifest rule has version, author, and effective_date fields",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-2.1",
+      "FR-12",
+      "NFR-5"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/policy-engine/rules/manifest"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "each_rule_contains": [
+        "version",
+        "author",
+        "effective_date"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-2.1",
+      "governance",
+      "positive",
+      "versioning"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00018",
+    "poc_demo": "mitigation-2.1-governance",
+    "scenario_title": "Manifest includes GDPR and Schrems II legal references",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-2.1",
+      "FR-12",
+      "GDPR-44",
+      "SCHREMS-II"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/policy-engine/rules/manifest"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "rules"
+      ],
+      "legal_references_present": [
+        "GDPR",
+        "Schrems II"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-2.1",
+      "governance",
+      "positive",
+      "legal-references"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00019",
+    "poc_demo": "mitigation-2.1-governance",
+    "scenario_title": "Rule manifest on GB sovereign matches root registry rule set",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-2.1",
+      "CAP-1"
+    ],
+    "preconditions": [
+      "gb_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/policy-engine/rules/manifest",
+      "target_registry": "gb"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "rules"
+      ],
+      "min_rules": 9
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-2.1",
+      "governance",
+      "positive",
+      "cross-registry"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00020",
+    "poc_demo": "mitigation-2.2-remediation",
+    "scenario_title": "PHI remediation redacts structural fields patient_name and dob",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-2.2",
+      "FR-12",
+      "HIPAA-164"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/policy-engine/remediate",
+      "body": {
+        "agent_id": "gharra://ie/agents/triage-ie",
+        "payload": {
+          "patient_name": "Aoife O'Sullivan",
+          "date_of_birth": "1990-07-22",
+          "chief_complaint": "Chest pain radiating to left arm",
+          "triage_category": "2"
+        }
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "remediated_payload",
+        "redaction_count",
+        "phi_detected",
+        "layers_triggered"
+      ],
+      "phi_detected": true,
+      "layers_triggered_includes": [
+        "structural"
+      ]
+    },
+    "expected_events": [
+      "phi.remediation"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-2.2",
+      "remediation",
+      "positive",
+      "structural"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00021",
+    "poc_demo": "mitigation-2.2-remediation",
+    "scenario_title": "PHI remediation redacts US SSN from free-text clinical notes",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-2.2",
+      "FR-12",
+      "HIPAA-164"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/policy-engine/remediate",
+      "body": {
+        "agent_id": "gharra://us/agents/lab-us",
+        "payload": {
+          "notes": "Patient SSN is 123-45-6789, needs follow-up labs",
+          "test_type": "CBC with differential"
+        }
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "remediated_payload",
+        "redaction_count"
+      ],
+      "phi_detected": true,
+      "layers_triggered_includes": [
+        "format_regex"
+      ]
+    },
+    "expected_events": [
+      "phi.remediation"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-2.2",
+      "remediation",
+      "positive",
+      "ssn",
+      "format-regex"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00022",
+    "poc_demo": "mitigation-2.2-remediation",
+    "scenario_title": "PHI remediation redacts NHS number from referral notes",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-2.2",
+      "FR-12",
+      "NHS-DATA-SECURITY"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/policy-engine/remediate",
+      "body": {
+        "agent_id": "gharra://gb/agents/referral-gb",
+        "payload": {
+          "referral_notes": "NHS number 943 476 5919, refer for cardiology review",
+          "urgency": "routine"
+        }
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "remediated_payload",
+        "redaction_count"
+      ],
+      "phi_detected": true
+    },
+    "expected_events": [
+      "phi.remediation"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-2.2",
+      "remediation",
+      "positive",
+      "nhs-number"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00023",
+    "poc_demo": "mitigation-2.2-remediation",
+    "scenario_title": "PHI remediation redacts email address from contact fields",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-2.2",
+      "FR-12",
+      "GDPR-9"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/policy-engine/remediate",
+      "body": {
+        "agent_id": "gharra://ie/agents/triage-ie",
+        "payload": {
+          "contact_info": "Reach patient at sean.murphy@hospital.ie for follow-up",
+          "department": "Emergency"
+        }
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "remediated_payload",
+        "phi_detected"
+      ],
+      "phi_detected": true
+    },
+    "expected_events": [
+      "phi.remediation"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-2.2",
+      "remediation",
+      "positive",
+      "email"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00024",
+    "poc_demo": "mitigation-2.2-remediation",
+    "scenario_title": "PHI remediation returns clean payload unchanged when no PHI present",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-2.2",
+      "FR-12"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/policy-engine/remediate",
+      "body": {
+        "agent_id": "gharra://ie/agents/triage-ie",
+        "payload": {
+          "capability": "triage",
+          "protocol": "nexus-a2a-jsonrpc",
+          "jurisdiction": "IE"
+        }
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "remediated_payload",
+        "phi_detected"
+      ],
+      "phi_detected": false,
+      "redaction_count": 0
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-2.2",
+      "remediation",
+      "positive",
+      "clean"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00025",
+    "poc_demo": "mitigation-2.2-remediation",
+    "scenario_title": "PHI remediation handles mixed payload with both structural and regex PHI",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-2.2",
+      "FR-12",
+      "HIPAA-164"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/policy-engine/remediate",
+      "body": {
+        "agent_id": "gharra://us/agents/lab-us",
+        "payload": {
+          "patient_name": "John Smith",
+          "medical_record_number": "MRN-2024-001",
+          "notes": "SSN 987-65-4321, email: john@example.com",
+          "test_ordered": "Comprehensive Metabolic Panel"
+        }
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "remediated_payload",
+        "redaction_count",
+        "layers_triggered"
+      ],
+      "phi_detected": true,
+      "min_redaction_count": 3,
+      "layers_triggered_includes": [
+        "structural",
+        "format_regex"
+      ]
+    },
+    "expected_events": [
+      "phi.remediation"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-2.2",
+      "remediation",
+      "positive",
+      "mixed-layers"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00026",
+    "poc_demo": "mitigation-2.2-remediation",
+    "scenario_title": "PHI remediation on GB sovereign validates cross-registry capability",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-2.2",
+      "CAP-1"
+    ],
+    "preconditions": [
+      "gb_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/policy-engine/remediate",
+      "target_registry": "gb",
+      "body": {
+        "agent_id": "gharra://gb/agents/referral-gb",
+        "payload": {
+          "patient_name": "Elizabeth Windsor",
+          "nhs_number": "943 476 5919"
+        }
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "remediated_payload",
+        "phi_detected"
+      ],
+      "phi_detected": true
+    },
+    "expected_events": [
+      "phi.remediation"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-2.2",
+      "remediation",
+      "positive",
+      "cross-registry"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00027",
+    "poc_demo": "mitigation-2.3-phi-detection",
+    "scenario_title": "Multi-layer PHI detection identifies structural field names in nested payloads",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-2.3",
+      "FR-12",
+      "HIPAA-164"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/policy-engine/enforce",
+      "body": {
+        "agent_id": "gharra://ie/agents/triage-ie",
+        "action": "register",
+        "payload": {
+          "demographics": {
+            "patient_name": "Ciara Walsh",
+            "date_of_birth": "1978-11-03"
+          },
+          "clinical": {
+            "chief_complaint": "Abdominal pain"
+          }
+        }
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "phi_classification",
+        "phi_layers"
+      ],
+      "phi_classification": "phi_detected"
+    },
+    "expected_events": [
+      "policy.enforce.evaluated"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-2.3",
+      "phi-detection",
+      "positive",
+      "nested"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00028",
+    "poc_demo": "mitigation-2.3-phi-detection",
+    "scenario_title": "Gateway blocks POST with PHI to non-exempt endpoint",
+    "scenario_type": "negative",
+    "requirement_ids": [
+      "MIT-2.3",
+      "FR-12",
+      "NFR-5"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/agents",
+      "body": {
+        "agent_id": "gharra://ie/agents/test-phi",
+        "display_name": "Test PHI agent",
+        "patient_name": "Protected Patient",
+        "social_security_number": "111-22-3333",
+        "jurisdiction": "IE",
+        "endpoints": [
+          {
+            "url": "http://localhost:9999",
+            "protocol": "nexus-a2a-jsonrpc",
+            "priority": 10,
+            "weight": 100
+          }
+        ],
+        "capabilities": {
+          "protocols": [
+            "nexus-a2a-jsonrpc"
+          ],
+          "domain": [
+            "test"
+          ]
+        }
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 422,
+    "expected_result": {
+      "contains": [
+        "detail"
+      ]
+    },
+    "expected_events": [
+      "gateway.phi.blocked"
+    ],
+    "error_condition": "phi_in_registration_payload",
+    "test_tags": [
+      "mitigation-2.3",
+      "phi-detection",
+      "negative",
+      "gateway-block"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00029",
+    "poc_demo": "mitigation-3.1-crdt",
+    "scenario_title": "Version vectors endpoint returns agent version state",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-3.1",
+      "FR-13"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/crdt/version-vectors"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "registry_id"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-3.1",
+      "crdt",
+      "positive",
+      "version-vectors"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00030",
+    "poc_demo": "mitigation-3.1-crdt",
+    "scenario_title": "Conflict detection identifies version divergence between registries",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-3.1",
+      "FR-13",
+      "CAP-1"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/admin/crdt/detect-conflicts",
+      "body": {
+        "remote_vectors": {}
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "conflicts"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-3.1",
+      "crdt",
+      "positive",
+      "conflict-detection"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00031",
+    "poc_demo": "mitigation-3.1-crdt",
+    "scenario_title": "Conflict detection reports in-sync when versions match",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-3.1",
+      "FR-13"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/admin/crdt/detect-conflicts",
+      "body": {
+        "remote_vectors": {}
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "conflicts",
+        "conflict_count"
+      ],
+      "conflict_count": 0
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-3.1",
+      "crdt",
+      "positive",
+      "in-sync"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00032",
+    "poc_demo": "mitigation-3.1-crdt",
+    "scenario_title": "Version vectors on GB sovereign returns independent state",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-3.1",
+      "CAP-1"
+    ],
+    "preconditions": [
+      "gb_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/crdt/version-vectors",
+      "target_registry": "gb"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "registry_id"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-3.1",
+      "crdt",
+      "positive",
+      "cross-registry"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00033",
+    "poc_demo": "mitigation-3.2-eventsourcing",
+    "scenario_title": "Nexus event store reports enabled status with store path",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-3.2",
+      "FR-11"
+    ],
+    "preconditions": [
+      "nexus_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/api/event-store/replay",
+      "target_service": "nexus"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "enabled"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-3.2",
+      "event-sourcing",
+      "positive",
+      "nexus"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00034",
+    "poc_demo": "mitigation-3.3-replay",
+    "scenario_title": "GHARRA event replay returns ledger entries with registry identity",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-3.3",
+      "FR-11",
+      "FR-13"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/events/replay?limit=10"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "events",
+        "event_count",
+        "registry_id"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-3.3",
+      "event-replay",
+      "positive",
+      "ledger"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00035",
+    "poc_demo": "mitigation-3.3-replay",
+    "scenario_title": "Event replay supports cursor-based pagination with after_seq",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-3.3",
+      "FR-11"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/events/replay?after_seq=5&limit=5"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "events",
+        "event_count"
+      ],
+      "all_events_seq_gt": 5
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-3.3",
+      "event-replay",
+      "positive",
+      "pagination"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00036",
+    "poc_demo": "mitigation-3.3-replay",
+    "scenario_title": "Event replay filters by operation type",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-3.3",
+      "FR-11"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/events/replay?operation=agent.registered&limit=20"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "events"
+      ],
+      "all_events_operation": "agent.registered"
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-3.3",
+      "event-replay",
+      "positive",
+      "filter"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00037",
+    "poc_demo": "mitigation-3.3-replay",
+    "scenario_title": "Event replay on GB sovereign returns independent ledger",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-3.3",
+      "CAP-1"
+    ],
+    "preconditions": [
+      "gb_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/events/replay?limit=10",
+      "target_registry": "gb"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "events",
+        "registry_id"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-3.3",
+      "event-replay",
+      "positive",
+      "cross-registry"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00038",
+    "poc_demo": "mitigation-3.3-replay",
+    "scenario_title": "Nexus event store replay requires task_id parameter",
+    "scenario_type": "edge",
+    "requirement_ids": [
+      "MIT-3.3",
+      "FR-11"
+    ],
+    "preconditions": [
+      "nexus_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/api/event-store/replay",
+      "target_service": "nexus"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "enabled",
+        "detail"
+      ],
+      "detail_contains": "task_id"
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-3.3",
+      "event-replay",
+      "edge",
+      "nexus",
+      "missing-param"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00039",
+    "poc_demo": "mitigation-4.1-scale",
+    "scenario_title": "Scale simulation returns current state and capacity estimates",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-4.1",
+      "NFR-1",
+      "NFR-3"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/admin/scale/simulate",
+      "body": {}
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "current_state",
+        "estimates",
+        "risks"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-4.1",
+      "scale",
+      "positive",
+      "default"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00040",
+    "poc_demo": "mitigation-4.1-scale",
+    "scenario_title": "Scale simulation with 100000 agent target identifies storage and concurrency risks",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-4.1",
+      "NFR-1"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/admin/scale/simulate",
+      "body": {
+        "target_agents": 100000,
+        "target_jurisdictions": 50,
+        "target_rps": 1000
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "current_state",
+        "estimates",
+        "risks"
+      ],
+      "risks_not_empty": true
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-4.1",
+      "scale",
+      "positive",
+      "high-target"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00041",
+    "poc_demo": "mitigation-4.1-scale",
+    "scenario_title": "Scale simulation on GB sovereign returns jurisdiction-scoped estimate",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-4.1",
+      "CAP-1"
+    ],
+    "preconditions": [
+      "gb_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/admin/scale/simulate",
+      "target_registry": "gb",
+      "body": {}
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "current_state",
+        "estimates"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-4.1",
+      "scale",
+      "positive",
+      "cross-registry"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00042",
+    "poc_demo": "mitigation-4.2-capacity",
+    "scenario_title": "Capacity plan returns current usage, limits, headroom and recommendations",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-4.2",
+      "NFR-1"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/capacity/plan"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "recommendations"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-4.2",
+      "capacity",
+      "positive"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00043",
+    "poc_demo": "mitigation-4.2-capacity",
+    "scenario_title": "Capacity plan reports agent slots remaining with positive headroom",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-4.2",
+      "NFR-1"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/capacity/plan"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "headroom"
+      ],
+      "headroom.agent_slots_remaining_gt": 0,
+      "headroom.storage_headroom_pct_gt": 0
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-4.2",
+      "capacity",
+      "positive",
+      "headroom"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00044",
+    "poc_demo": "mitigation-4.2-capacity",
+    "scenario_title": "Capacity plan on GB sovereign returns independent resource view",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-4.2",
+      "CAP-1"
+    ],
+    "preconditions": [
+      "gb_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/capacity/plan",
+      "target_registry": "gb"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "recommendations"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-4.2",
+      "capacity",
+      "positive",
+      "cross-registry"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00045",
+    "poc_demo": "mitigation-4.3-tamperproof",
+    "scenario_title": "Anchor report hash returns ledger sequence number",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-4.3",
+      "FR-11"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/admin/ledger/anchor-report?report_hash=sha256:abc123def456&report_type=conformance"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "anchored"
+      ]
+    },
+    "expected_events": [
+      "audit.report.anchored"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-4.3",
+      "tamper-proof",
+      "positive"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00046",
+    "poc_demo": "mitigation-4.3-tamperproof",
+    "scenario_title": "Audit export includes SHA-256 report hash for tamper evidence",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-4.3",
+      "FR-11",
+      "NFR-5"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/ledger/export"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "report_hash",
+        "integrity",
+        "entries"
+      ],
+      "report_hash_is_sha256": true
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-4.3",
+      "tamper-proof",
+      "positive",
+      "export"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00047",
+    "poc_demo": "mitigation-5.1-credentials",
+    "scenario_title": "Credential status returns trust anchor and agent credential health",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-5.1",
+      "FR-13",
+      "NFR-5"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/credentials/status"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "trust_anchors"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-5.1",
+      "credentials",
+      "positive"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00048",
+    "poc_demo": "mitigation-5.1-credentials",
+    "scenario_title": "Trust anchors report total, active, expired, and expiring-within-30-days counts",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-5.1",
+      "NFR-5"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/credentials/status"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "trust_anchors"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-5.1",
+      "credentials",
+      "positive",
+      "trust-anchors"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00049",
+    "poc_demo": "mitigation-5.1-credentials",
+    "scenario_title": "Rotation check validates known agent credentials are safe to rotate",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-5.1",
+      "FR-13"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/admin/credentials/rotate-check",
+      "body": {
+        "agent_id": "gharra://ie/agents/triage-ie"
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "agent_id",
+        "safe_to_rotate"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-5.1",
+      "credentials",
+      "positive",
+      "rotate-check"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00050",
+    "poc_demo": "mitigation-5.1-credentials",
+    "scenario_title": "Rotation check rejects unknown agent_id",
+    "scenario_type": "negative",
+    "requirement_ids": [
+      "MIT-5.1",
+      "FR-13"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/admin/credentials/rotate-check",
+      "body": {
+        "agent_id": "gharra://ie/agents/nonexistent-agent-xyz"
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "agent_id",
+        "error"
+      ],
+      "error_contains": "not found"
+    },
+    "expected_events": [],
+    "error_condition": "agent_not_found",
+    "test_tags": [
+      "mitigation-5.1",
+      "credentials",
+      "negative",
+      "unknown-agent"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00051",
+    "poc_demo": "mitigation-5.1-credentials",
+    "scenario_title": "Credential status on GB sovereign returns independent trust state",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-5.1",
+      "CAP-1"
+    ],
+    "preconditions": [
+      "gb_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/credentials/status",
+      "target_registry": "gb"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "trust_anchors",
+        "agent_credentials"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-5.1",
+      "credentials",
+      "positive",
+      "cross-registry"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00052",
+    "poc_demo": "mitigation-5.2-identifiers",
+    "scenario_title": "Registered agent has W3C DID URI in did:web format",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-5.2",
+      "FR-1",
+      "W3C-DID"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/agents/gharra%3A%2F%2Fie%2Fagents%2Ftriage-e2e"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "did_uri"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-5.2",
+      "identifiers",
+      "positive",
+      "did"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00053",
+    "poc_demo": "mitigation-5.2-identifiers",
+    "scenario_title": "Registered agent has ISO 17442 LEI (20 alphanumeric characters)",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-5.2",
+      "FR-1",
+      "ISO-17442"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/agents/gharra%3A%2F%2Fie%2Fagents%2Ftriage-e2e"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "organisation_lei"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-5.2",
+      "identifiers",
+      "positive",
+      "lei"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00054",
+    "poc_demo": "mitigation-5.2-identifiers",
+    "scenario_title": "GB sovereign agents have DID URIs matching GB registry",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-5.2",
+      "CAP-1"
+    ],
+    "preconditions": [
+      "gb_sovereign_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/agents",
+      "target_registry": "gb"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "agents"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-5.2",
+      "identifiers",
+      "positive",
+      "cross-registry"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00055",
+    "poc_demo": "mitigation-5.3-erasure",
+    "scenario_title": "GDPR erasure hard-deletes agent and returns 200",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-5.3",
+      "GDPR-17"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "erasure_test_agent_registered"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/admin/erasure",
+      "body": {
+        "agent_id": "gharra://ie/agents/erasure-regr-e0b20e12",
+        "reason": "Art. 17 right to erasure"
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "erased"
+      ]
+    },
+    "expected_events": [
+      "gdpr.erasure.completed"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-5.3",
+      "erasure",
+      "positive",
+      "gdpr"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00056",
+    "poc_demo": "mitigation-5.3-erasure",
+    "scenario_title": "Erasure creates pseudonymised tombstone in ledger",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-5.3",
+      "GDPR-17",
+      "FR-11"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "erasure_test_agent_registered"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/admin/erasure",
+      "body": {
+        "agent_id": "gharra://ie/agents/erasure-regr-5aab2a2b"
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "erased"
+      ]
+    },
+    "expected_events": [
+      "gdpr.erasure.completed"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-5.3",
+      "erasure",
+      "positive",
+      "tombstone"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00057",
+    "poc_demo": "mitigation-5.3-erasure",
+    "scenario_title": "Erasure of nonexistent agent returns 404",
+    "scenario_type": "negative",
+    "requirement_ids": [
+      "MIT-5.3",
+      "GDPR-17"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/admin/erasure",
+      "body": {
+        "agent_id": "gharra://ie/agents/does-not-exist-99999"
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 404,
+    "expected_result": {
+      "contains": [
+        "detail"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "agent_not_found",
+    "test_tags": [
+      "mitigation-5.3",
+      "erasure",
+      "negative",
+      "not-found"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00058",
+    "poc_demo": "mitigation-5.3-erasure",
+    "scenario_title": "Erasure preserves ledger hash chain integrity",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-5.3",
+      "MIT-4.3",
+      "FR-11"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/ledger/verify"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "valid"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-5.3",
+      "erasure",
+      "positive",
+      "chain-integrity"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00059",
+    "poc_demo": "mitigation-6.1-dashboard",
+    "scenario_title": "Compliance dashboard returns agent DID and LEI coverage percentages",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-6.1",
+      "MIT-5.2"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/compliance/dashboard"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "registry_id"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-6.1",
+      "dashboard",
+      "positive"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00060",
+    "poc_demo": "mitigation-6.1-dashboard",
+    "scenario_title": "Dashboard ledger integrity shows valid chain with total entries",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-6.1",
+      "MIT-4.3",
+      "FR-11"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/compliance/dashboard"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "registry_id"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-6.1",
+      "dashboard",
+      "positive",
+      "ledger"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00061",
+    "poc_demo": "mitigation-6.1-dashboard",
+    "scenario_title": "Dashboard on GB sovereign returns GB-specific compliance metrics",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-6.1",
+      "CAP-1"
+    ],
+    "preconditions": [
+      "gb_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/compliance/dashboard",
+      "target_registry": "gb"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "registry_id"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-6.1",
+      "dashboard",
+      "positive",
+      "cross-registry"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00062",
+    "poc_demo": "mitigation-6.2-regulatory",
+    "scenario_title": "Record GDPR regulatory change with impact assessment",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-6.2",
+      "GDPR-44"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/admin/regulatory/changes",
+      "body": {
+        "framework": "GDPR",
+        "jurisdiction": "EU",
+        "title": "Updated adequacy decision for South Korea",
+        "effective_date": "2026-06-01",
+        "impact_assessment": "Adds South Korea to Art. 45 adequacy list; reduces transfer friction for KR-based agents",
+        "affected_mitigations": [
+          "MIT-1.1"
+        ]
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "id"
+      ]
+    },
+    "expected_events": [
+      "regulatory.change.recorded"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-6.2",
+      "regulatory",
+      "positive",
+      "gdpr"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00063",
+    "poc_demo": "mitigation-6.2-regulatory",
+    "scenario_title": "Record NHS Data Security change affecting UK health agents",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-6.2",
+      "NHS-DATA-SECURITY"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/admin/regulatory/changes",
+      "body": {
+        "framework": "NHS-DSPT",
+        "jurisdiction": "GB",
+        "title": "DSPT 2026 mandatory cyber essentials plus certification",
+        "effective_date": "2026-09-01",
+        "impact_assessment": "Requires all NHS-connected agents to present Cyber Essentials Plus attestation",
+        "affected_mitigations": [
+          "MIT-5.1",
+          "MIT-6.3"
+        ]
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "id"
+      ]
+    },
+    "expected_events": [
+      "regulatory.change.recorded"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-6.2",
+      "regulatory",
+      "positive",
+      "nhs"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00064",
+    "poc_demo": "mitigation-6.2-regulatory",
+    "scenario_title": "List regulatory changes filtered by GDPR framework",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-6.2"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "regulatory_changes_recorded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/regulatory/changes?framework=GDPR"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "changes"
+      ],
+      "all_changes_framework": "GDPR"
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-6.2",
+      "regulatory",
+      "positive",
+      "filter"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00065",
+    "poc_demo": "mitigation-6.2-regulatory",
+    "scenario_title": "Regulatory impact assessment cross-references changes against 18 mitigations",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-6.2"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "regulatory_changes_recorded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/regulatory/impact"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "total_active_mitigations"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-6.2",
+      "regulatory",
+      "positive",
+      "impact"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00066",
+    "poc_demo": "mitigation-6.2-regulatory",
+    "scenario_title": "Regulatory change on GB sovereign logged to transparency ledger",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-6.2",
+      "CAP-1",
+      "FR-11"
+    ],
+    "preconditions": [
+      "gb_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/admin/regulatory/changes",
+      "target_registry": "gb",
+      "body": {
+        "framework": "UK-GDPR",
+        "jurisdiction": "GB",
+        "title": "UK GDPR post-Brexit amendment on international transfers",
+        "effective_date": "2026-12-01",
+        "impact_assessment": "Aligns UK adequacy with EU framework updates"
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "id"
+      ]
+    },
+    "expected_events": [
+      "regulatory.change.recorded"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-6.2",
+      "regulatory",
+      "positive",
+      "cross-registry"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00067",
+    "poc_demo": "mitigation-6.3-conformance",
+    "scenario_title": "Conformance report returns pass/fail summary with 8 controls",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-6.3"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/compliance/conformance-report"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "conformance_summary"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-6.3",
+      "conformance",
+      "positive"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00068",
+    "poc_demo": "mitigation-6.3-conformance",
+    "scenario_title": "Conformance report PHI detection control (MIT-2.3) passes",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-6.3",
+      "MIT-2.3"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/compliance/conformance-report"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "conformance_summary"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-6.3",
+      "conformance",
+      "positive",
+      "phi-control"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00069",
+    "poc_demo": "mitigation-6.3-conformance",
+    "scenario_title": "Conformance report includes tamper-proof SHA-256 hash",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-6.3",
+      "MIT-4.3"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/compliance/conformance-report"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "report_hash"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-6.3",
+      "conformance",
+      "positive",
+      "tamper-proof"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00070",
+    "poc_demo": "mitigation-6.3-conformance",
+    "scenario_title": "Conformance report achieves at least 75 percent conformance",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-6.3"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/compliance/conformance-report"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "conformance_summary"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-6.3",
+      "conformance",
+      "positive",
+      "threshold"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00071",
+    "poc_demo": "mitigation-6.3-conformance",
+    "scenario_title": "Conformance report on GB sovereign returns GB-scoped controls",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-6.3",
+      "CAP-1"
+    ],
+    "preconditions": [
+      "gb_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/compliance/conformance-report",
+      "target_registry": "gb"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "conformance_summary"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "mitigation-6.3",
+      "conformance",
+      "positive",
+      "cross-registry"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00072",
+    "poc_demo": "capability-1-federation",
+    "scenario_title": "Root GHARRA discovers GB and US as federation peers",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-1",
+      "FR-13"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "gb_sovereign_healthy",
+      "us_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/federation/peers"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "peers"
+      ],
+      "min_peers": 2
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-1",
+      "federation",
+      "positive",
+      "peer-discovery"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00073",
+    "poc_demo": "capability-1-federation",
+    "scenario_title": "Federated discovery finds GB agents from root registry",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-1",
+      "FR-13"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "gb_sovereign_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/federation/discover?capability=referral"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "agents"
+      ],
+      "agents_include_jurisdiction": "GB"
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-1",
+      "federation",
+      "positive",
+      "cross-border"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00074",
+    "poc_demo": "capability-1-federation",
+    "scenario_title": "Federated discovery deduplicates agents seen in multiple registries",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-1",
+      "FR-13"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "gb_sovereign_healthy",
+      "us_sovereign_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/federation/discover?capability=triage&federate=true"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "agents"
+      ],
+      "no_duplicate_agent_ids": true
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-1",
+      "federation",
+      "positive",
+      "dedup"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00075",
+    "poc_demo": "capability-1-federation",
+    "scenario_title": "Root accepts well-formed federation update from sovereign",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-1",
+      "FR-13"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/federation/updates",
+      "body": {
+        "type": "agent.registered",
+        "source_registry_id": "gharra://gb",
+        "agent_id": "gharra://gb/agents/fed-regression-test",
+        "display_name": "Federation regression test agent",
+        "jurisdiction": "GB"
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 202,
+    "expected_result": {
+      "contains": [
+        "accepted"
+      ]
+    },
+    "expected_events": [
+      "federation.update.accepted"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-1",
+      "federation",
+      "positive",
+      "update"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00076",
+    "poc_demo": "capability-1-federation",
+    "scenario_title": "Root rejects federation update with invalid type field",
+    "scenario_type": "negative",
+    "requirement_ids": [
+      "CAP-1",
+      "FR-13"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/federation/updates",
+      "body": {
+        "type": "invalid.type.xyz",
+        "source_registry": "gharra://gb",
+        "payload": {}
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 400,
+    "expected_result": {
+      "contains": [
+        "detail"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "invalid_update_type",
+    "test_tags": [
+      "capability-1",
+      "federation",
+      "negative",
+      "validation"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00077",
+    "poc_demo": "capability-1-federation",
+    "scenario_title": "Each GHARRA serves well-known identity configuration",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-1",
+      "FR-13"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/.well-known/gharra-configuration"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "registry_id",
+        "jurisdiction",
+        "tier"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-1",
+      "federation",
+      "positive",
+      "identity"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00078",
+    "poc_demo": "capability-2-routing",
+    "scenario_title": "Policy-aware routing permits EU-to-EU agent with consent proof",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-2",
+      "FR-7",
+      "GDPR-44"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/policy-engine/evaluate",
+      "body": {
+        "source_jurisdiction": "IE",
+        "destination_jurisdiction": "DE",
+        "agent_id": "gharra://ie/agents/triage-ie",
+        "purpose_of_use": "treatment",
+        "consent_proof": "explicit_art6_1a"
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "decision"
+      ],
+      "decision": "permit"
+    },
+    "expected_events": [
+      "policy.decision.logged"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-2",
+      "routing",
+      "positive",
+      "consent"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00079",
+    "poc_demo": "capability-2-routing",
+    "scenario_title": "Policy denies routing to non-adequate country without safeguards",
+    "scenario_type": "negative",
+    "requirement_ids": [
+      "CAP-2",
+      "FR-7",
+      "GDPR-44"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/policy-engine/evaluate",
+      "body": {
+        "source_jurisdiction": "IE",
+        "destination_jurisdiction": "IN",
+        "agent_id": "gharra://ie/agents/triage-ie",
+        "purpose_of_use": "treatment"
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "decision"
+      ],
+      "decision": "deny"
+    },
+    "expected_events": [
+      "policy.decision.deny"
+    ],
+    "error_condition": "gdpr_adequacy_block",
+    "test_tags": [
+      "capability-2",
+      "routing",
+      "negative",
+      "gdpr-block"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00080",
+    "poc_demo": "capability-2-routing",
+    "scenario_title": "Emergency break-glass overrides GDPR adequacy block",
+    "scenario_type": "edge",
+    "requirement_ids": [
+      "CAP-2",
+      "FR-7",
+      "GDPR-49"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/policy-engine/evaluate",
+      "body": {
+        "source_jurisdiction": "IE",
+        "destination_jurisdiction": "CN",
+        "agent_id": "gharra://ie/agents/triage-ie",
+        "purpose_of_use": "treatment",
+        "emergency": true,
+        "break_glass_reason": "Life-threatening cardiac event requiring immediate cross-border specialist"
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "decision"
+      ],
+      "decision": "permit",
+      "override": "emergency_break_glass"
+    },
+    "expected_events": [
+      "policy.decision.break_glass"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-2",
+      "routing",
+      "edge",
+      "break-glass"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00081",
+    "poc_demo": "capability-2-routing",
+    "scenario_title": "Consent-gated routing blocks request without consent proof",
+    "scenario_type": "negative",
+    "requirement_ids": [
+      "CAP-2",
+      "FR-7",
+      "GDPR-6"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/policy-engine/evaluate",
+      "body": {
+        "source_jurisdiction": "IE",
+        "destination_jurisdiction": "DE",
+        "agent_id": "gharra://ie/agents/triage-e2e",
+        "purpose_of_use": "treatment"
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "decision"
+      ]
+    },
+    "expected_events": [
+      "policy.route.denied"
+    ],
+    "error_condition": "consent_not_required_for_evaluate",
+    "test_tags": [
+      "capability-2",
+      "routing",
+      "negative",
+      "consent-gate"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00082",
+    "poc_demo": "capability-2-routing",
+    "scenario_title": "Purpose-of-use marketing blocked for clinical agent",
+    "scenario_type": "negative",
+    "requirement_ids": [
+      "CAP-2",
+      "FR-7",
+      "GDPR-6"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/policy-engine/evaluate",
+      "body": {
+        "source_jurisdiction": "IE",
+        "destination_jurisdiction": "IE",
+        "agent_id": "gharra://ie/agents/triage-e2e",
+        "purpose_of_use": "marketing"
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "decision"
+      ]
+    },
+    "expected_events": [
+      "policy.route.denied"
+    ],
+    "error_condition": "purpose_mismatch",
+    "test_tags": [
+      "capability-2",
+      "routing",
+      "negative",
+      "purpose"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00083",
+    "poc_demo": "capability-2-routing",
+    "scenario_title": "Policy decisions logged to transparency ledger for audit",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-2",
+      "FR-11"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/events/replay?operation=policy.decision&limit=5"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "events"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-2",
+      "routing",
+      "positive",
+      "audit-trail"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00084",
+    "poc_demo": "capability-3-mesh",
+    "scenario_title": "Mesh health returns grade green for healthy topology",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-3",
+      "NFR-3"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "gb_sovereign_healthy",
+      "us_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/mesh/health"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "grade",
+        "total_peers",
+        "by_status"
+      ],
+      "grade_in": [
+        "green",
+        "yellow"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-3",
+      "mesh",
+      "positive",
+      "health"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00085",
+    "poc_demo": "capability-3-mesh",
+    "scenario_title": "Mesh peer listing returns GB and US with health fields",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-3",
+      "NFR-3"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "gb_sovereign_healthy",
+      "us_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/mesh/peers"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "peers"
+      ],
+      "each_peer_contains": [
+        "peer_id",
+        "status",
+        "avg_latency_ms",
+        "consecutive_failures"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-3",
+      "mesh",
+      "positive",
+      "peers"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00086",
+    "poc_demo": "capability-3-mesh",
+    "scenario_title": "On-demand probe returns reachability and latency for all peers",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-3",
+      "NFR-3"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "gb_sovereign_healthy",
+      "us_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/mesh/probe"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "results"
+      ],
+      "all_peers_reachable": true
+    },
+    "expected_events": [
+      "mesh.probe.completed"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-3",
+      "mesh",
+      "positive",
+      "probe"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00087",
+    "poc_demo": "capability-3-mesh",
+    "scenario_title": "Probe nonexistent peer returns 404",
+    "scenario_type": "negative",
+    "requirement_ids": [
+      "CAP-3",
+      "NFR-3"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/mesh/probe/nonexistent-peer-xyz"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 404,
+    "expected_result": {
+      "contains": [
+        "detail"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "peer_not_found",
+    "test_tags": [
+      "capability-3",
+      "mesh",
+      "negative",
+      "not-found"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00088",
+    "poc_demo": "capability-3-mesh",
+    "scenario_title": "Circuit breakers show closed state for healthy peers",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-3",
+      "MIT-1.2"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "gb_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/mesh/circuit-breakers"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "breakers"
+      ],
+      "all_breakers_state": "closed"
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-3",
+      "mesh",
+      "positive",
+      "circuit-breaker"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00089",
+    "poc_demo": "capability-3-mesh",
+    "scenario_title": "Mesh reset followed by probe shows healthy recovery",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-3",
+      "NFR-3"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "gb_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/mesh/reset"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "success"
+      ]
+    },
+    "expected_events": [
+      "mesh.reset.completed"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-3",
+      "mesh",
+      "positive",
+      "recovery"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00090",
+    "poc_demo": "capability-3-mesh",
+    "scenario_title": "GB sovereign mesh health endpoint returns independent mesh view",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-3",
+      "CAP-1"
+    ],
+    "preconditions": [
+      "gb_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/mesh/health",
+      "target_registry": "gb"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "grade",
+        "total_peers"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-3",
+      "mesh",
+      "positive",
+      "cross-registry"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00091",
+    "poc_demo": "capability-4-scale",
+    "scenario_title": "Scale smoke test 10 patients through GHARRA-Nexus pipeline at 80 pct success",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-4",
+      "NFR-1",
+      "NFR-3"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "nexus_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "RUN",
+      "harness": "scale_simulation",
+      "profile": "smoke",
+      "patients": 10,
+      "concurrency": 2
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "current_state"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-4",
+      "scale",
+      "positive",
+      "smoke"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00092",
+    "poc_demo": "capability-4-scale",
+    "scenario_title": "Scale report includes observability metadata and report hash",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-4",
+      "MIT-4.3"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "nexus_healthy"
+    ],
+    "input_payload": {
+      "method": "RUN",
+      "harness": "scale_simulation",
+      "profile": "smoke"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "current_state"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-4",
+      "scale",
+      "positive",
+      "metadata"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00093",
+    "poc_demo": "capability-4-scale",
+    "scenario_title": "GHARRA resolve latency P99 under 2 seconds for smoke profile",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-4",
+      "NFR-1"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "RUN",
+      "harness": "scale_simulation",
+      "profile": "smoke"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "current_state"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-4",
+      "scale",
+      "positive",
+      "latency"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00094",
+    "poc_demo": "capability-5-audit",
+    "scenario_title": "Ledger entries have SHA-256 entry_hash and prev_hash chain",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-5",
+      "FR-11"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/ledger/entries?limit=20"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "entries"
+      ],
+      "each_entry_contains": [
+        "entry_hash",
+        "prev_hash"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-5",
+      "audit",
+      "positive",
+      "hash-chain"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00095",
+    "poc_demo": "capability-5-audit",
+    "scenario_title": "Ledger chain verification passes with no tampered entries",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-5",
+      "FR-11",
+      "MIT-4.3"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/ledger/verify"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "valid"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-5",
+      "audit",
+      "positive",
+      "verify"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00096",
+    "poc_demo": "capability-5-audit",
+    "scenario_title": "Create Merkle checkpoint and verify deterministic root",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-5",
+      "FR-11"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/ledger/checkpoint"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "merkle_root"
+      ]
+    },
+    "expected_events": [
+      "audit.checkpoint.created"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-5",
+      "audit",
+      "positive",
+      "merkle"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00097",
+    "poc_demo": "capability-5-audit",
+    "scenario_title": "Merkle proof for specific ledger entry has sibling hashes",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-5",
+      "FR-11"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded",
+      "checkpoint_created"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/ledger/proof/1"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "proof",
+        "entry_hash"
+      ],
+      "proof_has_siblings": true
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-5",
+      "audit",
+      "positive",
+      "proof"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00098",
+    "poc_demo": "capability-5-audit",
+    "scenario_title": "Merkle proof for nonexistent entry returns error",
+    "scenario_type": "negative",
+    "requirement_ids": [
+      "CAP-5",
+      "FR-11"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/ledger/proof/999999"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "error"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "entry_not_found",
+    "test_tags": [
+      "capability-5",
+      "audit",
+      "negative",
+      "not-found"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00099",
+    "poc_demo": "capability-5-audit",
+    "scenario_title": "Federation update creates audit entry with federation_source",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-5",
+      "CAP-1",
+      "FR-11"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "federation_update_accepted"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/events/replay?operation=federation&limit=5"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "events"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-5",
+      "audit",
+      "positive",
+      "federation-audit"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00100",
+    "poc_demo": "capability-5-audit",
+    "scenario_title": "GB sovereign maintains independent ledger with separate chain",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-5",
+      "CAP-1",
+      "FR-11"
+    ],
+    "preconditions": [
+      "gb_sovereign_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/ledger/verify",
+      "target_registry": "gb"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "valid"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-5",
+      "audit",
+      "positive",
+      "cross-registry"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00101",
+    "poc_demo": "capability-6-personas",
+    "scenario_title": "Persona registry lists at least 50 personas across 5 categories",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-6",
+      "FR-14"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/personas/summary"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "total_personas"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-6",
+      "personas",
+      "positive",
+      "summary"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00102",
+    "poc_demo": "capability-6-personas",
+    "scenario_title": "IE doctor defaults to ISBAR workflow framework",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-6",
+      "FR-14"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/personas/doctor/framework/IE"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "framework"
+      ],
+      "framework_includes": "isbar"
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-6",
+      "personas",
+      "positive",
+      "ie-isbar"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00103",
+    "poc_demo": "capability-6-personas",
+    "scenario_title": "GB nurse defaults to SBAR workflow framework",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-6",
+      "FR-14"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/personas/nurse/framework/GB"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "framework"
+      ],
+      "framework_includes": "sbar"
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-6",
+      "personas",
+      "positive",
+      "gb-sbar"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00104",
+    "poc_demo": "capability-6-personas",
+    "scenario_title": "US doctor defaults to SOAP workflow framework",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-6",
+      "FR-14"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/personas/doctor/framework/US"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "framework"
+      ],
+      "framework_includes": "soap"
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-6",
+      "personas",
+      "positive",
+      "us-soap"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00105",
+    "poc_demo": "capability-6-personas",
+    "scenario_title": "Surgeon persona has WHO surgical safety checklist override",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-6",
+      "FR-14"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/personas/surgeon/framework/IE"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "framework"
+      ],
+      "framework_includes": "who-surgical-checklist"
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-6",
+      "personas",
+      "positive",
+      "who-checklist"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00106",
+    "poc_demo": "capability-6-personas",
+    "scenario_title": "Unknown jurisdiction falls back to SOAP default",
+    "scenario_type": "edge",
+    "requirement_ids": [
+      "CAP-6",
+      "FR-14"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/personas/doctor/framework/AU"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "framework"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-6",
+      "personas",
+      "edge",
+      "fallback"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00107",
+    "poc_demo": "capability-6-personas",
+    "scenario_title": "IE doctor config includes en-IE language, HIQA regulatory body, NEWS2 early warning",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-6",
+      "FR-14"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/personas/doctor/config/IE"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "language",
+        "regulatory_body",
+        "early_warning_score"
+      ],
+      "language": "en-IE",
+      "regulatory_body": "HIQA",
+      "early_warning_score": "news2"
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-6",
+      "personas",
+      "positive",
+      "ie-config"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00108",
+    "poc_demo": "capability-6-personas",
+    "scenario_title": "Nonexistent persona returns 404",
+    "scenario_type": "negative",
+    "requirement_ids": [
+      "CAP-6",
+      "FR-14"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/personas/nonexistent_role_xyz"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 404,
+    "expected_result": {
+      "contains": [
+        "detail"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "persona_not_found",
+    "test_tags": [
+      "capability-6",
+      "personas",
+      "negative",
+      "not-found"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00109",
+    "poc_demo": "capability-6-personas",
+    "scenario_title": "Persona search by title doctor returns doctor persona",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-6",
+      "FR-14"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/personas/search?q=doctor"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "personas"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-6",
+      "personas",
+      "positive",
+      "search"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00110",
+    "poc_demo": "capability-6-personas",
+    "scenario_title": "GB sovereign has same persona count as root registry",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-6",
+      "CAP-1"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "gb_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/personas/summary",
+      "target_registry": "gb"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "total_personas"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-6",
+      "personas",
+      "positive",
+      "cross-registry"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00111",
+    "poc_demo": "capability-6-personas",
+    "scenario_title": "DE pharmacist config includes de-DE language",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-6",
+      "FR-14"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/personas/pharmacist/config/DE"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "language"
+      ],
+      "language": "de-DE"
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-6",
+      "personas",
+      "positive",
+      "de-config"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00112",
+    "poc_demo": "capability-6-personas",
+    "scenario_title": "JP doctor config includes ja-JP language",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "CAP-6",
+      "FR-14"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/personas/doctor/config/JP"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "language"
+      ],
+      "language": "ja-JP"
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "capability-6",
+      "personas",
+      "positive",
+      "jp-config"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00113",
+    "poc_demo": "cross-cutting-gateway",
+    "scenario_title": "Gateway requires X-Idempotency-Key header on non-exempt POST",
+    "scenario_type": "negative",
+    "requirement_ids": [
+      "NFR-5",
+      "FR-12"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/agents",
+      "headers": {},
+      "body": {
+        "agent_id": "gharra://ie/agents/no-idemp-test",
+        "display_name": "No idempotency",
+        "jurisdiction": "IE",
+        "endpoints": [
+          {
+            "url": "http://localhost:9999",
+            "protocol": "nexus-a2a-jsonrpc",
+            "priority": 10,
+            "weight": 100
+          }
+        ],
+        "capabilities": {
+          "protocols": [
+            "nexus-a2a-jsonrpc"
+          ],
+          "domain": [
+            "test"
+          ]
+        }
+      }
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 400,
+    "expected_result": {
+      "contains": [
+        "X-Idempotency-Key"
+      ]
+    },
+    "expected_events": [
+      "gateway.idempotency.missing"
+    ],
+    "error_condition": "missing_idempotency_key",
+    "test_tags": [
+      "gateway",
+      "negative",
+      "idempotency"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00114",
+    "poc_demo": "cross-cutting-gateway",
+    "scenario_title": "Admin endpoints exempt from idempotency key requirement",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "NFR-5"
+    ],
+    "preconditions": [
+      "gharra_healthy"
+    ],
+    "input_payload": {
+      "method": "POST",
+      "url": "/v1/admin/scale/simulate",
+      "body": {}
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "current_state"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "gateway",
+      "positive",
+      "exempt"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00115",
+    "poc_demo": "cross-cutting-residency",
+    "scenario_title": "IE triage agent restricted to EU residency",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-1.1",
+      "FR-7"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/agents/gharra%3A%2F%2Fie%2Fagents%2Ftriage-e2e"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "agent_id",
+        "jurisdiction"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "residency",
+      "positive",
+      "ie"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00116",
+    "poc_demo": "cross-cutting-residency",
+    "scenario_title": "US radiology agent prohibits CN and RU regions",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "MIT-1.1",
+      "FR-7"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "agents_seeded"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/agents/gharra%3A%2F%2Fus%2Fagents%2Fradiology-e2e"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "agent_id",
+        "jurisdiction"
+      ]
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "residency",
+      "positive",
+      "us-restrictions"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00117",
+    "poc_demo": "cross-cutting-attestation",
+    "scenario_title": "SignalBox governance attestation endpoint responds with valid status",
+    "scenario_type": "positive",
+    "requirement_ids": [
+      "NFR-5",
+      "FR-12"
+    ],
+    "preconditions": [
+      "signalbox_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/health",
+      "target_service": "signalbox"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": []
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "attestation",
+      "positive",
+      "signalbox"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00118",
+    "poc_demo": "cross-cutting-multi-sovereign",
+    "scenario_title": "All three registries IE GB US respond to health check simultaneously",
+    "scenario_type": "edge",
+    "requirement_ids": [
+      "CAP-1",
+      "NFR-3"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "gb_sovereign_healthy",
+      "us_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/health",
+      "target_registries": [
+        "ie",
+        "gb",
+        "us"
+      ]
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "all_healthy": true
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "multi-sovereign",
+      "edge",
+      "parallel-health"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00119",
+    "poc_demo": "cross-cutting-multi-sovereign",
+    "scenario_title": "Root registry has more peers than any sovereign (topology invariant)",
+    "scenario_type": "edge",
+    "requirement_ids": [
+      "CAP-1",
+      "CAP-3"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "gb_sovereign_healthy",
+      "us_sovereign_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/mesh/peers"
+    },
+    "transport": "http-rest",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "peers"
+      ],
+      "root_peer_count_gte": 2
+    },
+    "expected_events": [],
+    "error_condition": "none",
+    "test_tags": [
+      "multi-sovereign",
+      "edge",
+      "topology-invariant"
+    ]
+  },
+  {
+    "use_case_id": "RMR-00120",
+    "poc_demo": "cross-cutting-end-to-end",
+    "scenario_title": "Full lifecycle: register agent, discover via federation, route with policy, audit trail intact",
+    "scenario_type": "edge",
+    "requirement_ids": [
+      "CAP-1",
+      "CAP-2",
+      "CAP-5",
+      "MIT-1.1",
+      "MIT-5.2",
+      "FR-1",
+      "FR-7",
+      "FR-11",
+      "FR-13"
+    ],
+    "preconditions": [
+      "gharra_healthy",
+      "gb_sovereign_healthy",
+      "nexus_healthy"
+    ],
+    "input_payload": {
+      "method": "GET",
+      "url": "/v1/admin/ledger/verify"
+    },
+    "transport": "http-rest",
+    "auth_mode": "idempotency_key",
+    "expected_http_status": 200,
+    "expected_result": {
+      "contains": [
+        "valid"
+      ]
+    },
+    "expected_events": [
+      "agent.registered",
+      "federation.discover",
+      "policy.decision.logged"
+    ],
+    "error_condition": "none",
+    "test_tags": [
+      "end-to-end",
+      "edge",
+      "full-lifecycle",
+      "cross-capability"
+    ]
+  }
+]

@@ -1,0 +1,101 @@
+apiVersion: reasoning/v1
+kind: Prompt
+metadata:
+  name: scenario-generation
+  version: 1.0.0
+spec:
+  description: "Generate test scenarios in JSON format for BulletTrain integration validation."
+  role: "quality_assurance_engineer"
+  context: >
+    Generate test scenarios for the BulletTrain integration harness following
+    the reduced_json_matrices pattern. Scenarios validate the cross-repo flow:
+    SignalBox (identity/orchestration) -> GHARRA (agent resolution) ->
+    Nexus (agent routing) -> Real test agents -> Response validation.
+
+    Output must be valid JSON. Never CSV. Scenarios must include edge cases
+    for incomplete data, missing historical records, and cross-system failures.
+  template: scenario_template
+  reasoning_modes: [failure_analysis, systems_thinking]
+  clauses:
+    - scenario_reasoning
+    - hidden_assumptions
+    - precision
+  policies:
+    - json_output_only
+    - no_pii
+  output_structure:
+    - scenario_matrix
+  model_preferences:
+    - name: claude-sonnet-4-6
+      temperature: 0.3
+    - name: gpt-4o
+      temperature: 0.3
+  examples:
+    - input: "Generate scenarios for patient referral workflow via Nexus A2A"
+      output: |
+        [
+          {
+            "id": "REF-001",
+            "category": "happy_path",
+            "description": "Standard referral with complete patient data and registered provider",
+            "preconditions": {
+              "patient_data": "complete",
+              "provider_registered_in_gharra": true,
+              "nexus_agent_available": true,
+              "signalbox_identity_verified": true
+            },
+            "steps": [
+              "SignalBox verifies patient identity via FSM",
+              "GHARRA resolves referral agent for jurisdiction",
+              "Nexus routes referral request to agent",
+              "Agent processes referral and returns confirmation"
+            ],
+            "expected_outcome": "referral_accepted",
+            "requirement_trace": "FR-REF-001"
+          },
+          {
+            "id": "REF-002",
+            "category": "edge_case",
+            "description": "Referral with unregistered provider in GHARRA",
+            "preconditions": {
+              "patient_data": "complete",
+              "provider_registered_in_gharra": false,
+              "nexus_agent_available": true,
+              "signalbox_identity_verified": true
+            },
+            "steps": [
+              "SignalBox verifies patient identity",
+              "GHARRA resolution returns no matching agent",
+              "System returns appropriate error with guidance"
+            ],
+            "expected_outcome": "resolution_failed_no_agent",
+            "requirement_trace": "FR-REF-003"
+          },
+          {
+            "id": "REF-003",
+            "category": "negative",
+            "description": "Referral with expired identity token",
+            "preconditions": {
+              "patient_data": "complete",
+              "provider_registered_in_gharra": true,
+              "nexus_agent_available": true,
+              "signalbox_identity_verified": false
+            },
+            "steps": [
+              "SignalBox identity verification fails (expired JWT)",
+              "Request rejected at SignalBox layer"
+            ],
+            "expected_outcome": "identity_verification_failed",
+            "requirement_trace": "NFR-SEC-002"
+          }
+        ]
+  success_criteria:
+    - "All output is valid JSON array"
+    - "Each scenario has id, category, description, preconditions, steps, expected_outcome"
+    - "At least 15% of scenarios are negative/edge cases"
+    - "Scenarios cover all three integration layers (SignalBox, GHARRA, Nexus)"
+    - "100% of scenarios must pass when executed against real services"
+    - "requirement_trace links to FR/NFR identifiers"
+  execution_settings:
+    default:
+      max_tokens: 8000

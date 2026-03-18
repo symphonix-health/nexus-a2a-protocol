@@ -1,0 +1,82 @@
+{
+  "generated_at": "2026-03-15T17:40:22.003303+00:00",
+  "total": 8,
+  "passed": 8,
+  "failed": 0,
+  "skipped": 0,
+  "errors": 0,
+  "results": [
+    {
+      "use_case_id": "OBS-NFR6-001",
+      "scenario_title": "Transparency ledger contains audit entries",
+      "requirement_ids": [
+        "NFR-6"
+      ],
+      "status": "pass",
+      "message": "100 ledger entries found"
+    },
+    {
+      "use_case_id": "OBS-NFR6-002",
+      "scenario_title": "Ledger hash chain is valid (tamper-evidence)",
+      "requirement_ids": [
+        "NFR-6"
+      ],
+      "status": "pass",
+      "message": "Chain verified across 100 entries"
+    },
+    {
+      "use_case_id": "OBS-NFR7-001",
+      "scenario_title": "Ledger entries map to FHIR AuditEvent format",
+      "requirement_ids": [
+        "NFR-7"
+      ],
+      "status": "pass",
+      "message": "100 FHIR AuditEvents generated"
+    },
+    {
+      "use_case_id": "OBS-NFR7-002",
+      "scenario_title": "FHIR AuditEvent contains required fields",
+      "requirement_ids": [
+        "NFR-7"
+      ],
+      "status": "pass",
+      "message": "Fields present: ['resourceType', 'type', 'subtype', 'action', 'recorded', 'outcome', 'agent', 'source', 'entity']"
+    },
+    {
+      "use_case_id": "OBS-NFR9-001",
+      "scenario_title": "GHARRA Prometheus metrics endpoint returns data",
+      "requirement_ids": [
+        "NFR-9"
+      ],
+      "status": "pass",
+      "message": "Metrics collected: True"
+    },
+    {
+      "use_case_id": "OBS-NFR9-002",
+      "scenario_title": "SLI request counters are incrementing",
+      "requirement_ids": [
+        "NFR-9"
+      ],
+      "status": "pass",
+      "message": "SLI requests: 7.0"
+    },
+    {
+      "use_case_id": "OBS-FR13-001",
+      "scenario_title": "Registry lifecycle events recorded in ledger",
+      "requirement_ids": [
+        "FR-13"
+      ],
+      "status": "pass",
+      "message": "Event types found: ['agent.registered', 'registry.registered']"
+    },
+    {
+      "use_case_id": "OBS-HEALTH-001",
+      "scenario_title": "All integration services are healthy",
+      "requirement_ids": [
+        "NFR-8"
+      ],
+      "status": "pass",
+      "message": "{\"gharra\": \"healthy\", \"nexus\": \"ok\", \"signalbox\": \"healthy\"}"
+    }
+  ]
+}

@@ -1,0 +1,213 @@
+###############################################################################
+# Integration Harness — BulletTrain ↔ GHARRA ↔ Nexus-A2A
+#
+# Starts all three systems from their real repository source code:
+#   1. GHARRA root registry        (port 8400, IE)
+#   2. GHARRA sovereign — GB       (port 8401, GB)
+#   3. GHARRA sovereign — US       (port 8402, US)
+#   4. Nexus on-demand GW          (port 8100)  + triage & diagnosis test agents
+#   5. BulletTrain SignalBox        (port 8221)
+#   6. Harness seed runner          (one-shot, seeds all GHARRA instances)
+#
+# Usage:
+#   docker compose up --build -d
+#   docker compose run --rm seed          # seeds GHARRA with test agents
+#   pytest integration/tests -v           # run integration tests
+###############################################################################
+x-common-env: &common-env
+  LOG_LEVEL: INFO
+  PYTHONDONTWRITEBYTECODE: "1"
+
+services:
+  # ---------- GHARRA — Global Healthcare Agent Registry --------------------
+  gharra:
+    build:
+      context: ../global-agent-registry
+      dockerfile: ../integration/Dockerfile.gharra
+    ports:
+      - "8400:8400"
+    environment:
+      <<: *common-env
+      GHARRA_AUTH_MODE: disabled
+      GHARRA_DB_PATH: /app/data/gharra.db
+      GHARRA_REGISTRY_ID: "gharra://registries/integration-harness"
+      GHARRA_TIER: root
+      GHARRA_JURISDICTION: IE
+      GHARRA_API_BASE_URL: "http://gharra:8400"
+      GHARRA_RATE_LIMIT_ENABLED: "false"
+      GHARRA_KNOWN_PEERS: "http://gharra-gb:8400,http://gharra-us:8400"
+      GHARRA_FEDERATION_TIMEOUT: "5"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
+    volumes:
+      - gharra-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8400/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+      start_period: 15s
+    depends_on:
+      gharra-gb:
+        condition: service_healthy
+      gharra-us:
+        condition: service_healthy
+    networks:
+      - integration
+
+  # ---------- GHARRA Sovereign — Great Britain (GB) -------------------------
+  gharra-gb:
+    build:
+      context: ../global-agent-registry
+      dockerfile: ../integration/Dockerfile.gharra
+    ports:
+      - "8401:8400"
+    environment:
+      <<: *common-env
+      GHARRA_AUTH_MODE: disabled
+      GHARRA_DB_PATH: /app/data/gharra.db
+      GHARRA_REGISTRY_ID: "gharra://registries/sovereign-gb"
+      GHARRA_TIER: sovereign
+      GHARRA_JURISDICTION: GB
+      GHARRA_API_BASE_URL: "http://gharra-gb:8400"
+      GHARRA_RATE_LIMIT_ENABLED: "false"
+      GHARRA_KNOWN_PEERS: "http://gharra:8400,http://gharra-us:8400"
+      GHARRA_FEDERATION_TIMEOUT: "5"
+    volumes:
+      - gharra-gb-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8400/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    networks:
+      - integration
+
+  # ---------- GHARRA Sovereign — United States (US) -------------------------
+  gharra-us:
+    build:
+      context: ../global-agent-registry
+      dockerfile: ../integration/Dockerfile.gharra
+    ports:
+      - "8402:8400"
+    environment:
+      <<: *common-env
+      GHARRA_AUTH_MODE: disabled
+      GHARRA_DB_PATH: /app/data/gharra.db
+      GHARRA_REGISTRY_ID: "gharra://registries/sovereign-us"
+      GHARRA_TIER: sovereign
+      GHARRA_JURISDICTION: US
+      GHARRA_API_BASE_URL: "http://gharra-us:8400"
+      GHARRA_RATE_LIMIT_ENABLED: "false"
+      GHARRA_KNOWN_PEERS: "http://gharra:8400,http://gharra-gb:8400"
+      GHARRA_FEDERATION_TIMEOUT: "5"
+    volumes:
+      - gharra-us-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8400/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    networks:
+      - integration
+
+  # ---------- Nexus On-Demand Gateway + Test Agents -----------------------
+  nexus-gateway:
+    build:
+      context: ../Nexus-A2A-protocol
+      dockerfile: Dockerfile.integration
+    ports:
+      - "8100:8100"
+    environment:
+      <<: *common-env
+      NEXUS_ON_DEMAND_GATEWAY_PORT: "8100"
+      NEXUS_JWT_SECRET: "integration-test-secret"
+      NEXUS_REQUIRED_SCOPE: "nexus:invoke"
+      NEXUS_AUTH_MODE: "hs256"
+      NEXUS_CERT_BOUND_TOKENS_REQUIRED: "false"
+      NEXUS_MTLS_REQUIRED: "false"
+      NEXUS_AUDIT_DECISIONS: "true"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8100/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+      start_period: 15s
+    depends_on:
+      gharra:
+        condition: service_healthy
+    networks:
+      - integration
+
+  # ---------- BulletTrain SignalBox ----------------------------------------
+  # SignalBox requires the full BulletTrain RBAC policy registry to start.
+  # For integration testing, the GHARRA → Nexus path is validated directly.
+  # To enable SignalBox, register the signalbox.* policies in
+  # services/common/rbac.py or set BULLETTRAIN_AUTH_DISABLED=true with
+  # a bypass in the require_policy dependency.
+  signalbox:
+    build:
+      context: ../BulletTrain
+      dockerfile: docker/Dockerfile.signalbox.integration
+    ports:
+      - "8221:8221"
+    environment:
+      <<: *common-env
+      SERVICE_PORT: "8221"
+      GHARRA_BASE_URL: "http://gharra:8400"
+      GHARRA_ENABLED: "true"
+      GHARRA_TIMEOUT: "10"
+      GHARRA_CACHE_TTL: "30"
+      NEXUS_GATEWAY_URL: "http://nexus-gateway:8100"
+      NEXUS_TIMEOUT: "30"
+      GATEWAY_JWT_SECRET: "integration-test-secret"
+      SIGNALBOX_PERSISTENT: "false"
+      AUTH_MODE: "dev"
+      DEV_AUTH_SUBJECT: "integration-harness"
+      DEV_AUTH_TENANT_ID: "integration"
+      DEV_AUTH_ROLES: "admin,platform_admin"
+      DEV_AUTH_SCOPES: "signalbox:gharra:resolve,signalbox:gharra:discover,signalbox:identity:read,signalbox:identity:write,signalbox:task:execute,signalbox:task:read,signalbox:session:read,signalbox:session:write,signalbox:external:read,signalbox:external:execute,signalbox:governance:read,signalbox:governance:audit,signalbox:task:maintain"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8221/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      gharra:
+        condition: service_healthy
+      nexus-gateway:
+        condition: service_healthy
+    networks:
+      - integration
+
+  # ---------- Seed runner (one-shot) --------------------------------------
+  seed:
+    build:
+      context: .
+      dockerfile: Dockerfile.seed
+    environment:
+      GHARRA_BASE_URL: "http://gharra:8400"
+      GHARRA_GB_BASE_URL: "http://gharra-gb:8400"
+      GHARRA_US_BASE_URL: "http://gharra-us:8400"
+    depends_on:
+      gharra:
+        condition: service_healthy
+      gharra-gb:
+        condition: service_healthy
+      gharra-us:
+        condition: service_healthy
+    networks:
+      - integration
+    profiles:
+      - seed
+
+volumes:
+  gharra-data:
+  gharra-gb-data:
+  gharra-us-data:
+
+networks:
+  integration:
+    driver: bridge

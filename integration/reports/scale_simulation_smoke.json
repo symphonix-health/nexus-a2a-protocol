@@ -1,0 +1,58 @@
+{
+  "profile": "smoke",
+  "config": {
+    "patients": 10,
+    "hospitals": 2,
+    "insurers": 1,
+    "telemed": 1,
+    "concurrency": 5
+  },
+  "total_tasks": 10,
+  "success": 10,
+  "failure": 0,
+  "error_rate": "0.00%",
+  "elapsed_s": 0.17,
+  "throughput_rps": 58.1,
+  "steps": {
+    "gharra_resolve": {
+      "count": 10,
+      "success": 10,
+      "failure": 0,
+      "avg_ms": 10.8,
+      "p95_ms": 16.0,
+      "p99_ms": 16.0,
+      "min_ms": 0.0,
+      "max_ms": 16.0,
+      "error_rate": "0.00%"
+    },
+    "nexus_invoke": {
+      "count": 10,
+      "success": 10,
+      "failure": 0,
+      "avg_ms": 64.0,
+      "p95_ms": 78.0,
+      "p99_ms": 78.0,
+      "min_ms": 46.0,
+      "max_ms": 78.0,
+      "error_rate": "0.00%"
+    }
+  },
+  "deployment_context": "docker_local",
+  "infrastructure": {
+    "cpu_count": 20,
+    "platform": "win32",
+    "python_version": "3.12.0",
+    "architecture": "AMD64",
+    "memory_gb": 34.0
+  },
+  "started_at": "2026-03-16T20:01:19.031206+00:00",
+  "completed_at": "2026-03-16T20:01:20.684061+00:00",
+  "warmup_elapsed_s": 1.12,
+  "warmup_agents_responsive": 19,
+  "warmup_agents_total": 19,
+  "caveats": [
+    "Docker-local deployment. Shared CPU/memory. No network latency. Results not representative of production.",
+    "Synthetic patient workload (random chief complaints and urgency levels)."
+  ],
+  "report_hash": "c20f8dd4157a7802da5d172cc6a8a0061a84628d746cd0a7f677d91804dbe421"
+}
