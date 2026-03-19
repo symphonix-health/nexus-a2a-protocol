@@ -1,11 +1,348 @@
 {
-  "generated_at": "2026-03-02T23:43:00.040001+00:00",
-  "total": 0,
-  "passed": 0,
-  "failed": 0,
-  "skipped": 0,
-  "errors": 0,
-  "results": [],
+  "generated_at": "2026-03-19T08:58:22.533680+00:00",
+  "total": 26,
+  "passed": 21,
+  "failed": 3,
+  "skipped": 1,
+  "errors": 1,
+  "results": [
+    {
+      "use_case_id": "UC-CMD-0001",
+      "scenario_title": "Agent discovery successful",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-1",
+        "MON-2",
+        "NFR-1"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 375.0
+    },
+    {
+      "use_case_id": "UC-CMD-0002",
+      "scenario_title": "Health polling returns metrics",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-2",
+        "MON-4"
+      ],
+      "status": "fail",
+      "message": "Metrics should include error_rate\nassert 'error_rate' in {'avg_latency_ms': 0.0, 'backpressure': {'max_concurrency': 10, 'queue_depth': 0, 'rate_limit_rps': 25.0, 'retry_after_ms': 250}, 'last_task_ms': 0.0, 'p95_latency_ms': 0.0, ...}",
+      "duration_ms": 296.99999999138527
+    },
+    {
+      "use_case_id": "UC-CMD-0003",
+      "scenario_title": "Topology renders all nodes",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-1",
+        "MON-5"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 375.0
+    },
+    {
+      "use_case_id": "UC-CMD-0004",
+      "scenario_title": "WebSocket connection established",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-3",
+        "NFR-1"
+      ],
+      "status": "fail",
+      "message": "Expected 101, got 404\nassert 404 == 101\n +  where 404 = <Response [404 Not Found]>.status_code",
+      "duration_ms": 312.9999999946449
+    },
+    {
+      "use_case_id": "UC-CMD-0005",
+      "scenario_title": "Event streaming delivers task events",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-3",
+        "MON-4"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 296.99999999138527
+    },
+    {
+      "use_case_id": "UC-CMD-0006",
+      "scenario_title": "Heatmap updates on metric changes",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-4",
+        "MON-5"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 250.0
+    },
+    {
+      "use_case_id": "UC-CMD-0007",
+      "scenario_title": "Frontend serves static files",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-1"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 282.00000000651926
+    },
+    {
+      "use_case_id": "UC-CMD-0008",
+      "scenario_title": "Color palette loads correctly",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-5"
+      ],
+      "status": "fail",
+      "message": "Expected application/javascript in text/javascript; charset=utf-8\nassert 'application/javascript' in 'text/javascript; charset=utf-8'",
+      "duration_ms": 655.9999999881256
+    },
+    {
+      "use_case_id": "UC-CMD-0009",
+      "scenario_title": "Health endpoint responds",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-2"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 266.00000000325963
+    },
+    {
+      "use_case_id": "UC-CMD-0010",
+      "scenario_title": "Multi-agent tracking concurrent tasks",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-3",
+        "MON-4"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 280.99999998812564
+    },
+    {
+      "use_case_id": "UC-CMD-0023",
+      "scenario_title": "Color contrast ratios meet WCAG AA",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-5",
+        "NFR-9"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-CMD-0024",
+      "scenario_title": "CSS transitions smooth (300ms)",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-5"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 312.0000000053551
+    },
+    {
+      "use_case_id": "UC-CMD-0025",
+      "scenario_title": "API response time <200ms",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "NFR-10"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 282.00000000651926
+    },
+    {
+      "use_case_id": "UC-CMD-0011",
+      "scenario_title": "Agent unreachable shows red status",
+      "poc_demo": "command-centre",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "MON-1",
+        "MON-2"
+      ],
+      "status": "pass",
+      "message": "Expected failure: Expected status 'unhealthy' in ['healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy']\nassert 'unhealthy' in ['healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', ...]",
+      "duration_ms": 296.99999999138527
+    },
+    {
+      "use_case_id": "UC-CMD-0012",
+      "scenario_title": "Redis unavailable falls back gracefully",
+      "poc_demo": "command-centre",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "MON-3",
+        "NFR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 281.00000001722947
+    },
+    {
+      "use_case_id": "UC-CMD-0013",
+      "scenario_title": "Invalid agent URL handled",
+      "poc_demo": "command-centre",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "MON-1",
+        "NFR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 265.9999999741558
+    },
+    {
+      "use_case_id": "UC-CMD-0014",
+      "scenario_title": "Malformed event data skipped",
+      "poc_demo": "command-centre",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "MON-3",
+        "NFR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 280.99999998812564
+    },
+    {
+      "use_case_id": "UC-CMD-0015",
+      "scenario_title": "High latency agent shows degraded in heatmap",
+      "poc_demo": "command-centre",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "MON-4",
+        "MON-5"
+      ],
+      "status": "pass",
+      "message": "Expected failure: Expected status 'degraded' in ['healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy']\nassert 'degraded' in ['healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', ...]",
+      "duration_ms": 312.9999999946449
+    },
+    {
+      "use_case_id": "UC-CMD-0016",
+      "scenario_title": "Error rate >10% shows unhealthy",
+      "poc_demo": "command-centre",
+      "scenario_type": "negative",
+      "requirement_ids": [
+        "MON-2",
+        "MON-4"
+      ],
+      "status": "pass",
+      "message": "Expected failure: Expected status 'unhealthy' in ['healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy']\nassert 'unhealthy' in ['healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', ...]",
+      "duration_ms": 297.0000000204891
+    },
+    {
+      "use_case_id": "UC-CMD-0017",
+      "scenario_title": "Agent restart mid-task tracked",
+      "poc_demo": "command-centre",
+      "scenario_type": "edge",
+      "requirement_ids": [
+        "MON-1",
+        "MON-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 296.99999999138527
+    },
+    {
+      "use_case_id": "UC-CMD-0018",
+      "scenario_title": "Redis connection loss and recovery",
+      "poc_demo": "command-centre",
+      "scenario_type": "edge",
+      "requirement_ids": [
+        "MON-3",
+        "NFR-8"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 344.00000001187436
+    },
+    {
+      "use_case_id": "UC-CMD-0019",
+      "scenario_title": "Concurrent task burst (50+ tasks)",
+      "poc_demo": "command-centre",
+      "scenario_type": "edge",
+      "requirement_ids": [
+        "MON-3",
+        "MON-4",
+        "NFR-10"
+      ],
+      "status": "skip",
+      "message": "Requires running agent infrastructure",
+      "duration_ms": 0.0
+    },
+    {
+      "use_case_id": "UC-CMD-0020",
+      "scenario_title": "Slow agent response >5s timeout",
+      "poc_demo": "command-centre",
+      "scenario_type": "edge",
+      "requirement_ids": [
+        "MON-2",
+        "NFR-10"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 296.99999999138527
+    },
+    {
+      "use_case_id": "UC-CMD-0021",
+      "scenario_title": "WebSocket reconnection after disconnect",
+      "poc_demo": "command-centre",
+      "scenario_type": "edge",
+      "requirement_ids": [
+        "MON-3"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 280.99999998812564
+    },
+    {
+      "use_case_id": "UC-CMD-0022",
+      "scenario_title": "Zero tasks for 5 minutes shows cool state",
+      "poc_demo": "command-centre",
+      "scenario_type": "edge",
+      "requirement_ids": [
+        "MON-4",
+        "MON-5"
+      ],
+      "status": "pass",
+      "message": "",
+      "duration_ms": 312.0000000053551
+    },
+    {
+      "use_case_id": "UC-CMD-HEALTH-TRIAGE-0001",
+      "scenario_title": "Command Centre reports healthy ED triage statuses after one task",
+      "poc_demo": "command-centre",
+      "scenario_type": "positive",
+      "requirement_ids": [
+        "MON-1",
+        "FR-3",
+        "FR-4",
+        "FR-5"
+      ],
+      "status": "pending",
+      "message": "",
+      "duration_ms": 7937.999999994645
+    }
+  ],
   "dropped_results": 0,
   "max_in_memory_results": 5000
 }

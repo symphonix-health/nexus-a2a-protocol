@@ -1,0 +1,141 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: helixcare-nexus-a2a
+metadata:
+  template: helixcare-nexus-a2a@0.0.1-beta
+
+services:
+  # HelixCare group agents (12 agents)
+  imaging-agent:
+    project: ./demos/helixcare/imaging-agent
+    language: python
+    host: containerapp
+
+  pharmacy-agent:
+    project: ./demos/helixcare/pharmacy-agent
+    language: python
+    host: containerapp
+
+  bed-manager-agent:
+    project: ./demos/helixcare/bed-manager-agent
+    language: python
+    host: containerapp
+
+  discharge-agent:
+    project: ./demos/helixcare/discharge-agent
+    language: python
+    host: containerapp
+
+  followup-scheduler:
+    project: ./demos/helixcare/followup-scheduler
+    language: python
+    host: containerapp
+
+  care-coordinator:
+    project: ./demos/helixcare/care-coordinator
+    language: python
+    host: containerapp
+
+  primary-care-agent:
+    project: ./demos/helixcare/primary-care-agent
+    language: python
+    host: containerapp
+
+  specialty-care-agent:
+    project: ./demos/helixcare/specialty-care-agent
+    language: python
+    host: containerapp
+
+  telehealth-agent:
+    project: ./demos/helixcare/telehealth-agent
+    language: python
+    host: containerapp
+
+  home-visit-agent:
+    project: ./demos/helixcare/home-visit-agent
+    language: python
+    host: containerapp
+
+  ccm-agent:
+    project: ./demos/helixcare/ccm-agent
+    language: python
+    host: containerapp
+
+  clinician-avatar-agent:
+    project: ./demos/helixcare/clinician-avatar-agent
+    language: python
+    host: containerapp
+
+  # ED Triage group agents (3 agents)
+  triage-agent:
+    project: ./demos/ed-triage/triage-agent
+    language: python
+    host: containerapp
+
+  diagnosis-agent:
+    project: ./demos/ed-triage/diagnosis-agent
+    language: python
+    host: containerapp
+
+  openhie-mediator:
+    project: ./demos/ed-triage/openhie-mediator
+    language: python
+    host: containerapp
+
+  # Command Centre
+  command-centre:
+    project: ./shared/command-centre
+    language: python
+    host: containerapp
+
+  # On-Demand Gateway
+  gateway:
+    project: ./shared/on_demand_gateway
+    language: python
+    host: containerapp
+
+  # Command Centre Frontend
+  command-centre-frontend:
+    project: ./shared/command-centre/app/static
+    host: staticwebapp
+
+hooks:
+  preprovision:
+    posix:
+      shell: sh
+      run: |
+        echo "Validating Azure CLI and subscription..."
+        az account show
+    windows:
+      shell: pwsh
+      run: |
+        Write-Host "Validating Azure CLI and subscription..."
+        az account show
+
+  postprovision:
+    posix:
+      shell: sh
+      run: |
+        echo "Storing configuration in Azure App Configuration..."
+        APPCONFIG_NAME=$(azd env get-value AZURE_APP_CONFIGURATION_NAME)
+        az appconfig kv import --name $APPCONFIG_NAME --source file --path config/agents.json --format json --yes
+        az appconfig kv import --name $APPCONFIG_NAME --source file --path config/personas.json --format json --yes
+    windows:
+      shell: pwsh
+      run: |
+        Write-Host "Storing configuration in Azure App Configuration..."
+        $appconfigName = azd env get-value AZURE_APP_CONFIGURATION_NAME
+        az appconfig kv import --name $appconfigName --source file --path config/agents.json --format json --yes
+        az appconfig kv import --name $appconfigName --source file --path config/personas.json --format json --yes
+
+  predeploy:
+    posix:
+      shell: sh
+      run: |
+        echo "Running pre-deployment validation..."
+        python tools/validate_config.py
+    windows:
+      shell: pwsh
+      run: |
+        Write-Host "Running pre-deployment validation..."
+        python tools/validate_config.py
