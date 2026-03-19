@@ -14,27 +14,186 @@ from io import BytesIO
 from typing import Any
 
 
+import re
+
+# ── Grapheme-to-phoneme rules (English approximation) ──────────────────
+# Maps letter patterns to phoneme sequences.  Each phoneme maps to one of
+# 15 MPEG-4 compatible viseme classes.  Order matters: longer patterns first.
+
+_G2P_RULES: list[tuple[str, list[str]]] = [
+    # Digraphs and common clusters — must come before single letters
+    ("th", ["TH"]),
+    ("sh", ["CH"]),
+    ("ch", ["CH"]),
+    ("ph", ["FF"]),
+    ("wh", ["RR"]),
+    ("ck", ["KK"]),
+    ("ng", ["NN"]),
+    ("qu", ["KK", "RR"]),
+    ("oo", ["OO"]),
+    ("ou", ["OU"]),
+    ("ow", ["OU"]),
+    ("oi", ["OU", "EE"]),
+    ("oy", ["OU", "EE"]),
+    ("ea", ["EE"]),
+    ("ee", ["EE"]),
+    ("ai", ["EE"]),
+    ("ay", ["EE"]),
+    ("aw", ["OU"]),
+    ("au", ["OU"]),
+    ("igh", ["AA", "EE"]),
+    ("tion", ["CH", "IH", "NN"]),
+    ("sion", ["CH", "IH", "NN"]),
+    ("ture", ["CH", "IH"]),
+    ("er", ["IH", "RR"]),
+    ("ir", ["IH", "RR"]),
+    ("ur", ["IH", "RR"]),
+    ("or", ["OU", "RR"]),
+    ("ar", ["AA", "RR"]),
+    ("re", ["RR", "IH"]),
+    ("le", ["DD", "IH"]),
+    ("ed", ["DD"]),
+    ("ing", ["IH", "NN"]),
+    # Single consonants
+    ("b", ["PP"]),
+    ("c", ["KK"]),
+    ("d", ["DD"]),
+    ("f", ["FF"]),
+    ("g", ["KK"]),
+    ("h", ["AA"]),    # aspirate — slight open mouth
+    ("j", ["CH"]),
+    ("k", ["KK"]),
+    ("l", ["DD"]),
+    ("m", ["PP"]),
+    ("n", ["NN"]),
+    ("p", ["PP"]),
+    ("r", ["RR"]),
+    ("s", ["SS"]),
+    ("t", ["DD"]),
+    ("v", ["FF"]),
+    ("w", ["RR"]),
+    ("x", ["KK", "SS"]),
+    ("y", ["EE"]),
+    ("z", ["SS"]),
+    # Vowels
+    ("a", ["AA"]),
+    ("e", ["IH"]),
+    ("i", ["EE"]),
+    ("o", ["OU"]),
+    ("u", ["OO"]),
+]
+
+# Compile rules into a sorted list (longest pattern first for greedy matching)
+_G2P_RULES.sort(key=lambda r: -len(r[0]))
+
+# Average phoneme durations (ms) — varies by viseme class
+_PHONEME_DURATION: dict[str, float] = {
+    "sil": 60.0,
+    "PP":  80.0,
+    "FF":  90.0,
+    "TH":  85.0,
+    "DD":  65.0,
+    "KK":  70.0,
+    "CH":  85.0,
+    "SS":  95.0,
+    "NN":  70.0,
+    "RR":  75.0,
+    "AA":  100.0,
+    "EE":  90.0,
+    "IH":  80.0,
+    "OO":  95.0,
+    "OU":  100.0,
+}
+
+# Emphasis weight by viseme class (stressed syllables get higher weight)
+_VISEME_BASE_WEIGHT: dict[str, float] = {
+    "sil": 0.0,
+    "PP":  0.5,
+    "FF":  0.55,
+    "TH":  0.55,
+    "DD":  0.6,
+    "KK":  0.6,
+    "CH":  0.6,
+    "SS":  0.5,
+    "NN":  0.5,
+    "RR":  0.6,
+    "AA":  0.95,
+    "EE":  0.7,
+    "IH":  0.65,
+    "OO":  0.75,
+    "OU":  0.85,
+}
+
+_WORD_STRIP_RE = re.compile(r"[^a-z]")
+
+
+def _word_to_phonemes(word: str) -> list[str]:
+    """Convert a single word to a sequence of viseme classes using G2P rules."""
+    lower = _WORD_STRIP_RE.sub("", word.lower())
+    if not lower:
+        return []
+
+    phonemes: list[str] = []
+    i = 0
+    while i < len(lower):
+        matched = False
+        for pattern, phons in _G2P_RULES:
+            plen = len(pattern)
+            if lower[i : i + plen] == pattern:
+                phonemes.extend(phons)
+                i += plen
+                matched = True
+                break
+        if not matched:
+            i += 1  # skip unknown characters
+
+    return phonemes
+
+
 def simple_viseme_timeline(text: str) -> list[dict[str, float | str]]:
+    """Generate a phoneme-level viseme timeline from text.
+
+    v2: Full grapheme-to-phoneme decomposition with 15 MPEG-4 viseme classes,
+    per-phoneme timing, inter-word silence gaps, and natural weight variation.
+    """
     words = [w for w in text.split() if w.strip()]
     if not words:
         return [{"time_ms": 0.0, "viseme": "sil", "weight": 0.0}]
 
     timeline: list[dict[str, float | str]] = []
-    t = 0.0
-    for word in words:
-        lower = word.lower()
-        viseme = "AA"
-        if any(ch in lower for ch in "fvm"):
-            viseme = "FV"
-        elif any(ch in lower for ch in "bp"):
-            viseme = "PP"
-        elif any(ch in lower for ch in "ou"):
-            viseme = "OW"
-        elif any(ch in lower for ch in "ei"):
-            viseme = "EE"
-        timeline.append({"time_ms": t, "viseme": viseme, "weight": 0.9})
-        t += 190.0
-    timeline.append({"time_ms": t + 120.0, "viseme": "sil", "weight": 0.0})
+    t = 80.0  # Start with brief silence
+
+    for word_idx, word in enumerate(words):
+        phonemes = _word_to_phonemes(word)
+        if not phonemes:
+            t += 60.0  # skip unknown words with a short pause
+            continue
+
+        # First syllable of content words gets slight emphasis
+        is_content_word = len(word) > 3
+        for p_idx, viseme in enumerate(phonemes):
+            weight = _VISEME_BASE_WEIGHT.get(viseme, 0.65)
+            # Emphasis: first vowel-like phoneme in longer words
+            if is_content_word and p_idx < 3 and viseme in ("AA", "EE", "IH", "OO", "OU"):
+                weight = min(1.0, weight * 1.15)
+
+            timeline.append({
+                "time_ms": round(t, 1),
+                "viseme": viseme,
+                "weight": round(weight, 2),
+            })
+            t += _PHONEME_DURATION.get(viseme, 75.0)
+
+        # Inter-word gap (natural pause between words)
+        if word_idx < len(words) - 1:
+            # Longer pause after punctuation
+            if word.rstrip()[-1:] in ".,;:!?":
+                t += 140.0
+            else:
+                t += 55.0
+
+    # Trailing silence
+    timeline.append({"time_ms": round(t + 100.0, 1), "viseme": "sil", "weight": 0.0})
     return timeline
 
 
@@ -336,10 +495,16 @@ async def stream_tts_chunks(
 
     # Default style instructions for natural clinician speech
     _default_instructions = (
-        "Speak naturally and warmly like a real clinician in a face-to-face "
-        "consultation. Use a calm, reassuring, conversational tone with "
-        "natural pacing and breathing pauses. Avoid sounding robotic or "
-        "overly formal."
+        "Speak naturally and warmly like an experienced clinician in a "
+        "face-to-face consultation with a patient. Use a calm, reassuring, "
+        "and empathetic conversational tone. Vary your pace naturally: "
+        "slow down slightly when explaining important medical information, "
+        "and use normal pace for questions. Include natural breathing pauses "
+        "between sentences. Add subtle vocal warmth and slight emphasis on "
+        "key medical terms. Occasionally use brief filler-like pauses "
+        "(short hesitations) as a real doctor would when thinking. "
+        "Never sound robotic, monotone, or like you are reading from a script. "
+        "Speak as if the patient is sitting right in front of you."
     )
     tts_instructions = instructions or os.getenv(
         "OPENAI_TTS_INSTRUCTIONS", _default_instructions

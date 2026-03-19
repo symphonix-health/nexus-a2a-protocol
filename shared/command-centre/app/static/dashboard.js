@@ -122,6 +122,11 @@ function initNavSections() {
         } catch (_) {
             // Ignore storage errors
         }
+
+        // Render topology when switching to agents view
+        if (targetId === 'view-agents') {
+            setTimeout(() => renderTopology('topology-svg-agents'), 50);
+        }
     }
 
     navButtons.forEach((btn) => {
@@ -407,6 +412,24 @@ function initializeTopologyHint() {
         hint.classList.add('is-hidden');
         setTopologyHintDismissed(true);
     });
+
+    // Initialize agents view hint
+    const hintAgents = document.getElementById('topology-hint-agents');
+    const dismissBtnAgents = document.getElementById('dismiss-topology-hint-agents');
+    if (hintAgents && dismissBtnAgents) {
+        if (isTopologyHintDismissed()) {
+            hintAgents.classList.add('is-hidden');
+        } else {
+            hintAgents.classList.remove('hidden');
+        }
+
+        dismissBtnAgents.addEventListener('click', () => {
+            hintAgents.classList.add('is-hidden');
+            setTopologyHintDismissed(true);
+            // Also hide overview hint
+            if (hint) hint.classList.add('is-hidden');
+        });
+    }
 }
 
 function isTopologyHintDismissed() {
@@ -524,8 +547,10 @@ function updateConnectionStatus(connected) {
 }
 
 // ── Topology Visualization ────────────────────────────────────────────
-function renderTopology() {
-    const svg = document.getElementById('topology-svg');
+function renderTopology(svgId = 'topology-svg') {
+    const svg = document.getElementById(svgId);
+    if (!svg) return;
+
     svg.innerHTML = ''; // Clear previous
 
     if (state.agents.length === 0) return;
@@ -543,7 +568,8 @@ function renderTopology() {
     const denseMode = state.agents.length > 15;
 
     const viewport = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    viewport.setAttribute('id', 'topology-viewport');
+    const viewportId = svgId === 'topology-svg-agents' ? 'topology-viewport-agents' : 'topology-viewport';
+    viewport.setAttribute('id', viewportId);
     svg.appendChild(viewport);
 
     // Calculate positions in a circle

@@ -1,0 +1,18 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.6, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\nexus-a2a-protocol
+configfile: pyproject.toml
+plugins: anyio-4.12.1, locust-2.43.3, asyncio-1.3.0, httpx-0.36.0, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 5 items
+
+tests\conformance\domain\test_healthcare_adapter_smoke.py ...            [ 60%]
+tests\conformance\protocol\test_envelope_problem_contracts.py ..         [100%]
+
+============================== warnings summary ===============================
+..\Users\hgeec\AppData\Roaming\Python\Python312\site-packages\starlette\formparsers.py:12
+  C:\Users\hgeec\AppData\Roaming\Python\Python312\site-packages\starlette\formparsers.py:12: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 5 passed, 1 warning in 2.26s =========================
