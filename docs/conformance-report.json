@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-03-19T08:58:22.533680+00:00",
+  "generated_at": "2026-03-19T09:55:02.992322+00:00",
   "total": 26,
-  "passed": 21,
-  "failed": 3,
-  "skipped": 1,
-  "errors": 1,
+  "passed": 5,
+  "failed": 0,
+  "skipped": 6,
+  "errors": 15,
   "results": [
     {
       "use_case_id": "UC-CMD-0001",
@@ -16,9 +16,9 @@
         "MON-2",
         "NFR-1"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 375.0
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2328.9999999979045
     },
     {
       "use_case_id": "UC-CMD-0002",
@@ -29,9 +29,9 @@
         "MON-2",
         "MON-4"
       ],
-      "status": "fail",
-      "message": "Metrics should include error_rate\nassert 'error_rate' in {'avg_latency_ms': 0.0, 'backpressure': {'max_concurrency': 10, 'queue_depth': 0, 'rate_limit_rps': 25.0, 'retry_after_ms': 250}, 'last_task_ms': 0.0, 'p95_latency_ms': 0.0, ...}",
-      "duration_ms": 296.99999999138527
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.999999994645
     },
     {
       "use_case_id": "UC-CMD-0003",
@@ -42,9 +42,9 @@
         "MON-1",
         "MON-5"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 375.0
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2468.9999999827705
     },
     {
       "use_case_id": "UC-CMD-0004",
@@ -55,9 +55,9 @@
         "MON-3",
         "NFR-1"
       ],
-      "status": "fail",
-      "message": "Expected 101, got 404\nassert 404 == 101\n +  where 404 = <Response [404 Not Found]>.status_code",
-      "duration_ms": 312.9999999946449
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
     },
     {
       "use_case_id": "UC-CMD-0005",
@@ -68,9 +68,9 @@
         "MON-3",
         "MON-4"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 296.99999999138527
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2297.000000020489
     },
     {
       "use_case_id": "UC-CMD-0006",
@@ -81,9 +81,9 @@
         "MON-4",
         "MON-5"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 250.0
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2328.0000000086147
     },
     {
       "use_case_id": "UC-CMD-0007",
@@ -93,9 +93,9 @@
       "requirement_ids": [
         "MON-1"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 282.00000000651926
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2312.000000005355
     },
     {
       "use_case_id": "UC-CMD-0008",
@@ -105,9 +105,9 @@
       "requirement_ids": [
         "MON-5"
       ],
-      "status": "fail",
-      "message": "Expected application/javascript in text/javascript; charset=utf-8\nassert 'application/javascript' in 'text/javascript; charset=utf-8'",
-      "duration_ms": 655.9999999881256
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2280.9999999881256
     },
     {
       "use_case_id": "UC-CMD-0009",
@@ -117,9 +117,9 @@
       "requirement_ids": [
         "MON-2"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 266.00000000325963
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
     },
     {
       "use_case_id": "UC-CMD-0010",
@@ -130,9 +130,9 @@
         "MON-3",
         "MON-4"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 280.99999998812564
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
     },
     {
       "use_case_id": "UC-CMD-0023",
@@ -143,9 +143,9 @@
         "MON-5",
         "NFR-9"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000001722947
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2344.0000000118744
     },
     {
       "use_case_id": "UC-CMD-0024",
@@ -155,9 +155,9 @@
       "requirement_ids": [
         "MON-5"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 312.0000000053551
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
     },
     {
       "use_case_id": "UC-CMD-0025",
@@ -167,9 +167,9 @@
       "requirement_ids": [
         "NFR-10"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 282.00000000651926
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2281.0000000172295
     },
     {
       "use_case_id": "UC-CMD-0011",
@@ -181,8 +181,8 @@
         "MON-2"
       ],
       "status": "pass",
-      "message": "Expected failure: Expected status 'unhealthy' in ['healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy']\nassert 'unhealthy' in ['healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', ...]",
-      "duration_ms": 296.99999999138527
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2282.0000000065193
     },
     {
       "use_case_id": "UC-CMD-0012",
@@ -194,8 +194,8 @@
         "NFR-8"
       ],
       "status": "pass",
-      "message": "",
-      "duration_ms": 281.00000001722947
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2312.999999994645
     },
     {
       "use_case_id": "UC-CMD-0013",
@@ -207,8 +207,8 @@
         "NFR-8"
       ],
       "status": "pass",
-      "message": "",
-      "duration_ms": 265.9999999741558
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2297.000000020489
     },
     {
       "use_case_id": "UC-CMD-0014",
@@ -219,9 +219,9 @@
         "MON-3",
         "NFR-8"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 280.99999998812564
+      "status": "error",
+      "message": "All connection attempts failed",
+      "duration_ms": 2296.9999999913853
     },
     {
       "use_case_id": "UC-CMD-0015",
@@ -233,8 +233,8 @@
         "MON-5"
       ],
       "status": "pass",
-      "message": "Expected failure: Expected status 'degraded' in ['healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy']\nassert 'degraded' in ['healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', ...]",
-      "duration_ms": 312.9999999946449
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2312.000000005355
     },
     {
       "use_case_id": "UC-CMD-0016",
@@ -246,8 +246,8 @@
         "MON-4"
       ],
       "status": "pass",
-      "message": "Expected failure: Expected status 'unhealthy' in ['healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy']\nassert 'unhealthy' in ['healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'healthy', ...]",
-      "duration_ms": 297.0000000204891
+      "message": "Expected failure: All connection attempts failed",
+      "duration_ms": 2282.0000000065193
     },
     {
       "use_case_id": "UC-CMD-0017",
@@ -258,9 +258,9 @@
         "MON-1",
         "MON-3"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 296.99999999138527
+      "status": "skip",
+      "message": "Command centre not running",
+      "duration_ms": 2280.9999999881256
     },
     {
       "use_case_id": "UC-CMD-0018",
@@ -271,9 +271,9 @@
         "MON-3",
         "NFR-8"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 344.00000001187436
+      "status": "skip",
+      "message": "Command centre not running",
+      "duration_ms": 2312.999999994645
     },
     {
       "use_case_id": "UC-CMD-0019",
@@ -298,9 +298,9 @@
         "MON-2",
         "NFR-10"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 296.99999999138527
+      "status": "skip",
+      "message": "Command centre not running",
+      "duration_ms": 2297.000000020489
     },
     {
       "use_case_id": "UC-CMD-0021",
@@ -310,9 +310,9 @@
       "requirement_ids": [
         "MON-3"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 280.99999998812564
+      "status": "skip",
+      "message": "Command centre not running",
+      "duration_ms": 2281.0000000172295
     },
     {
       "use_case_id": "UC-CMD-0022",
@@ -323,9 +323,9 @@
         "MON-4",
         "MON-5"
       ],
-      "status": "pass",
-      "message": "",
-      "duration_ms": 312.0000000053551
+      "status": "skip",
+      "message": "Command centre not running",
+      "duration_ms": 2312.999999994645
     },
     {
       "use_case_id": "UC-CMD-HEALTH-TRIAGE-0001",
@@ -340,7 +340,7 @@
       ],
       "status": "pending",
       "message": "",
-      "duration_ms": 7937.999999994645
+      "duration_ms": 181546.0000000021
     }
   ],
   "dropped_results": 0,

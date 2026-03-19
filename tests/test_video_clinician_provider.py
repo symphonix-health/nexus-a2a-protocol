@@ -100,10 +100,12 @@ def test_viseme_whitespace_returns_silence():
     assert result == [{"time_ms": 0.0, "viseme": "sil", "weight": 0.0}]
 
 
-def test_viseme_word_count_is_n_plus_one():
-    """N words + 1 trailing silence entry."""
+def test_viseme_word_count_exceeds_word_count():
+    """Phoneme-level decomposition: more entries than word count + silence."""
     result = simple_viseme_timeline("hello how are you")
-    assert len(result) == 5  # 4 words + silence
+    # v2: phoneme-level decomposition produces multiple entries per word
+    assert len(result) > 4  # at least 1 per word + silence
+    assert result[-1]["viseme"] == "sil"
 
 
 def test_viseme_last_entry_is_silence():
@@ -120,9 +122,11 @@ def test_viseme_times_increase_monotonically():
     assert times[0] < times[-1]
 
 
-def test_viseme_fv_for_labio_dental():
+def test_viseme_ff_for_labio_dental():
+    """v2 uses FF (not FV) for labiodental fricatives (f, v)."""
     result = simple_viseme_timeline("fever")
-    assert result[0]["viseme"] == "FV"
+    visemes = [e["viseme"] for e in result if e["viseme"] != "sil"]
+    assert "FF" in visemes  # 'f' maps to FF in v2
 
 
 def test_viseme_pp_for_bilabial():
@@ -130,14 +134,18 @@ def test_viseme_pp_for_bilabial():
     assert result[0]["viseme"] == "PP"
 
 
-def test_viseme_ow_for_round_vowels():
+def test_viseme_ou_for_round_vowels():
+    """v2 uses OU (not OW) for open rounded vowels (o, ou, ow)."""
     result = simple_viseme_timeline("out")
-    assert result[0]["viseme"] == "OW"
+    visemes = [e["viseme"] for e in result if e["viseme"] != "sil"]
+    assert "OU" in visemes  # 'ou' maps to OU in v2
 
 
 def test_viseme_ee_for_front_vowels():
+    """v2 decomposes 'see' into SS + EE phonemes."""
     result = simple_viseme_timeline("see")
-    assert result[0]["viseme"] == "EE"
+    visemes = [e["viseme"] for e in result if e["viseme"] != "sil"]
+    assert "EE" in visemes  # 'ee' maps to EE in v2
 
 
 def test_viseme_weights_in_range():

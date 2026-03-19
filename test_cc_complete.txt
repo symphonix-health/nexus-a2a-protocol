@@ -1,0 +1,17 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.6, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\nexus-a2a-protocol
+configfile: pyproject.toml
+plugins: anyio-4.12.1, locust-2.43.3, asyncio-1.3.0, httpx-0.36.0, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 26 items
+
+tests\nexus_harness\test_command_centre.py .........................s    [100%]
+
+============================== warnings summary ===============================
+tests/nexus_harness/test_command_centre.py::test_command_centre_ed_triage_statuses_after_task
+  C:\Users\hgeec\AppData\Roaming\Python\Python312\site-packages\starlette\formparsers.py:12: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============ 25 passed, 1 skipped, 1 warning in 279.19s (0:04:39) =============
