@@ -489,22 +489,24 @@ async def stream_tts_chunks(
     import httpx
 
     model = os.getenv("OPENAI_TTS_MODEL", "gpt-4o-mini-tts")
-    chosen_voice = voice or os.getenv("OPENAI_TTS_VOICE", "nova")
+    chosen_voice = voice or os.getenv("OPENAI_TTS_VOICE", "ash")
     timeout_seconds = float(os.getenv("OPENAI_TTS_TIMEOUT_SECONDS", "60"))
     max_attempts = int(os.getenv("OPENAI_TTS_MAX_ATTEMPTS", "2"))
 
     # Default style instructions for natural clinician speech
     _default_instructions = (
-        "Speak naturally and warmly like an experienced clinician in a "
-        "face-to-face consultation with a patient. Use a calm, reassuring, "
-        "and empathetic conversational tone. Vary your pace naturally: "
-        "slow down slightly when explaining important medical information, "
-        "and use normal pace for questions. Include natural breathing pauses "
-        "between sentences. Add subtle vocal warmth and slight emphasis on "
-        "key medical terms. Occasionally use brief filler-like pauses "
-        "(short hesitations) as a real doctor would when thinking. "
-        "Never sound robotic, monotone, or like you are reading from a script. "
-        "Speak as if the patient is sitting right in front of you."
+        "You are a warm, experienced clinician sitting across from a patient. "
+        "Speak in a gentle, unhurried conversational tone — as if chatting "
+        "with someone you genuinely care about. Vary your pitch and pace "
+        "naturally: slow down and soften when delivering important medical "
+        "information, speed up slightly for casual transitions like "
+        "'so what we'll do is…'. Pause briefly between sentences the way a "
+        "real person does when collecting their thoughts — do not rush. "
+        "Let your voice rise gently at the end of questions. Add subtle "
+        "warmth and occasional light emphasis on key terms. Use a lower "
+        "register for reassurance and a slightly brighter tone for "
+        "encouragement. Never sound monotone, robotic, or like you are "
+        "reading from a script. Breathe between clauses."
     )
     tts_instructions = instructions or os.getenv(
         "OPENAI_TTS_INSTRUCTIONS", _default_instructions
