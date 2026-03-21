@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-19T14:14:11.203993+00:00",
+  "generated_at": "2026-03-21T19:22:05.918914+00:00",
   "total": 44,
   "passed": 44,
   "failed": 0,
@@ -12,7 +12,7 @@
       "scenario_type": "positive",
       "transport": "simulation",
       "status": "pass",
-      "message": "task_id=9c1904e1-699a-4631-80f9-98dae083c51d",
+      "message": "task_id=1dc3ccff-0c41-48cb-b54e-e03500ddc5a6",
       "duration_ms": 0.0
     },
     {
@@ -21,7 +21,7 @@
       "scenario_type": "positive",
       "transport": "simulation",
       "status": "pass",
-      "message": "task_id=edb5020e-4e74-4965-89b6-bd1a58f25f23",
+      "message": "task_id=e129e571-56c9-4d2e-a09a-db6d64a35e6b",
       "duration_ms": 0.0
     },
     {
@@ -48,8 +48,8 @@
       "scenario_type": "positive",
       "transport": "http_sse",
       "status": "pass",
-      "message": "task_id=3e8d9eed-8a76-49e9-bb8e-b051da82144a",
-      "duration_ms": 0.0
+      "message": "task_id=30443e5e-d13e-4f1d-871f-c099f5d66144",
+      "duration_ms": 16.00000000325963
     },
     {
       "use_case_id": "UC-SDK-PARITY-0006",
@@ -57,7 +57,7 @@
       "scenario_type": "positive",
       "transport": "http_sse",
       "status": "pass",
-      "message": "task_id=34320ff5-f1c9-4ce0-aea0-25cf7902ec0f",
+      "message": "task_id=4464e4a3-9f5b-4143-980f-e6075ac63939",
       "duration_ms": 0.0
     },
     {
@@ -67,7 +67,7 @@
       "transport": "http_sse",
       "status": "pass",
       "message": "events=3",
-      "duration_ms": 0.0
+      "duration_ms": 14.999999999417923
     },
     {
       "use_case_id": "UC-SDK-PARITY-0008",
@@ -76,7 +76,7 @@
       "transport": "http_sse",
       "status": "pass",
       "message": "task_id=task-http_sse",
-      "duration_ms": 0.0
+      "duration_ms": 14.999999999417923
     },
     {
       "use_case_id": "UC-SDK-PARITY-0009",
@@ -84,8 +84,8 @@
       "scenario_type": "positive",
       "transport": "websocket",
       "status": "pass",
-      "message": "task_id=cbce8f15-e1a5-4ea7-ad67-bef19a13421c",
-      "duration_ms": 0.0
+      "message": "task_id=8b403a81-a0c1-4a9a-9400-2bb5a0ddd414",
+      "duration_ms": 16.00000000325963
     },
     {
       "use_case_id": "UC-SDK-PARITY-0010",
@@ -93,7 +93,7 @@
       "scenario_type": "positive",
       "transport": "websocket",
       "status": "pass",
-      "message": "task_id=90dfd67f-0832-4b7d-bca0-d3c732d8b7e8",
+      "message": "task_id=7bcb590d-fb7d-4bd2-9e3d-49424593a05a",
       "duration_ms": 0.0
     },
     {
@@ -175,7 +175,7 @@
       "transport": "http_sse",
       "status": "pass",
       "message": "events=2",
-      "duration_ms": 15.000000013969839
+      "duration_ms": 14.999999999417923
     },
     {
       "use_case_id": "UC-SDK-STREAM-0020",
@@ -202,7 +202,7 @@
       "transport": "http_sse",
       "status": "pass",
       "message": "events=3",
-      "duration_ms": 0.0
+      "duration_ms": 16.00000000325963
     },
     {
       "use_case_id": "UC-SDK-NEG-0023",
@@ -229,7 +229,7 @@
       "transport": "websocket",
       "status": "pass",
       "message": "error=-32601",
-      "duration_ms": 0.0
+      "duration_ms": 14.999999999417923
     },
     {
       "use_case_id": "UC-SDK-NEG-0026",
@@ -283,7 +283,7 @@
       "transport": "http_sse",
       "status": "pass",
       "message": "error=-32601",
-      "duration_ms": 0.0
+      "duration_ms": 14.999999999417923
     },
     {
       "use_case_id": "UC-SDK-NEG-0032",
@@ -300,8 +300,8 @@
       "scenario_type": "edge",
       "transport": "simulation",
       "status": "pass",
-      "message": "task_id=5310cfdb-1dd3-4b56-b435-c2aa4878cef2",
-      "duration_ms": 0.0
+      "message": "task_id=8ce9d849-662b-4a3f-9858-32c805400dc9",
+      "duration_ms": 16.00000000325963
     },
     {
       "use_case_id": "UC-SDK-EDGE-0034",
@@ -309,7 +309,7 @@
       "scenario_type": "edge",
       "transport": "http_sse",
       "status": "pass",
-      "message": "task_id=19711ed1-2933-49f2-bd4e-f83cf2f3fc26",
+      "message": "task_id=cf258e91-ae3e-405f-86c4-e239db5187a6",
       "duration_ms": 0.0
     },
     {
@@ -318,7 +318,7 @@
       "scenario_type": "edge",
       "transport": "websocket",
       "status": "pass",
-      "message": "task_id=5f2582e5-29c0-4357-8310-0a93fcfcf8e4",
+      "message": "task_id=ec487230-e315-4592-b47e-af9f227dbb10",
       "duration_ms": 0.0
     },
     {
@@ -337,7 +337,7 @@
       "transport": "http_sse",
       "status": "pass",
       "message": "events=2",
-      "duration_ms": 0.0
+      "duration_ms": 15.999999995983671
     },
     {
       "use_case_id": "UC-SDK-EDGE-0038",
@@ -346,7 +346,7 @@
       "transport": "websocket",
       "status": "pass",
       "message": "events=2",
-      "duration_ms": 0.0
+      "duration_ms": 14.999999999417923
     },
     {
       "use_case_id": "UC-SDK-EDGE-0039",
@@ -373,7 +373,7 @@
       "transport": "legacy",
       "status": "pass",
       "message": "registry_size=33",
-      "duration_ms": 15.999999974155799
+      "duration_ms": 15.999999995983671
     },
     {
       "use_case_id": "UC-SDK-LEGACY-0042",
@@ -400,7 +400,7 @@
       "transport": "legacy",
       "status": "pass",
       "message": "deprecation_warning_ok",
-      "duration_ms": 0.0
+      "duration_ms": 16.00000000325963
     }
   ]
 }
