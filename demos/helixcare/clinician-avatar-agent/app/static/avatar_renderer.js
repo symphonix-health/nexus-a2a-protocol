@@ -27,25 +27,28 @@
  */
 window.AvatarRenderer = (() => {
   // ── Avatar sources ──────────────────────────────────────────────────────
+  // All variants currently share the single available clinician video.
+  // When additional avatar media becomes available, update paths here.
+  const _VIDEO = '/media/Black%20male%20clinician.mp4';
   const AVATAR_SOURCES = {
     male_black: {
-      idle: '/media/Black%20male%20clinician.mp4',
-      speaking: '/media/Black%20male%20clinician%202.mp4',
+      idle: _VIDEO,
+      speaking: _VIDEO,
       static: '/media/Black%20male%20clinician%20front.png',
     },
     male_white: {
-      idle: '/media/Black%20male%20clinician.mp4',
-      speaking: '/media/Black%20male%20clinician%202.mp4',
+      idle: _VIDEO,
+      speaking: _VIDEO,
       static: '/media/Black%20male%20clinician%20left.png',
     },
     female_black: {
-      idle: '/media/Black%20male%20clinician.mp4',
-      speaking: '/media/Black%20male%20clinician%202.mp4',
+      idle: _VIDEO,
+      speaking: _VIDEO,
       static: '/media/Black%20male%20clinician%20back.png',
     },
     female_white: {
-      idle: '/media/Black%20male%20clinician.mp4',
-      speaking: '/media/Black%20male%20clinician%202.mp4',
+      idle: _VIDEO,
+      speaking: _VIDEO,
       static: '/media/Black%20male%20clinician%20front.png',
     },
   };
@@ -367,6 +370,7 @@ window.AvatarRenderer = (() => {
       sw = vw;
       sh = Math.round(vw / cAR);
       sx = 0;
+      // Centre crop vertically — canvas min-height ensures full head-to-chest view
       sy = Math.round((vh - sh) * 0.5);
     } else {
       sh = vh;
