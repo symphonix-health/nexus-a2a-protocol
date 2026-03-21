@@ -76,7 +76,7 @@ body { display: flex; flex-direction: column; }
   flex: 1 1 auto;
   min-height: 0;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: auto;
 }
 
 /* ── Panel base ────────────────────────────────────────────────────────── */
@@ -118,7 +118,9 @@ body { display: flex; flex-direction: column; }
 /* ── Clinician video panel ─────────────────────────────────────────────── */
 #avatar-canvas {
   flex: 1;
-  min-height: 0;
+  min-height: 320px;
+  aspect-ratio: 1 / 1;       /* match square clinician video */
+  max-height: 80vh;
   border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--bg-base);
