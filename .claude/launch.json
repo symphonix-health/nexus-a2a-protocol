@@ -1,0 +1,16 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "avatar-agent",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8039", "--app-dir", "demos/helixcare/clinician-avatar-agent"],
+      "env": {
+        "PYTHONPATH": "c:/nexus-a2a-protocol",
+        "NEXUS_JWT_SECRET": "dev-secret-change-me",
+        "DID_VERIFY": "false"
+      },
+      "port": 8039
+    }
+  ]
+}
