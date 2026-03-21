@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "code-review-graph": {
+      "command": "c:/nexus-a2a-protocol/.venv/Scripts/code-review-graph.exe",
+      "args": [
+        "serve"
+      ]
+    }
+  }
+}
