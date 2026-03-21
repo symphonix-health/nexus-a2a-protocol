@@ -397,7 +397,7 @@ async def api_tts_stream(websocket: WebSocket) -> None:
                 break
 
             text = str(msg.get("text") or "").strip()
-            voice = str(msg.get("voice") or "nova").strip() or "nova"
+            voice = str(msg.get("voice") or "ash").strip() or "ash"
             instructions = str(msg.get("instructions") or "").strip() or None
             if not text:
                 continue

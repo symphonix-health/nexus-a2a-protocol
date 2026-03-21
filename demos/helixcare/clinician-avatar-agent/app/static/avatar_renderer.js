@@ -51,7 +51,7 @@ window.AvatarRenderer = (() => {
   };
 
   let _currentSources = AVATAR_SOURCES.male_black;
-  let _renderMode = 'static';
+  let _renderMode = 'video';
 
   let videoEl = null;
   let imageEl = null;
@@ -556,17 +556,19 @@ window.AvatarRenderer = (() => {
     if (_breathPhase > Math.PI * 2) _breathPhase -= Math.PI * 2;
 
     // ── 3. Micro head movement (multi-frequency Perlin-like) ──────────
+    // Amplitudes are tuned to be clearly visible yet still natural —
+    // 3-5 px horizontal, 2-3 px vertical, gentle rotation.
     const t = _elapsedMs / 1000;
-    _headOffset.x = Math.sin(t * 0.37) * 1.2 + Math.sin(t * 0.83) * 0.5;
-    _headOffset.y = Math.sin(t * 0.29) * 0.7 + Math.sin(t * 0.67) * 0.3 + Math.cos(t * 1.1) * 0.2;
-    _headOffset.rot = Math.sin(t * 0.19) * 0.15 + Math.sin(t * 0.53) * 0.08;
+    _headOffset.x = Math.sin(t * 0.37) * 3.0 + Math.sin(t * 0.83) * 1.5 + Math.sin(t * 0.11) * 1.0;
+    _headOffset.y = Math.sin(t * 0.29) * 2.0 + Math.sin(t * 0.67) * 1.0 + Math.cos(t * 1.1) * 0.6;
+    _headOffset.rot = Math.sin(t * 0.19) * 0.45 + Math.sin(t * 0.53) * 0.25;
 
     // ── 4. Eye gaze drift (when not tracking mouse) ───────────────────
     if (_gazeMode === 'auto') {
       _gazeDriftPhase += dt * 0.001;
       // Subtle autonomous gaze drift
-      const baseDriftX = 0.5 + Math.sin(_gazeDriftPhase * 0.4) * 0.05 + Math.sin(_gazeDriftPhase * 0.13) * 0.03;
-      const baseDriftY = 0.45 + Math.sin(_gazeDriftPhase * 0.3) * 0.03;
+      const baseDriftX = 0.5 + Math.sin(_gazeDriftPhase * 0.4) * 0.12 + Math.sin(_gazeDriftPhase * 0.13) * 0.06;
+      const baseDriftY = 0.45 + Math.sin(_gazeDriftPhase * 0.3) * 0.08;
       // Blend: mouse tracking (if active) vs. drift
       const mouseActive = Date.now() - _lastMouseMove < 3000;
       if (!mouseActive) {
@@ -575,8 +577,8 @@ window.AvatarRenderer = (() => {
       }
     }
     // Smooth gaze interpolation
-    _gazeCurrent.x += (_gazeTarget.x - _gazeCurrent.x) * 0.08;
-    _gazeCurrent.y += (_gazeTarget.y - _gazeCurrent.y) * 0.08;
+    _gazeCurrent.x += (_gazeTarget.x - _gazeCurrent.x) * 0.14;
+    _gazeCurrent.y += (_gazeTarget.y - _gazeCurrent.y) * 0.14;
 
     // ── 5. Eyebrow ────────────────────────────────────────────────────
     // Brow target from expression
@@ -610,8 +612,8 @@ window.AvatarRenderer = (() => {
     ctx.clearRect(0, 0, w, h);
 
     // ── Apply breathing + micro head movement as canvas transform ──────
-    const breathScale = 1 + Math.sin(_breathPhase) * 0.002;
-    const breathY = Math.sin(_breathPhase) * -0.8;  // slight rise on inhale
+    const breathScale = 1 + Math.sin(_breathPhase) * 0.006;
+    const breathY = Math.sin(_breathPhase) * -2.4;  // visible rise on inhale
     const hx = _headOffset.x;
     const hy = _headOffset.y + breathY;
     const hRot = _headOffset.rot * (Math.PI / 180);
