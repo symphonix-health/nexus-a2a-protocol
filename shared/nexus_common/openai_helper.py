@@ -2,31 +2,17 @@
 
 from __future__ import annotations
 
+import logging
 import os
-import threading
 
+from shared.nexus_common.llm_provider import is_available
 
-_openai_client = None
-_openai_client_lock = threading.Lock()
-
-
-def _get_openai_client():
-    """Return a singleton OpenAI client (thread-safe)."""
-    global _openai_client
-    if _openai_client is not None:
-        return _openai_client
-    with _openai_client_lock:
-        if _openai_client is not None:
-            return _openai_client
-        from openai import OpenAI
-
-        _openai_client = OpenAI()
-        return _openai_client
+logger = logging.getLogger(__name__)
 
 
 def llm_available() -> bool:
-    """Check whether an OpenAI API key is configured."""
-    return bool(os.getenv("OPENAI_API_KEY"))
+    """Check whether an LLM API key is configured."""
+    return is_available()
 
 
 def llm_chat(
@@ -39,7 +25,9 @@ def llm_chat(
     """Call OpenAI chat completion, or return deterministic mock when key is absent."""
     if llm_available():
         try:
-            client = _get_openai_client()
+            from shared.nexus_common.llm_provider import get_openai_client
+
+            client = get_openai_client()
             kwargs = {}
             # If the system prompt asks for JSON, enforce it via the API
             if "json" in system.lower():
@@ -82,8 +70,8 @@ def llm_chat(
                 content = content[:-3]
 
             return content.strip()
-        except Exception:
-            pass  # Fallback to mock if client init or API call fails
+        except Exception as exc:
+            logger.warning("LLM call failed, falling back to mock: %s", exc)
 
     # ── Deterministic Mocks ─────────────────────────────────────────
     sys_lower = system.lower()

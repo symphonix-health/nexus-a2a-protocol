@@ -284,14 +284,24 @@
   // natural, non-robotic speech.  Override via the hidden "instructions"
   // field on the speak JSON message if needed.
   const _CLINICIAN_TTS_INSTRUCTIONS =
-    'Speak naturally and warmly like a real clinician in a face-to-face ' +
-    'consultation. Use a calm, reassuring, conversational tone with ' +
-    'natural pacing and breathing pauses. Avoid sounding robotic or ' +
-    'overly formal.';
+    'You are a warm, experienced clinician sitting across from a patient. ' +
+    'Speak in a gentle, unhurried conversational tone — as if chatting ' +
+    'with someone you genuinely care about. Vary your pitch and pace ' +
+    'naturally: slow down and soften when delivering important medical ' +
+    'information, speed up slightly for casual transitions. Pause briefly ' +
+    'between sentences the way a real person does when collecting their ' +
+    'thoughts — do not rush. Let your voice rise gently at the end of ' +
+    'questions. Use a lower register for reassurance and a slightly ' +
+    'brighter tone for encouragement. Never sound monotone or robotic. ' +
+    'Breathe between clauses.';
   const _PATIENT_TTS_INSTRUCTIONS =
-    'Speak like a real patient describing symptoms to a doctor. Use a ' +
-    'natural, slightly nervous or uncertain tone with normal conversational ' +
-    'pacing. Include natural hesitations. Avoid sounding like a text-to-speech voice.';
+    'You are a real patient talking to your doctor. Speak in a natural, ' +
+    'slightly hesitant tone — you are not quite sure of the medical words ' +
+    'and sometimes pause to find the right way to describe how you feel. ' +
+    'Vary your pace: slower when recalling symptoms, quicker when answering ' +
+    'simple questions. Let a hint of worry or uncertainty come through ' +
+    'without being dramatic. Include occasional fillers like brief pauses ' +
+    'or a soft "um". Never sound like a text-to-speech voice.';
 
   function _speakStreaming(text, onDone) {
     // Unlock AudioContext before streaming — must be called before any await.

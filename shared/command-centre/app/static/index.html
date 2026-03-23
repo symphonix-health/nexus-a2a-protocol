@@ -2,25 +2,19 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS-A2A Command Centre</title>
-<<<<<<< claude/silly-driscoll
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-=======
-    <!-- Theme applied before paint to prevent flash-of-wrong-theme -->
-    <script>
-      (function(){
-        var k=localStorage.getItem('nexus-theme');
-        if(k){document.documentElement.dataset.theme=k==='light'?'light':'';}
-        else if(window.matchMedia('(prefers-color-scheme: light)').matches){document.documentElement.dataset.theme='light';}
-      })();
-    </script>
-    <link rel="stylesheet" href="/nexus-theme.css?v=__ASSET_VERSION__">
->>>>>>> main
-    <link rel="stylesheet" href="/styles.css?v=__ASSET_VERSION__">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS-A2A Command Centre</title>
+  <!-- Theme applied before paint to prevent flash-of-wrong-theme -->
+  <script>
+    (function () {
+      var k = localStorage.getItem('nexus-theme');
+      if (k) { document.documentElement.dataset.theme = k === 'light' ? 'light' : ''; }
+      else if (window.matchMedia('(prefers-color-scheme: light)').matches) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+  <link rel="stylesheet" href="/nexus-theme.css?v=__ASSET_VERSION__">
+  <link rel="stylesheet" href="/styles.css?v=__ASSET_VERSION__">
 </head>
 
 <body>
@@ -28,7 +22,8 @@
 
     <!-- ── Nav Rail ───────────────────────────────────────────────────────── -->
     <nav class="nx-nav" aria-label="Main navigation">
-      <button class="nx-nav-hamburger" id="nav-hamburger" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+      <button class="nx-nav-hamburger" id="nav-hamburger" aria-label="Toggle navigation"
+        aria-expanded="false">☰</button>
 
       <button class="nx-nav-item active" data-nav-target="view-overview" aria-label="Overview" title="Overview">
         <span class="nx-nav-icon" aria-hidden="true">&#9632;</span>
@@ -55,14 +50,16 @@
         <span class="nx-nav-label">Performance</span>
       </button>
 
-      <button class="nx-nav-item" data-nav-target="view-consultation" aria-label="Live Consultation" title="Live Consultation">
+      <button class="nx-nav-item" data-nav-target="view-consultation" aria-label="Live Consultation"
+        title="Live Consultation">
         <span class="nx-nav-icon" aria-hidden="true">&#9673;</span>
         <span class="nx-nav-label">Consultation</span>
       </button>
 
       <div class="nx-nav-spacer"></div>
 
-      <button id="theme-toggle" class="nx-nav-item nx-nav-theme" title="Toggle light/dark mode" aria-label="Toggle light/dark mode">
+      <button id="theme-toggle" class="nx-nav-item nx-nav-theme" title="Toggle light/dark mode"
+        aria-label="Toggle light/dark mode">
         <span class="nx-nav-icon" id="theme-icon" aria-hidden="true">🌙</span>
         <span class="nx-nav-label" id="theme-label">Dark mode</span>
       </button>
@@ -96,7 +93,8 @@
                 <button id="dismiss-topology-hint" type="button" aria-label="Dismiss topology hint">Dismiss</button>
               </div>
               <div id="topology-container">
-                <svg id="topology-svg" width="100%" height="400" role="img" aria-label="Agent network topology graph"></svg>
+                <svg id="topology-svg" width="100%" height="400" role="img"
+                  aria-label="Agent network topology graph"></svg>
               </div>
             </section>
 
@@ -108,8 +106,10 @@
                   <span id="timeline-event-count" class="timeline-count-pill">0 events</span>
                   <span id="timeline-stream-state" class="timeline-stream-state live">Live</span>
                   <div class="timeline-ops-actions">
-                    <button id="timeline-jump-btn" class="timeline-op-btn timeline-jump-btn hidden" type="button">Jump to latest</button>
-                    <button id="timeline-pause-btn" class="timeline-op-btn" type="button" aria-pressed="false">Pause</button>
+                    <button id="timeline-jump-btn" class="timeline-op-btn timeline-jump-btn hidden" type="button">Jump
+                      to latest</button>
+                    <button id="timeline-pause-btn" class="timeline-op-btn" type="button"
+                      aria-pressed="false">Pause</button>
                     <button id="timeline-clear-btn" class="timeline-op-btn" type="button">Clear</button>
                   </div>
                 </div>
@@ -120,7 +120,8 @@
                   <label><input type="checkbox" checked data-filter="error"> Error</label>
                 </div>
               </div>
-              <div id="timeline-container" class="timeline-events" role="log" aria-live="polite" aria-label="Timeline event stream"></div>
+              <div id="timeline-container" class="timeline-events" role="log" aria-live="polite"
+                aria-label="Timeline event stream"></div>
             </aside>
           </div>
 
@@ -130,14 +131,26 @@
             <div id="heatmap-container" class="heatmap-scroll-wrap">
               <table id="heatmap-table" class="heatmap-table" aria-label="Agent metrics heatmap">
                 <thead>
-                  <tr><th class="metric-label-head" scope="col">Metric</th></tr>
+                  <tr>
+                    <th class="metric-label-head" scope="col">Metric</th>
+                  </tr>
                 </thead>
                 <tbody>
-                  <tr data-metric="throughput"><td class="metric-label" scope="row">Throughput</td></tr>
-                  <tr data-metric="latency"><td class="metric-label" scope="row">Latency (ms)</td></tr>
-                  <tr data-metric="error-rate"><td class="metric-label" scope="row">Error Rate</td></tr>
-                  <tr data-metric="status"><td class="metric-label" scope="row">Status</td></tr>
-                  <tr data-metric="last-activity"><td class="metric-label" scope="row">Last Activity</td></tr>
+                  <tr data-metric="throughput">
+                    <td class="metric-label" scope="row">Throughput</td>
+                  </tr>
+                  <tr data-metric="latency">
+                    <td class="metric-label" scope="row">Latency (ms)</td>
+                  </tr>
+                  <tr data-metric="error-rate">
+                    <td class="metric-label" scope="row">Error Rate</td>
+                  </tr>
+                  <tr data-metric="status">
+                    <td class="metric-label" scope="row">Status</td>
+                  </tr>
+                  <tr data-metric="last-activity">
+                    <td class="metric-label" scope="row">Last Activity</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -152,9 +165,12 @@
               </div>
               <p class="telemetry-subtitle">RSS trend by process — detect runaway growth before failure.</p>
               <div class="memory-kpi-row">
-                <div class="memory-kpi-card"><span class="label">Total RSS</span><span id="memory-total-rss" class="value">--</span></div>
-                <div class="memory-kpi-card"><span class="label">Tracked Processes</span><span id="memory-process-count" class="value">--</span></div>
-                <div class="memory-kpi-card"><span class="label">Sample Cadence</span><span id="memory-sample-cadence" class="value">--</span></div>
+                <div class="memory-kpi-card"><span class="label">Total RSS</span><span id="memory-total-rss"
+                    class="value">--</span></div>
+                <div class="memory-kpi-card"><span class="label">Tracked Processes</span><span id="memory-process-count"
+                    class="value">--</span></div>
+                <div class="memory-kpi-card"><span class="label">Sample Cadence</span><span id="memory-sample-cadence"
+                    class="value">--</span></div>
               </div>
               <div id="memory-process-list" class="memory-process-list">
                 <div class="flow-empty">Awaiting memory telemetry samples…</div>
@@ -226,11 +242,14 @@
         <div class="dashboard-content">
           <section class="panel topology-panel" aria-labelledby="agents-topology-heading">
             <h2 id="agents-topology-heading">Network Topology</h2>
-            <div id="topology-hint-agents" class="topology-hint hidden" role="note">
+            <div id="topology-hint-agents" class="topology-hint" role="note">
               <span>Scroll to zoom · drag to pan · double-click to reset</span>
+              <button id="dismiss-topology-hint-agents" type="button"
+                aria-label="Dismiss topology hint">Dismiss</button>
             </div>
             <div id="topology-container-agents">
-              <!-- Topology SVG is rendered once in overview; this view shares heatmap -->
+              <svg id="topology-svg-agents" width="100%" height="400" role="img"
+                aria-label="Agent network topology graph"></svg>
             </div>
           </section>
           <section class="panel heatmap-panel" aria-labelledby="agents-heatmap-heading">
@@ -275,17 +294,26 @@
               </label>
             </div>
             <div class="flow-board-summary" role="region" aria-label="Scenario summary counts">
-              <div class="flow-summary-card"><span class="label">In Progress</span><span id="flow-in-progress-count" class="value">0</span></div>
-              <div class="flow-summary-card"><span class="label">Queued / HITL</span><span id="flow-queued-count" class="value">0</span></div>
-              <div class="flow-summary-card"><span class="label">Blocked</span><span id="flow-blocked-count" class="value">0</span></div>
-              <div class="flow-summary-card"><span class="label">Completed</span><span id="flow-completed-count" class="value">0</span></div>
-              <div class="flow-summary-card"><span class="label">Critical Risk</span><span id="flow-critical-count" class="value">0</span></div>
+              <div class="flow-summary-card"><span class="label">In Progress</span><span id="flow-in-progress-count"
+                  class="value">0</span></div>
+              <div class="flow-summary-card"><span class="label">Queued / HITL</span><span id="flow-queued-count"
+                  class="value">0</span></div>
+              <div class="flow-summary-card"><span class="label">Blocked</span><span id="flow-blocked-count"
+                  class="value">0</span></div>
+              <div class="flow-summary-card"><span class="label">Completed</span><span id="flow-completed-count"
+                  class="value">0</span></div>
+              <div class="flow-summary-card"><span class="label">Critical Risk</span><span id="flow-critical-count"
+                  class="value">0</span></div>
             </div>
             <div class="flow-kpi-strip" aria-label="Observer KPI strip">
-              <div class="flow-kpi-card"><span class="label">P95 At-Risk Age</span><span id="flow-kpi-p95-risk-age" class="value">--</span></div>
-              <div class="flow-kpi-card"><span class="label">SLA Breach Rate</span><span id="flow-kpi-sla-breach-rate" class="value">--</span></div>
-              <div class="flow-kpi-card"><span class="label">Mean Ack Time</span><span id="flow-kpi-mean-ack-seconds" class="value">--</span></div>
-              <div class="flow-kpi-card"><span class="label">Escalations</span><span id="flow-kpi-escalations" class="value">0</span></div>
+              <div class="flow-kpi-card"><span class="label">P95 At-Risk Age</span><span id="flow-kpi-p95-risk-age"
+                  class="value">--</span></div>
+              <div class="flow-kpi-card"><span class="label">SLA Breach Rate</span><span id="flow-kpi-sla-breach-rate"
+                  class="value">--</span></div>
+              <div class="flow-kpi-card"><span class="label">Mean Ack Time</span><span id="flow-kpi-mean-ack-seconds"
+                  class="value">--</span></div>
+              <div class="flow-kpi-card"><span class="label">Escalations</span><span id="flow-kpi-escalations"
+                  class="value">0</span></div>
             </div>
             <div class="scenario-flow-board" role="region" aria-label="Scenario Kanban board">
               <section class="flow-lane" aria-label="Queued and HITL lane">
@@ -327,7 +355,8 @@
               <div class="trace-run-list">
                 <h3>Patient Runs</h3>
                 <div class="trace-run-list-header">
-                  <input id="trace-search" type="text" placeholder="Search by complaint, scenario, urgency…" class="trace-search" aria-label="Search trace runs">
+                  <input id="trace-search" type="text" placeholder="Search by complaint, scenario, urgency…"
+                    class="trace-search" aria-label="Search trace runs">
                 </div>
                 <div id="trace-run-items" class="trace-run-items" role="list" aria-label="Trace run list">
                   <div class="trace-empty">No trace runs yet. Run a scenario to begin.</div>
@@ -335,7 +364,8 @@
               </div>
               <div class="trace-step-timeline">
                 <h3>Clinical Timeline</h3>
-                <div id="trace-step-container" class="trace-step-container" role="list" aria-label="Clinical trace steps">
+                <div id="trace-step-container" class="trace-step-container" role="list"
+                  aria-label="Clinical trace steps">
                   <div class="trace-empty">Select a run to view the step-by-step trace.</div>
                 </div>
               </div>
@@ -347,7 +377,8 @@
                 <div class="trace-redaction-notice">
                   <span class="redaction-badge">🔒 Redacted for display (policy v1)</span>
                 </div>
-                <button id="trace-export-btn" class="trace-export-btn" disabled aria-disabled="true">Export JSON</button>
+                <button id="trace-export-btn" class="trace-export-btn" disabled aria-disabled="true">Export
+                  JSON</button>
               </aside>
             </div>
           </section>
@@ -360,10 +391,19 @@
           <section class="panel performance-panel" aria-labelledby="performance-heading">
             <h2 id="performance-heading">Performance Charts</h2>
             <div id="performance-charts" class="charts-grid">
-              <div class="chart-card"><h3>System Throughput</h3><canvas id="throughput-chart" aria-label="System throughput chart"></canvas></div>
-              <div class="chart-card"><h3>Latency Distribution</h3><canvas id="latency-chart" aria-label="Latency distribution chart"></canvas></div>
-              <div class="chart-card"><h3>Agent Load Balance</h3><canvas id="load-chart" aria-label="Agent load balance chart"></canvas></div>
-              <div class="chart-card"><h3>Error Budget</h3><canvas id="error-gauge" aria-label="Error budget gauge"></canvas></div>
+              <div class="chart-card">
+                <h3>System Throughput</h3><canvas id="throughput-chart" aria-label="System throughput chart"></canvas>
+              </div>
+              <div class="chart-card">
+                <h3>Latency Distribution</h3><canvas id="latency-chart"
+                  aria-label="Latency distribution chart"></canvas>
+              </div>
+              <div class="chart-card">
+                <h3>Agent Load Balance</h3><canvas id="load-chart" aria-label="Agent load balance chart"></canvas>
+              </div>
+              <div class="chart-card">
+                <h3>Error Budget</h3><canvas id="error-gauge" aria-label="Error budget gauge"></canvas>
+              </div>
             </div>
           </section>
         </div>
@@ -378,8 +418,9 @@
               <button id="live-avatar-refresh" class="trace-export-btn" type="button">Refresh</button>
             </h2>
             <div class="live-avatar-body">
-              <iframe id="live-avatar-frame" class="live-avatar-frame" title="Live clinician consultation" src="about:blank"
-                loading="eager" allow="autoplay" aria-label="Embedded clinician consultation interface"></iframe>
+              <iframe id="live-avatar-frame" class="live-avatar-frame" title="Live clinician consultation"
+                src="about:blank" loading="eager" allow="autoplay"
+                aria-label="Embedded clinician consultation interface"></iframe>
               <p class="live-avatar-note">
                 If blank, ensure the <code>clinician consultation service</code> is running on port <code>8039</code>.
               </p>

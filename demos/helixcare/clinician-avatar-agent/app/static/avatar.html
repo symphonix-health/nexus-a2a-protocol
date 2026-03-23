@@ -5,13 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Clinician Console</title>
-<<<<<<< claude/silly-driscoll
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-=======
   <link rel="stylesheet" href="/static/nexus-theme.css" />
->>>>>>> main
   <link rel="stylesheet" href="/static/styles.css" />
   <!-- Clinician video rendered by avatar_renderer.js; Three.js removed -->
 </head>
@@ -32,9 +26,9 @@
       <label>
         Voice
         <select id="voice-select">
-          <option value="coral" selected>coral (realtime)</option>
+          <option value="ash" selected>ash (warm, natural)</option>
+          <option value="coral">coral (realtime)</option>
           <option value="alloy">alloy (realtime)</option>
-          <option value="ash">ash (realtime)</option>
           <option value="ballad">ballad (realtime)</option>
           <option value="sage">sage (realtime)</option>
           <option value="shimmer">shimmer (standard TTS)</option>
@@ -45,8 +39,9 @@
       <label>
         Render
         <select id="render-mode-select">
-          <option value="static" selected>Static image + lip-sync</option>
-          <option value="video">Video loop</option>
+          <option value="static">Static image + lip-sync</option>
+          <option value="video" selected>Video loop</option>
+          <option value="gpu">GPU 3D Avatar (WebGL)</option>
         </select>
       </label>
       <button id="start-btn" type="button">Start Session</button>
@@ -146,10 +141,33 @@
   <!-- MediaPipe FaceMesh — landmark detection for driven lip-sync -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/face_mesh.js"
     crossorigin="anonymous"></script>
-  <script src="/static/avatar_renderer.js?v=10"></script>
-  <script src="/static/lipsync_engine.js?v=10"></script>
+  <script src="/static/avatar_renderer.js?v=11"></script>
+  <script src="/static/gpu_avatar_renderer.js?v=1"></script>
+  <script src="/static/lipsync_engine.js?v=11"></script>
   <script src="/static/realtime_client.js?v=10"></script>
   <script src="/static/tts_client.js?v=9"></script>
+  <script>
+    // GPU renderer switching: when user selects 'gpu' mode, swap the active renderer
+    (function () {
+      const sel = document.getElementById('render-mode-select');
+      if (!sel) return;
+      const origAR = window.AvatarRenderer;  // canvas renderer (default)
+      sel.addEventListener('change', function () {
+        if (sel.value === 'gpu' && window.GpuAvatarRenderer && window.GpuAvatarRenderer.isAvailable()) {
+          // Swap to GPU renderer
+          window.AvatarRenderer = window.GpuAvatarRenderer;
+          window.AvatarRenderer.init('avatar-canvas');
+        } else if (sel.value !== 'gpu') {
+          // Swap back to canvas renderer
+          if (window.AvatarRenderer !== origAR) {
+            window.AvatarRenderer = origAR;
+            window.AvatarRenderer.init('avatar-canvas');
+          }
+          window.AvatarRenderer.setRenderMode(sel.value);
+        }
+      });
+    })();
+  </script>
   <script src="/static/chat_controller.js?v=9"></script>
   <script>
     (function () {

@@ -63,8 +63,13 @@ def _build_common_result(
     }
 
     method_l = method.lower()
-    if "chest" in complaint.lower() or "shortness of breath" in complaint.lower():
-        result["triage_level"] = "ESI-2"
+    try:
+        from shared.nexus_common.triage_rules import evaluate_triage
+
+        result["triage_level"] = evaluate_triage(complaint, task.get("vitals") or {})
+    except Exception:
+        if "chest" in complaint.lower() or "shortness of breath" in complaint.lower():
+            result["triage_level"] = "ESI-2"
 
     if method_l == "fhir/get" or "fhir/" in method_l:
         result = {"patient": {}, "allergies": {}, "task_id": task_id or params.get("task_id")}
