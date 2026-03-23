@@ -29,3 +29,9 @@ _getpip.txt
 _pip_list.txt
 _pip_ver.txt
 _pytest_ver.txt
+
+# Claude Code worktrees
+.claude/worktrees/
+
+# Code review graph cache
+.code-review-graph/

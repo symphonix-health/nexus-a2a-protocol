@@ -14,33 +14,194 @@ from io import BytesIO
 from typing import Any
 
 
+import re
+
+# ── Grapheme-to-phoneme rules (English approximation) ──────────────────
+# Maps letter patterns to phoneme sequences.  Each phoneme maps to one of
+# 15 MPEG-4 compatible viseme classes.  Order matters: longer patterns first.
+
+_G2P_RULES: list[tuple[str, list[str]]] = [
+    # Digraphs and common clusters — must come before single letters
+    ("th", ["TH"]),
+    ("sh", ["CH"]),
+    ("ch", ["CH"]),
+    ("ph", ["FF"]),
+    ("wh", ["RR"]),
+    ("ck", ["KK"]),
+    ("ng", ["NN"]),
+    ("qu", ["KK", "RR"]),
+    ("oo", ["OO"]),
+    ("ou", ["OU"]),
+    ("ow", ["OU"]),
+    ("oi", ["OU", "EE"]),
+    ("oy", ["OU", "EE"]),
+    ("ea", ["EE"]),
+    ("ee", ["EE"]),
+    ("ai", ["EE"]),
+    ("ay", ["EE"]),
+    ("aw", ["OU"]),
+    ("au", ["OU"]),
+    ("igh", ["AA", "EE"]),
+    ("tion", ["CH", "IH", "NN"]),
+    ("sion", ["CH", "IH", "NN"]),
+    ("ture", ["CH", "IH"]),
+    ("er", ["IH", "RR"]),
+    ("ir", ["IH", "RR"]),
+    ("ur", ["IH", "RR"]),
+    ("or", ["OU", "RR"]),
+    ("ar", ["AA", "RR"]),
+    ("re", ["RR", "IH"]),
+    ("le", ["DD", "IH"]),
+    ("ed", ["DD"]),
+    ("ing", ["IH", "NN"]),
+    # Single consonants
+    ("b", ["PP"]),
+    ("c", ["KK"]),
+    ("d", ["DD"]),
+    ("f", ["FF"]),
+    ("g", ["KK"]),
+    ("h", ["AA"]),    # aspirate — slight open mouth
+    ("j", ["CH"]),
+    ("k", ["KK"]),
+    ("l", ["DD"]),
+    ("m", ["PP"]),
+    ("n", ["NN"]),
+    ("p", ["PP"]),
+    ("r", ["RR"]),
+    ("s", ["SS"]),
+    ("t", ["DD"]),
+    ("v", ["FF"]),
+    ("w", ["RR"]),
+    ("x", ["KK", "SS"]),
+    ("y", ["EE"]),
+    ("z", ["SS"]),
+    # Vowels
+    ("a", ["AA"]),
+    ("e", ["IH"]),
+    ("i", ["EE"]),
+    ("o", ["OU"]),
+    ("u", ["OO"]),
+]
+
+# Compile rules into a sorted list (longest pattern first for greedy matching)
+_G2P_RULES.sort(key=lambda r: -len(r[0]))
+
+# Average phoneme durations (ms) — varies by viseme class
+_PHONEME_DURATION: dict[str, float] = {
+    "sil": 60.0,
+    "PP":  80.0,
+    "FF":  90.0,
+    "TH":  85.0,
+    "DD":  65.0,
+    "KK":  70.0,
+    "CH":  85.0,
+    "SS":  95.0,
+    "NN":  70.0,
+    "RR":  75.0,
+    "AA":  100.0,
+    "EE":  90.0,
+    "IH":  80.0,
+    "OO":  95.0,
+    "OU":  100.0,
+}
+
+# Emphasis weight by viseme class (stressed syllables get higher weight)
+_VISEME_BASE_WEIGHT: dict[str, float] = {
+    "sil": 0.0,
+    "PP":  0.5,
+    "FF":  0.55,
+    "TH":  0.55,
+    "DD":  0.6,
+    "KK":  0.6,
+    "CH":  0.6,
+    "SS":  0.5,
+    "NN":  0.5,
+    "RR":  0.6,
+    "AA":  0.95,
+    "EE":  0.7,
+    "IH":  0.65,
+    "OO":  0.75,
+    "OU":  0.85,
+}
+
+_WORD_STRIP_RE = re.compile(r"[^a-z]")
+
+
+def _word_to_phonemes(word: str) -> list[str]:
+    """Convert a single word to a sequence of viseme classes using G2P rules."""
+    lower = _WORD_STRIP_RE.sub("", word.lower())
+    if not lower:
+        return []
+
+    phonemes: list[str] = []
+    i = 0
+    while i < len(lower):
+        matched = False
+        for pattern, phons in _G2P_RULES:
+            plen = len(pattern)
+            if lower[i : i + plen] == pattern:
+                phonemes.extend(phons)
+                i += plen
+                matched = True
+                break
+        if not matched:
+            i += 1  # skip unknown characters
+
+    return phonemes
+
+
 def simple_viseme_timeline(text: str) -> list[dict[str, float | str]]:
+    """Generate a phoneme-level viseme timeline from text.
+
+    v2: Full grapheme-to-phoneme decomposition with 15 MPEG-4 viseme classes,
+    per-phoneme timing, inter-word silence gaps, and natural weight variation.
+    """
     words = [w for w in text.split() if w.strip()]
     if not words:
         return [{"time_ms": 0.0, "viseme": "sil", "weight": 0.0}]
 
     timeline: list[dict[str, float | str]] = []
-    t = 0.0
-    for word in words:
-        lower = word.lower()
-        viseme = "AA"
-        if any(ch in lower for ch in "fvm"):
-            viseme = "FV"
-        elif any(ch in lower for ch in "bp"):
-            viseme = "PP"
-        elif any(ch in lower for ch in "ou"):
-            viseme = "OW"
-        elif any(ch in lower for ch in "ei"):
-            viseme = "EE"
-        timeline.append({"time_ms": t, "viseme": viseme, "weight": 0.9})
-        t += 190.0
-    timeline.append({"time_ms": t + 120.0, "viseme": "sil", "weight": 0.0})
+    t = 80.0  # Start with brief silence
+
+    for word_idx, word in enumerate(words):
+        phonemes = _word_to_phonemes(word)
+        if not phonemes:
+            t += 60.0  # skip unknown words with a short pause
+            continue
+
+        # First syllable of content words gets slight emphasis
+        is_content_word = len(word) > 3
+        for p_idx, viseme in enumerate(phonemes):
+            weight = _VISEME_BASE_WEIGHT.get(viseme, 0.65)
+            # Emphasis: first vowel-like phoneme in longer words
+            if is_content_word and p_idx < 3 and viseme in ("AA", "EE", "IH", "OO", "OU"):
+                weight = min(1.0, weight * 1.15)
+
+            timeline.append({
+                "time_ms": round(t, 1),
+                "viseme": viseme,
+                "weight": round(weight, 2),
+            })
+            t += _PHONEME_DURATION.get(viseme, 75.0)
+
+        # Inter-word gap (natural pause between words)
+        if word_idx < len(words) - 1:
+            # Longer pause after punctuation
+            if word.rstrip()[-1:] in ".,;:!?":
+                t += 140.0
+            else:
+                t += 55.0
+
+    # Trailing silence
+    timeline.append({"time_ms": round(t + 100.0, 1), "viseme": "sil", "weight": 0.0})
     return timeline
 
 
 def has_openai_tts() -> bool:
-    """Return True if OPENAI_API_KEY is set and real TTS synthesis is available."""
-    return bool(os.getenv("OPENAI_API_KEY"))
+    """Return True if an LLM API key is set and real TTS synthesis is available."""
+    from shared.nexus_common.llm_provider import is_available
+
+    return is_available()
 
 
 def _generate_fallback_speech_wav_b64(text: str, duration_seconds: float = 1.4) -> str:
@@ -74,13 +235,15 @@ def _generate_fallback_speech_wav_b64(text: str, duration_seconds: float = 1.4) 
 
 
 def _synthesize_openai_tts_wav_b64(text: str, voice: str) -> str | None:
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
+    import logging
+
+    from shared.nexus_common.llm_provider import get_openai_client, is_available
+
+    _log = logging.getLogger(__name__)
+    if not is_available():
         return None
     try:
-        from openai import OpenAI
-
-        client = OpenAI(api_key=api_key)
+        client = get_openai_client()
         model = os.getenv("OPENAI_TTS_MODEL", "gpt-4o-mini-tts")
         chosen_voice = voice or os.getenv("OPENAI_TTS_VOICE", "alloy")
         response = client.audio.speech.create(
@@ -98,7 +261,8 @@ def _synthesize_openai_tts_wav_b64(text: str, voice: str) -> str | None:
         if not audio_bytes:
             return None
         return base64.b64encode(audio_bytes).decode("ascii")
-    except Exception:
+    except Exception as exc:
+        _log.warning("TTS synthesis failed: %s", exc)
         return None
 
 
@@ -323,33 +487,43 @@ async def stream_tts_chunks(
     if not clean:
         return
 
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
+    from shared.nexus_common.llm_provider import (
+        build_api_url,
+        build_auth_headers,
+        is_available,
+    )
+
+    if not is_available():
         return  # no key — WebSocket handler will send synthetic_fallback
 
     import httpx
 
     model = os.getenv("OPENAI_TTS_MODEL", "gpt-4o-mini-tts")
-    chosen_voice = voice or os.getenv("OPENAI_TTS_VOICE", "nova")
+    chosen_voice = voice or os.getenv("OPENAI_TTS_VOICE", "ash")
     timeout_seconds = float(os.getenv("OPENAI_TTS_TIMEOUT_SECONDS", "60"))
     max_attempts = int(os.getenv("OPENAI_TTS_MAX_ATTEMPTS", "2"))
 
     # Default style instructions for natural clinician speech
     _default_instructions = (
-        "Speak naturally and warmly like a real clinician in a face-to-face "
-        "consultation. Use a calm, reassuring, conversational tone with "
-        "natural pacing and breathing pauses. Avoid sounding robotic or "
-        "overly formal."
+        "You are a warm, experienced clinician sitting across from a patient. "
+        "Speak in a gentle, unhurried conversational tone — as if chatting "
+        "with someone you genuinely care about. Vary your pitch and pace "
+        "naturally: slow down and soften when delivering important medical "
+        "information, speed up slightly for casual transitions like "
+        "'so what we'll do is…'. Pause briefly between sentences the way a "
+        "real person does when collecting their thoughts — do not rush. "
+        "Let your voice rise gently at the end of questions. Add subtle "
+        "warmth and occasional light emphasis on key terms. Use a lower "
+        "register for reassurance and a slightly brighter tone for "
+        "encouragement. Never sound monotone, robotic, or like you are "
+        "reading from a script. Breathe between clauses."
     )
     tts_instructions = instructions or os.getenv(
         "OPENAI_TTS_INSTRUCTIONS", _default_instructions
     )
 
-    url = "https://api.openai.com/v1/audio/speech"
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-    }
+    url = build_api_url("/audio/speech")
+    headers = build_auth_headers()
     payload: dict[str, Any] = {
         "model": model,
         "voice": chosen_voice,
@@ -369,12 +543,22 @@ async def stream_tts_chunks(
                     json=payload,
                 ) as response:
                     if response.status_code != 200:
+                        import logging
+
+                        logging.getLogger(__name__).warning(
+                            "TTS stream attempt %d/%d failed: HTTP %s",
+                            attempt, max_attempts, response.status_code,
+                        )
                         continue
                     async for chunk in response.aiter_bytes(chunk_size=4800):
                         yield chunk
                     return
-        except Exception:  # noqa: BLE001
-            pass
+        except Exception as exc:  # noqa: BLE001
+            import logging
+
+            logging.getLogger(__name__).warning(
+                "TTS stream attempt %d/%d error: %s", attempt, max_attempts, exc,
+            )
         if attempt < max_attempts:
             await asyncio.sleep(0.35)
     # API failure — WebSocket handler detects zero chunks and sends fallback.

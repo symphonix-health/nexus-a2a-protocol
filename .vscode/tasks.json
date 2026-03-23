@@ -291,6 +291,240 @@
         "panel": "shared"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "Azure: Validate Bicep (What-If)",
+      "type": "shell",
+      "command": "azd",
+      "args": [
+        "provision",
+        "--preview"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Azure: Deploy Infrastructure",
+      "type": "shell",
+      "command": "azd",
+      "args": [
+        "provision"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Azure: Deploy Application",
+      "type": "shell",
+      "command": "azd",
+      "args": [
+        "deploy"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Azure: Deploy All (Up)",
+      "type": "shell",
+      "command": "azd",
+      "args": [
+        "up"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Azure: View Agent Logs (Command Centre)",
+      "type": "shell",
+      "command": "az",
+      "args": [
+        "containerapp",
+        "logs",
+        "show",
+        "--name",
+        "ca-${input:azureEnvironmentName}-command-centre-backend",
+        "--resource-group",
+        "rg-${input:azureEnvironmentName}",
+        "--follow"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Azure: View Agent Logs (Avatar)",
+      "type": "shell",
+      "command": "az",
+      "args": [
+        "containerapp",
+        "logs",
+        "show",
+        "--name",
+        "ca-${input:azureEnvironmentName}-clinician-avatar-agent",
+        "--resource-group",
+        "rg-${input:azureEnvironmentName}",
+        "--follow"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Azure: Restart Command Centre",
+      "type": "shell",
+      "command": "az",
+      "args": [
+        "containerapp",
+        "revision",
+        "restart",
+        "--name",
+        "ca-${input:azureEnvironmentName}-command-centre-backend",
+        "--resource-group",
+        "rg-${input:azureEnvironmentName}"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Azure: Scale Agent (Interactive)",
+      "type": "shell",
+      "command": "az",
+      "args": [
+        "containerapp",
+        "update",
+        "--name",
+        "${input:containerAppName}",
+        "--resource-group",
+        "rg-${input:azureEnvironmentName}",
+        "--min-replicas",
+        "${input:minReplicas}",
+        "--max-replicas",
+        "${input:maxReplicas}"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Azure: Delete Resources (Down)",
+      "type": "shell",
+      "command": "azd",
+      "args": [
+        "down",
+        "--force",
+        "--purge"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Azure: Show Command Centre URL",
+      "type": "shell",
+      "command": "azd",
+      "args": [
+        "env",
+        "get-values",
+        "--output",
+        "json"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Azure: Open Command Centre",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "$url = (azd env get-values --output json | ConvertFrom-Json).COMMAND_CENTRE_URL; if ($url) { Start-Process $url } else { Write-Host 'Command Centre URL not found. Run Azure: Deploy All first.' }"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "azureEnvironmentName",
+      "type": "promptString",
+      "description": "Azure environment name (e.g., dev, staging, prod)",
+      "default": "helixcare-dev"
+    },
+    {
+      "id": "containerAppName",
+      "type": "promptString",
+      "description": "Container App name (e.g., ca-helixcare-dev-triage-agent)",
+      "default": "ca-helixcare-dev-"
+    },
+    {
+      "id": "minReplicas",
+      "type": "promptString",
+      "description": "Minimum replicas",
+      "default": "0"
+    },
+    {
+      "id": "maxReplicas",
+      "type": "promptString",
+      "description": "Maximum replicas",
+      "default": "5"
     }
   ]
 }

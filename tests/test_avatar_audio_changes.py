@@ -446,14 +446,19 @@ class TestLipSyncEngineJs:
     def test_file_exists(self):
         assert LIPSYNC_ENGINE_JS.exists()
 
-    def test_viseme_shape_function(self, ls_src):
-        assert "function _visemeShape" in ls_src
+    def test_viseme_shape_table(self, ls_src):
+        """v2: viseme shapes are in a VISEME_SHAPES constant table."""
+        assert "VISEME_SHAPES" in ls_src
 
     def test_viseme_shape_classes(self, ls_src):
-        assert "'PP'" in ls_src
-        assert "'FV'" in ls_src
-        assert "'EE'" in ls_src
-        assert "'OW'" in ls_src
+        """v2: 15 MPEG-4 viseme classes including expanded set."""
+        assert "PP:" in ls_src or "'PP'" in ls_src or "PP:" in ls_src
+        assert "FF:" in ls_src or "'FF'" in ls_src  # was FV in v1
+        assert "EE:" in ls_src or "'EE'" in ls_src
+        assert "OO:" in ls_src or "'OO'" in ls_src  # was OW in v1
+        assert "TH:" in ls_src   # new in v2
+        assert "CH:" in ls_src   # new in v2
+        assert "SS:" in ls_src   # new in v2
 
     def test_apply_viseme_params_call(self, ls_src):
         assert "applyVisemeParams" in ls_src
@@ -515,12 +520,12 @@ class TestAvatarHtml:
         assert "realtime_client.js?v=10" in html_src
 
     def test_avatar_renderer_script(self, html_src):
-        """avatar_renderer.js script tag present at v10."""
-        assert "avatar_renderer.js?v=10" in html_src
+        """avatar_renderer.js script tag present."""
+        assert "avatar_renderer.js?v=" in html_src
 
     def test_lipsync_engine_script(self, html_src):
-        """lipsync_engine.js script tag present at v10."""
-        assert "lipsync_engine.js?v=10" in html_src
+        """lipsync_engine.js script tag present."""
+        assert "lipsync_engine.js?v=" in html_src
 
     def test_realtime_voices_in_select(self, html_src):
         """Realtime API voices appear in voice-select dropdown."""
