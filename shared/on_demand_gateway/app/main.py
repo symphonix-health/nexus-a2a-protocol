@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
 import subprocess
 import sys
@@ -20,14 +21,15 @@ from typing import Any
 import httpx
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
-
 from shared.nexus_common.authorization import AuthorizationError, authorize_rpc_request
+from shared.nexus_common.gharra_models import parse_gharra_record
 from shared.nexus_common.route_admission import (
     RouteAdmissionError,
     evaluate_route_admission,
 )
-from shared.nexus_common.gharra_models import parse_gharra_record
 from shared.nexus_common.task_store import SqliteTaskEventStore, event_store_path_from_env
+
+LOGGER = logging.getLogger("nexus.on-demand-gateway")
 
 ROOT = Path(__file__).resolve().parents[3]
 CONFIG_FILE = ROOT / "config" / "agents.json"
@@ -271,7 +273,7 @@ class OnDemandProcessManager:
         except Exception:
             return False
 
-    async def _start_spec(self, spec: AgentSpec) -> None:
+    async def _start_spec(self, spec: AgentSpec, *, _retries: int = 2) -> None:
         async with self._lock:
             if self._is_running(spec):
                 self._touch(spec)
@@ -305,6 +307,7 @@ class OnDemandProcessManager:
                 env=self._base_env,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
+                start_new_session=True,  # isolate process group for clean teardown
             )
             self._processes[spec.spec_id] = proc
             self._touch(spec)
@@ -313,7 +316,15 @@ class OnDemandProcessManager:
             await self._wait_for_health(spec)
         except Exception:
             await self.stop_spec(spec.alias)
-            raise
+            if _retries > 1:
+                LOGGER.warning(
+                    "Startup failed for %s on :%d; retrying (%d left)",
+                    spec.alias, spec.port, _retries - 1,
+                )
+                await asyncio.sleep(1.0)
+                await self._start_spec(spec, _retries=_retries - 1)
+            else:
+                raise
 
     async def ensure_started(self, alias: str) -> AgentSpec:
         """Ensure target alias and its dependencies are running."""
@@ -336,17 +347,34 @@ class OnDemandProcessManager:
         async with self._lock:
             proc = self._processes.pop(spec.spec_id, None)
             self._last_used.pop(spec.spec_id, None)
+            self._externally_managed.discard(spec.spec_id)
         if proc is None:
             return
         if proc.poll() is not None:
+            # Already exited — reap to prevent zombie
+            try:
+                proc.wait(timeout=0)
+            except Exception:
+                pass
             return
 
         try:
             proc.terminate()
             proc.wait(timeout=8)
+        except subprocess.TimeoutExpired:
+            LOGGER.warning(
+                "Process %s (pid %d) did not exit after SIGTERM; sending SIGKILL",
+                alias, proc.pid,
+            )
+            try:
+                proc.kill()
+                proc.wait(timeout=3)
+            except Exception:
+                pass
         except Exception:
             try:
                 proc.kill()
+                proc.wait(timeout=3)
             except Exception:
                 pass
 
@@ -371,14 +399,21 @@ class OnDemandProcessManager:
                     if spec is None:
                         continue
                     if proc.poll() is not None:
+                        # Reap the zombie so it doesn't linger in the process table
+                        try:
+                            proc.wait(timeout=0)
+                        except Exception:
+                            pass
                         self._processes.pop(spec_id, None)
                         self._last_used.pop(spec_id, None)
+                        LOGGER.info("Reaped dead process for %s (pid %d)", spec.alias, proc.pid)
                         continue
                     last = self._last_used.get(spec_id, now)
                     if (now - last) >= IDLE_TTL_SECONDS:
                         stale_aliases.append(spec.alias)
 
             for alias in stale_aliases:
+                LOGGER.info("Stopping idle agent: %s (idle %.0fs)", alias, IDLE_TTL_SECONDS)
                 await self.stop_spec(alias)
 
     async def start_background_tasks(self) -> None:
