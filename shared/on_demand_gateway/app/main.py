@@ -42,37 +42,25 @@ IDLE_TTL_SECONDS = float(os.getenv("NEXUS_ON_DEMAND_IDLE_TTL_SECONDS", "120.0"))
 IDLE_REAP_INTERVAL_SECONDS = max(5.0, IDLE_TTL_SECONDS / 4.0)
 REQUIRED_SCOPE = os.getenv("NEXUS_REQUIRED_SCOPE", "nexus:invoke")
 
-DEFAULT_DEPENDENCY_GRAPH: dict[str, list[str]] = {
-    # Clinical intake triggers downstream diagnostics
-    "triage": ["diagnosis", "clinician_avatar"],
-    # PCP workflows need diagnosis, pharmacy, and follow-up
-    "primary_care": ["diagnosis", "pharmacy", "followup", "clinician_avatar"],
-    # Specialty referral needs diagnostics, imaging, coordination
-    "specialty_care": ["diagnosis", "imaging", "coordinator", "clinician_avatar"],
-    # Telehealth needs diagnosis, pharmacy, follow-up
-    "telehealth": ["diagnosis", "pharmacy", "followup", "clinician_avatar"],
-    # Home visit triggers PCP assessment and coordination
-    "home_visit": ["primary_care", "coordinator", "clinician_avatar"],
-    # CCM triggers PCP and follow-up
-    "ccm": ["primary_care", "followup", "clinician_avatar"],
-    # Avatar may trigger any downstream agent
-    "clinician_avatar": [
-        "diagnosis",
-        "imaging",
-        "pharmacy",
-        "followup",
-        "coordinator",
-        "discharge",
-    ],
-    # Diagnosis triggers treatment agents
-    "diagnosis": ["imaging", "pharmacy", "bed_manager"],
-    # Imaging may lead to discharge or admission
-    "imaging": ["discharge", "bed_manager"],
-    # Bed manager triggers care coordination
-    "bed_manager": ["coordinator", "ccm"],
-    # Discharge triggers follow-up
-    "discharge": ["followup", "pharmacy"],
-}
+# Dependency graph loaded from config/dependency_graph.json via seed database
+def _load_dependency_graph() -> dict[str, list[str]]:
+    """Load agent dependency graph from config file, falling back to seed DB."""
+    try:
+        dep_path = ROOT / "config" / "dependency_graph.json"
+        if dep_path.is_file():
+            raw = json.loads(dep_path.read_text(encoding="utf-8"))
+            # Filter out non-list values (e.g. $schema, description)
+            return {k: v for k, v in raw.items() if isinstance(v, list)}
+    except Exception:
+        pass
+    try:
+        from shared.nexus_common.seed_db import get_seed_db
+        return get_seed_db().get_dependency_graph()
+    except Exception:
+        return {}
+
+
+DEFAULT_DEPENDENCY_GRAPH: dict[str, list[str]] = _load_dependency_graph()
 
 
 @dataclass(frozen=True)

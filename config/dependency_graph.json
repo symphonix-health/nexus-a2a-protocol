@@ -1,0 +1,15 @@
+{
+  "$schema": "nexus:dependency-graph:v1",
+  "description": "Agent workflow dependency graph — defines which agents are auto-started when a given agent receives a request via the on-demand gateway.",
+  "triage": ["diagnosis", "clinician_avatar"],
+  "primary_care": ["diagnosis", "pharmacy", "followup", "clinician_avatar"],
+  "specialty_care": ["diagnosis", "imaging", "coordinator", "clinician_avatar"],
+  "telehealth": ["diagnosis", "pharmacy", "followup", "clinician_avatar"],
+  "home_visit": ["primary_care", "coordinator", "clinician_avatar"],
+  "ccm": ["primary_care", "followup", "clinician_avatar"],
+  "clinician_avatar": ["diagnosis", "imaging", "pharmacy", "followup", "coordinator", "discharge"],
+  "diagnosis": ["imaging", "pharmacy", "bed_manager"],
+  "imaging": ["discharge", "bed_manager"],
+  "bed_manager": ["coordinator", "ccm"],
+  "discharge": ["followup", "pharmacy"]
+}

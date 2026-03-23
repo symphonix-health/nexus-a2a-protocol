@@ -194,6 +194,43 @@ def apply_llm_profile(
     return selected
 
 
+def _validate_llm_key(env: dict[str, str]) -> None:
+    """Check that an LLM API key is present and looks plausible.
+
+    Prints a clear diagnostic at launch time instead of silently falling
+    back to mock responses later.
+    """
+    key = env.get("OPENAI_API_KEY", "").strip()
+    base_url = env.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
+    is_local = "127.0.0.1" in base_url or "localhost" in base_url
+
+    if not key:
+        if is_local:
+            print("  [info] No OPENAI_API_KEY set — local provider, key not required")
+        else:
+            print(
+                "  [warn] OPENAI_API_KEY is not set — agents will use "
+                "deterministic mock responses (no real LLM inference)"
+            )
+        return
+
+    # Detect obviously wrong keys
+    if key in ("local-test", "test", "fake", "placeholder"):
+        if not is_local:
+            print(f"  [warn] OPENAI_API_KEY looks like a placeholder ('{key}') — LLM calls will fail")
+        return
+
+    # Format sanity check
+    if key.startswith("sk-ant-"):
+        provider = "Anthropic"
+    elif key.startswith("sk-"):
+        provider = "OpenAI"
+    else:
+        provider = "custom"
+
+    print(f"  [ok] {provider} API key configured ({len(key)} chars)")
+
+
 def print_llm_profiles(llm_profiles: dict[str, dict]) -> None:
     """Print configured LLM profiles."""
     if not llm_profiles:
@@ -463,12 +500,11 @@ def start_all(
         apply_memory_profile(env, memory_profile)
 
     selected_profile = apply_llm_profile(env, llm_profiles, llm_profile)
-    # Use provided test key/model only when neither the shell env nor profile set them.
-    env.setdefault(
-        "OPENAI_API_KEY",
-        "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",
-    )
     env.setdefault("OPENAI_MODEL", "gpt-4o-mini")
+
+    # ── Validate LLM key at startup ──────────────────────────────────────
+    _validate_llm_key(env)
+
     if selected_profile:
         profile_meta = llm_profiles.get(selected_profile, {})
         profile_desc = ""

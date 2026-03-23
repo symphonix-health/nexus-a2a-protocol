@@ -109,24 +109,9 @@ def _extract_patient_context(task: dict) -> tuple[str, str]:
 
 
 def _derive_triage_level(task: dict) -> str:
-    complaint = str(task.get("chief_complaint") or (task.get("inputs") or {}).get("chief_complaint", "")).lower()
-    vitals = task.get("vitals") if isinstance(task.get("vitals"), dict) else {}
-    try:
-        spo2 = float(vitals.get("spo2", 100))
-    except Exception:
-        spo2 = 100.0
-    try:
-        temp_c = float(vitals.get("temp_c", 36.8))
-    except Exception:
-        temp_c = 36.8
+    from shared.nexus_common.triage_rules import evaluate_triage_from_task
 
-    if "chest" in complaint or "shortness of breath" in complaint or spo2 < 90:
-        return "ESI-2"
-    if "confusion" in complaint or temp_c >= 39.0:
-        return "ESI-2"
-    if "laceration" in complaint:
-        return "ESI-4"
-    return "ESI-3"
+    return evaluate_triage_from_task(task)
 
 
 METHODS: dict = {}

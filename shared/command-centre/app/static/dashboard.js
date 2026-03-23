@@ -85,6 +85,7 @@ const topologyView = {
 
 // Initialize on load
 document.addEventListener('DOMContentLoaded', () => {
+    loadJobProfiles();
     initializeTopologyHint();
     initializeTopologyInteractions();
     initializeWebSocket();
@@ -1127,6 +1128,21 @@ async function loadScenarioCatalog() {
         }
 
         state.scenarioCatalog = payload;
+
+        // Derive synthetic flow scenarios from catalog (replaces hardcoded demos)
+        if (payload.length >= 3) {
+            state.syntheticScenarios = payload.slice(0, 3).map((s, i) => {
+                const steps = (s.journey_steps || []).map(step =>
+                    (step.agent || '').replace(/_agent$/, '')
+                ).filter(Boolean).slice(0, 4);
+                return {
+                    id: `VISIT-CATALOG-${1001 + i}`,
+                    steps: steps.length >= 2 ? steps : ['triage', 'diagnosis', 'discharge'],
+                    index: 0,
+                };
+            });
+        }
+
         renderScenarioFlowBoard();
     } catch (error) {
         console.warn('Scenario catalog unavailable:', error);
@@ -2642,53 +2658,21 @@ function clinicalStatus(status) {
     return status || 'Unknown';
 }
 
-// Map agent identifiers to their job-profile display names.
-// Keys are normalised (lower-case, underscored, no trailing "_agent").
-// Source of truth: config/agent_personas.json
-const AGENT_JOB_PROFILES = {
-    // ed_triage group (8021-8023)
-    'triage': 'Triage Nurse',
-    'diagnosis': 'Consultant Physician',
-    'openhie_mediator': 'Integration Engine Operator',
-    // helixcare group (8024-8039)
-    'imaging': 'Radiologist',
-    'pharmacy': 'Pharmacist',
-    'bed_manager': 'Bed Manager',
-    'discharge': 'Consultant Physician',
-    'followup_scheduler': 'Care Coordinator',
-    'followup': 'Care Coordinator',
-    'care_coordinator': 'Care Coordinator',
-    'primary_care': 'GP (General Practitioner)',
-    'specialty_care': 'Consultant Physician',
-    'telehealth': 'Telehealth Clinician',
-    'home_visit': 'Home Care Nurse',
-    'ccm': 'Case Manager',
-    'clinician_avatar': 'Consultant Physician',
-    // telemed_scribe group (8031-8033)
-    'transcriber': 'Clinical Documentation Specialist',
-    'summariser': 'Clinical Documentation Specialist',
-    'ehr_writer': 'Health Records Officer',
-    // consent_verification group (8041-8044)
-    'insurer': 'Billing / Claims Specialist',
-    'provider': 'Consultant Physician',
-    'consent_analyser': 'Privacy Officer',
-    'hitl_ui': 'HITL Reviewer',
-    // public_health_surveillance group (8051-8053)
-    'hospital_reporter': 'Chief Medical Officer',
-    'osint': 'Public Health Surveillance Officer',
-    'central_surveillance': 'Chief Medical Officer',
-    // interop group (8060-8067)
-    'profile_registry': 'Integration Engine Operator',
-    'fhir_profile': 'Integration Engine Operator',
-    'x12_gateway': 'Integration Engine Operator',
-    'ncpdp_gateway': 'Integration Engine Operator',
-    'audit': 'Privacy Officer',
-    'hl7v2_gateway': 'Integration Engine Operator',
-    'cda_document': 'Health Records Officer',
-    'dicom_imaging': 'Imaging Informatics Specialist',
-    // infrastructure
-    'command_centre': 'Command Centre',
-};
+// Job profiles fetched dynamically from /api/job-profiles (sourced from seed DB).
+// Minimal fallback for infrastructure entries not in agent_personas.json.
+let AGENT_JOB_PROFILES = { 'command_centre': 'Command Centre' };
+
+async function loadJobProfiles() {
+    try {
+        const response = await fetch('/api/job-profiles');
+        if (response.ok) {
+            const profiles = await response.json();
+            AGENT_JOB_PROFILES = { ...AGENT_JOB_PROFILES, ...profiles };
+        }
+    } catch (err) {
+        console.warn('Failed to load job profiles from API, using fallback:', err);
+    }
+}
 
 function humanizeAgentName(agent) {
     if (!agent) return 'Unknown';
