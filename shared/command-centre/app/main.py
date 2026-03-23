@@ -783,6 +783,30 @@ async def get_scenario_catalog():
     return JSONResponse(content=scenario_catalog)
 
 
+@app.get("/api/job-profiles")
+async def get_job_profiles():
+    """Return agent alias → job profile name mapping from seed database."""
+    try:
+        from shared.nexus_common.seed_db import get_seed_db
+
+        return JSONResponse(content=get_seed_db().get_job_profiles())
+    except Exception as exc:
+        logger.warning("Failed to load job profiles from seed DB: %s", exc)
+        return JSONResponse(content={})
+
+
+@app.get("/api/dependency-graph")
+async def get_dependency_graph():
+    """Return the agent workflow dependency graph from seed database."""
+    try:
+        from shared.nexus_common.seed_db import get_seed_db
+
+        return JSONResponse(content=get_seed_db().get_dependency_graph())
+    except Exception as exc:
+        logger.warning("Failed to load dependency graph from seed DB: %s", exc)
+        return JSONResponse(content={})
+
+
 @app.get("/api/memory")
 async def get_memory_telemetry():
     """Return lightweight RSS telemetry trends by managed process."""

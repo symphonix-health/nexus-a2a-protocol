@@ -30,41 +30,10 @@ from shared.nexus_common.ids import make_trace_id
 from shared.nexus_common.redaction import redact_payload
 from shared.nexus_common.trace import TraceRun, TraceStepEvent
 
-BASE_URLS = {
-    "triage": "http://localhost:8021",
-    "diagnosis": "http://localhost:8022",
-    "openhie_mediator": "http://localhost:8023",
-    "imaging": "http://localhost:8024",
-    "pharmacy": "http://localhost:8025",
-    "bed_manager": "http://localhost:8026",
-    "discharge": "http://localhost:8027",
-    "followup": "http://localhost:8028",
-    "coordinator": "http://localhost:8029",
-    "transcriber": "http://localhost:8031",
-    "summariser": "http://localhost:8032",
-    "ehr_writer": "http://localhost:8033",
-    "primary_care": "http://localhost:8034",
-    "specialty_care": "http://localhost:8035",
-    "telehealth": "http://localhost:8036",
-    "home_visit": "http://localhost:8037",
-    "ccm": "http://localhost:8038",
-    "clinician_avatar": "http://localhost:8039",
-    "insurer_agent": "http://localhost:8041",
-    "provider_agent": "http://localhost:8042",
-    "consent_analyser": "http://localhost:8043",
-    "hitl_ui": "http://localhost:8044",
-    "hospital_reporter": "http://localhost:8051",
-    "osint_agent": "http://localhost:8052",
-    "central_surveillance": "http://localhost:8053",
-    "profile_registry": "http://localhost:8060",
-    "fhir_profile": "http://localhost:8061",
-    "x12_gateway": "http://localhost:8062",
-    "ncpdp_gateway": "http://localhost:8063",
-    "audit": "http://localhost:8064",
-    "hl7v2_gateway": "http://localhost:8065",
-    "cda_document": "http://localhost:8066",
-    "dicom_imaging": "http://localhost:8067",
-}
+# Agent URLs loaded from seed database (sourced from config/agents.json)
+from shared.nexus_common.seed_db import get_seed_db as _get_seed_db
+
+BASE_URLS: dict[str, str] = _get_seed_db().get_all_agent_urls()
 ON_DEMAND_GATEWAY_URL = os.getenv("NEXUS_ON_DEMAND_GATEWAY_URL", "").strip().rstrip("/")
 
 RETRYABLE_STATUS_CODES = {408, 425, 429, 500, 502, 503, 504}

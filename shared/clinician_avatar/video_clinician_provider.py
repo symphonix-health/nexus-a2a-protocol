@@ -198,8 +198,10 @@ def simple_viseme_timeline(text: str) -> list[dict[str, float | str]]:
 
 
 def has_openai_tts() -> bool:
-    """Return True if OPENAI_API_KEY is set and real TTS synthesis is available."""
-    return bool(os.getenv("OPENAI_API_KEY"))
+    """Return True if an LLM API key is set and real TTS synthesis is available."""
+    from shared.nexus_common.llm_provider import is_available
+
+    return is_available()
 
 
 def _generate_fallback_speech_wav_b64(text: str, duration_seconds: float = 1.4) -> str:
@@ -233,13 +235,15 @@ def _generate_fallback_speech_wav_b64(text: str, duration_seconds: float = 1.4) 
 
 
 def _synthesize_openai_tts_wav_b64(text: str, voice: str) -> str | None:
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
+    import logging
+
+    from shared.nexus_common.llm_provider import get_openai_client, is_available
+
+    _log = logging.getLogger(__name__)
+    if not is_available():
         return None
     try:
-        from openai import OpenAI
-
-        client = OpenAI(api_key=api_key)
+        client = get_openai_client()
         model = os.getenv("OPENAI_TTS_MODEL", "gpt-4o-mini-tts")
         chosen_voice = voice or os.getenv("OPENAI_TTS_VOICE", "alloy")
         response = client.audio.speech.create(
@@ -257,7 +261,8 @@ def _synthesize_openai_tts_wav_b64(text: str, voice: str) -> str | None:
         if not audio_bytes:
             return None
         return base64.b64encode(audio_bytes).decode("ascii")
-    except Exception:
+    except Exception as exc:
+        _log.warning("TTS synthesis failed: %s", exc)
         return None
 
 
@@ -482,8 +487,13 @@ async def stream_tts_chunks(
     if not clean:
         return
 
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
+    from shared.nexus_common.llm_provider import (
+        build_api_url,
+        build_auth_headers,
+        is_available,
+    )
+
+    if not is_available():
         return  # no key — WebSocket handler will send synthetic_fallback
 
     import httpx
@@ -512,11 +522,8 @@ async def stream_tts_chunks(
         "OPENAI_TTS_INSTRUCTIONS", _default_instructions
     )
 
-    url = "https://api.openai.com/v1/audio/speech"
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-    }
+    url = build_api_url("/audio/speech")
+    headers = build_auth_headers()
     payload: dict[str, Any] = {
         "model": model,
         "voice": chosen_voice,
@@ -536,12 +543,22 @@ async def stream_tts_chunks(
                     json=payload,
                 ) as response:
                     if response.status_code != 200:
+                        import logging
+
+                        logging.getLogger(__name__).warning(
+                            "TTS stream attempt %d/%d failed: HTTP %s",
+                            attempt, max_attempts, response.status_code,
+                        )
                         continue
                     async for chunk in response.aiter_bytes(chunk_size=4800):
                         yield chunk
                     return
-        except Exception:  # noqa: BLE001
-            pass
+        except Exception as exc:  # noqa: BLE001
+            import logging
+
+            logging.getLogger(__name__).warning(
+                "TTS stream attempt %d/%d error: %s", attempt, max_attempts, exc,
+            )
         if attempt < max_attempts:
             await asyncio.sleep(0.35)
     # API failure — WebSocket handler detects zero chunks and sends fallback.

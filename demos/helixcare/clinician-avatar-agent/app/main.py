@@ -236,7 +236,9 @@ async def api_stt_upload(
     """Transcribe uploaded patient audio clips via OpenAI Speech-to-Text."""
     _require_auth(request)
 
-    if not os.getenv("OPENAI_API_KEY"):
+    from shared.nexus_common.llm_provider import is_available
+
+    if not is_available():
         raise HTTPException(
             status_code=503,
             detail="OPENAI_API_KEY is not configured. Set it to enable uploaded-audio transcription.",
@@ -250,9 +252,9 @@ async def api_stt_upload(
 
     model = os.getenv("OPENAI_STT_MODEL", "gpt-4o-mini-transcribe")
     try:
-        from openai import OpenAI
+        from shared.nexus_common.llm_provider import get_openai_client
 
-        client = OpenAI()
+        client = get_openai_client()
         audio_buf = io.BytesIO(content)
         audio_buf.name = file.filename or "patient_audio.wav"
         req_kwargs: dict[str, Any] = {
@@ -311,8 +313,14 @@ async def api_realtime_token(request: Request) -> JSONResponse:
     except AuthError:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
-    api_key = os.getenv("OPENAI_API_KEY", "")
-    if not api_key:
+    from shared.nexus_common.llm_provider import (
+        build_api_url,
+        build_auth_headers,
+        is_available,
+        provider_label,
+    )
+
+    if not is_available():
         raise HTTPException(
             status_code=503,
             detail="OPENAI_API_KEY not configured — Realtime API unavailable",
@@ -323,15 +331,13 @@ async def api_realtime_token(request: Request) -> JSONResponse:
         body = await request.json()
     voice = body.get("voice", "coral")
 
-    # ── Call OpenAI to mint ephemeral key ───────────────────────────────────
+    # ── Call provider to mint ephemeral key ────────────────────────────────
+    realtime_url = build_api_url("/realtime/sessions")
     try:
         async with httpx.AsyncClient(timeout=15) as client:
             resp = await client.post(
-                "https://api.openai.com/v1/realtime/sessions",
-                headers={
-                    "Authorization": f"Bearer {api_key}",
-                    "Content-Type": "application/json",
-                },
+                realtime_url,
+                headers=build_auth_headers(),
                 json={
                     "model": _OPENAI_REALTIME_MODEL,
                     "voice": voice,
@@ -341,11 +347,12 @@ async def api_realtime_token(request: Request) -> JSONResponse:
             return JSONResponse(content=resp.json())
     except httpx.HTTPStatusError as exc:
         detail = exc.response.text[:300] if exc.response else str(exc)
-        raise HTTPException(status_code=502, detail=f"OpenAI error: {detail}")
+        label = provider_label()
+        raise HTTPException(status_code=502, detail=f"{label} error: {detail}")
     except httpx.RequestError as exc:
         raise HTTPException(
             status_code=502,
-            detail=f"Failed to reach OpenAI Realtime API: {exc}",
+            detail=f"Failed to reach Realtime API at {realtime_url}: {exc}",
         )
 
 
