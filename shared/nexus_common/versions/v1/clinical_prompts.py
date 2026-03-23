@@ -8,12 +8,7 @@ fills in result values and narrative, not which tests to order.
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any
-
-if TYPE_CHECKING:
-    from shared.nexus_common.prompt_strategy.models import PromptStrategy
-
-from shared.nexus_common.prompt_strategy.applicator import apply_strategy
+from typing import Any
 
 # Deterministic investigation lookup by complaint + urgency
 # NOTE: This is a small seed to start. Extend as scenarios are enriched.
@@ -51,11 +46,7 @@ def _json_header(schema_hint: str) -> str:
     )
 
 
-def imaging_prompt(
-    patient_context: dict[str, Any],
-    study_type: str,
-    strategy: PromptStrategy | None = None,
-) -> tuple[str, str]:
+def imaging_prompt(patient_context: dict[str, Any], study_type: str) -> tuple[str, str]:
     system = (
         "You are a board-certified radiologist with subspecialty expertise. "
         "Provide a concise, clinically useful structured radiology report.\n\n"
@@ -87,14 +78,10 @@ def imaging_prompt(
         + str({k: patient_context.get(k) for k in ("patient_profile", "medical_history")})
         + f"; Study: {study_type}."
     )
-    return apply_strategy(strategy, system, user)
+    return system, user
 
 
-def lab_prompt(
-    patient_context: dict[str, Any],
-    tests: Iterable[str],
-    strategy: PromptStrategy | None = None,
-) -> tuple[str, str]:
+def lab_prompt(patient_context: dict[str, Any], tests: Iterable[str]) -> tuple[str, str]:
     system = (
         "You are a clinical laboratory information system operated by qualified clinical scientists. "
         "Generate realistic, physiologically consistent lab results with reference ranges and flags.\n\n"
@@ -126,13 +113,10 @@ def lab_prompt(
         + "; Ordered tests: "
         + ",".join(tests)
     )
-    return apply_strategy(strategy, system, user)
+    return system, user
 
 
-def pharmacy_prompt(
-    patient_context: dict[str, Any],
-    strategy: PromptStrategy | None = None,
-) -> tuple[str, str]:
+def pharmacy_prompt(patient_context: dict[str, Any]) -> tuple[str, str]:
     system = (
         "You are a clinical pharmacist with expertise in medication safety and pharmacotherapy. "
         "Produce a safe, evidence-based, guideline-concordant medication plan.\n\n"
@@ -163,13 +147,10 @@ def pharmacy_prompt(
     user = "Patient context: " + str(
         {k: patient_context.get(k) for k in ("patient_profile", "medical_history", "agent_outputs")}
     )
-    return apply_strategy(strategy, system, user)
+    return system, user
 
 
-def diagnosis_prompt(
-    patient_context: dict[str, Any],
-    strategy: PromptStrategy | None = None,
-) -> tuple[str, str]:
+def diagnosis_prompt(patient_context: dict[str, Any]) -> tuple[str, str]:
     system = (
         "You are a senior clinician (consultant physician) performing clinical reasoning. "
         "Provide a structured differential diagnosis ranked by probability with supporting rationale.\n\n"
@@ -203,4 +184,4 @@ def diagnosis_prompt(
     user = "Patient context: " + str(
         {k: patient_context.get(k) for k in ("patient_profile", "medical_history", "agent_outputs")}
     )
-    return apply_strategy(strategy, system, user)
+    return system, user

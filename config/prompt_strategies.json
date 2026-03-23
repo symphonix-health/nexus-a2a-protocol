@@ -1,0 +1,581 @@
+{
+  "$schema": "nexus:prompt_strategies:v1",
+  "version": "2.0.0",
+  "description": "Data-driven prompt strategy registry. Add new strategies here — zero code changes required.",
+  "strategies": [
+    {
+      "id": "structured_output",
+      "name": "Structured Output Enforcement",
+      "description": "Forces output into a specific JSON/structured format with schema guidance",
+      "strategy_type": "formatting",
+      "when_to_use": {
+        "task_types": ["imaging", "lab", "pharmacy", "diagnosis", "structured_output"],
+        "min_complexity": "low",
+        "urgency": ["low", "medium", "high", "critical"],
+        "domains": ["clinical", "lab", "imaging", "pharmacy"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "You MUST respond in the exact JSON schema specified. Do not deviate from the schema. Validate your output mentally before responding.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "strict_schema": true
+      },
+      "source": {
+        "paper": "Standard technique",
+        "url": ""
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 1
+    },
+    {
+      "id": "role_prompting",
+      "name": "Role Prompting (Enhanced)",
+      "description": "Assigns a specific expert role beyond the base persona for domain-specific tasks",
+      "strategy_type": "persona",
+      "when_to_use": {
+        "task_types": ["imaging", "lab", "pharmacy", "diagnosis", "avatar_conversation"],
+        "min_complexity": "low",
+        "urgency": ["low", "medium", "high", "critical"],
+        "domains": ["clinical", "lab", "imaging", "pharmacy"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Embody this role fully. Draw on the specific domain expertise, clinical experience, and professional standards expected of this specialist. Your reasoning should reflect the depth of a seasoned practitioner.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "role_depth": "specialist"
+      },
+      "source": {
+        "paper": "Baseline technique",
+        "url": ""
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 5
+    },
+    {
+      "id": "chain_of_thought",
+      "name": "Chain of Thought",
+      "description": "Encourages step-by-step reasoning before arriving at a conclusion",
+      "strategy_type": "reasoning",
+      "when_to_use": {
+        "task_types": ["diagnosis", "differential", "clinical_reasoning", "treatment_planning"],
+        "min_complexity": "medium",
+        "urgency": ["low", "medium", "high"],
+        "domains": ["clinical", "pharmacy", "lab"]
+      },
+      "template": {
+        "prefix": "Think through this step-by-step before providing your final answer:\n",
+        "suffix": "\n\nProvide your reasoning chain, then your final conclusion.",
+        "system_addendum": "Use chain-of-thought reasoning. Show each logical step explicitly before concluding.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "reasoning_depth": "detailed",
+        "show_work": true
+      },
+      "source": {
+        "paper": "Wei et al. 2022 — Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+        "url": "https://arxiv.org/abs/2201.11903"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 10
+    },
+    {
+      "id": "few_shot",
+      "name": "Few-Shot Learning",
+      "description": "Provides exemplar input-output pairs to guide response format and quality",
+      "strategy_type": "exemplar",
+      "when_to_use": {
+        "task_types": ["imaging", "lab", "pharmacy", "structured_output"],
+        "min_complexity": "low",
+        "urgency": ["low", "medium", "high", "critical"],
+        "domains": ["clinical", "lab", "imaging", "pharmacy"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Follow the format demonstrated in the examples below exactly.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "num_examples": 2,
+        "example_source": "inline"
+      },
+      "source": {
+        "paper": "Brown et al. 2020 — Language Models are Few-Shot Learners",
+        "url": "https://arxiv.org/abs/2005.14165"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 20
+    },
+    {
+      "id": "react",
+      "name": "ReAct (Reason + Act)",
+      "description": "Interleaves reasoning and action steps for tool-using agents",
+      "strategy_type": "agentic",
+      "when_to_use": {
+        "task_types": ["investigation_ordering", "treatment_planning", "referral"],
+        "min_complexity": "medium",
+        "urgency": ["low", "medium", "high"],
+        "domains": ["clinical", "operations"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "For each step, first state your Thought (reasoning about what to do next), then your Action (the specific action to take), then your Observation (what you learned). Continue this Thought-Action-Observation loop until you have a complete answer.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "max_steps": 5
+      },
+      "source": {
+        "paper": "Yao et al. 2022 — ReAct: Synergizing Reasoning and Acting in Language Models",
+        "url": "https://arxiv.org/abs/2210.03629"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 25
+    },
+    {
+      "id": "self_consistency",
+      "name": "Self-Consistency",
+      "description": "Generates multiple reasoning paths and selects the most consistent answer",
+      "strategy_type": "reasoning",
+      "when_to_use": {
+        "task_types": ["diagnosis", "differential"],
+        "min_complexity": "high",
+        "urgency": ["low", "medium"],
+        "domains": ["clinical"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Consider this problem from three different clinical perspectives. For each perspective, reason independently to a conclusion. Then synthesize the most consistent answer across all three reasoning paths.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "num_paths": 3
+      },
+      "source": {
+        "paper": "Wang et al. 2022 — Self-Consistency Improves Chain of Thought Reasoning",
+        "url": "https://arxiv.org/abs/2203.11171"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 30
+    },
+    {
+      "id": "step_back",
+      "name": "Step-Back Prompting",
+      "description": "First asks a high-level abstraction question before addressing the specific problem",
+      "strategy_type": "reasoning",
+      "when_to_use": {
+        "task_types": ["diagnosis", "differential", "clinical_reasoning"],
+        "min_complexity": "medium",
+        "urgency": ["low", "medium"],
+        "domains": ["clinical"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Before answering the specific clinical question, first step back and consider: What are the general principles and pathophysiology relevant to this presentation? Then apply those principles to this specific case.",
+        "few_shot_examples": []
+      },
+      "parameters": {},
+      "source": {
+        "paper": "Zheng et al. 2023 — Take a Step Back: Evoking Reasoning via Abstraction",
+        "url": "https://arxiv.org/abs/2310.06117"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 35
+    },
+    {
+      "id": "tree_of_thought",
+      "name": "Tree of Thought",
+      "description": "Explores multiple reasoning branches, evaluating and pruning as it goes",
+      "strategy_type": "reasoning",
+      "when_to_use": {
+        "task_types": ["diagnosis", "treatment_planning"],
+        "min_complexity": "high",
+        "urgency": ["low", "medium"],
+        "domains": ["clinical"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Approach this as a tree of possible reasoning paths. Identify 2-3 candidate hypotheses. For each, evaluate the supporting and contradicting evidence. Prune unlikely branches and expand the most promising one to a final conclusion.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "branching_factor": 3,
+        "max_depth": 3
+      },
+      "source": {
+        "paper": "Yao et al. 2023 — Tree of Thoughts: Deliberate Problem Solving with Large Language Models",
+        "url": "https://arxiv.org/abs/2305.10601"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 40
+    },
+
+    {
+      "id": "medprompt",
+      "name": "Medprompt",
+      "description": "Composes dynamic few-shot selection, self-generated chain-of-thought, and choice-shuffle ensembling. First method to exceed 90% on USMLE (MedQA). Designed for medical reasoning but generalises to other knowledge-intensive domains.",
+      "strategy_type": "composite",
+      "when_to_use": {
+        "task_types": ["diagnosis", "differential", "clinical_reasoning", "treatment_planning"],
+        "min_complexity": "medium",
+        "urgency": ["low", "medium", "high"],
+        "domains": ["clinical", "pharmacy"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Apply the Medprompt methodology: (1) Recall similar clinical cases you have seen and use them as reference exemplars. (2) Generate an explicit chain-of-thought reasoning trace, showing each clinical inference step. (3) If the problem involves ranked options, consider whether reordering the options changes your reasoning — identify anchoring bias. Synthesize your final answer only after completing all three steps.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "dynamic_few_shot": true,
+        "self_generated_cot": true,
+        "choice_shuffle_ensembling": true
+      },
+      "source": {
+        "paper": "Nori et al. 2023 — Can Generalist Foundation Models Outcompete Special-Purpose Tuning? Case Study in Medicine",
+        "url": "https://arxiv.org/abs/2311.16452"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 8
+    },
+    {
+      "id": "chain_of_verification",
+      "name": "Chain-of-Verification (CoVe)",
+      "description": "Four-step anti-hallucination pipeline: generate draft, plan verification questions, answer them independently, produce verified response. Reduces hallucinated answers by 77%.",
+      "strategy_type": "verification",
+      "when_to_use": {
+        "task_types": ["diagnosis", "differential", "lab", "pharmacy", "clinical_reasoning"],
+        "min_complexity": "medium",
+        "urgency": ["low", "medium", "high"],
+        "domains": ["clinical", "pharmacy", "lab"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "After generating your initial response, apply Chain-of-Verification: (1) Identify 3-5 specific factual claims in your response that could be wrong. (2) For each claim, formulate a verification question. (3) Answer each verification question independently, without referring to your draft. (4) If any verification answer contradicts your draft, revise the relevant part of your response. Present your final verified answer.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "max_verification_questions": 5,
+        "independent_verification": true
+      },
+      "source": {
+        "paper": "Dhuliawala et al. 2023 — Chain-of-Verification Reduces Hallucination in Large Language Models (ACL 2024 Findings)",
+        "url": "https://arxiv.org/abs/2309.11495"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 12
+    },
+    {
+      "id": "cumulative_reasoning",
+      "name": "Cumulative Reasoning",
+      "description": "Builds a verified DAG of propositions using Proposer-Verifier-Reporter roles. Each reasoning step is validated before proceeding. +43% on hardest MATH problems, 98% on logical inference.",
+      "strategy_type": "reasoning",
+      "when_to_use": {
+        "task_types": ["diagnosis", "differential", "clinical_reasoning", "treatment_planning"],
+        "min_complexity": "high",
+        "urgency": ["low", "medium"],
+        "domains": ["clinical", "pharmacy"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Apply cumulative reasoning with self-verification: For each reasoning step, (1) PROPOSE a candidate inference from the available evidence. (2) VERIFY whether this inference is logically valid given established facts — if invalid, discard and propose an alternative. (3) Only after verification, add the inference to your growing evidence base. (4) REPORT your final conclusion only when the accumulated verified evidence is sufficient for a confident answer. If evidence is insufficient, state what additional information is needed.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "verify_each_step": true,
+        "build_evidence_dag": true
+      },
+      "source": {
+        "paper": "Zhang et al. 2023 — Cumulative Reasoning with Large Language Models",
+        "url": "https://arxiv.org/abs/2308.04371"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 15
+    },
+    {
+      "id": "system_2_attention",
+      "name": "System 2 Attention (S2A)",
+      "description": "Regenerates input context to remove irrelevant/misleading information before reasoning. Improves factuality from 62.8% to 80.3% on distractor-laden contexts.",
+      "strategy_type": "filtering",
+      "when_to_use": {
+        "task_types": ["diagnosis", "differential", "clinical_reasoning", "avatar_conversation"],
+        "min_complexity": "medium",
+        "urgency": ["low", "medium", "high"],
+        "domains": ["clinical", "lab", "imaging"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Before reasoning about this case, apply System 2 Attention: (1) Review the provided context and identify which pieces of information are clinically relevant to the question being asked. (2) Mentally set aside irrelevant details, social commentary, or misleading context that could bias your reasoning. (3) Restate only the clinically pertinent facts. (4) Now reason from this filtered context to produce your answer.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "filter_distractors": true,
+        "restate_relevant_context": true
+      },
+      "source": {
+        "paper": "Weston & Sukhbaatar 2023 — System 2 Attention (is something you might need too)",
+        "url": "https://arxiv.org/abs/2311.11829"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 14
+    },
+    {
+      "id": "thread_of_thought",
+      "name": "Thread of Thought (ThoT)",
+      "description": "Systematically segments and summarises extended/chaotic context before reasoning. +47.2% on PopQA with noisy contexts. Plug-and-play composable with other strategies.",
+      "strategy_type": "filtering",
+      "when_to_use": {
+        "task_types": ["diagnosis", "differential", "clinical_reasoning", "avatar_conversation"],
+        "min_complexity": "medium",
+        "urgency": ["low", "medium", "high"],
+        "domains": ["clinical", "lab", "imaging"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "The patient context may contain extensive or disorganised information. Apply Thread of Thought: (1) Walk through the context segment by segment. (2) For each segment, extract the key clinical facts relevant to the current question. (3) Discard noise, irrelevant history, and duplicate information. (4) Compile a concise, organised summary of pertinent findings. (5) Reason from this distilled thread to produce your answer.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "segment_and_summarise": true
+      },
+      "source": {
+        "paper": "Zhou et al. 2023 — Thread of Thought Unraveling Chaotic Contexts",
+        "url": "https://arxiv.org/abs/2311.08734"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 16
+    },
+    {
+      "id": "reflexion",
+      "name": "Reflexion",
+      "description": "Iterative self-correction via verbal reinforcement learning. After an initial attempt, reflects on failures and retries with accumulated insights. 91% on HumanEval, +22% on decision-making tasks.",
+      "strategy_type": "iterative",
+      "when_to_use": {
+        "task_types": ["diagnosis", "differential", "treatment_planning", "investigation_ordering"],
+        "min_complexity": "high",
+        "urgency": ["low", "medium"],
+        "domains": ["clinical"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Apply Reflexion: (1) Generate your initial clinical assessment. (2) Critically evaluate your own answer — what assumptions did you make? What evidence might you have missed or misweighed? Are there common diagnostic pitfalls for this presentation? (3) Based on this self-reflection, identify specific weaknesses or errors. (4) Generate a revised, improved assessment that addresses the identified weaknesses. Present your refined answer as the final response.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "reflection_rounds": 1,
+        "verbal_reinforcement": true
+      },
+      "source": {
+        "paper": "Shinn et al. 2023 — Reflexion: Language Agents with Verbal Reinforcement Learning (NeurIPS 2023)",
+        "url": "https://arxiv.org/abs/2303.11366"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 22
+    },
+    {
+      "id": "least_to_most",
+      "name": "Least-to-Most Prompting",
+      "description": "Decomposes complex problems into simpler sub-problems solved sequentially, each feeding into the next. 99.7% on compositional tasks vs 16.2% for CoT. +15.8% on 5+ step problems.",
+      "strategy_type": "decomposition",
+      "when_to_use": {
+        "task_types": ["diagnosis", "treatment_planning", "investigation_ordering", "clinical_reasoning"],
+        "min_complexity": "medium",
+        "urgency": ["low", "medium", "high"],
+        "domains": ["clinical", "pharmacy", "operations"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Apply least-to-most decomposition: (1) Break this clinical problem into the simplest sub-questions that must be answered first. (2) Answer the simplest sub-question using available evidence. (3) Use that answer as context to address the next sub-question. (4) Continue building up through progressively harder sub-questions until you can answer the original question. Show each sub-question and its answer.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "decompose_first": true,
+        "sequential_solve": true
+      },
+      "source": {
+        "paper": "Zhou et al. 2022 — Least-to-Most Prompting Enables Complex Reasoning in Large Language Models (ICLR 2023)",
+        "url": "https://arxiv.org/abs/2205.10625"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 18
+    },
+    {
+      "id": "contrastive_cot",
+      "name": "Contrastive Chain-of-Thought",
+      "description": "Provides both valid and invalid reasoning demonstrations to teach correct vs incorrect inference. +16 points on factual QA, +9.8 on math with GPT-3.5.",
+      "strategy_type": "reasoning",
+      "when_to_use": {
+        "task_types": ["diagnosis", "differential", "clinical_reasoning"],
+        "min_complexity": "medium",
+        "urgency": ["low", "medium", "high"],
+        "domains": ["clinical", "pharmacy"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Apply contrastive reasoning: For this clinical problem, (1) First demonstrate the CORRECT reasoning path, explaining why each inference follows from the evidence. (2) Then identify 1-2 COMMON DIAGNOSTIC ERRORS for this presentation — reasoning paths that look plausible but lead to wrong conclusions, and explain WHY they are wrong. (3) Use the contrast between correct and incorrect reasoning to reinforce your final answer with higher confidence.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "show_valid_reasoning": true,
+        "show_invalid_reasoning": true,
+        "explain_contrast": true
+      },
+      "source": {
+        "paper": "Chia et al. 2023 — Contrastive Chain-of-Thought Prompting",
+        "url": "https://arxiv.org/abs/2311.09277"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 24
+    },
+    {
+      "id": "analogical_prompting",
+      "name": "Analogical Prompting",
+      "description": "Self-generates relevant past exemplars before solving the current problem. Outperforms manual few-shot CoT on math, code, and reasoning tasks without needing a retrieval system.",
+      "strategy_type": "exemplar",
+      "when_to_use": {
+        "task_types": ["diagnosis", "differential", "clinical_reasoning", "treatment_planning"],
+        "min_complexity": "medium",
+        "urgency": ["low", "medium", "high"],
+        "domains": ["clinical", "pharmacy"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Before addressing this specific case, apply analogical reasoning: (1) Recall 2-3 similar clinical cases or presentations you have knowledge of. Briefly describe each — the presenting features, the key differentiating factors, and the final diagnosis. (2) Identify which aspects of those analogous cases are most relevant to the current presentation. (3) Apply the lessons and patterns from those cases to reason about this patient. State your final assessment.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "num_analogies": 3,
+        "self_generated": true
+      },
+      "source": {
+        "paper": "Yasunaga et al. 2023 — Large Language Models as Analogical Reasoners (Google DeepMind / Stanford)",
+        "url": "https://arxiv.org/abs/2310.01714"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 26
+    },
+    {
+      "id": "meta_prompting",
+      "name": "Meta-Prompting",
+      "description": "A conductor LLM orchestrates multiple expert personas, each with specialised instructions, to tackle sub-tasks. +17.1% over standard prompting. Fully zero-shot and task-agnostic.",
+      "strategy_type": "orchestration",
+      "when_to_use": {
+        "task_types": ["diagnosis", "differential", "treatment_planning"],
+        "min_complexity": "high",
+        "urgency": ["low", "medium"],
+        "domains": ["clinical"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Apply meta-prompting by adopting multiple expert perspectives sequentially: (1) As a DIAGNOSTICIAN: analyse the symptoms, history, and findings to generate a differential diagnosis. (2) As a PHARMACOLOGIST: review any medication considerations, interactions, and contraindications relevant to the differential. (3) As a RADIOLOGIST/PATHOLOGIST: evaluate any imaging or lab findings for consistency with the leading diagnoses. (4) As a SENIOR CONSULTANT: synthesize all expert perspectives into a unified clinical assessment with recommended next steps.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "expert_personas": ["diagnostician", "pharmacologist", "radiologist", "senior_consultant"],
+        "zero_shot": true
+      },
+      "source": {
+        "paper": "Suzgun & Kalai 2024 — Meta-Prompting: Enhancing Language Models with Task-Agnostic Scaffolding (Stanford / OpenAI)",
+        "url": "https://arxiv.org/abs/2401.12954"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 38
+    },
+    {
+      "id": "program_of_thoughts",
+      "name": "Program of Thoughts (PoT)",
+      "description": "Generates executable code to handle computation rather than reasoning in natural language. +12% over CoT on numerical tasks. State-of-the-art on math and financial QA.",
+      "strategy_type": "computational",
+      "when_to_use": {
+        "task_types": ["lab", "pharmacy", "clinical_reasoning"],
+        "min_complexity": "medium",
+        "urgency": ["low", "medium", "high"],
+        "domains": ["clinical", "pharmacy", "lab"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "When this task involves numerical calculations (dosing, lab value interpretation, clinical scores like eGFR/BMI/MELD/CHA2DS2-VASc, unit conversions, or statistical reasoning): (1) Express the calculation as a clear formula or step-by-step computation. (2) Show the specific numbers being substituted. (3) Compute the result explicitly — do not approximate or round prematurely. (4) State the clinical interpretation of the computed value.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "offload_computation": true,
+        "show_formula": true
+      },
+      "source": {
+        "paper": "Chen et al. 2022 — Program of Thoughts Prompting: Disentangling Computation from Reasoning (TMLR 2023)",
+        "url": "https://arxiv.org/abs/2211.12588"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 28
+    },
+    {
+      "id": "rephrase_and_respond",
+      "name": "Rephrase and Respond (RaR)",
+      "description": "LLM rephrases the question to resolve ambiguity before answering. Near 100% on ambiguous tasks. Complementary to CoT — helps where CoT alone fails.",
+      "strategy_type": "clarification",
+      "when_to_use": {
+        "task_types": ["avatar_conversation", "diagnosis", "clinical_reasoning"],
+        "min_complexity": "low",
+        "urgency": ["low", "medium", "high", "critical"],
+        "domains": ["clinical", "pharmacy", "lab", "imaging"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Before answering, apply Rephrase and Respond: (1) Restate the clinical question in your own words, expanding any ambiguous terms, implicit assumptions, or vague references into precise clinical language. (2) If the question could be interpreted in multiple ways, identify the most clinically relevant interpretation and state it explicitly. (3) Now answer the rephrased, clarified question.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "rephrase_first": true
+      },
+      "source": {
+        "paper": "Deng et al. 2023 — Rephrase and Respond: Let Large Language Models Ask Better Questions for Themselves (UCLA)",
+        "url": "https://arxiv.org/abs/2311.04205"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 6
+    }
+  ]
+}

@@ -532,36 +532,7 @@ class AvatarEngine:
             if not updated.get("remaining"):
                 stage = "explanation_and_planning"
 
-        # --- Prompt strategy selection (optional, graceful fallback) --------
-        _selected_strategy = None
-        try:
-            from shared.nexus_common.prompt_strategy import (
-                PromptStrategySelector,
-                TaskContext,
-                get_strategy_registry,
-            )
-
-            _ps_registry = get_strategy_registry()
-            _ps_selector = PromptStrategySelector(_ps_registry)
-            _urgency = str(
-                (session.patient_case.get("patient_profile") or {}).get("urgency", "medium")
-            )
-            _ps_ctx = TaskContext(
-                task_type="avatar_conversation",
-                complexity="medium",
-                urgency=_urgency,
-                domain="clinical",
-            )
-            _selected_strategy = _ps_selector.select(_ps_ctx)
-            if _selected_strategy:
-                logger.debug("Prompt strategy selected: %s", _selected_strategy.id)
-        except Exception:
-            # Strategy selection is non-critical; fall back to original behaviour
-            logger.debug("Prompt strategy selection unavailable, using default prompts")
-
-        system = build_persona_prompt(
-            session.persona, session.framework, stage_context, strategy=_selected_strategy
-        )
+        system = build_persona_prompt(session.persona, session.framework, stage_context)
         user = (
             f"Patient context: {session.patient_case}. "
             f"Current stage: {stage}. "
