@@ -60,13 +60,43 @@ def _load_pid_entries() -> list[dict]:
     return []
 
 
-def _kill_pid(pid: int) -> bool:
-    """Best-effort terminate a process by PID."""
+def _kill_pid(pid: int, *, escalate: bool = False) -> bool:
+    """Terminate a process by PID with optional SIGKILL escalation.
+
+    When *escalate* is True, send SIGTERM first, wait up to 5 seconds for
+    the process to exit, then send SIGKILL if it's still alive.  This
+    prevents zombie/orphan accumulation on repeated stop-start cycles.
+    """
     try:
         os.kill(pid, signal.SIGTERM)
-        return True
     except (ProcessLookupError, OSError):
         return False
+
+    if not escalate:
+        return True
+
+    # Wait for the process to actually terminate
+    for _ in range(10):  # 10 × 0.5 s = 5 s max wait
+        time.sleep(0.5)
+        try:
+            os.waitpid(pid, os.WNOHANG)
+        except ChildProcessError:
+            return True  # already reaped
+        try:
+            os.kill(pid, 0)  # existence check
+        except (ProcessLookupError, OSError):
+            return True  # gone
+    # Still alive — force kill
+    try:
+        os.kill(pid, signal.SIGKILL)
+        time.sleep(0.2)
+        try:
+            os.waitpid(pid, os.WNOHANG)
+        except ChildProcessError:
+            pass
+    except (ProcessLookupError, OSError):
+        pass
+    return True
 
 
 def _find_listening_pid_windows(port: int) -> int | None:
@@ -99,14 +129,46 @@ def _find_listening_pid_windows(port: int) -> int | None:
     return None
 
 
+def _find_listening_pid_linux(port: int) -> int | None:
+    """Return PID listening on TCP port (Linux/macOS), if any.
+
+    Uses ``lsof`` or ``ss`` to resolve the listener, preventing orphan
+    accumulation when the PID file was lost or corrupted.
+    """
+    my_pid = os.getpid()
+
+    # Prefer lsof (available on macOS + most Linux distros)
+    for cmd in (
+        ["lsof", "-ti", f"tcp:{port}", "-sTCP:LISTEN"],
+        ["ss", "-tlnpH", f"sport = :{port}"],
+    ):
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, check=False, timeout=5)
+            if result.returncode != 0 or not result.stdout.strip():
+                continue
+        except FileNotFoundError:
+            continue
+        except Exception:
+            continue
+
+        # lsof returns bare PIDs; ss embeds pid=NNNN in output
+        for token in re.findall(r"\b(\d+)\b", result.stdout):
+            pid = int(token)
+            if pid > 1 and pid != my_pid:
+                return pid
+
+    return None
+
+
 def _cleanup_stale_services(ports: list[int]) -> None:
     """Stop stale managed/demo listeners before launching a new stack.
 
     This prevents process buildup (and memory pressure) across repeated launches.
+    Uses SIGTERM→wait→SIGKILL escalation to ensure zombie processes are reaped.
     """
     stopped: set[int] = set()
 
-    # 1) Stop previously tracked managed processes.
+    # 1) Stop previously tracked managed processes (with escalation).
     prior = _load_pid_entries()
     if prior:
         print(f"Found {len(prior)} previously tracked service process(es); cleaning up...")
@@ -116,7 +178,7 @@ def _cleanup_stale_services(ports: list[int]) -> None:
                 continue
             if pid in stopped:
                 continue
-            if _kill_pid(pid):
+            if _kill_pid(pid, escalate=True):
                 stopped.add(pid)
                 print(f"  Stopped tracked process pid {pid}")
         try:
@@ -125,18 +187,20 @@ def _cleanup_stale_services(ports: list[int]) -> None:
             pass
 
     # 2) Safety sweep by reserved ports (covers stale/orphan listeners not in PID_FILE).
-    if platform.system().lower().startswith("win"):
-        for port in sorted(set(ports)):
-            pid = _find_listening_pid_windows(port)
-            if not pid or pid in stopped or pid == os.getpid():
-                continue
-            if _kill_pid(pid):
-                stopped.add(pid)
-                print(f"  Freed port {port} by stopping pid {pid}")
+    #    Works on Windows, Linux, and macOS.
+    is_windows = platform.system().lower().startswith("win")
+    find_pid = _find_listening_pid_windows if is_windows else _find_listening_pid_linux
+    for port in sorted(set(ports)):
+        pid = find_pid(port)
+        if not pid or pid in stopped or pid == os.getpid():
+            continue
+        if _kill_pid(pid, escalate=True):
+            stopped.add(pid)
+            print(f"  Freed port {port} by stopping orphan pid {pid}")
 
     # Brief settle period for socket release.
     if stopped:
-        time.sleep(0.6)
+        time.sleep(0.8)
 
 
 def load_agent_config():
@@ -393,6 +457,7 @@ def start_gateway(env: dict[str, str], port: int | None = None) -> dict | dict[s
         env=env,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
+        start_new_session=True,  # isolate process group for clean teardown
     )
     time.sleep(1.0)
     if proc.poll() is not None:
@@ -522,6 +587,9 @@ def start_all(
     if include_backend:
         services_to_start.extend([(rel_dir, port, "backend") for rel_dir, port, _ in backend])
 
+    max_startup_retries = int(os.getenv("NEXUS_STARTUP_MAX_RETRIES", "2"))
+    startup_settle_s = float(os.getenv("NEXUS_STARTUP_SETTLE_SECONDS", "0.5"))
+
     for rel_dir, port, service_type in services_to_start:
         agent_dir = os.path.join(ROOT, rel_dir)
         cmd = [
@@ -559,37 +627,68 @@ def start_all(
 
         service_label = f"[{service_type.upper()}]" if service_type == "backend" else ""
         stderr_target = subprocess.DEVNULL if service_type == "backend" else subprocess.PIPE
-        print(
-            f"  Starting {service_label} {os.path.basename(rel_dir):30s}  :{port} ...",
-            end=" ",
-            flush=True,
-        )
-        proc = subprocess.Popen(
-            cmd,
-            cwd=agent_dir,
-            env=env,
-            stdout=subprocess.DEVNULL,
-            stderr=stderr_target,
-        )
-        time.sleep(0.5)
-        if proc.poll() is not None:
-            err = ""
-            if proc.stderr is not None:
-                err = proc.stderr.read().decode(errors="replace")
-            print(f"FAILED (exit {proc.returncode})")
-            if err:
-                print(f"    stderr: {err[:300]}")
-            failed_starts.append(
-                {
-                    "dir": rel_dir,
-                    "port": port,
-                    "type": service_type,
-                    "exit_code": proc.returncode,
-                }
+
+        # Retry loop: retry crashed services up to max_startup_retries times
+        started = False
+        for attempt in range(1, max_startup_retries + 1):
+            attempt_label = f" (attempt {attempt}/{max_startup_retries})" if attempt > 1 else ""
+            print(
+                f"  Starting {service_label} {os.path.basename(rel_dir):30s}"
+                f"  :{port}{attempt_label} ...",
+                end=" ",
+                flush=True,
             )
-        else:
-            print(f"OK  (pid {proc.pid})")
-            pids.append({"dir": rel_dir, "port": port, "pid": proc.pid, "type": service_type})
+
+            # Clear port before retry — a prior crashed attempt may leave
+            # the socket in TIME_WAIT or a zombie holding the port.
+            if attempt > 1:
+                is_win = platform.system().lower().startswith("win")
+                find_fn = _find_listening_pid_windows if is_win else _find_listening_pid_linux
+                stale_pid = find_fn(port)
+                if stale_pid and stale_pid != os.getpid():
+                    _kill_pid(stale_pid, escalate=True)
+                    time.sleep(0.3)
+
+            proc = subprocess.Popen(
+                cmd,
+                cwd=agent_dir,
+                env=env,
+                stdout=subprocess.DEVNULL,
+                stderr=stderr_target,
+                start_new_session=True,  # isolate process group for clean teardown
+            )
+            time.sleep(startup_settle_s)
+            if proc.poll() is not None:
+                err = ""
+                if proc.stderr is not None:
+                    err = proc.stderr.read().decode(errors="replace")
+                print(f"FAILED (exit {proc.returncode})")
+                if err:
+                    print(f"    stderr: {err[:300]}")
+                # On last attempt, record the failure
+                if attempt == max_startup_retries:
+                    failed_starts.append(
+                        {
+                            "dir": rel_dir,
+                            "port": port,
+                            "type": service_type,
+                            "exit_code": proc.returncode,
+                        }
+                    )
+                else:
+                    # Brief backoff before retry
+                    time.sleep(1.0 * attempt)
+            else:
+                print(f"OK  (pid {proc.pid})")
+                pids.append({"dir": rel_dir, "port": port, "pid": proc.pid, "type": service_type})
+                started = True
+                break
+
+        if not started and service_type == "agent":
+            print(
+                f"    WARNING: {os.path.basename(rel_dir)} failed"
+                f" after {max_startup_retries} attempts"
+            )
 
     # Optionally start on-demand gateway
     gateway_entry = None
@@ -662,21 +761,26 @@ def start_all(
     print("Waiting 3s for agents to settle...")
     time.sleep(3)
 
-    # Quick health check - ONLY for agents, not backend
+    # Health check agents with retries (handles slow starters)
     ok = 0
     agent_pids = [p for p in pids if p.get("type") == "agent"]
+    agent_health_attempts = int(os.getenv("NEXUS_AGENT_HEALTHCHECK_ATTEMPTS", "5"))
+    agent_health_timeout_s = float(os.getenv("NEXUS_AGENT_HEALTHCHECK_TIMEOUT_SECONDS", "3"))
+    agent_health_interval_s = float(os.getenv("NEXUS_AGENT_HEALTHCHECK_INTERVAL_SECONDS", "1"))
 
     for entry in agent_pids:
         url = f"http://localhost:{entry['port']}/.well-known/agent-card.json"
-        try:
-            resp = urllib.request.urlopen(url, timeout=3)
-            if resp.status == 200:
-                ok += 1
-                print(f"  [ok] :{entry['port']} healthy")
-            else:
-                print(f"  [fail] :{entry['port']} status={resp.status}")
-        except Exception as e:
-            print(f"  [fail] :{entry['port']} {e}")
+        healthy, detail = probe_http_health(
+            url,
+            attempts=agent_health_attempts,
+            timeout_s=agent_health_timeout_s,
+            interval_s=agent_health_interval_s,
+        )
+        if healthy:
+            ok += 1
+            print(f"  [ok] :{entry['port']} healthy")
+        else:
+            print(f"  [fail] :{entry['port']} {detail}")
 
     print(f"\nAgent Health: {ok}/{len(agent_pids)} agents responding")
 
@@ -799,17 +903,77 @@ def start_all(
 
 
 def stop_all():
+    """Stop all tracked services with SIGTERM→wait→SIGKILL escalation.
+
+    Also performs a port-scan sweep to catch orphaned processes that outlived
+    the PID file (e.g. after an unclean shutdown or lost bash session).
+    """
     pids = _load_pid_entries()
     if not pids:
         print("No PID file found.")
         return
+
+    # Phase 1: SIGTERM all tracked processes (parallel — fast)
+    live_pids: list[tuple[int, str]] = []
     for entry in pids:
+        pid = entry.get("pid")
+        if not isinstance(pid, int):
+            continue
         try:
-            os.kill(entry["pid"], signal.SIGTERM)
-            print(f"  Killed {entry['dir']} (pid {entry['pid']})")
+            os.kill(pid, signal.SIGTERM)
+            live_pids.append((pid, entry.get("dir", "?")))
+            print(f"  SIGTERM → {entry.get('dir', '?')} (pid {pid})")
         except (ProcessLookupError, OSError):
-            print(f"  Already gone: {entry['dir']} (pid {entry['pid']})")
-    os.remove(PID_FILE)
+            print(f"  Already gone: {entry.get('dir', '?')} (pid {pid})")
+
+    # Phase 2: Wait for graceful shutdown (up to 5 s total)
+    if live_pids:
+        print("  Waiting for processes to exit...")
+        deadline = time.monotonic() + 5.0
+        remaining = list(live_pids)
+        while remaining and time.monotonic() < deadline:
+            still_alive = []
+            for pid, label in remaining:
+                try:
+                    os.waitpid(pid, os.WNOHANG)
+                except ChildProcessError:
+                    continue  # already reaped
+                try:
+                    os.kill(pid, 0)
+                    still_alive.append((pid, label))
+                except (ProcessLookupError, OSError):
+                    pass  # gone
+            remaining = still_alive
+            if remaining:
+                time.sleep(0.3)
+
+        # Phase 3: SIGKILL anything still alive
+        for pid, label in remaining:
+            try:
+                os.kill(pid, signal.SIGKILL)
+                print(f"  SIGKILL → {label} (pid {pid})")
+                try:
+                    os.waitpid(pid, os.WNOHANG)
+                except ChildProcessError:
+                    pass
+            except (ProcessLookupError, OSError):
+                pass
+
+    # Phase 4: Port-scan sweep for orphans not in PID file
+    orphan_ports = {entry.get("port") for entry in pids if isinstance(entry.get("port"), int)}
+    is_windows = platform.system().lower().startswith("win")
+    find_fn = _find_listening_pid_windows if is_windows else _find_listening_pid_linux
+    killed_pids = {pid for pid, _ in live_pids}
+    for port in sorted(orphan_ports):
+        orphan_pid = find_fn(port)
+        if orphan_pid and orphan_pid not in killed_pids and orphan_pid != os.getpid():
+            _kill_pid(orphan_pid, escalate=True)
+            print(f"  Killed orphan on port {port} (pid {orphan_pid})")
+
+    try:
+        os.remove(PID_FILE)
+    except OSError:
+        pass
     print("All agents stopped.")
 
 
