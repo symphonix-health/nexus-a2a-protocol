@@ -155,27 +155,6 @@ async def _do_assess(params: dict, token: str) -> dict:
 
     system = "You are a cautious ED triage support assistant. Return a one sentence rationale."
     user = f"Complaint: {chief}; triage={triage_level}; patient_id={patient_id}."
-
-    # Select and apply prompt strategy based on triage urgency
-    try:
-        from shared.nexus_common.prompt_strategy import (
-            PromptStrategySelector,
-            TaskContext,
-            apply_strategy,
-            get_strategy_registry,
-        )
-
-        _urgency = "critical" if triage_level in ("ESI-1", "ESI-2") else "high"
-        _ps_ctx = TaskContext(
-            task_type="diagnosis", complexity="medium", urgency=_urgency, domain="clinical",
-        )
-        _strategy = PromptStrategySelector(get_strategy_registry()).select(_ps_ctx)
-        if _strategy:
-            system, user = apply_strategy(_strategy, system, user)
-            logger.debug("ED triage using strategy: %s", _strategy.id)
-    except Exception:
-        pass  # Strategy selection is non-critical
-
     rationale = await asyncio.to_thread(llm_chat, system, user)
 
     # Compact patient_context for event replay — full FHIR data

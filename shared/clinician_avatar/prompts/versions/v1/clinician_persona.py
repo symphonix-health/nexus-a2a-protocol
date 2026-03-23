@@ -1,32 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
-if TYPE_CHECKING:
-    from shared.nexus_common.prompt_strategy.models import PromptStrategy
+from typing import Any
 
 
-def build_persona_prompt(
-    persona: dict[str, Any],
-    framework: str,
-    stage_context: str,
-    strategy: PromptStrategy | None = None,
-) -> str:
-    """Build the avatar system prompt from persona, framework, and stage.
-
-    Parameters
-    ----------
-    strategy:
-        Optional :class:`PromptStrategy` whose ``system_addendum`` will be
-        appended to the base prompt.  Pass ``None`` (the default) to preserve
-        the original behaviour.
-    """
+def build_persona_prompt(persona: dict[str, Any], framework: str, stage_context: str) -> str:
     name = str(persona.get("name") or "Dr. Alex")
     role = str(persona.get("role") or "clinician")
     style = str(persona.get("style") or "calm, empathetic, and precise")
     specialty = str(persona.get("specialty") or "general medicine")
 
-    base = (
+    return (
         f"You are {name}, a {specialty} {role}. "
         f"Communication style: {style}. "
         "Sound human, warm, and present — like a real bedside clinician speaking directly "
@@ -40,8 +23,3 @@ def build_persona_prompt(
         "Paragraph 2: exactly one focused next question. "
         "Do not output JSON, code blocks, markdown tables, or bullet lists."
     )
-
-    if strategy and strategy.template.system_addendum:
-        base = f"{base}\n\n{strategy.template.system_addendum}"
-
-    return base

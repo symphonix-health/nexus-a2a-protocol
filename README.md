@@ -42,7 +42,7 @@
 
 ```bash
 # 1. Clone and setup
-git clone https://github.com/sync-ai-health/nexus-a2a-protocol.git
+git clone https://github.com/symphonix-health/nexus-a2a-protocol.git
 cd nexus-a2a-protocol
 python -m venv .venv
 .venv\Scripts\activate          # Windows
@@ -660,7 +660,7 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/sync-ai-health/nexus-a2a-protocol/issues)
+- **Issues**: [GitHub Issues](https://github.com/symphonix-health/nexus-a2a-protocol/issues)
 - **Discussions**: Community Q&A and collaboration
 - **Documentation**: [User Manual](HELIXCARE_USER_MANUAL.md) · [Developer Reference](docs/developer_reference.md)
 

@@ -28,52 +28,6 @@ from . import adapters
 logger = logging.getLogger(__name__)
 
 
-def _select_strategy_for_dispatch(
-    agent_name: str,
-    urgency: str = "medium",
-    complexity: str = "medium",
-) -> dict[str, Any] | None:
-    """Select a recommended strategy for a downstream agent dispatch.
-
-    Returns a serialisable dict (id + system_addendum) or None.
-    """
-    try:
-        from shared.nexus_common.prompt_strategy import (
-            PromptStrategySelector,
-            TaskContext,
-            get_strategy_registry,
-        )
-
-        _AGENT_TASK_MAP: dict[str, tuple[str, str]] = {
-            "DiagnosticReasoningAgent": ("diagnosis", "clinical"),
-            "TreatmentRecommendationAgent": ("treatment_planning", "clinical"),
-            "InvestigationPlannerAgent": ("investigation_ordering", "clinical"),
-            "ReferralAgent": ("referral", "operations"),
-            "DischargeAgent": ("treatment_planning", "operations"),
-            "PharmacyAgent": ("pharmacy", "pharmacy"),
-        }
-        task_type, domain = _AGENT_TASK_MAP.get(agent_name, ("clinical_reasoning", "clinical"))
-
-        registry = get_strategy_registry()
-        selector = PromptStrategySelector(registry)
-        ctx = TaskContext(
-            task_type=task_type,
-            complexity=complexity,
-            urgency=urgency,
-            domain=domain,
-        )
-        strategy = selector.select(ctx)
-        if strategy:
-            return {
-                "strategy_id": strategy.id,
-                "strategy_name": strategy.name,
-                "system_addendum": strategy.template.system_addendum,
-            }
-    except Exception:
-        pass
-    return None
-
-
 @dataclass
 class AgentDispatch:
     """Record of a downstream agent invocation."""
@@ -143,23 +97,12 @@ class PathwayOrchestrator:
 
         dispatches: list[AgentDispatch] = []
 
-        # Derive urgency/complexity for strategy selection
-        _urgency = personalised.explainability.confidence.value.lower() if personalised.explainability else "medium"
-        _urgency_map = {"high": "low", "medium": "medium", "low": "high", "requires_clinician_review": "high"}
-        _dispatch_urgency = _urgency_map.get(_urgency, "medium")
-        _dispatch_complexity = "high" if len(personalised.modifications) >= 3 else "medium"
-
         # 2. Diagnostic reasoning — always dispatched
         diag_ctx = adapters.to_diagnostic_context(
             personalised,
             patient_id=context.demographics.patient_id,
             chief_complaint=chief_complaint,
         )
-        diag_strategy = _select_strategy_for_dispatch(
-            "DiagnosticReasoningAgent", urgency=_dispatch_urgency, complexity=_dispatch_complexity,
-        )
-        if diag_strategy:
-            diag_ctx["recommended_strategy"] = diag_strategy
         dispatches.append(AgentDispatch(
             agent_name="DiagnosticReasoningAgent",
             adapter_used="to_diagnostic_context",
@@ -173,11 +116,6 @@ class PathwayOrchestrator:
                 diagnosis=diagnosis,
                 specialty=specialty,
             )
-            treat_strategy = _select_strategy_for_dispatch(
-                "TreatmentRecommendationAgent", urgency=_dispatch_urgency, complexity=_dispatch_complexity,
-            )
-            if treat_strategy:
-                treat_ctx["recommended_strategy"] = treat_strategy
             dispatches.append(AgentDispatch(
                 agent_name="TreatmentRecommendationAgent",
                 adapter_used="to_treatment_context",
@@ -199,11 +137,6 @@ class PathwayOrchestrator:
         # 5. Investigation planner — if pathway has investigation activities
         inv_plan = adapters.to_investigation_plan(personalised)
         if inv_plan["pathway_investigations"]:
-            inv_strategy = _select_strategy_for_dispatch(
-                "InvestigationPlannerAgent", urgency=_dispatch_urgency, complexity=_dispatch_complexity,
-            )
-            if inv_strategy:
-                inv_plan["recommended_strategy"] = inv_strategy
             dispatches.append(AgentDispatch(
                 agent_name="InvestigationPlannerAgent",
                 adapter_used="to_investigation_plan",

@@ -1,0 +1,232 @@
+{
+  "$schema": "nexus:prompt_strategies:v1",
+  "version": "1.0.0",
+  "description": "Data-driven prompt strategy registry. Add new strategies here — zero code changes required.",
+  "strategies": [
+    {
+      "id": "structured_output",
+      "name": "Structured Output Enforcement",
+      "description": "Forces output into a specific JSON/structured format with schema guidance",
+      "strategy_type": "formatting",
+      "when_to_use": {
+        "task_types": ["imaging", "lab", "pharmacy", "diagnosis", "structured_output"],
+        "min_complexity": "low",
+        "urgency": ["low", "medium", "high", "critical"],
+        "domains": ["clinical", "lab", "imaging", "pharmacy"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "You MUST respond in the exact JSON schema specified. Do not deviate from the schema. Validate your output mentally before responding.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "strict_schema": true
+      },
+      "source": {
+        "paper": "Standard technique",
+        "url": ""
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 1
+    },
+    {
+      "id": "role_prompting",
+      "name": "Role Prompting (Enhanced)",
+      "description": "Assigns a specific expert role beyond the base persona for domain-specific tasks",
+      "strategy_type": "persona",
+      "when_to_use": {
+        "task_types": ["imaging", "lab", "pharmacy", "diagnosis", "avatar_conversation"],
+        "min_complexity": "low",
+        "urgency": ["low", "medium", "high", "critical"],
+        "domains": ["clinical", "lab", "imaging", "pharmacy"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Embody this role fully. Draw on the specific domain expertise, clinical experience, and professional standards expected of this specialist. Your reasoning should reflect the depth of a seasoned practitioner.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "role_depth": "specialist"
+      },
+      "source": {
+        "paper": "Baseline technique",
+        "url": ""
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 5
+    },
+    {
+      "id": "chain_of_thought",
+      "name": "Chain of Thought",
+      "description": "Encourages step-by-step reasoning before arriving at a conclusion",
+      "strategy_type": "reasoning",
+      "when_to_use": {
+        "task_types": ["diagnosis", "differential", "clinical_reasoning", "treatment_planning"],
+        "min_complexity": "medium",
+        "urgency": ["low", "medium", "high"],
+        "domains": ["clinical", "pharmacy", "lab"]
+      },
+      "template": {
+        "prefix": "Think through this step-by-step before providing your final answer:\n",
+        "suffix": "\n\nProvide your reasoning chain, then your final conclusion.",
+        "system_addendum": "Use chain-of-thought reasoning. Show each logical step explicitly before concluding.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "reasoning_depth": "detailed",
+        "show_work": true
+      },
+      "source": {
+        "paper": "Wei et al. 2022 — Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+        "url": "https://arxiv.org/abs/2201.11903"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 10
+    },
+    {
+      "id": "few_shot",
+      "name": "Few-Shot Learning",
+      "description": "Provides exemplar input-output pairs to guide response format and quality",
+      "strategy_type": "exemplar",
+      "when_to_use": {
+        "task_types": ["imaging", "lab", "pharmacy", "structured_output"],
+        "min_complexity": "low",
+        "urgency": ["low", "medium", "high", "critical"],
+        "domains": ["clinical", "lab", "imaging", "pharmacy"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Follow the format demonstrated in the examples below exactly.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "num_examples": 2,
+        "example_source": "inline"
+      },
+      "source": {
+        "paper": "Brown et al. 2020 — Language Models are Few-Shot Learners",
+        "url": "https://arxiv.org/abs/2005.14165"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 20
+    },
+    {
+      "id": "react",
+      "name": "ReAct (Reason + Act)",
+      "description": "Interleaves reasoning and action steps for tool-using agents",
+      "strategy_type": "agentic",
+      "when_to_use": {
+        "task_types": ["investigation_ordering", "treatment_planning", "referral"],
+        "min_complexity": "medium",
+        "urgency": ["low", "medium", "high"],
+        "domains": ["clinical", "operations"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "For each step, first state your Thought (reasoning about what to do next), then your Action (the specific action to take), then your Observation (what you learned). Continue this Thought-Action-Observation loop until you have a complete answer.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "max_steps": 5
+      },
+      "source": {
+        "paper": "Yao et al. 2022 — ReAct: Synergizing Reasoning and Acting in Language Models",
+        "url": "https://arxiv.org/abs/2210.03629"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 25
+    },
+    {
+      "id": "self_consistency",
+      "name": "Self-Consistency",
+      "description": "Generates multiple reasoning paths and selects the most consistent answer",
+      "strategy_type": "reasoning",
+      "when_to_use": {
+        "task_types": ["diagnosis", "differential"],
+        "min_complexity": "high",
+        "urgency": ["low", "medium"],
+        "domains": ["clinical"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Consider this problem from three different clinical perspectives. For each perspective, reason independently to a conclusion. Then synthesize the most consistent answer across all three reasoning paths.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "num_paths": 3
+      },
+      "source": {
+        "paper": "Wang et al. 2022 — Self-Consistency Improves Chain of Thought Reasoning",
+        "url": "https://arxiv.org/abs/2203.11171"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 30
+    },
+    {
+      "id": "step_back",
+      "name": "Step-Back Prompting",
+      "description": "First asks a high-level abstraction question before addressing the specific problem",
+      "strategy_type": "reasoning",
+      "when_to_use": {
+        "task_types": ["diagnosis", "differential", "clinical_reasoning"],
+        "min_complexity": "medium",
+        "urgency": ["low", "medium"],
+        "domains": ["clinical"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Before answering the specific clinical question, first step back and consider: What are the general principles and pathophysiology relevant to this presentation? Then apply those principles to this specific case.",
+        "few_shot_examples": []
+      },
+      "parameters": {},
+      "source": {
+        "paper": "Zheng et al. 2023 — Take a Step Back: Evoking Reasoning via Abstraction",
+        "url": "https://arxiv.org/abs/2310.06117"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 35
+    },
+    {
+      "id": "tree_of_thought",
+      "name": "Tree of Thought",
+      "description": "Explores multiple reasoning branches, evaluating and pruning as it goes",
+      "strategy_type": "reasoning",
+      "when_to_use": {
+        "task_types": ["diagnosis", "treatment_planning"],
+        "min_complexity": "high",
+        "urgency": ["low", "medium"],
+        "domains": ["clinical"]
+      },
+      "template": {
+        "prefix": "",
+        "suffix": "",
+        "system_addendum": "Approach this as a tree of possible reasoning paths. Identify 2-3 candidate hypotheses. For each, evaluate the supporting and contradicting evidence. Prune unlikely branches and expand the most promising one to a final conclusion.",
+        "few_shot_examples": []
+      },
+      "parameters": {
+        "branching_factor": 3,
+        "max_depth": 3
+      },
+      "source": {
+        "paper": "Yao et al. 2023 — Tree of Thoughts: Deliberate Problem Solving with Large Language Models",
+        "url": "https://arxiv.org/abs/2305.10601"
+      },
+      "version": "1.0",
+      "enabled": true,
+      "priority": 40
+    }
+  ]
+}
