@@ -1,0 +1,235 @@
+[
+  {
+    "use_case_id": "STREAM-POS-0001",
+    "poc_demo": "ed-triage",
+    "scenario_title": "tasks/sendSubscribe with SSE transport returns task_id",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-SSE-1", "FR-RPC-1"],
+    "preconditions": ["triage-agent running on port 8021", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "stream-pos-0001",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P001"},
+          "chief_complaint": "chest pain",
+          "vitals": {"spo2": 96, "temp_c": 37.2}
+        }
+      }
+    },
+    "transport": "sse",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["streaming", "sse", "tasks-send-subscribe", "positive"]
+  },
+  {
+    "use_case_id": "STREAM-POS-0002",
+    "poc_demo": "ed-triage",
+    "scenario_title": "SSE stream initiation returns event stream headers",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-SSE-2"],
+    "preconditions": ["triage-agent running on port 8021", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "stream-pos-0002",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P002"},
+          "chief_complaint": "shortness of breath",
+          "vitals": {"spo2": 91}
+        }
+      }
+    },
+    "transport": "sse",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["streaming", "sse", "stream-initiation", "positive"]
+  },
+  {
+    "use_case_id": "STREAM-POS-0003",
+    "poc_demo": "ed-triage",
+    "scenario_title": "SSE stream reconnect via tasks/resubscribe",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-SSE-3"],
+    "preconditions": ["triage-agent running on port 8021", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "stream-pos-0003",
+      "method": "tasks/resubscribe",
+      "params": {
+        "task_id": "test-task-reconnect",
+        "cursor": "0"
+      }
+    },
+    "transport": "sse",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["streaming", "sse", "reconnect", "positive"]
+  },
+  {
+    "use_case_id": "STREAM-POS-0004",
+    "poc_demo": "ed-triage",
+    "scenario_title": "tasks/get after subscribe returns task state",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-RPC-2"],
+    "preconditions": ["triage-agent running on port 8021", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "stream-pos-0004",
+      "method": "tasks/get",
+      "params": {
+        "task_id": "test-task-002"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["streaming", "tasks-get", "positive"]
+  },
+  {
+    "use_case_id": "STREAM-POS-0005",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Streaming with valid auth completes without error",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-SSE-1", "SEC-1"],
+    "preconditions": ["triage-agent running on port 8021", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "stream-pos-0005",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P005"},
+          "chief_complaint": "fever and chills",
+          "vitals": {"spo2": 97, "temp_c": 39.1}
+        }
+      }
+    },
+    "transport": "sse",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["streaming", "sse", "auth", "positive"]
+  },
+  {
+    "use_case_id": "STREAM-POS-0006",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Non-SSE RPC call over HTTPS returns normal response",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-RPC-1"],
+    "preconditions": ["triage-agent running on port 8021", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "stream-pos-0006",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P006"},
+          "chief_complaint": "ankle sprain",
+          "vitals": {"spo2": 99, "temp_c": 36.8}
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["streaming", "https", "non-sse", "positive"]
+  },
+  {
+    "use_case_id": "STREAM-NEG-0001",
+    "poc_demo": "ed-triage",
+    "scenario_title": "SSE connection without auth returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["triage-agent running on port 8021"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "stream-neg-0001",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {"patient": {"patient_id": "P011"}, "chief_complaint": "chest pain"}
+      }
+    },
+    "transport": "sse",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["streaming", "sse", "auth", "negative"]
+  },
+  {
+    "use_case_id": "STREAM-NEG-0002",
+    "poc_demo": "ed-triage",
+    "scenario_title": "SSE with expired token returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["triage-agent running on port 8021"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "stream-neg-0002",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {"patient": {"patient_id": "P012"}, "chief_complaint": "nausea"}
+      }
+    },
+    "transport": "sse",
+    "auth_mode": "jwt_expired",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "expired_jwt",
+    "test_tags": ["streaming", "sse", "auth", "expired", "negative"]
+  },
+  {
+    "use_case_id": "STREAM-NEG-0003",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Invalid method returns 401 when no auth",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-JSONRPC-2"],
+    "preconditions": ["triage-agent running on port 8021"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "stream-neg-0003",
+      "method": "tasks/invalidMethod",
+      "params": {}
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["streaming", "invalid-method", "negative"]
+  },
+  {
+    "use_case_id": "STREAM-NEG-0004",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Malformed payload with no auth returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-JSONRPC-1"],
+    "preconditions": ["triage-agent running on port 8021"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "stream-neg-0004",
+      "method": "tasks/sendSubscribe",
+      "params": {}
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["streaming", "malformed", "negative"]
+  }
+]

@@ -1,0 +1,299 @@
+[
+  {
+    "use_case_id": "UC-HITL-POS-0001",
+    "poc_demo": "compliance-hitl",
+    "scenario_title": "HITL agent accepts valid consent review task",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-HITL-1", "FR-COMPLIANCE-1"],
+    "preconditions": ["hitl-agent running on port 8090", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "hitl-pos-001",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient_id": "P001",
+          "task_type": "consent_review",
+          "procedure": "appendectomy",
+          "consent_form_id": "CF-2024-001"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_bearer",
+    "expected_http_status": 200,
+    "expected_result": {"status": "ok"},
+    "error_condition": "none",
+    "test_tags": ["compliance-hitl", "consent-review", "positive", "unit"]
+  },
+  {
+    "use_case_id": "UC-HITL-POS-0002",
+    "poc_demo": "compliance-hitl",
+    "scenario_title": "HITL agent accepts high-value claim review task",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-HITL-1", "FR-COMPLIANCE-2"],
+    "preconditions": ["hitl-agent running on port 8090", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "hitl-pos-002",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient_id": "P002",
+          "task_type": "claim_review",
+          "claim_id": "CLM-2024-001",
+          "claim_amount": 95000.00,
+          "insurer_id": "INS-001"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_bearer",
+    "expected_http_status": 200,
+    "expected_result": {"status": "ok"},
+    "error_condition": "none",
+    "test_tags": ["compliance-hitl", "claim-review", "high-value", "positive", "unit"]
+  },
+  {
+    "use_case_id": "UC-HITL-POS-0003",
+    "poc_demo": "compliance-hitl",
+    "scenario_title": "HITL agent pauses task pending human review for sensitive case",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-HITL-2"],
+    "preconditions": ["hitl-agent running on port 8090", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "hitl-pos-003",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient_id": "P003",
+          "task_type": "compliance_audit",
+          "sensitivity": "high",
+          "requires_human_review": true
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_bearer",
+    "expected_http_status": 200,
+    "expected_result": {"status": "paused"},
+    "error_condition": "none",
+    "test_tags": ["compliance-hitl", "pause", "sensitive", "positive", "unit"]
+  },
+  {
+    "use_case_id": "UC-HITL-POS-0004",
+    "poc_demo": "compliance-hitl",
+    "scenario_title": "HITL agent processes data-sharing compliance check",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-COMPLIANCE-3"],
+    "preconditions": ["hitl-agent running on port 8090", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "hitl-pos-004",
+      "method": "hitl/review",
+      "params": {
+        "review_type": "data_sharing",
+        "patient_id": "P004",
+        "data_recipient": "research_institution",
+        "data_categories": ["demographics", "diagnosis_codes"]
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_bearer",
+    "expected_http_status": 200,
+    "expected_result": {"status": "ok"},
+    "error_condition": "none",
+    "test_tags": ["compliance-hitl", "data-sharing", "positive", "unit"]
+  },
+  {
+    "use_case_id": "UC-HITL-POS-0005",
+    "poc_demo": "compliance-hitl",
+    "scenario_title": "HITL agent accepts tasks/get for existing task",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-HITL-3"],
+    "preconditions": ["hitl-agent running on port 8090", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "hitl-pos-005",
+      "method": "tasks/get",
+      "params": {"task_id": "hitl-task-001"}
+    },
+    "transport": "https",
+    "auth_mode": "jwt_bearer",
+    "expected_http_status": 200,
+    "expected_result": {"status": "ok"},
+    "error_condition": "none",
+    "test_tags": ["compliance-hitl", "tasks-get", "positive", "unit"]
+  },
+  {
+    "use_case_id": "UC-HITL-POS-0006",
+    "poc_demo": "compliance-hitl",
+    "scenario_title": "HITL agent processes clinical guideline compliance check",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-COMPLIANCE-1"],
+    "preconditions": ["hitl-agent running on port 8090", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "hitl-pos-006",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient_id": "P006",
+          "task_type": "guideline_compliance",
+          "guideline_id": "NICE-NG185",
+          "procedure": "hip_replacement"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_bearer",
+    "expected_http_status": 200,
+    "expected_result": {"status": "ok"},
+    "error_condition": "none",
+    "test_tags": ["compliance-hitl", "guideline", "positive", "unit"]
+  },
+  {
+    "use_case_id": "UC-HITL-NEG-0001",
+    "poc_demo": "compliance-hitl",
+    "scenario_title": "Missing JWT returns 401 or error on HITL agent",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["hitl-agent running on port 8090"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "hitl-neg-001",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient_id": "P-NEG1",
+          "task_type": "consent_review"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": null,
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["compliance-hitl", "auth", "negative", "unit"]
+  },
+  {
+    "use_case_id": "UC-HITL-NEG-0002",
+    "poc_demo": "compliance-hitl",
+    "scenario_title": "Unknown RPC method returns error envelope",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-JSONRPC-ERR-2"],
+    "preconditions": ["hitl-agent running on port 8090", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "hitl-neg-002",
+      "method": "hitl/nonExistentMethod",
+      "params": {}
+    },
+    "transport": "https",
+    "auth_mode": "jwt_bearer",
+    "expected_http_status": 200,
+    "expected_result": {"error": "METHOD_NOT_FOUND"},
+    "error_condition": "method_not_found",
+    "test_tags": ["compliance-hitl", "method-not-found", "negative", "unit"]
+  },
+  {
+    "use_case_id": "UC-HITL-NEG-0003",
+    "poc_demo": "compliance-hitl",
+    "scenario_title": "Tasks/sendSubscribe with missing task params returns error",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-JSONRPC-ERR-1"],
+    "preconditions": ["hitl-agent running on port 8090", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "hitl-neg-003",
+      "method": "tasks/sendSubscribe",
+      "params": {}
+    },
+    "transport": "https",
+    "auth_mode": "jwt_bearer",
+    "expected_http_status": 200,
+    "expected_result": {"error": "INVALID_PARAMS"},
+    "error_condition": "missing_params",
+    "test_tags": ["compliance-hitl", "invalid-params", "negative", "unit"]
+  },
+  {
+    "use_case_id": "UC-HITL-NEG-0004",
+    "poc_demo": "compliance-hitl",
+    "scenario_title": "Request without auth header returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["hitl-agent running on port 8090"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "hitl-neg-004",
+      "method": "hitl/review",
+      "params": {
+        "review_type": "consent",
+        "patient_id": "P-NEG4"
+      }
+    },
+    "transport": "https",
+    "auth_mode": null,
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_auth_header",
+    "test_tags": ["compliance-hitl", "auth", "negative", "unit"]
+  },
+  {
+    "use_case_id": "UC-HITL-EDGE-0001",
+    "poc_demo": "compliance-hitl",
+    "scenario_title": "HITL agent handles task with all optional fields omitted",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-HITL-1"],
+    "preconditions": ["hitl-agent running on port 8090", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "hitl-edge-001",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient_id": "P-EDGE1",
+          "task_type": "consent_review"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_bearer",
+    "expected_http_status": 200,
+    "expected_result": {"status": "ok"},
+    "error_condition": "none",
+    "test_tags": ["compliance-hitl", "minimal-fields", "edge", "unit"]
+  },
+  {
+    "use_case_id": "UC-HITL-EDGE-0002",
+    "poc_demo": "compliance-hitl",
+    "scenario_title": "HITL agent handles duplicate task ID gracefully (idempotent submission)",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-IDEMPOTENCY-1"],
+    "preconditions": ["hitl-agent running on port 8090", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "hitl-edge-002",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient_id": "P-EDGE2",
+          "task_type": "claim_review",
+          "claim_id": "CLM-IDEMPOTENT"
+        },
+        "idempotency": {
+          "idempotency_key": "idem-hitl-edge-002",
+          "dedup_window_ms": 300000
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_bearer",
+    "expected_http_status": 200,
+    "expected_result": {"status": "ok"},
+    "error_condition": "none",
+    "test_tags": ["compliance-hitl", "idempotency", "edge", "unit"]
+  }
+]

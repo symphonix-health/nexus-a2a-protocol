@@ -1,0 +1,416 @@
+[
+  {
+    "use_case_id": "UC-CMD-POS-0001",
+    "poc_demo": "command-centre",
+    "scenario_title": "GET /health returns 200 with status field",
+    "scenario_type": "positive",
+    "requirement_ids": ["MON-1", "NFR-HEALTH-1"],
+    "preconditions": ["command-centre running on port 8099"],
+    "input_payload": {
+      "endpoint": "/health",
+      "method": "GET"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"status": "ok"},
+    "error_condition": "none",
+    "test_tags": ["command-centre", "health", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-POS-0002",
+    "poc_demo": "command-centre",
+    "scenario_title": "GET /api/agents returns agent list with at least one agent",
+    "scenario_type": "positive",
+    "requirement_ids": ["MON-2"],
+    "preconditions": ["command-centre running on port 8099"],
+    "input_payload": {
+      "endpoint": "/api/agents",
+      "method": "GET"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"agents_count": 0},
+    "error_condition": "none",
+    "test_tags": ["command-centre", "agents", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-POS-0003",
+    "poc_demo": "command-centre",
+    "scenario_title": "GET / returns dashboard HTML",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-DASHBOARD-1"],
+    "preconditions": ["command-centre running on port 8099"],
+    "input_payload": {
+      "endpoint": "/",
+      "method": "GET"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"content_type": "text/html"},
+    "error_condition": "none",
+    "test_tags": ["command-centre", "dashboard", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-POS-0004",
+    "poc_demo": "command-centre",
+    "scenario_title": "GET /api/agents includes metrics for each agent",
+    "scenario_type": "positive",
+    "requirement_ids": ["MON-2", "MON-3"],
+    "preconditions": ["command-centre running on port 8099", "at least one agent registered"],
+    "input_payload": {
+      "endpoint": "/api/agents",
+      "method": "GET"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"has_metrics": true, "metrics_include": ["tasks_completed", "tasks_errored"]},
+    "error_condition": "none",
+    "test_tags": ["command-centre", "agents", "metrics", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-POS-0005",
+    "poc_demo": "command-centre",
+    "scenario_title": "GET /health includes timestamp field",
+    "scenario_type": "positive",
+    "requirement_ids": ["MON-1"],
+    "preconditions": ["command-centre running on port 8099"],
+    "input_payload": {
+      "endpoint": "/health",
+      "method": "GET"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"has_timestamp": true},
+    "error_condition": "none",
+    "test_tags": ["command-centre", "health", "timestamp", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-POS-0006",
+    "poc_demo": "command-centre",
+    "scenario_title": "GET /api/topology returns node graph",
+    "scenario_type": "positive",
+    "requirement_ids": ["MON-4"],
+    "preconditions": ["command-centre running on port 8099"],
+    "input_payload": {
+      "endpoint": "/api/agents",
+      "method": "GET"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"agents_count": 0},
+    "error_condition": "none",
+    "test_tags": ["command-centre", "topology", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-POS-0007",
+    "poc_demo": "command-centre",
+    "scenario_title": "GET /api/agents returns valid JSON array",
+    "scenario_type": "positive",
+    "requirement_ids": ["MON-2"],
+    "preconditions": ["command-centre running on port 8099"],
+    "input_payload": {
+      "endpoint": "/api/agents",
+      "method": "GET"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["command-centre", "agents", "json-array", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-POS-0008",
+    "poc_demo": "command-centre",
+    "scenario_title": "GET /health returns ok status",
+    "scenario_type": "positive",
+    "requirement_ids": ["MON-1"],
+    "preconditions": ["command-centre running on port 8099"],
+    "input_payload": {
+      "endpoint": "/health",
+      "method": "GET"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"status": "ok"},
+    "error_condition": "none",
+    "test_tags": ["command-centre", "health", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-POS-0009",
+    "poc_demo": "command-centre",
+    "scenario_title": "GET /api/agents returns list even with no agents running",
+    "scenario_type": "positive",
+    "requirement_ids": ["MON-2"],
+    "preconditions": ["command-centre running on port 8099"],
+    "input_payload": {
+      "endpoint": "/api/agents",
+      "method": "GET"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["command-centre", "agents", "empty-list", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-POS-0010",
+    "poc_demo": "command-centre",
+    "scenario_title": "GET /health when all agents are stopped still returns 200",
+    "scenario_type": "positive",
+    "requirement_ids": ["MON-1", "NFR-RESILIENCE-1"],
+    "preconditions": ["command-centre running on port 8099"],
+    "input_payload": {
+      "endpoint": "/health",
+      "method": "GET"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["command-centre", "health", "resilience", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-NEG-0001",
+    "poc_demo": "command-centre",
+    "scenario_title": "GET /api/agents with offline triage agent shows degraded status",
+    "scenario_type": "negative",
+    "requirement_ids": ["MON-2"],
+    "preconditions": ["command-centre running on port 8099", "triage-agent offline"],
+    "input_payload": {
+      "endpoint": "/api/agents",
+      "method": "GET"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"agent_status": "offline", "other_agents_visible": true},
+    "error_condition": "expected_degradation",
+    "test_tags": ["command-centre", "agents", "degraded", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-NEG-0002",
+    "poc_demo": "command-centre",
+    "scenario_title": "GET /api/agents when all agents offline shows empty or all-offline list",
+    "scenario_type": "negative",
+    "requirement_ids": ["MON-2"],
+    "preconditions": ["command-centre running on port 8099", "all agents offline"],
+    "input_payload": {
+      "endpoint": "/api/agents",
+      "method": "GET"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "expected_degradation",
+    "test_tags": ["command-centre", "agents", "all-offline", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-NEG-0003",
+    "poc_demo": "command-centre",
+    "scenario_title": "GET /api/agents with partial agent failures still responds gracefully",
+    "scenario_type": "negative",
+    "requirement_ids": ["MON-2", "NFR-RESILIENCE-1"],
+    "preconditions": ["command-centre running on port 8099", "some agents offline"],
+    "input_payload": {
+      "endpoint": "/api/agents",
+      "method": "GET"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"other_agents_visible": true},
+    "error_condition": "expected_partial_failure",
+    "test_tags": ["command-centre", "agents", "partial-failure", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-NEG-0004",
+    "poc_demo": "command-centre",
+    "scenario_title": "GET /api/agents when diagnosis-agent is offline shows degraded state",
+    "scenario_type": "negative",
+    "requirement_ids": ["MON-2"],
+    "preconditions": ["command-centre running on port 8099", "diagnosis-agent offline"],
+    "input_payload": {
+      "endpoint": "/api/agents",
+      "method": "GET"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"agent_status": "offline"},
+    "error_condition": "expected_degradation",
+    "test_tags": ["command-centre", "agents", "degraded", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-NEG-0005",
+    "poc_demo": "command-centre",
+    "scenario_title": "Timeout accessing slow agent handled gracefully by dashboard",
+    "scenario_type": "negative",
+    "requirement_ids": ["MON-2", "NFR-TIMEOUT-1"],
+    "preconditions": ["command-centre running on port 8099"],
+    "input_payload": {
+      "endpoint": "/api/agents",
+      "method": "GET"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"timeout_handled": true},
+    "error_condition": "expected_failure",
+    "test_tags": ["command-centre", "timeout", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-NEG-0006",
+    "poc_demo": "command-centre",
+    "scenario_title": "GET /api/agents when openhie-mediator offline still returns other agents",
+    "scenario_type": "negative",
+    "requirement_ids": ["MON-2"],
+    "preconditions": ["command-centre running on port 8099"],
+    "input_payload": {
+      "endpoint": "/api/agents",
+      "method": "GET"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"other_agents_visible": true},
+    "error_condition": "expected_partial_failure",
+    "test_tags": ["command-centre", "agents", "partial-failure", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-NEG-0007",
+    "poc_demo": "command-centre",
+    "scenario_title": "Dashboard handles malformed agent URL gracefully",
+    "scenario_type": "negative",
+    "requirement_ids": ["MON-2"],
+    "preconditions": ["command-centre running on port 8099"],
+    "input_payload": {
+      "endpoint": "/api/agents",
+      "method": "GET"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "expected_degradation",
+    "test_tags": ["command-centre", "agents", "malformed-url", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-NEG-0008",
+    "poc_demo": "command-centre",
+    "scenario_title": "Dashboard recovers after temporary agent outage",
+    "scenario_type": "negative",
+    "requirement_ids": ["MON-2", "NFR-RESILIENCE-1"],
+    "preconditions": ["command-centre running on port 8099"],
+    "input_payload": {
+      "endpoint": "/api/agents",
+      "method": "GET"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "expected_degradation",
+    "test_tags": ["command-centre", "agents", "recovery", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-EDGE-0001",
+    "poc_demo": "command-centre",
+    "scenario_title": "GET /api/agents with single agent returns single-element list",
+    "scenario_type": "edge",
+    "requirement_ids": ["MON-2"],
+    "preconditions": ["command-centre running on port 8099", "only one agent running"],
+    "input_payload": {
+      "endpoint": "/api/agents",
+      "action": "get_agents_single"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["command-centre", "agents", "single-agent", "edge", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-EDGE-0002",
+    "poc_demo": "command-centre",
+    "scenario_title": "GET /api/agents with empty configured list returns empty array",
+    "scenario_type": "edge",
+    "requirement_ids": ["MON-2"],
+    "preconditions": ["command-centre running on port 8099", "no agents configured"],
+    "input_payload": {
+      "endpoint": "/api/agents",
+      "action": "get_agents_empty"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["command-centre", "agents", "empty-list", "edge", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-EDGE-0003",
+    "poc_demo": "command-centre",
+    "scenario_title": "Rapid consecutive GET /health requests all succeed",
+    "scenario_type": "edge",
+    "requirement_ids": ["MON-1", "NFR-PERF-1"],
+    "preconditions": ["command-centre running on port 8099"],
+    "input_payload": {
+      "endpoint": "/health",
+      "action": "rapid_poll"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["command-centre", "health", "concurrent", "edge", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-EDGE-0004",
+    "poc_demo": "command-centre",
+    "scenario_title": "Concurrent GET /api/agents requests all return valid responses",
+    "scenario_type": "edge",
+    "requirement_ids": ["MON-2", "NFR-PERF-1"],
+    "preconditions": ["command-centre running on port 8099"],
+    "input_payload": {
+      "endpoint": "/api/agents",
+      "action": "send_concurrent_tasks"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["command-centre", "agents", "concurrent", "edge", "integration"]
+  },
+  {
+    "use_case_id": "UC-CMD-EDGE-0005",
+    "poc_demo": "command-centre",
+    "scenario_title": "GET /api/agents immediately after agent restart returns updated status",
+    "scenario_type": "edge",
+    "requirement_ids": ["MON-2"],
+    "preconditions": ["command-centre running on port 8099", "agent recently restarted"],
+    "input_payload": {
+      "endpoint": "/api/agents",
+      "action": "post_restart_poll"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["command-centre", "agents", "restart", "edge", "integration"]
+  }
+]

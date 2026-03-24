@@ -1,0 +1,492 @@
+[
+  {
+    "use_case_id": "UC-EDT-POS-0001",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Agent card discovery for triage-agent returns name field",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-AGENT-CARD-1"],
+    "preconditions": ["triage-agent running on port 8021"],
+    "input_payload": {
+      "protocol_step": "agent_card_get"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "agent-card", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-POS-0002",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Chest pain ESI-2 triage via tasks/sendSubscribe",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-TRIAGE-1", "CR-3"],
+    "preconditions": ["triage-agent running on port 8021", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-pos-002",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P001", "name": "John Smith", "age": 55, "gender": "male"},
+          "chief_complaint": "chest pain radiating to left arm",
+          "vitals": {"spo2": 96, "temp_c": 37.2, "heart_rate": 110, "bp_systolic": 160}
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "triage_level"]},
+    "expected_events": ["triage_complete"],
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "chest-pain", "esi-2", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-POS-0003",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Shortness of breath ESI-2 triage assessment",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-TRIAGE-1", "CR-3"],
+    "preconditions": ["triage-agent running on port 8021", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-pos-003",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P002", "name": "Maria Garcia", "age": 68, "gender": "female"},
+          "chief_complaint": "shortness of breath",
+          "vitals": {"spo2": 92, "temp_c": 37.5, "heart_rate": 102}
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "triage_level"]},
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "shortness-of-breath", "esi-2", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-POS-0004",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Fever patient ESI-3 triage assessment",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-TRIAGE-1"],
+    "preconditions": ["triage-agent running on port 8021", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-pos-004",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P003", "name": "Alice Brown", "age": 35, "gender": "female"},
+          "chief_complaint": "fever and chills for two days",
+          "vitals": {"spo2": 97, "temp_c": 38.5, "heart_rate": 92}
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "triage_level"]},
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "fever", "esi-3", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-POS-0005",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Headache patient ESI-4 triage assessment",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-TRIAGE-1"],
+    "preconditions": ["triage-agent running on port 8021", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-pos-005",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P004", "name": "Robert Jones", "age": 28, "gender": "male"},
+          "chief_complaint": "mild tension headache",
+          "vitals": {"spo2": 99, "temp_c": 36.8, "heart_rate": 72}
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "triage_level"]},
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "headache", "esi-4", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-POS-0006",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Diagnosis agent request via tasks/sendSubscribe with diagnosis method",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-DIAGNOSIS-1"],
+    "preconditions": ["diagnosis-agent running on port 8022", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-pos-006",
+      "method": "diagnosis/assess",
+      "params": {
+        "patient_id": "P005",
+        "triage_level": "ESI-2",
+        "chief_complaint": "chest pain",
+        "vitals": {"spo2": 95, "heart_rate": 108}
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "diagnosis", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-POS-0007",
+    "poc_demo": "ed-triage",
+    "scenario_title": "FHIR report submission via openhie-mediator",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-FHIR-1"],
+    "preconditions": ["openhie-mediator running on port 8023", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-pos-007",
+      "method": "fhir/submit",
+      "params": {
+        "resourceType": "Encounter",
+        "patient_id": "P005",
+        "status": "in-progress",
+        "class": "emergency"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "fhir", "openhie", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-POS-0008",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Tasks/sendSubscribe returns valid JSON-RPC envelope",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-JSONRPC-1"],
+    "preconditions": ["triage-agent running on port 8021", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-pos-008",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P008"},
+          "chief_complaint": "abdominal pain",
+          "vitals": {"spo2": 97, "temp_c": 37.3}
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["jsonrpc", "result"]},
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "jsonrpc-envelope", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-POS-0009",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Diagnosis agent agent-card returns valid card",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-AGENT-CARD-1"],
+    "preconditions": ["diagnosis-agent running on port 8022"],
+    "input_payload": {
+      "protocol_step": "agent_card_get"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "diagnosis-agent", "agent-card", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-POS-0010",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Triage assessment SSE events received for ESI-2 patient",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-TRIAGE-1", "FR-SSE-1"],
+    "preconditions": ["triage-agent running on port 8021", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-pos-010",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P010", "name": "Sarah Wilson", "age": 72, "gender": "female"},
+          "chief_complaint": "sudden confusion",
+          "vitals": {"spo2": 94, "temp_c": 38.0, "heart_rate": 95}
+        }
+      }
+    },
+    "transport": "sse",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "expected_events": ["triage_assessed"],
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "sse", "esi-2", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-NEG-0001",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Missing JWT returns 401 on triage-agent",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["triage-agent running on port 8021"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-neg-001",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P011"},
+          "chief_complaint": "chest pain"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["ed-triage", "auth", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-NEG-0002",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Expired JWT returns 401 on triage-agent",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["triage-agent running on port 8021"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-neg-002",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P012"},
+          "chief_complaint": "fever"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_expired",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "expired_jwt",
+    "test_tags": ["ed-triage", "auth", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-NEG-0003",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Invalid JWT returns 401 on triage-agent",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["triage-agent running on port 8021"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-neg-003",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P013"},
+          "chief_complaint": "headache"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_invalid",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "invalid_jwt_signature",
+    "test_tags": ["ed-triage", "auth", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-NEG-0004",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Missing JWT on diagnosis-agent returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["triage-agent running on port 8021"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-neg-004",
+      "method": "diagnosis/assess",
+      "params": {
+        "patient_id": "P014",
+        "triage_level": "ESI-3"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["ed-triage", "diagnosis-agent", "auth", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-NEG-0005",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Missing JWT on openhie-mediator returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["triage-agent running on port 8021"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-neg-005",
+      "method": "fhir/submit",
+      "params": {
+        "resourceType": "Encounter",
+        "patient_id": "P015"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["ed-triage", "openhie", "auth", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-NEG-0006",
+    "poc_demo": "ed-triage",
+    "scenario_title": "JWT with missing scope returns 401 on triage-agent",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-2"],
+    "preconditions": ["triage-agent running on port 8021"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-neg-006",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P016"},
+          "chief_complaint": "ankle sprain"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing_scope",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "wrong_jwt_scope",
+    "test_tags": ["ed-triage", "auth", "scope", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-EDGE-0001",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Boundary SpO2 = 90 does not trigger ESI-2 (strict less-than rule)",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-TRIAGE-1", "CR-4"],
+    "preconditions": ["triage-agent running on port 8021", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-edge-001",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P019"},
+          "chief_complaint": "mild cough",
+          "vitals": {"spo2": 90, "temp_c": 37.0}
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "triage_level"]},
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "boundary", "spo2", "edge", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-EDGE-0002",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Empty chief complaint defaults to ESI-3",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-TRIAGE-1"],
+    "preconditions": ["triage-agent running on port 8021", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-edge-002",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P020"},
+          "chief_complaint": "",
+          "vitals": {"spo2": 98, "temp_c": 37.0}
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "triage_level"]},
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "empty-complaint", "edge", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-EDGE-0003",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Missing vitals dict — triage by complaint only",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-TRIAGE-1"],
+    "preconditions": ["triage-agent running on port 8021", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-edge-003",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P021"},
+          "chief_complaint": "chest pain"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "triage_level"]},
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "missing-vitals", "edge", "integration"]
+  },
+  {
+    "use_case_id": "UC-EDT-EDGE-0004",
+    "poc_demo": "ed-triage",
+    "scenario_title": "No patient field — patient_id defaults to unknown",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-TRIAGE-1"],
+    "preconditions": ["triage-agent running on port 8021", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-edge-004",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "chief_complaint": "nausea",
+          "vitals": {"spo2": 97, "temp_c": 37.2}
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "triage_level"]},
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "missing-patient", "edge", "integration"]
+  }
+]

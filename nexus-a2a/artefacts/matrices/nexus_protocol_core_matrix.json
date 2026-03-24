@@ -1,0 +1,317 @@
+[
+  {
+    "use_case_id": "CORE-POS-0001",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Agent card GET returns valid card with name field",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-AGENT-CARD-1"],
+    "preconditions": ["triage-agent running on port 8021"],
+    "input_payload": {
+      "protocol_step": "agent_card_get"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["name"]},
+    "error_condition": "none",
+    "test_tags": ["protocol-core", "agent-card", "positive"]
+  },
+  {
+    "use_case_id": "CORE-POS-0002",
+    "poc_demo": "ed-triage",
+    "scenario_title": "tasks/sendSubscribe with valid JWT returns task_id",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-RPC-1", "SEC-1"],
+    "preconditions": ["triage-agent running on port 8021", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "core-pos-0002",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P001"},
+          "chief_complaint": "chest pain",
+          "vitals": {"spo2": 96, "temp_c": 37.2}
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["protocol-core", "rpc", "tasks-send-subscribe", "positive"]
+  },
+  {
+    "use_case_id": "CORE-POS-0003",
+    "poc_demo": "ed-triage",
+    "scenario_title": "tasks/get returns task status",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-RPC-2"],
+    "preconditions": ["triage-agent running on port 8021", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "core-pos-0003",
+      "method": "tasks/get",
+      "params": {
+        "task_id": "test-task-001"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["protocol-core", "rpc", "tasks-get", "positive"]
+  },
+  {
+    "use_case_id": "CORE-POS-0004",
+    "poc_demo": "ed-triage",
+    "scenario_title": "tasks/cancel returns cancellation result",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-RPC-3"],
+    "preconditions": ["triage-agent running on port 8021", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "core-pos-0004",
+      "method": "tasks/cancel",
+      "params": {
+        "task_id": "test-task-001"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["protocol-core", "rpc", "tasks-cancel", "positive"]
+  },
+  {
+    "use_case_id": "CORE-POS-0005",
+    "poc_demo": "ed-triage",
+    "scenario_title": "tasks/resubscribe with valid cursor",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-RPC-4"],
+    "preconditions": ["triage-agent running on port 8021", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "core-pos-0005",
+      "method": "tasks/resubscribe",
+      "params": {
+        "task_id": "test-task-001",
+        "cursor": "0"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["protocol-core", "rpc", "tasks-resubscribe", "positive"]
+  },
+  {
+    "use_case_id": "CORE-POS-0006",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Health check endpoint returns 200",
+    "scenario_type": "positive",
+    "requirement_ids": ["NFR-HEALTH-1"],
+    "preconditions": ["triage-agent running on port 8021"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "core-pos-0006",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P006"},
+          "chief_complaint": "health check test"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["protocol-core", "health", "positive"]
+  },
+  {
+    "use_case_id": "CORE-POS-0007",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Valid JSON-RPC 2.0 envelope is accepted",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-JSONRPC-1"],
+    "preconditions": ["triage-agent running on port 8021", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "core-pos-0007",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P007"},
+          "chief_complaint": "shortness of breath",
+          "vitals": {"spo2": 92}
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["jsonrpc"]},
+    "error_condition": "none",
+    "test_tags": ["protocol-core", "jsonrpc-envelope", "positive"]
+  },
+  {
+    "use_case_id": "CORE-POS-0008",
+    "poc_demo": "ed-triage",
+    "scenario_title": "triage/assess method call returns triage result",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-TRIAGE-1"],
+    "preconditions": ["triage-agent running on port 8021", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "core-pos-0008",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P008", "age": 60, "gender": "male"},
+          "chief_complaint": "severe headache and neck stiffness",
+          "vitals": {"spo2": 98, "temp_c": 38.5, "heart_rate": 95}
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["protocol-core", "triage", "positive"]
+  },
+  {
+    "use_case_id": "CORE-NEG-0001",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Missing JWT returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["triage-agent running on port 8021"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "core-neg-0001",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {"patient": {"patient_id": "P011"}, "chief_complaint": "chest pain"}
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["protocol-core", "auth", "negative"]
+  },
+  {
+    "use_case_id": "CORE-NEG-0002",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Expired JWT returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["triage-agent running on port 8021"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "core-neg-0002",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {"patient": {"patient_id": "P012"}, "chief_complaint": "fever"}
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_expired",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "expired_jwt",
+    "test_tags": ["protocol-core", "auth", "negative"]
+  },
+  {
+    "use_case_id": "CORE-NEG-0003",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Invalid JWT signature returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["triage-agent running on port 8021"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "core-neg-0003",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {"patient": {"patient_id": "P013"}, "chief_complaint": "headache"}
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_invalid",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "invalid_jwt_signature",
+    "test_tags": ["protocol-core", "auth", "negative"]
+  },
+  {
+    "use_case_id": "CORE-NEG-0004",
+    "poc_demo": "ed-triage",
+    "scenario_title": "JWT with missing scope returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-2"],
+    "preconditions": ["triage-agent running on port 8021"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "core-neg-0004",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {"patient": {"patient_id": "P014"}, "chief_complaint": "nausea"}
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing_scope",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_scope",
+    "test_tags": ["protocol-core", "auth", "scope", "negative"]
+  },
+  {
+    "use_case_id": "CORE-NEG-0005",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Malformed JSON body returns 400",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-JSONRPC-1"],
+    "preconditions": ["triage-agent running on port 8021", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "core-neg-0005",
+      "method": "tasks/sendSubscribe",
+      "params": {}
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["protocol-core", "jsonrpc", "malformed", "negative"]
+  },
+  {
+    "use_case_id": "CORE-NEG-0006",
+    "poc_demo": "ed-triage",
+    "scenario_title": "Unknown RPC method returns method-not-found error",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-JSONRPC-2"],
+    "preconditions": ["triage-agent running on port 8021", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "core-neg-0006",
+      "method": "tasks/unknownMethod",
+      "params": {}
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["protocol-core", "rpc-error", "method-not-found", "negative"]
+  }
+]

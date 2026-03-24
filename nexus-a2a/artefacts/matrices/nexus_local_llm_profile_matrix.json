@@ -1,0 +1,205 @@
+[
+  {
+    "use_case_id": "UC-LLM-POS-0001",
+    "poc_demo": "local-llm-profile",
+    "scenario_title": "List LLM profiles command shows local_docker_smollm2",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-LLM-PROFILE-1"],
+    "preconditions": ["config/agents.json present", "tools/launch_all_agents.py present"],
+    "input_payload": {
+      "action": "command",
+      "command": ["{python}", "tools/launch_all_agents.py", "--list-llm-profiles"]
+    },
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 0,
+    "expected_result": {"stdout_contains": ["local_docker_smollm2"]},
+    "error_condition": "none",
+    "test_tags": ["local-llm-profile", "command", "positive", "unit"]
+  },
+  {
+    "use_case_id": "UC-LLM-POS-0002",
+    "poc_demo": "local-llm-profile",
+    "scenario_title": "config/agents.json file exists and is readable",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-LLM-PROFILE-1"],
+    "preconditions": ["repository checked out"],
+    "input_payload": {
+      "action": "command",
+      "command": ["{python}", "-c", "import json; d=json.load(open('config/agents.json')); print('ok')"]
+    },
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 0,
+    "expected_result": {"stdout_contains": ["ok"]},
+    "error_condition": "none",
+    "test_tags": ["local-llm-profile", "config", "positive", "unit"]
+  },
+  {
+    "use_case_id": "UC-LLM-POS-0003",
+    "poc_demo": "local-llm-profile",
+    "scenario_title": "Agent startup output contains agent startup markers when local profile used",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-LLM-PROFILE-2"],
+    "preconditions": ["local model endpoint available at port 18080", "agents started with local_docker_smollm2 profile"],
+    "input_payload": {
+      "action": "startup_output_assert"
+    },
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 0,
+    "expected_result": {"stdout_contains": ["local_docker_smollm2"]},
+    "error_condition": "none",
+    "test_tags": ["local-llm-profile", "startup", "positive", "unit"]
+  },
+  {
+    "use_case_id": "UC-LLM-POS-0004",
+    "poc_demo": "local-llm-profile",
+    "scenario_title": "consent-analyser responds to tasks/sendSubscribe with local LLM profile",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-LLM-PROFILE-3", "FR-CONSENT-1"],
+    "preconditions": ["local model endpoint running on port 18080", "consent-analyser running on port 8043"],
+    "input_payload": {
+      "action": "jsonrpc",
+      "url": "http://localhost:8043/rpc",
+      "payload": {
+        "jsonrpc": "2.0",
+        "id": "llm-pos-004",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "patient_id": "P001",
+            "procedure": "biopsy",
+            "consent_required": true
+          }
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"result_has_keys": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["local-llm-profile", "jsonrpc", "consent", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-LLM-POS-0005",
+    "poc_demo": "local-llm-profile",
+    "scenario_title": "triage-agent responds to tasks/sendSubscribe with local LLM profile",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-LLM-PROFILE-3", "FR-TRIAGE-1"],
+    "preconditions": ["local model endpoint running on port 18080", "triage-agent running on port 8021"],
+    "input_payload": {
+      "action": "jsonrpc",
+      "url": "http://localhost:8021/rpc",
+      "payload": {
+        "jsonrpc": "2.0",
+        "id": "llm-pos-005",
+        "method": "tasks/sendSubscribe",
+        "params": {
+          "task": {
+            "patient": {"patient_id": "P002", "name": "Test Patient", "age": 45, "gender": "male"},
+            "chief_complaint": "chest pain",
+            "vitals": {"spo2": 95, "temp_c": 37.2, "heart_rate": 98}
+          }
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"result_has_keys": ["task_id"], "result_field_not_contains": {"triage_level": "ERROR"}},
+    "error_condition": "none",
+    "test_tags": ["local-llm-profile", "jsonrpc", "triage", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-LLM-NEG-0001",
+    "poc_demo": "local-llm-profile",
+    "scenario_title": "Running nonexistent command returns nonzero exit code",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-LLM-PROFILE-1"],
+    "preconditions": ["repository checked out"],
+    "input_payload": {
+      "action": "command",
+      "command": ["{python}", "tools/nonexistent_script_xyz.py"]
+    },
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 2,
+    "expected_result": {"stdout_contains": []},
+    "error_condition": "command_not_found",
+    "test_tags": ["local-llm-profile", "command", "negative", "unit"]
+  },
+  {
+    "use_case_id": "UC-LLM-NEG-0002",
+    "poc_demo": "local-llm-profile",
+    "scenario_title": "Invalid LLM profile name returns nonzero exit code",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-LLM-PROFILE-1"],
+    "preconditions": ["tools/launch_all_agents.py present"],
+    "input_payload": {
+      "action": "command",
+      "command": ["{python}", "tools/launch_all_agents.py", "--llm-profile", "nonexistent_profile_xyz"]
+    },
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 2,
+    "expected_result": {"stdout_contains": []},
+    "error_condition": "invalid_profile",
+    "test_tags": ["local-llm-profile", "command", "negative", "unit"]
+  },
+  {
+    "use_case_id": "UC-LLM-NEG-0003",
+    "poc_demo": "local-llm-profile",
+    "scenario_title": "Missing python module returns nonzero exit code",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-LLM-PROFILE-1"],
+    "preconditions": ["repository checked out"],
+    "input_payload": {
+      "action": "command",
+      "command": ["{python}", "-c", "import nonexistent_module_xyz_abc"]
+    },
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 1,
+    "expected_result": {"stdout_contains": []},
+    "error_condition": "import_error",
+    "test_tags": ["local-llm-profile", "command", "negative", "unit"]
+  },
+  {
+    "use_case_id": "UC-LLM-EDGE-0001",
+    "poc_demo": "local-llm-profile",
+    "scenario_title": "Agent card is accessible via HTTP GET after local profile startup",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-AGENT-CARD-1"],
+    "preconditions": ["local model endpoint running on port 18080", "triage-agent running on port 8021"],
+    "input_payload": {
+      "action": "http_get_json",
+      "url": "http://localhost:8021/.well-known/agent-card.json"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"json_contains": ["name"]},
+    "error_condition": "none",
+    "test_tags": ["local-llm-profile", "agent-card", "edge", "integration"]
+  },
+  {
+    "use_case_id": "UC-LLM-EDGE-0002",
+    "poc_demo": "local-llm-profile",
+    "scenario_title": "Local model endpoint returns valid model list",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-LLM-PROFILE-3"],
+    "preconditions": ["local model endpoint running on port 18080"],
+    "input_payload": {
+      "action": "http_get_json",
+      "url": "http://127.0.0.1:18080/v1/models"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"json_contains": ["data"]},
+    "error_condition": "none",
+    "test_tags": ["local-llm-profile", "model-endpoint", "edge", "integration"]
+  }
+]

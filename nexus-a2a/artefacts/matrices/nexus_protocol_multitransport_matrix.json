@@ -1,0 +1,208 @@
+[
+  {
+    "use_case_id": "MULTI-POS-0001",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "Agent card declares multiTransport capability",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-MULTI-1", "FR-AGENT-CARD-1"],
+    "preconditions": ["central-surveillance agent running on port 8053"],
+    "input_payload": {
+      "protocol_step": "agent_card_get"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "multiTransport": true},
+    "error_condition": "none",
+    "test_tags": ["multitransport", "agent-card", "positive"]
+  },
+  {
+    "use_case_id": "MULTI-POS-0002",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "RPC call over HTTPS transport succeeds",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-MULTI-2"],
+    "preconditions": ["central-surveillance agent running on port 8053", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "multi-pos-0002",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "disease": "influenza",
+          "cases": 5,
+          "location": "London"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["multitransport", "https", "positive"]
+  },
+  {
+    "use_case_id": "MULTI-POS-0003",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "surveillance/report via HTTPS transport",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-SURV-1", "FR-MULTI-2"],
+    "preconditions": ["hospital-reporter running on port 8051", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "multi-pos-0003",
+      "method": "surveillance/report",
+      "params": {
+        "report": {
+          "disease": "norovirus",
+          "cases": 12,
+          "facility": "City Hospital",
+          "date": "2026-03-24"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["multitransport", "surveillance-report", "https", "positive"]
+  },
+  {
+    "use_case_id": "MULTI-POS-0004",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "tasks/sendSubscribe over HTTPS to surveillance agent",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-RPC-1", "FR-MULTI-2"],
+    "preconditions": ["central-surveillance agent running on port 8053", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "multi-pos-0004",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "disease": "measles",
+          "cases": 3,
+          "region": "North West"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["multitransport", "tasks-send-subscribe", "positive"]
+  },
+  {
+    "use_case_id": "MULTI-POS-0005",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "Hospital reporter health check returns 200",
+    "scenario_type": "positive",
+    "requirement_ids": ["NFR-HEALTH-1"],
+    "preconditions": ["hospital-reporter running on port 8051"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "multi-pos-0005",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "disease": "flu",
+          "cases": 1,
+          "region": "East"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["multitransport", "health", "hospital-reporter", "positive"]
+  },
+  {
+    "use_case_id": "MULTI-NEG-0001",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "Missing JWT returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["central-surveillance agent running on port 8053"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "multi-neg-0001",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {"disease": "flu", "cases": 1}
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["multitransport", "auth", "negative"]
+  },
+  {
+    "use_case_id": "MULTI-NEG-0002",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "Invalid JWT returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["central-surveillance agent running on port 8053"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "multi-neg-0002",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {"disease": "measles", "cases": 2}
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_invalid",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "invalid_jwt",
+    "test_tags": ["multitransport", "auth", "negative"]
+  },
+  {
+    "use_case_id": "MULTI-NEG-0003",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "Unsupported transport method returns auth failure when no JWT",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-MULTI-3"],
+    "preconditions": ["central-surveillance agent running on port 8053"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "multi-neg-0003",
+      "method": "surveillance/unknownTransport",
+      "params": {}
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["multitransport", "unsupported-transport", "negative"]
+  },
+  {
+    "use_case_id": "MULTI-NEG-0004",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "Malformed payload with missing JWT returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-JSONRPC-1"],
+    "preconditions": ["central-surveillance agent running on port 8053"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "multi-neg-0004",
+      "method": "tasks/sendSubscribe",
+      "params": {}
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["multitransport", "malformed", "negative"]
+  }
+]

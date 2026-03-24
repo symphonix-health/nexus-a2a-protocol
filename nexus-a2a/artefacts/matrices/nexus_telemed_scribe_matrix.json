@@ -1,0 +1,360 @@
+[
+  {
+    "use_case_id": "UC-SCRIBE-POS-0001",
+    "poc_demo": "telemed-scribe",
+    "scenario_title": "Agent card discovery for transcriber-agent returns name field",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-AGENT-CARD-1"],
+    "preconditions": ["transcriber-agent running on port 8031"],
+    "input_payload": {
+      "protocol_step": "agent_card_get"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["telemed-scribe", "agent-card", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-SCRIBE-POS-0002",
+    "poc_demo": "telemed-scribe",
+    "scenario_title": "Transcriber agent transcribes audio via tasks/sendSubscribe",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-TRANSCRIBE-1"],
+    "preconditions": ["transcriber-agent running on port 8031", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "scribe-pos-002",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "session_id": "SESSION-001",
+          "audio_ref": "audio://session-001.wav",
+          "patient_id": "P001",
+          "clinician_id": "CLIN-001"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["telemed-scribe", "transcribe", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-SCRIBE-POS-0003",
+    "poc_demo": "telemed-scribe",
+    "scenario_title": "Summariser agent summarises transcript via note/summarise method",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-SUMMARISE-1"],
+    "preconditions": ["summariser-agent running on port 8032", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "scribe-pos-003",
+      "method": "note/summarise",
+      "params": {
+        "session_id": "SESSION-001",
+        "transcript": "Patient presents with chest pain. Reports it started two hours ago. No radiation. Duration: approximately 2 hours.",
+        "patient_id": "P001"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["telemed-scribe", "summarise", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-SCRIBE-POS-0004",
+    "poc_demo": "telemed-scribe",
+    "scenario_title": "EHR writer commits structured note via ehr/write method",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-EHR-1"],
+    "preconditions": ["ehr-writer-agent running on port 8033", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "scribe-pos-004",
+      "method": "ehr/write",
+      "params": {
+        "patient_id": "P001",
+        "session_id": "SESSION-001",
+        "summary": "Chest pain, onset 2 hours ago. No radiation. Assessment: possible angina.",
+        "clinical_note_type": "SOAP"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["telemed-scribe", "ehr-write", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-SCRIBE-POS-0005",
+    "poc_demo": "telemed-scribe",
+    "scenario_title": "Transcription chain: transcribe then summarise then EHR write",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-TRANSCRIBE-1", "FR-SUMMARISE-1", "FR-EHR-1"],
+    "preconditions": ["all scribe agents running", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "scribe-pos-005",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "session_id": "SESSION-002",
+          "audio_ref": "audio://session-002.wav",
+          "patient_id": "P002",
+          "pipeline": ["transcribe", "summarise", "ehr_write"]
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "expected_events": ["transcription_complete"],
+    "error_condition": "none",
+    "test_tags": ["telemed-scribe", "pipeline", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-SCRIBE-POS-0006",
+    "poc_demo": "telemed-scribe",
+    "scenario_title": "Transcription with SSE returns streaming events",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-TRANSCRIBE-1", "FR-SSE-1"],
+    "preconditions": ["transcriber-agent running on port 8031", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "scribe-pos-006",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "session_id": "SESSION-003",
+          "audio_ref": "audio://session-003.wav",
+          "patient_id": "P003"
+        }
+      }
+    },
+    "transport": "sse",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "expected_events": ["transcription_started"],
+    "error_condition": "none",
+    "test_tags": ["telemed-scribe", "sse", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-SCRIBE-POS-0007",
+    "poc_demo": "telemed-scribe",
+    "scenario_title": "Summariser agent handles long transcript gracefully",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-SUMMARISE-1"],
+    "preconditions": ["summariser-agent running on port 8032", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "scribe-pos-007",
+      "method": "note/summarise",
+      "params": {
+        "session_id": "SESSION-004",
+        "transcript": "Doctor: Good morning, how are you feeling today? Patient: Not well. I have been experiencing persistent chest pain for three days. It is a dull ache that gets worse with exertion. Doctor: Any shortness of breath? Patient: Yes, especially when climbing stairs. Doctor: Any palpitations? Patient: Occasionally at night. Doctor: Let me examine you.",
+        "patient_id": "P004"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["telemed-scribe", "long-transcript", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-SCRIBE-POS-0008",
+    "poc_demo": "telemed-scribe",
+    "scenario_title": "EHR writer tasks/get retrieves committed note status",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-EHR-1"],
+    "preconditions": ["ehr-writer-agent running on port 8033", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "scribe-pos-008",
+      "method": "tasks/get",
+      "params": {"task_id": "ehr-task-001"}
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["telemed-scribe", "tasks-get", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-SCRIBE-NEG-0001",
+    "poc_demo": "telemed-scribe",
+    "scenario_title": "Missing JWT returns 401 on transcriber-agent",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["transcriber-agent running on port 8031"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "scribe-neg-001",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "session_id": "SESSION-X",
+          "audio_ref": "audio://test.wav"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["telemed-scribe", "auth", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-SCRIBE-NEG-0002",
+    "poc_demo": "telemed-scribe",
+    "scenario_title": "Expired JWT returns 401 on summariser-agent",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["transcriber-agent running on port 8031"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "scribe-neg-002",
+      "method": "note/summarise",
+      "params": {
+        "session_id": "SESSION-Y",
+        "transcript": "Test transcript"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_expired",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "expired_jwt",
+    "test_tags": ["telemed-scribe", "auth", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-SCRIBE-NEG-0003",
+    "poc_demo": "telemed-scribe",
+    "scenario_title": "Invalid JWT returns 401 on ehr-writer-agent",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["transcriber-agent running on port 8031"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "scribe-neg-003",
+      "method": "ehr/write",
+      "params": {
+        "patient_id": "P-NEG",
+        "summary": "Test summary"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_invalid",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "invalid_jwt_signature",
+    "test_tags": ["telemed-scribe", "auth", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-SCRIBE-NEG-0004",
+    "poc_demo": "telemed-scribe",
+    "scenario_title": "JWT with missing scope returns 401 on transcriber-agent",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-2"],
+    "preconditions": ["transcriber-agent running on port 8031"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "scribe-neg-004",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "session_id": "SESSION-Z",
+          "audio_ref": "audio://z.wav"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing_scope",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "wrong_jwt_scope",
+    "test_tags": ["telemed-scribe", "auth", "scope", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-SCRIBE-NEG-0005",
+    "poc_demo": "telemed-scribe",
+    "scenario_title": "Missing JWT on note/summarise returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["transcriber-agent running on port 8031"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "scribe-neg-005",
+      "method": "note/summarise",
+      "params": {
+        "session_id": "SESSION-NEG",
+        "transcript": "Patient complaint"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["telemed-scribe", "auth", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-SCRIBE-EDGE-0001",
+    "poc_demo": "telemed-scribe",
+    "scenario_title": "Empty transcript string handled gracefully by summariser",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-SUMMARISE-1"],
+    "preconditions": ["transcriber-agent running on port 8031", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "scribe-edge-001",
+      "method": "note/summarise",
+      "params": {
+        "session_id": "SESSION-EDGE",
+        "transcript": "",
+        "patient_id": "P-EDGE"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["telemed-scribe", "empty-transcript", "edge", "integration"]
+  },
+  {
+    "use_case_id": "UC-SCRIBE-EDGE-0002",
+    "poc_demo": "telemed-scribe",
+    "scenario_title": "EHR write with minimal required fields only succeeds",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-EHR-1"],
+    "preconditions": ["transcriber-agent running on port 8031", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "scribe-edge-002",
+      "method": "ehr/write",
+      "params": {
+        "patient_id": "P-EDGE2",
+        "summary": "Minimal note."
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["telemed-scribe", "minimal-fields", "edge", "integration"]
+  }
+]

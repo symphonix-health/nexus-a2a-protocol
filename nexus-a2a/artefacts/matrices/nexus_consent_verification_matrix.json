@@ -1,0 +1,308 @@
+[
+  {
+    "use_case_id": "UC-CONSENT-POS-0001",
+    "poc_demo": "consent-verification",
+    "scenario_title": "Agent card discovery for insurer-agent returns name field",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-AGENT-CARD-1"],
+    "preconditions": ["insurer-agent running on port 8041"],
+    "input_payload": {
+      "protocol_step": "agent_card_get"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["name"]},
+    "error_condition": "none",
+    "test_tags": ["consent-verification", "agent-card", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-CONSENT-POS-0002",
+    "poc_demo": "consent-verification",
+    "scenario_title": "Insurer sends consent task via tasks/sendSubscribe",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-CONSENT-1"],
+    "preconditions": ["insurer-agent running on port 8041", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "consent-pos-002",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient_id": "P001",
+          "procedure": "appendectomy",
+          "insurer_id": "INS-001",
+          "claim_amount": 4500.00
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["consent-verification", "insurer", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-CONSENT-POS-0003",
+    "poc_demo": "consent-verification",
+    "scenario_title": "Consent analyser checks consent via consent/check method",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-CONSENT-2"],
+    "preconditions": ["consent-analyser running on port 8043", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "consent-pos-003",
+      "method": "consent/check",
+      "params": {
+        "patient_id": "P001",
+        "procedure": "appendectomy",
+        "consent_form_id": "CF-2024-001"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["consent-verification", "consent-check", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-CONSENT-POS-0004",
+    "poc_demo": "consent-verification",
+    "scenario_title": "HITL reviewer approves consent task via hitl/approve",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-HITL-1"],
+    "preconditions": ["hitl-ui running on port 8044", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "consent-pos-004",
+      "method": "hitl/approve",
+      "params": {
+        "task_id": "task-review-001",
+        "reviewer_id": "REV-001",
+        "decision": "approved",
+        "notes": "Consent verified by clinical team"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["consent-verification", "hitl", "approve", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-CONSENT-POS-0005",
+    "poc_demo": "consent-verification",
+    "scenario_title": "Provider agent provides records via records/provide method",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-RECORDS-1"],
+    "preconditions": ["provider-agent running on port 8042", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "consent-pos-005",
+      "method": "records/provide",
+      "params": {
+        "patient_id": "P001",
+        "record_type": "surgical_consent",
+        "record_id": "RC-2024-001"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["consent-verification", "provider", "records", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-CONSENT-POS-0006",
+    "poc_demo": "consent-verification",
+    "scenario_title": "Consent verification SSE events received after task submission",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-CONSENT-2", "FR-SSE-1"],
+    "preconditions": ["insurer-agent running on port 8041", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "consent-pos-006",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient_id": "P002",
+          "procedure": "knee_replacement",
+          "insurer_id": "INS-002"
+        }
+      }
+    },
+    "transport": "sse",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "expected_events": ["consent_requested"],
+    "error_condition": "none",
+    "test_tags": ["consent-verification", "sse", "events", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-CONSENT-POS-0007",
+    "poc_demo": "consent-verification",
+    "scenario_title": "HITL reviewer denies consent and task reflects denial",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-HITL-2"],
+    "preconditions": ["hitl-ui running on port 8044", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "consent-pos-007",
+      "method": "hitl/deny",
+      "params": {
+        "task_id": "task-review-002",
+        "reviewer_id": "REV-002",
+        "decision": "denied",
+        "reason": "Consent form incomplete"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["consent-verification", "hitl", "deny", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-CONSENT-POS-0008",
+    "poc_demo": "consent-verification",
+    "scenario_title": "Insurer submits high-value claim requiring HITL escalation",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-CONSENT-1", "FR-HITL-1"],
+    "preconditions": ["insurer-agent running on port 8041", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "consent-pos-008",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient_id": "P003",
+          "procedure": "heart_bypass",
+          "insurer_id": "INS-003",
+          "claim_amount": 85000.00
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["consent-verification", "high-value", "hitl", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-CONSENT-NEG-0001",
+    "poc_demo": "consent-verification",
+    "scenario_title": "Missing JWT returns 401 on insurer-agent",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["insurer-agent running on port 8041"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "consent-neg-001",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient_id": "P011",
+          "procedure": "appendectomy"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["consent-verification", "auth", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-CONSENT-NEG-0002",
+    "poc_demo": "consent-verification",
+    "scenario_title": "Expired JWT returns 401 on consent-analyser",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["insurer-agent running on port 8041"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "consent-neg-002",
+      "method": "consent/check",
+      "params": {"patient_id": "P012", "procedure": "surgery"}
+    },
+    "transport": "https",
+    "auth_mode": "jwt_expired",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "expired_jwt",
+    "test_tags": ["consent-verification", "auth", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-CONSENT-NEG-0003",
+    "poc_demo": "consent-verification",
+    "scenario_title": "Invalid JWT returns 401 on hitl-ui",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["insurer-agent running on port 8041"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "consent-neg-003",
+      "method": "hitl/approve",
+      "params": {"task_id": "t-001", "decision": "approved"}
+    },
+    "transport": "https",
+    "auth_mode": "jwt_invalid",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "invalid_jwt_signature",
+    "test_tags": ["consent-verification", "auth", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-CONSENT-NEG-0004",
+    "poc_demo": "consent-verification",
+    "scenario_title": "Missing JWT on provider-agent returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["insurer-agent running on port 8041"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "consent-neg-004",
+      "method": "records/provide",
+      "params": {"patient_id": "P014", "record_type": "consent"}
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["consent-verification", "auth", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-CONSENT-NEG-0005",
+    "poc_demo": "consent-verification",
+    "scenario_title": "JWT with missing scope returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-2"],
+    "preconditions": ["insurer-agent running on port 8041"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "consent-neg-005",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient_id": "P015",
+          "procedure": "biopsy"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing_scope",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "wrong_jwt_scope",
+    "test_tags": ["consent-verification", "auth", "scope", "negative", "integration"]
+  }
+]

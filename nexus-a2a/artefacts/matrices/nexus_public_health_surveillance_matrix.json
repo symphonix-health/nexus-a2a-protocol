@@ -1,0 +1,365 @@
+[
+  {
+    "use_case_id": "UC-SURV-POS-0001",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "Agent card for central-surveillance declares multiTransport capability",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-AGENT-CARD-1", "FR-MULTITRANSPORT-1"],
+    "preconditions": ["central-surveillance running on port 8053"],
+    "input_payload": {
+      "protocol_step": "agent_card_get"
+    },
+    "transport": "https",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["capabilities"]},
+    "error_condition": "none",
+    "test_tags": ["public-health-surveillance", "agent-card", "multitransport", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-SURV-POS-0002",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "Hospital reporter submits disease report via surveillance/report",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-SURVEILLANCE-1"],
+    "preconditions": ["hospital-reporter running on port 8051", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "surv-pos-002",
+      "method": "surveillance/report",
+      "params": {
+        "hospital_id": "HOSP-001",
+        "disease_code": "J06.9",
+        "case_count": 12,
+        "region": "North East",
+        "report_date": "2026-03-24"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["public-health-surveillance", "disease-report", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-SURV-POS-0003",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "OSINT agent processes outbreak intelligence via osint/analyse",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-OSINT-1"],
+    "preconditions": ["osint-agent running on port 8052", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "surv-pos-003",
+      "method": "osint/analyse",
+      "params": {
+        "source": "news_feed",
+        "region": "South West",
+        "keywords": ["influenza", "outbreak", "clusters"],
+        "date_range": {"from": "2026-03-01", "to": "2026-03-24"}
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["public-health-surveillance", "osint", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-SURV-POS-0004",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "Central surveillance aggregates reports via tasks/sendSubscribe",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-SURVEILLANCE-2"],
+    "preconditions": ["central-surveillance running on port 8053", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "surv-pos-004",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "report_type": "weekly_aggregate",
+          "region": "national",
+          "week": "2026-W12"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["public-health-surveillance", "central", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-SURV-POS-0005",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "Hospital reporter escalates high-threshold case count",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-SURVEILLANCE-1", "FR-ESCALATION-1"],
+    "preconditions": ["hospital-reporter running on port 8051", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "surv-pos-005",
+      "method": "surveillance/report",
+      "params": {
+        "hospital_id": "HOSP-002",
+        "disease_code": "A22.9",
+        "case_count": 45,
+        "region": "Midlands",
+        "severity": "high",
+        "report_date": "2026-03-24"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "expected_events": ["report_submitted"],
+    "error_condition": "none",
+    "test_tags": ["public-health-surveillance", "escalation", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-SURV-POS-0006",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "Surveillance report with SSE transport receives stream events",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-SURVEILLANCE-1", "FR-SSE-1"],
+    "preconditions": ["hospital-reporter running on port 8051", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "surv-pos-006",
+      "method": "surveillance/report",
+      "params": {
+        "hospital_id": "HOSP-003",
+        "disease_code": "J09.X9",
+        "case_count": 8,
+        "region": "London"
+      }
+    },
+    "transport": "sse",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "expected_events": ["report_submitted"],
+    "error_condition": "none",
+    "test_tags": ["public-health-surveillance", "sse", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-SURV-POS-0007",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "OSINT agent detects potential outbreak from social media signals",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-OSINT-1", "FR-OSINT-2"],
+    "preconditions": ["osint-agent running on port 8052", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "surv-pos-007",
+      "method": "osint/analyse",
+      "params": {
+        "source": "social_media",
+        "region": "Yorkshire",
+        "keywords": ["sick", "vomiting", "food poisoning"],
+        "date_range": {"from": "2026-03-20", "to": "2026-03-24"}
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["public-health-surveillance", "osint", "social-media", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-SURV-POS-0008",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "Central surveillance tasks/get retrieves aggregated report",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-SURVEILLANCE-2"],
+    "preconditions": ["central-surveillance running on port 8053", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "surv-pos-008",
+      "method": "tasks/get",
+      "params": {"task_id": "surv-task-001"}
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["public-health-surveillance", "tasks-get", "positive", "integration"]
+  },
+  {
+    "use_case_id": "UC-SURV-NEG-0001",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "Missing JWT returns 401 on central-surveillance",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["central-surveillance running on port 8053"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "surv-neg-001",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "report_type": "weekly_aggregate",
+          "region": "national"
+        }
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["public-health-surveillance", "auth", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-SURV-NEG-0002",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "Expired JWT returns 401 on hospital-reporter",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["central-surveillance running on port 8053"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "surv-neg-002",
+      "method": "surveillance/report",
+      "params": {
+        "hospital_id": "HOSP-X",
+        "disease_code": "J06.9",
+        "case_count": 5
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_expired",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "expired_jwt",
+    "test_tags": ["public-health-surveillance", "auth", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-SURV-NEG-0003",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "Invalid JWT returns 401 on osint-agent",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["central-surveillance running on port 8053"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "surv-neg-003",
+      "method": "osint/analyse",
+      "params": {
+        "source": "news_feed",
+        "region": "national",
+        "keywords": ["outbreak"]
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_invalid",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "invalid_jwt_signature",
+    "test_tags": ["public-health-surveillance", "auth", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-SURV-NEG-0004",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "JWT with missing scope returns 401 on central-surveillance",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-2"],
+    "preconditions": ["central-surveillance running on port 8053"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "surv-neg-004",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {"report_type": "daily", "region": "Scotland"}
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing_scope",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "wrong_jwt_scope",
+    "test_tags": ["public-health-surveillance", "auth", "scope", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-SURV-NEG-0005",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "Missing JWT on tasks/sendSubscribe to central-surveillance returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["central-surveillance running on port 8053"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "surv-neg-005",
+      "method": "surveillance/report",
+      "params": {
+        "hospital_id": "HOSP-NEG",
+        "disease_code": "A22.9",
+        "case_count": 3
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"error": "AUTH_FAILED"},
+    "error_condition": "missing_jwt",
+    "test_tags": ["public-health-surveillance", "auth", "negative", "integration"]
+  },
+  {
+    "use_case_id": "UC-SURV-EDGE-0001",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "Hospital reporter with case_count = 0 is accepted without error",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-SURVEILLANCE-1"],
+    "preconditions": ["central-surveillance running on port 8053", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "surv-edge-001",
+      "method": "surveillance/report",
+      "params": {
+        "hospital_id": "HOSP-EDGE",
+        "disease_code": "J06.9",
+        "case_count": 0,
+        "region": "Wales",
+        "report_date": "2026-03-24"
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["public-health-surveillance", "zero-cases", "edge", "integration"]
+  },
+  {
+    "use_case_id": "UC-SURV-EDGE-0002",
+    "poc_demo": "public-health-surveillance",
+    "scenario_title": "OSINT report with empty keywords list is handled gracefully",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-OSINT-1"],
+    "preconditions": ["central-surveillance running on port 8053", "jwt_secret_configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "surv-edge-002",
+      "method": "osint/analyse",
+      "params": {
+        "source": "news_feed",
+        "region": "Northern Ireland",
+        "keywords": [],
+        "date_range": {"from": "2026-03-01", "to": "2026-03-24"}
+      }
+    },
+    "transport": "https",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["public-health-surveillance", "empty-keywords", "edge", "integration"]
+  }
+]
