@@ -1,0 +1,329 @@
+[
+  {
+    "use_case_id": "SC-UNIT-0001",
+    "poc_demo": "helixcare",
+    "scenario_title": "specialty_care/manage_referral dispatches specialist referral",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-SPECIALTY-CARE-1"],
+    "preconditions": ["specialty-care-agent loaded in-process", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "sc-test-001",
+      "method": "specialty_care/manage_referral",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-SC-001", "name": "Robert Chen", "age": 62, "gender": "male"},
+          "referral_type": "cardiology",
+          "chief_complaint": "Chest pain on exertion",
+          "urgency": "urgent"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "patient_id", "method", "status"]},
+    "error_condition": "none",
+    "test_tags": ["specialty-care", "unit", "positive", "manage-referral"]
+  },
+  {
+    "use_case_id": "SC-UNIT-0002",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/sendSubscribe returns task_id and resume_cursor",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-SPECIALTY-CARE-2"],
+    "preconditions": ["specialty-care-agent loaded in-process", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "sc-test-002",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-SC-002"},
+          "chief_complaint": "Worsening knee pain, possible orthopaedic referral"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "trace_id", "resume_cursor"]},
+    "error_condition": "none",
+    "test_tags": ["specialty-care", "unit", "positive", "tasks-sendsubscribe"]
+  },
+  {
+    "use_case_id": "SC-UNIT-0003",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/get returns state for known task_id",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-SPECIALTY-CARE-3"],
+    "preconditions": ["specialty-care-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "sc-test-003",
+      "method": "tasks/get",
+      "params": {"task_id": "sc-existing-task-id"}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "state"]},
+    "error_condition": "none",
+    "test_tags": ["specialty-care", "unit", "positive", "tasks-get"]
+  },
+  {
+    "use_case_id": "SC-UNIT-0004",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/cancel returns cancelled field",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-SPECIALTY-CARE-4"],
+    "preconditions": ["specialty-care-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "sc-test-004",
+      "method": "tasks/cancel",
+      "params": {"task_id": "sc-cancel-task-id"}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "cancelled"]},
+    "error_condition": "none",
+    "test_tags": ["specialty-care", "unit", "positive", "tasks-cancel"]
+  },
+  {
+    "use_case_id": "SC-UNIT-0005",
+    "poc_demo": "helixcare",
+    "scenario_title": "Agent card endpoint returns declared methods",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-SPECIALTY-CARE-5"],
+    "preconditions": ["specialty-care-agent loaded in-process"],
+    "input_payload": {"_http_method": "GET", "_path": "/.well-known/agent-card.json"},
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["specialty-care", "unit", "positive", "agent-card"]
+  },
+  {
+    "use_case_id": "SC-UNIT-0006",
+    "poc_demo": "helixcare",
+    "scenario_title": "Health endpoint returns 200",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-SPECIALTY-CARE-6"],
+    "preconditions": ["specialty-care-agent loaded in-process"],
+    "input_payload": {"_http_method": "GET", "_path": "/health"},
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["specialty-care", "unit", "positive", "health"]
+  },
+  {
+    "use_case_id": "SC-UNIT-0007",
+    "poc_demo": "helixcare",
+    "scenario_title": "Domain method call without JWT returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["specialty-care-agent loaded in-process", "no auth header"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "sc-test-007",
+      "method": "specialty_care/manage_referral",
+      "params": {"task": {"patient": {"patient_id": "P-SEC-SC-01"}, "chief_complaint": "test"}}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"ok": false, "error_code": -32001, "reason": "auth_failed"},
+    "error_condition": "missing_bearer_token",
+    "test_tags": ["specialty-care", "unit", "negative", "auth", "401"]
+  },
+  {
+    "use_case_id": "SC-UNIT-0008",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/sendSubscribe without JWT returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["specialty-care-agent loaded in-process", "no auth header"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "sc-test-008",
+      "method": "tasks/sendSubscribe",
+      "params": {"task": {"patient": {"patient_id": "P-SEC-SC-02"}, "chief_complaint": "test"}}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"ok": false, "error_code": -32001, "reason": "auth_failed"},
+    "error_condition": "missing_bearer_token",
+    "test_tags": ["specialty-care", "unit", "negative", "auth", "401"]
+  },
+  {
+    "use_case_id": "SC-UNIT-0009",
+    "poc_demo": "helixcare",
+    "scenario_title": "Unknown method returns JSON-RPC -32601",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-SPECIALTY-CARE-7"],
+    "preconditions": ["specialty-care-agent loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "sc-test-009",
+      "method": "specialty_care/nonExistentMethod",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32601},
+    "error_condition": "method_not_found",
+    "test_tags": ["specialty-care", "unit", "negative", "rpc-error", "method-not-found"]
+  },
+  {
+    "use_case_id": "SC-UNIT-0010",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/get with missing task_id returns -32602",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-SPECIALTY-CARE-8"],
+    "preconditions": ["specialty-care-agent loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "sc-test-010",
+      "method": "tasks/get",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32602},
+    "error_condition": "missing_task_id",
+    "test_tags": ["specialty-care", "unit", "negative", "rpc-error", "invalid-params"]
+  },
+  {
+    "use_case_id": "SC-UNIT-0011",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/cancel without task_id returns -32602",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-SPECIALTY-CARE-9"],
+    "preconditions": ["specialty-care-agent loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "sc-test-011",
+      "method": "tasks/cancel",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32602},
+    "error_condition": "missing_task_id",
+    "test_tags": ["specialty-care", "unit", "negative", "rpc-error", "invalid-params"]
+  },
+  {
+    "use_case_id": "SC-UNIT-0012",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/get with expired JWT returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["specialty-care-agent loaded in-process", "expired jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "sc-test-012",
+      "method": "tasks/get",
+      "params": {"task_id": "some-task-id"}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt_expired",
+    "expected_http_status": 401,
+    "expected_result": {"ok": false, "error_code": -32001, "reason": "auth_failed"},
+    "error_condition": "expired_jwt",
+    "test_tags": ["specialty-care", "unit", "negative", "auth", "401", "jwt-expired"]
+  },
+  {
+    "use_case_id": "SC-UNIT-0013",
+    "poc_demo": "helixcare",
+    "scenario_title": "Domain method with empty params returns result",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-SPECIALTY-CARE-10"],
+    "preconditions": ["specialty-care-agent loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "sc-test-013",
+      "method": "specialty_care/manage_referral",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["specialty-care", "unit", "edge", "empty-params"]
+  },
+  {
+    "use_case_id": "SC-UNIT-0014",
+    "poc_demo": "helixcare",
+    "scenario_title": "Domain method with unicode patient_id handled gracefully",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-SPECIALTY-CARE-11"],
+    "preconditions": ["specialty-care-agent loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "sc-test-014",
+      "method": "specialty_care/manage_referral",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-ñoño-患者-SC"},
+          "chief_complaint": "Specialist review needed"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["specialty-care", "unit", "edge", "unicode"]
+  },
+  {
+    "use_case_id": "SC-UNIT-0015",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/cancel for non-existent task_id returns cancelled=false",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-SPECIALTY-CARE-12"],
+    "preconditions": ["specialty-care-agent loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "sc-test-015",
+      "method": "tasks/cancel",
+      "params": {"task_id": "non-existent-sc-task-xyz"}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["cancelled"]},
+    "error_condition": "none",
+    "test_tags": ["specialty-care", "unit", "edge", "cancel", "non-existent"]
+  },
+  {
+    "use_case_id": "SC-UNIT-0016",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/resubscribe with invalid cursor returns -32002",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-SPECIALTY-CARE-13"],
+    "preconditions": ["specialty-care-agent loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "sc-test-016",
+      "method": "tasks/resubscribe",
+      "params": {"cursor": "invalid-sc-cursor-xyz"}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32002},
+    "error_condition": "invalid_cursor",
+    "test_tags": ["specialty-care", "unit", "edge", "resubscribe", "invalid-cursor"]
+  }
+]

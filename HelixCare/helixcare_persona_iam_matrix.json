@@ -2,10 +2,18 @@
   {
     "use_case_id": "UC-PERSONA-0001",
     "poc_demo": "clinician-avatar",
-    "scenario_title": "Persona registry loads — all 68 personas accessible",
+    "scenario_title": "Persona registry loads \u2014 all 68 personas accessible",
     "scenario_type": "positive",
-    "requirement_ids": ["FR-PERSONA-1", "NFR-10"],
-    "preconditions": ["config/personas.json present", "identity module importable"],
+    "requirement_ids": [
+      "FR-PERSONA-1",
+      "NFR-10",
+      "FR-1",
+      "IR-1"
+    ],
+    "preconditions": [
+      "config/personas.json present",
+      "identity module importable"
+    ],
     "input_payload": {
       "protocol_step": "persona_registry_load",
       "expected_count": 68
@@ -13,17 +21,33 @@
     "transport": "unit",
     "auth_mode": "none",
     "expected_http_status": null,
-    "expected_result": {"ok": true, "persona_count": 68},
+    "expected_result": {
+      "ok": true,
+      "persona_count": 68
+    },
     "error_condition": "none",
-    "test_tags": ["persona", "registry", "positive", "unit"]
+    "test_tags": [
+      "persona",
+      "registry",
+      "positive",
+      "unit"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-0002",
     "poc_demo": "clinician-avatar",
     "scenario_title": "avatar/start_session with explicit persona_id resolves from registry",
     "scenario_type": "positive",
-    "requirement_ids": ["FR-PERSONA-2", "FR-AVATAR-1"],
-    "preconditions": ["clinician-avatar-agent running on port 8039", "jwt_secret_configured"],
+    "requirement_ids": [
+      "FR-PERSONA-2",
+      "FR-AVATAR-1",
+      "FR-2",
+      "NFR-10"
+    ],
+    "preconditions": [
+      "clinician-avatar-agent running on port 8039",
+      "jwt_secret_configured"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "persona-test-001",
@@ -45,18 +69,37 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["session_id", "greeting", "persona"]
+      "contains": [
+        "session_id",
+        "greeting",
+        "persona"
+      ]
     },
     "error_condition": "none",
-    "test_tags": ["persona", "avatar", "start_session", "positive", "integration"]
+    "test_tags": [
+      "persona",
+      "avatar",
+      "start_session",
+      "positive",
+      "integration"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-0003",
     "poc_demo": "clinician-avatar",
     "scenario_title": "avatar/start_session with country=uk selects Consultant Physician",
     "scenario_type": "positive",
-    "requirement_ids": ["FR-PERSONA-3", "FR-AVATAR-1"],
-    "preconditions": ["clinician-avatar-agent running on port 8039", "jwt_secret_configured"],
+    "requirement_ids": [
+      "FR-PERSONA-3",
+      "FR-AVATAR-1",
+      "FR-2",
+      "NFR-10",
+      "IR-1"
+    ],
+    "preconditions": [
+      "clinician-avatar-agent running on port 8039",
+      "jwt_secret_configured"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "persona-test-002",
@@ -78,18 +121,35 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["session_id", "persona"]
+      "contains": [
+        "session_id",
+        "persona"
+      ]
     },
     "error_condition": "none",
-    "test_tags": ["persona", "avatar", "country_routing", "positive", "integration"]
+    "test_tags": [
+      "persona",
+      "avatar",
+      "country_routing",
+      "positive",
+      "integration"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-0004",
     "poc_demo": "clinician-avatar",
     "scenario_title": "avatar/start_session with country=usa selects Attending Physician",
     "scenario_type": "positive",
-    "requirement_ids": ["FR-PERSONA-3"],
-    "preconditions": ["clinician-avatar-agent running on port 8039", "jwt_secret_configured"],
+    "requirement_ids": [
+      "FR-PERSONA-3",
+      "FR-2",
+      "NFR-10",
+      "IR-1"
+    ],
+    "preconditions": [
+      "clinician-avatar-agent running on port 8039",
+      "jwt_secret_configured"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "persona-test-003",
@@ -109,17 +169,36 @@
     "transport": "https",
     "auth_mode": "jwt",
     "expected_http_status": 200,
-    "expected_result": {"ok": true, "contains": ["session_id"]},
+    "expected_result": {
+      "ok": true,
+      "contains": [
+        "session_id"
+      ]
+    },
     "error_condition": "none",
-    "test_tags": ["persona", "avatar", "country_routing", "usa", "positive", "integration"]
+    "test_tags": [
+      "persona",
+      "avatar",
+      "country_routing",
+      "usa",
+      "positive",
+      "integration"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-0005",
     "poc_demo": "clinician-avatar",
     "scenario_title": "avatar/start_session with care_setting=telehealth selects Telehealth Clinician",
     "scenario_type": "positive",
-    "requirement_ids": ["FR-PERSONA-4"],
-    "preconditions": ["clinician-avatar-agent running on port 8039", "jwt_secret_configured"],
+    "requirement_ids": [
+      "FR-PERSONA-4",
+      "FR-8",
+      "NFR-10"
+    ],
+    "preconditions": [
+      "clinician-avatar-agent running on port 8039",
+      "jwt_secret_configured"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "persona-test-004",
@@ -140,17 +219,36 @@
     "transport": "https",
     "auth_mode": "jwt",
     "expected_http_status": 200,
-    "expected_result": {"ok": true, "contains": ["session_id", "persona"]},
+    "expected_result": {
+      "ok": true,
+      "contains": [
+        "session_id",
+        "persona"
+      ]
+    },
     "error_condition": "none",
-    "test_tags": ["persona", "avatar", "telehealth", "positive", "integration"]
+    "test_tags": [
+      "persona",
+      "avatar",
+      "telehealth",
+      "positive",
+      "integration"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-0006",
     "poc_demo": "clinician-avatar",
     "scenario_title": "avatar/list_personas returns UK clinical personas",
     "scenario_type": "positive",
-    "requirement_ids": ["FR-PERSONA-5"],
-    "preconditions": ["clinician-avatar-agent running on port 8039", "jwt_secret_configured"],
+    "requirement_ids": [
+      "FR-PERSONA-5",
+      "FR-1",
+      "NFR-10"
+    ],
+    "preconditions": [
+      "clinician-avatar-agent running on port 8039",
+      "jwt_secret_configured"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "persona-test-005",
@@ -163,17 +261,33 @@
     "transport": "https",
     "auth_mode": "jwt",
     "expected_http_status": 200,
-    "expected_result": {"ok": true, "is_list": true, "min_count": 5},
+    "expected_result": {
+      "ok": true,
+      "is_list": true,
+      "min_count": 5
+    },
     "error_condition": "none",
-    "test_tags": ["persona", "list_personas", "positive", "integration"]
+    "test_tags": [
+      "persona",
+      "list_personas",
+      "positive",
+      "integration"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-0007",
     "poc_demo": "clinician-avatar",
     "scenario_title": "GET /api/identity returns agent IAM configuration",
     "scenario_type": "positive",
-    "requirement_ids": ["FR-IAM-1"],
-    "preconditions": ["clinician-avatar-agent running on port 8039", "jwt_secret_configured"],
+    "requirement_ids": [
+      "FR-IAM-1",
+      "NFR-10",
+      "FR-12"
+    ],
+    "preconditions": [
+      "clinician-avatar-agent running on port 8039",
+      "jwt_secret_configured"
+    ],
     "input_payload": {
       "protocol_step": "get_identity"
     },
@@ -182,18 +296,34 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["agent_id", "primary_persona", "iam_groups", "delegated_scopes"]
+      "contains": [
+        "agent_id",
+        "primary_persona",
+        "iam_groups",
+        "delegated_scopes"
+      ]
     },
     "error_condition": "none",
-    "test_tags": ["iam", "identity", "positive", "integration"]
+    "test_tags": [
+      "iam",
+      "identity",
+      "positive",
+      "integration"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-0008",
     "poc_demo": "clinician-avatar",
     "scenario_title": "/health includes identity info",
     "scenario_type": "positive",
-    "requirement_ids": ["NFR-10", "FR-IAM-1"],
-    "preconditions": ["clinician-avatar-agent running on port 8039"],
+    "requirement_ids": [
+      "NFR-10",
+      "FR-IAM-1",
+      "FR-1"
+    ],
+    "preconditions": [
+      "clinician-avatar-agent running on port 8039"
+    ],
     "input_payload": {
       "protocol_step": "health_check"
     },
@@ -202,18 +332,35 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["status", "identity"]
+      "contains": [
+        "status",
+        "identity"
+      ]
     },
     "error_condition": "none",
-    "test_tags": ["health", "identity", "positive", "integration"]
+    "test_tags": [
+      "health",
+      "identity",
+      "positive",
+      "integration"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-0009",
     "poc_demo": "clinician-avatar",
-    "scenario_title": "Full avatar consultation with persona_id P002 (GP) — UK primary care",
+    "scenario_title": "Full avatar consultation with persona_id P002 (GP) \u2014 UK primary care",
     "scenario_type": "positive",
-    "requirement_ids": ["FR-PERSONA-2", "FR-AVATAR-2"],
-    "preconditions": ["clinician-avatar-agent running on port 8039", "jwt_secret_configured"],
+    "requirement_ids": [
+      "FR-PERSONA-2",
+      "FR-AVATAR-2",
+      "FR-2",
+      "FR-8",
+      "NFR-10"
+    ],
+    "preconditions": [
+      "clinician-avatar-agent running on port 8039",
+      "jwt_secret_configured"
+    ],
     "input_payload": {
       "protocol_step": "avatar_full_consult",
       "persona_id": "P002",
@@ -239,15 +386,30 @@
       "patient_message_responses": 2
     },
     "error_condition": "none",
-    "test_tags": ["persona", "avatar", "gp", "full_consult", "positive", "integration"]
+    "test_tags": [
+      "persona",
+      "avatar",
+      "gp",
+      "full_consult",
+      "positive",
+      "integration"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-0010",
     "poc_demo": "clinician-avatar",
-    "scenario_title": "Full avatar consultation with persona_id P065 (Psychiatrist) — mental health",
+    "scenario_title": "Full avatar consultation with persona_id P065 (Psychiatrist) \u2014 mental health",
     "scenario_type": "positive",
-    "requirement_ids": ["FR-PERSONA-2", "FR-AVATAR-2"],
-    "preconditions": ["clinician-avatar-agent running on port 8039", "jwt_secret_configured"],
+    "requirement_ids": [
+      "FR-PERSONA-2",
+      "FR-AVATAR-2",
+      "FR-2",
+      "NFR-10"
+    ],
+    "preconditions": [
+      "clinician-avatar-agent running on port 8039",
+      "jwt_secret_configured"
+    ],
     "input_payload": {
       "protocol_step": "avatar_full_consult",
       "persona_id": "P065",
@@ -267,17 +429,36 @@
     "transport": "https",
     "auth_mode": "jwt",
     "expected_http_status": 200,
-    "expected_result": {"ok": true, "session_starts": true},
+    "expected_result": {
+      "ok": true,
+      "session_starts": true
+    },
     "error_condition": "none",
-    "test_tags": ["persona", "avatar", "mental_health", "psychiatrist", "positive", "integration"]
+    "test_tags": [
+      "persona",
+      "avatar",
+      "mental_health",
+      "psychiatrist",
+      "positive",
+      "integration"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-0011",
     "poc_demo": "clinician-avatar",
     "scenario_title": "Full avatar consultation with P026 (Medical Officer, Kenya)",
     "scenario_type": "positive",
-    "requirement_ids": ["FR-PERSONA-2", "FR-PERSONA-3"],
-    "preconditions": ["clinician-avatar-agent running on port 8039", "jwt_secret_configured"],
+    "requirement_ids": [
+      "FR-PERSONA-2",
+      "FR-PERSONA-3",
+      "FR-2",
+      "NFR-10",
+      "IR-1"
+    ],
+    "preconditions": [
+      "clinician-avatar-agent running on port 8039",
+      "jwt_secret_configured"
+    ],
     "input_payload": {
       "protocol_step": "avatar_full_consult",
       "persona_id": "P026",
@@ -297,72 +478,137 @@
     "transport": "https",
     "auth_mode": "jwt",
     "expected_http_status": 200,
-    "expected_result": {"ok": true, "session_starts": true},
+    "expected_result": {
+      "ok": true,
+      "session_starts": true
+    },
     "error_condition": "none",
-    "test_tags": ["persona", "avatar", "kenya", "positive", "integration"]
+    "test_tags": [
+      "persona",
+      "avatar",
+      "kenya",
+      "positive",
+      "integration"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-0012",
     "poc_demo": "clinician-avatar",
     "scenario_title": "Persona filter by bulletrain_role returns correct personas",
     "scenario_type": "positive",
-    "requirement_ids": ["FR-PERSONA-5", "FR-IAM-2"],
-    "preconditions": ["config/personas.json present"],
+    "requirement_ids": [
+      "FR-PERSONA-5",
+      "FR-IAM-2",
+      "NFR-10",
+      "FR-12"
+    ],
+    "preconditions": [
+      "config/personas.json present"
+    ],
     "input_payload": {
       "protocol_step": "persona_filter",
-      "filter": {"bulletrain_role": "clinician_service"},
+      "filter": {
+        "bulletrain_role": "clinician_service"
+      },
       "expected_min_count": 40
     },
     "transport": "unit",
     "auth_mode": "none",
     "expected_http_status": null,
-    "expected_result": {"ok": true},
+    "expected_result": {
+      "ok": true
+    },
     "error_condition": "none",
-    "test_tags": ["persona", "filter", "iam", "positive", "unit"]
+    "test_tags": [
+      "persona",
+      "filter",
+      "iam",
+      "positive",
+      "unit"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-0013",
     "poc_demo": "clinician-avatar",
-    "scenario_title": "Agent identity delegation graph is consistent — no circular delegation",
+    "scenario_title": "Agent identity delegation graph is consistent \u2014 no circular delegation",
     "scenario_type": "positive",
-    "requirement_ids": ["FR-IAM-3"],
-    "preconditions": ["config/agent_personas.json present"],
+    "requirement_ids": [
+      "FR-IAM-3",
+      "NFR-10",
+      "FR-12"
+    ],
+    "preconditions": [
+      "config/agent_personas.json present"
+    ],
     "input_payload": {
       "protocol_step": "delegation_graph_check"
     },
     "transport": "unit",
     "auth_mode": "none",
     "expected_http_status": null,
-    "expected_result": {"ok": true, "no_circular_delegation": true},
+    "expected_result": {
+      "ok": true,
+      "no_circular_delegation": true
+    },
     "error_condition": "none",
-    "test_tags": ["iam", "delegation", "graph", "positive", "unit"]
+    "test_tags": [
+      "iam",
+      "delegation",
+      "graph",
+      "positive",
+      "unit"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-0014",
     "poc_demo": "clinician-avatar",
-    "scenario_title": "Communication permissions — discharge agent can send email but not SMS",
+    "scenario_title": "Communication permissions \u2014 discharge agent can send email but not SMS",
     "scenario_type": "positive",
-    "requirement_ids": ["FR-IAM-4"],
-    "preconditions": ["config/agent_personas.json present"],
+    "requirement_ids": [
+      "FR-IAM-4",
+      "NFR-10",
+      "CR-3"
+    ],
+    "preconditions": [
+      "config/agent_personas.json present"
+    ],
     "input_payload": {
       "protocol_step": "comm_permissions_check",
       "agent_id": "discharge_agent",
-      "expected": {"send_email": true, "send_sms": true}
+      "expected": {
+        "send_email": true,
+        "send_sms": true
+      }
     },
     "transport": "unit",
     "auth_mode": "none",
     "expected_http_status": null,
-    "expected_result": {"ok": true},
+    "expected_result": {
+      "ok": true
+    },
     "error_condition": "none",
-    "test_tags": ["iam", "communication", "email", "sms", "positive", "unit"]
+    "test_tags": [
+      "iam",
+      "communication",
+      "email",
+      "sms",
+      "positive",
+      "unit"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-0015",
     "poc_demo": "clinician-avatar",
     "scenario_title": "Graph API mail payload builder produces correct structure",
     "scenario_type": "positive",
-    "requirement_ids": ["FR-IAM-4"],
-    "preconditions": ["config/agent_personas.json present"],
+    "requirement_ids": [
+      "FR-IAM-4",
+      "NFR-10",
+      "IR-2"
+    ],
+    "preconditions": [
+      "config/agent_personas.json present"
+    ],
     "input_payload": {
       "protocol_step": "graph_mail_payload",
       "agent_id": "diagnosis_agent",
@@ -375,23 +621,40 @@
     "expected_http_status": null,
     "expected_result": {
       "ok": true,
-      "contains": ["message", "subject", "toRecipients"]
+      "contains": [
+        "message",
+        "subject",
+        "toRecipients"
+      ]
     },
     "error_condition": "none",
-    "test_tags": ["iam", "email", "graph_api", "positive", "unit"]
+    "test_tags": [
+      "iam",
+      "email",
+      "graph_api",
+      "positive",
+      "unit"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-NEG-001",
     "poc_demo": "clinician-avatar",
     "scenario_title": "avatar/list_personas without auth returns 401",
     "scenario_type": "negative",
-    "requirement_ids": ["SEC-1"],
-    "preconditions": ["clinician-avatar-agent running on port 8039"],
+    "requirement_ids": [
+      "SEC-1",
+      "NFR-2"
+    ],
+    "preconditions": [
+      "clinician-avatar-agent running on port 8039"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "persona-neg-001",
       "method": "avatar/list_personas",
-      "params": {"country": "uk"}
+      "params": {
+        "country": "uk"
+      }
     },
     "transport": "https",
     "auth_mode": "jwt_missing",
@@ -400,15 +663,28 @@
       "error": "AUTH_FAILED"
     },
     "error_condition": "missing_jwt",
-    "test_tags": ["persona", "security", "auth", "negative", "integration"]
+    "test_tags": [
+      "persona",
+      "security",
+      "auth",
+      "negative",
+      "integration"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-NEG-002",
     "poc_demo": "clinician-avatar",
     "scenario_title": "avatar/start_session with unknown persona_id falls back gracefully",
     "scenario_type": "negative",
-    "requirement_ids": ["FR-PERSONA-2"],
-    "preconditions": ["clinician-avatar-agent running on port 8039", "jwt_secret_configured"],
+    "requirement_ids": [
+      "FR-PERSONA-2",
+      "FR-2",
+      "NFR-10"
+    ],
+    "preconditions": [
+      "clinician-avatar-agent running on port 8039",
+      "jwt_secret_configured"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "persona-neg-002",
@@ -430,35 +706,62 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["session_id"]
+      "contains": [
+        "session_id"
+      ]
     },
     "error_condition": "unknown_persona_id_falls_back",
-    "test_tags": ["persona", "avatar", "fallback", "negative", "integration"]
+    "test_tags": [
+      "persona",
+      "avatar",
+      "fallback",
+      "negative",
+      "integration"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-NEG-003",
     "poc_demo": "clinician-avatar",
     "scenario_title": "GET /api/identity without auth returns 401",
     "scenario_type": "negative",
-    "requirement_ids": ["SEC-1"],
-    "preconditions": ["clinician-avatar-agent running on port 8039"],
+    "requirement_ids": [
+      "SEC-1",
+      "NFR-2"
+    ],
+    "preconditions": [
+      "clinician-avatar-agent running on port 8039"
+    ],
     "input_payload": {
       "protocol_step": "get_identity_unauth"
     },
     "transport": "https",
     "auth_mode": "jwt_missing",
     "expected_http_status": 401,
-    "expected_result": {"error": "AUTH_FAILED"},
+    "expected_result": {
+      "error": "AUTH_FAILED"
+    },
     "error_condition": "missing_jwt",
-    "test_tags": ["iam", "identity", "security", "negative", "integration"]
+    "test_tags": [
+      "iam",
+      "identity",
+      "security",
+      "negative",
+      "integration"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-NEG-004",
     "poc_demo": "clinician-avatar",
-    "scenario_title": "Clinician avatar agent cannot send SMS — permission denied at payload build",
+    "scenario_title": "Clinician avatar agent cannot send SMS \u2014 permission denied at payload build",
     "scenario_type": "negative",
-    "requirement_ids": ["FR-IAM-4"],
-    "preconditions": ["config/agent_personas.json present"],
+    "requirement_ids": [
+      "FR-IAM-4",
+      "NFR-10",
+      "CR-5"
+    ],
+    "preconditions": [
+      "config/agent_personas.json present"
+    ],
     "input_payload": {
       "protocol_step": "sms_permission_denied",
       "agent_id": "clinician_avatar_agent",
@@ -467,17 +770,31 @@
     "transport": "unit",
     "auth_mode": "none",
     "expected_http_status": null,
-    "expected_result": {"error": "PERMISSION_DENIED"},
+    "expected_result": {
+      "error": "PERMISSION_DENIED"
+    },
     "error_condition": "agent_lacks_sms_permission",
-    "test_tags": ["iam", "sms", "permission", "negative", "unit"]
+    "test_tags": [
+      "iam",
+      "sms",
+      "permission",
+      "negative",
+      "unit"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-NEG-005",
     "poc_demo": "clinician-avatar",
-    "scenario_title": "Consent analyser agent cannot send email — permission denied",
+    "scenario_title": "Consent analyser agent cannot send email \u2014 permission denied",
     "scenario_type": "negative",
-    "requirement_ids": ["FR-IAM-4"],
-    "preconditions": ["config/agent_personas.json present"],
+    "requirement_ids": [
+      "FR-IAM-4",
+      "NFR-10",
+      "CR-5"
+    ],
+    "preconditions": [
+      "config/agent_personas.json present"
+    ],
     "input_payload": {
       "protocol_step": "email_permission_denied",
       "agent_id": "consent_analyser",
@@ -486,17 +803,32 @@
     "transport": "unit",
     "auth_mode": "none",
     "expected_http_status": null,
-    "expected_result": {"error": "PERMISSION_DENIED"},
+    "expected_result": {
+      "error": "PERMISSION_DENIED"
+    },
     "error_condition": "agent_lacks_email_permission",
-    "test_tags": ["iam", "email", "permission", "negative", "unit"]
+    "test_tags": [
+      "iam",
+      "email",
+      "permission",
+      "negative",
+      "unit"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-EDGE-001",
     "poc_demo": "clinician-avatar",
     "scenario_title": "avatar/start_session with no persona params uses default",
     "scenario_type": "edge",
-    "requirement_ids": ["FR-PERSONA-2"],
-    "preconditions": ["clinician-avatar-agent running on port 8039", "jwt_secret_configured"],
+    "requirement_ids": [
+      "FR-PERSONA-2",
+      "FR-2",
+      "NFR-10"
+    ],
+    "preconditions": [
+      "clinician-avatar-agent running on port 8039",
+      "jwt_secret_configured"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "persona-edge-001",
@@ -515,17 +847,36 @@
     "transport": "https",
     "auth_mode": "jwt",
     "expected_http_status": 200,
-    "expected_result": {"ok": true, "contains": ["session_id", "persona"]},
+    "expected_result": {
+      "ok": true,
+      "contains": [
+        "session_id",
+        "persona"
+      ]
+    },
     "error_condition": "default_persona_used",
-    "test_tags": ["persona", "avatar", "default", "edge", "integration"]
+    "test_tags": [
+      "persona",
+      "avatar",
+      "default",
+      "edge",
+      "integration"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-EDGE-002",
     "poc_demo": "clinician-avatar",
     "scenario_title": "avatar/list_personas with empty domain filter returns all clinical",
     "scenario_type": "edge",
-    "requirement_ids": ["FR-PERSONA-5"],
-    "preconditions": ["clinician-avatar-agent running on port 8039", "jwt_secret_configured"],
+    "requirement_ids": [
+      "FR-PERSONA-5",
+      "FR-1",
+      "NFR-10"
+    ],
+    "preconditions": [
+      "clinician-avatar-agent running on port 8039",
+      "jwt_secret_configured"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "persona-edge-002",
@@ -535,17 +886,31 @@
     "transport": "https",
     "auth_mode": "jwt",
     "expected_http_status": 200,
-    "expected_result": {"ok": true, "is_list": true},
+    "expected_result": {
+      "ok": true,
+      "is_list": true
+    },
     "error_condition": "empty_filter_returns_all",
-    "test_tags": ["persona", "list_personas", "edge", "integration"]
+    "test_tags": [
+      "persona",
+      "list_personas",
+      "edge",
+      "integration"
+    ]
   },
   {
     "use_case_id": "UC-PERSONA-EDGE-003",
     "poc_demo": "clinician-avatar",
     "scenario_title": "Persona for multi-context country (UK/USA/Kenya) resolves correctly",
     "scenario_type": "edge",
-    "requirement_ids": ["FR-PERSONA-3"],
-    "preconditions": ["config/personas.json present"],
+    "requirement_ids": [
+      "FR-PERSONA-3",
+      "NFR-10",
+      "IR-1"
+    ],
+    "preconditions": [
+      "config/personas.json present"
+    ],
     "input_payload": {
       "protocol_step": "multi_context_persona",
       "persona_id": "P064",
@@ -554,8 +919,15 @@
     "transport": "unit",
     "auth_mode": "none",
     "expected_http_status": null,
-    "expected_result": {"ok": true},
+    "expected_result": {
+      "ok": true
+    },
     "error_condition": "none",
-    "test_tags": ["persona", "multi_context", "edge", "unit"]
+    "test_tags": [
+      "persona",
+      "multi_context",
+      "edge",
+      "unit"
+    ]
   }
 ]

@@ -1,0 +1,214 @@
+[
+  {
+    "use_case_id": "FPA-UNIT-0001",
+    "poc_demo": "interop",
+    "scenario_title": "tasks/send with valid JWT returns 200",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-FPA-1"],
+    "preconditions": ["fhir-profile-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "fpa-test-001",
+      "method": "tasks/send",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-FPA-001"},
+          "profile_id": "health.fhir.r4.core"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["fhir-profile", "unit", "positive"]
+  },
+  {
+    "use_case_id": "FPA-UNIT-0002",
+    "poc_demo": "interop",
+    "scenario_title": "tasks/get with valid task_id returns 200",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-FPA-2"],
+    "preconditions": ["fhir-profile-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "fpa-test-002",
+      "method": "tasks/get",
+      "params": {
+        "task_id": "task-fpa-get-001"
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["fhir-profile", "unit", "positive"]
+  },
+  {
+    "use_case_id": "FPA-UNIT-0003",
+    "poc_demo": "interop",
+    "scenario_title": "tasks/cancel with valid task_id returns 200",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-FPA-3"],
+    "preconditions": ["fhir-profile-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "fpa-test-003",
+      "method": "tasks/cancel",
+      "params": {
+        "task_id": "task-fpa-cancel-001"
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["fhir-profile", "unit", "positive"]
+  },
+  {
+    "use_case_id": "FPA-UNIT-0004",
+    "poc_demo": "interop",
+    "scenario_title": "Agent card GET returns 200 with name field",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-FPA-4"],
+    "preconditions": ["fhir-profile-agent loaded in-process"],
+    "input_payload": {},
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "has_name": true},
+    "error_condition": "none",
+    "test_tags": ["fhir-profile", "unit", "positive", "agent-card"]
+  },
+  {
+    "use_case_id": "FPA-UNIT-0005",
+    "poc_demo": "interop",
+    "scenario_title": "tasks/send without JWT returns 401 auth_failed",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-FPA-1"],
+    "preconditions": ["fhir-profile-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "fpa-test-005",
+      "method": "tasks/send",
+      "params": {
+        "task": {"patient": {"patient_id": "P-FPA-005"}}
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"ok": false, "error_code": -32001, "reason": "auth_failed"},
+    "error_condition": "missing_bearer_token",
+    "test_tags": ["fhir-profile", "unit", "negative", "auth", "401"]
+  },
+  {
+    "use_case_id": "FPA-UNIT-0006",
+    "poc_demo": "interop",
+    "scenario_title": "tasks/get without JWT returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-FPA-1"],
+    "preconditions": ["fhir-profile-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "fpa-test-006",
+      "method": "tasks/get",
+      "params": {
+        "task_id": "some-task"
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"ok": false, "error_code": -32001},
+    "error_condition": "missing_bearer_token",
+    "test_tags": ["fhir-profile", "unit", "negative", "auth", "401"]
+  },
+  {
+    "use_case_id": "FPA-UNIT-0007",
+    "poc_demo": "interop",
+    "scenario_title": "Unknown method returns -32601 method not found",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-FPA-5"],
+    "preconditions": ["fhir-profile-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "fpa-test-007",
+      "method": "unknown/nonExistentMethod",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32601},
+    "error_condition": "method_not_found",
+    "test_tags": ["fhir-profile", "unit", "negative", "rpc-error"]
+  },
+  {
+    "use_case_id": "FPA-UNIT-0008",
+    "poc_demo": "interop",
+    "scenario_title": "JWT signed with wrong secret returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-FPA-1"],
+    "preconditions": ["fhir-profile-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "fpa-test-008",
+      "method": "tasks/send",
+      "params": {
+        "task": {"patient": {"patient_id": "P-FPA-008"}}
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt_invalid",
+    "expected_http_status": 401,
+    "expected_result": {"ok": false, "error_code": -32001, "reason": "auth_failed"},
+    "error_condition": "invalid_jwt_signature",
+    "test_tags": ["fhir-profile", "unit", "negative", "auth", "401", "jwt-invalid"]
+  },
+  {
+    "use_case_id": "FPA-UNIT-0009",
+    "poc_demo": "interop",
+    "scenario_title": "tasks/send with empty params handles gracefully",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-FPA-6"],
+    "preconditions": ["fhir-profile-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "fpa-test-009",
+      "method": "tasks/send",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["fhir-profile", "unit", "edge", "empty-params"]
+  },
+  {
+    "use_case_id": "FPA-UNIT-0010",
+    "poc_demo": "interop",
+    "scenario_title": "tasks/cancel with non-existent task_id handles gracefully",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-FPA-7"],
+    "preconditions": ["fhir-profile-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "fpa-test-010",
+      "method": "tasks/cancel",
+      "params": {
+        "task_id": "non-existent-task-id-fpa-999"
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["fhir-profile", "unit", "edge", "cancel-nonexistent"]
+  }
+]

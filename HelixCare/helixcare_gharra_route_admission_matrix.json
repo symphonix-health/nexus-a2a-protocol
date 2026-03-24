@@ -13,21 +13,42 @@
       "transport": {
         "endpoint": "http://localhost:8021/rpc",
         "protocol": "nexus-a2a",
-        "protocol_versions": ["1.0", "1.1"],
-        "feature_flags": ["routing.v1"]
+        "protocol_versions": [
+          "1.0",
+          "1.1"
+        ],
+        "feature_flags": [
+          "routing.v1"
+        ]
       },
       "authentication": {
         "mtls_required": false,
         "cert_bound_tokens_required": false
       },
-      "capabilities": ["FHIR.Patient.read", "triage.assess"],
-      "policy_tags": ["clinical"],
+      "capabilities": [
+        "FHIR.Patient.read",
+        "triage.assess"
+      ],
+      "policy_tags": [
+        "clinical"
+      ],
       "jurisdiction": "UK",
       "status": "active",
       "federated": false
     },
-    "test_tags": ["gharra", "positive", "triage", "route-admission"],
-    "requirement_ids": ["NEXUS-GHARRA-001", "NEXUS-GHARRA-002"],
+    "test_tags": [
+      "gharra",
+      "positive",
+      "triage",
+      "route-admission"
+    ],
+    "requirement_ids": [
+      "NEXUS-GHARRA-001",
+      "NEXUS-GHARRA-002",
+      "FR-1",
+      "IR-1",
+      "IR-2"
+    ],
     "expected_result": {
       "admitted": true,
       "policy_result": "admit"
@@ -48,21 +69,37 @@
       "transport": {
         "endpoint": "http://localhost:8022/rpc",
         "protocol": "nexus-a2a",
-        "protocol_versions": ["1.0"],
+        "protocol_versions": [
+          "1.0"
+        ],
         "feature_flags": []
       },
       "authentication": {
         "mtls_required": false,
         "cert_bound_tokens_required": false
       },
-      "capabilities": ["FHIR.Observation.write"],
-      "policy_tags": ["clinical"],
+      "capabilities": [
+        "FHIR.Observation.write"
+      ],
+      "policy_tags": [
+        "clinical"
+      ],
       "jurisdiction": "KE",
       "status": "active",
       "federated": true
     },
-    "test_tags": ["gharra", "positive", "federation", "route-admission"],
-    "requirement_ids": ["NEXUS-GHARRA-005"],
+    "test_tags": [
+      "gharra",
+      "positive",
+      "federation",
+      "route-admission"
+    ],
+    "requirement_ids": [
+      "NEXUS-GHARRA-005",
+      "FR-1",
+      "IR-1",
+      "IR-4"
+    ],
     "expected_result": {
       "admitted": true,
       "policy_result": "admit"
@@ -83,18 +120,35 @@
       "transport": {
         "endpoint": "http://localhost:8024/rpc",
         "protocol": "nexus-a2a",
-        "protocol_versions": ["1.0"],
-        "feature_flags": ["routing.v1", "experimental.v99"]
+        "protocol_versions": [
+          "1.0"
+        ],
+        "feature_flags": [
+          "routing.v1",
+          "experimental.v99"
+        ]
       },
       "authentication": {
         "mtls_required": false,
         "cert_bound_tokens_required": false
       },
-      "policy_tags": ["clinical"],
+      "policy_tags": [
+        "clinical"
+      ],
       "status": "active"
     },
-    "test_tags": ["gharra", "positive", "features", "route-admission"],
-    "requirement_ids": ["NEXUS-GHARRA-006"],
+    "test_tags": [
+      "gharra",
+      "positive",
+      "features",
+      "route-admission"
+    ],
+    "requirement_ids": [
+      "NEXUS-GHARRA-006",
+      "FR-1",
+      "IR-1",
+      "NFR-4"
+    ],
     "expected_result": {
       "admitted": true,
       "policy_result": "warn"
@@ -115,15 +169,26 @@
       "transport": {
         "endpoint": "http://localhost:8021/rpc",
         "protocol": "nexus-a2a",
-        "protocol_versions": ["1.0"],
+        "protocol_versions": [
+          "1.0"
+        ],
         "feature_flags": []
       },
       "authentication": {},
       "policy_tags": [],
       "status": "revoked"
     },
-    "test_tags": ["gharra", "negative", "status", "route-admission"],
-    "requirement_ids": ["NEXUS-GHARRA-001"],
+    "test_tags": [
+      "gharra",
+      "negative",
+      "status",
+      "route-admission"
+    ],
+    "requirement_ids": [
+      "NEXUS-GHARRA-001",
+      "FR-1",
+      "SEC-1"
+    ],
     "expected_result": {
       "admitted": false,
       "policy_result": "deny"
@@ -144,15 +209,27 @@
       "transport": {
         "endpoint": "http://localhost:8022/rpc",
         "protocol": "nexus-a2a",
-        "protocol_versions": ["1.0"],
+        "protocol_versions": [
+          "1.0"
+        ],
         "feature_flags": []
       },
       "authentication": {},
       "policy_tags": [],
       "status": "active"
     },
-    "test_tags": ["gharra", "negative", "zone", "route-admission"],
-    "requirement_ids": ["NEXUS-GHARRA-002"],
+    "test_tags": [
+      "gharra",
+      "negative",
+      "zone",
+      "route-admission"
+    ],
+    "requirement_ids": [
+      "NEXUS-GHARRA-002",
+      "FR-1",
+      "IR-1",
+      "SEC-1"
+    ],
     "expected_result": {
       "admitted": false,
       "policy_result": "deny"
@@ -173,15 +250,26 @@
       "transport": {
         "endpoint": "http://localhost:8025/rpc",
         "protocol": "grpc",
-        "protocol_versions": ["1.0"],
+        "protocol_versions": [
+          "1.0"
+        ],
         "feature_flags": []
       },
       "authentication": {},
       "policy_tags": [],
       "status": "active"
     },
-    "test_tags": ["gharra", "negative", "protocol", "route-admission"],
-    "requirement_ids": ["NEXUS-GHARRA-003"],
+    "test_tags": [
+      "gharra",
+      "negative",
+      "protocol",
+      "route-admission"
+    ],
+    "requirement_ids": [
+      "NEXUS-GHARRA-003",
+      "FR-1",
+      "IR-1"
+    ],
     "expected_result": {
       "admitted": false,
       "policy_result": "deny"
@@ -202,15 +290,26 @@
       "transport": {
         "endpoint": "",
         "protocol": "nexus-a2a",
-        "protocol_versions": ["1.0"],
+        "protocol_versions": [
+          "1.0"
+        ],
         "feature_flags": []
       },
       "authentication": {},
       "policy_tags": [],
       "status": "active"
     },
-    "test_tags": ["gharra", "negative", "endpoint", "route-admission"],
-    "requirement_ids": ["NEXUS-GHARRA-003"],
+    "test_tags": [
+      "gharra",
+      "negative",
+      "endpoint",
+      "route-admission"
+    ],
+    "requirement_ids": [
+      "NEXUS-GHARRA-003",
+      "FR-1",
+      "IR-1"
+    ],
     "expected_result": {
       "admitted": false,
       "policy_result": "deny"
@@ -231,17 +330,30 @@
       "transport": {
         "endpoint": "http://localhost:8027/rpc",
         "protocol": "nexus-a2a",
-        "protocol_versions": ["1.0"]
+        "protocol_versions": [
+          "1.0"
+        ]
       },
       "authentication": {},
-      "policy_tags": ["restricted"],
+      "policy_tags": [
+        "restricted"
+      ],
       "status": "active"
     },
     "env_overrides": {
       "NEXUS_GHARRA_DENIED_TAGS": "restricted"
     },
-    "test_tags": ["gharra", "negative", "policy", "route-admission"],
-    "requirement_ids": ["NEXUS-GHARRA-004"],
+    "test_tags": [
+      "gharra",
+      "negative",
+      "policy",
+      "route-admission"
+    ],
+    "requirement_ids": [
+      "NEXUS-GHARRA-004",
+      "FR-1",
+      "CR-5"
+    ],
     "expected_result": {
       "admitted": false,
       "policy_result": "deny"
@@ -262,7 +374,9 @@
       "transport": {
         "endpoint": "http://localhost:8021/rpc",
         "protocol": "nexus-a2a",
-        "protocol_versions": ["1.0"]
+        "protocol_versions": [
+          "1.0"
+        ]
       },
       "authentication": {},
       "policy_tags": [],
@@ -271,8 +385,18 @@
     "env_overrides": {
       "NEXUS_GHARRA_TRUSTED_ANCHORS": "uk.health,ke.health"
     },
-    "test_tags": ["gharra", "negative", "trust", "route-admission"],
-    "requirement_ids": ["NEXUS-GHARRA-002"],
+    "test_tags": [
+      "gharra",
+      "negative",
+      "trust",
+      "route-admission"
+    ],
+    "requirement_ids": [
+      "NEXUS-GHARRA-002",
+      "FR-1",
+      "SEC-1",
+      "CR-5"
+    ],
     "expected_result": {
       "admitted": false,
       "policy_result": "deny"
@@ -293,18 +417,33 @@
       "transport": {
         "endpoint": "http://localhost:8024/rpc",
         "protocol": "nexus-a2a",
-        "protocol_versions": ["1.0"]
+        "protocol_versions": [
+          "1.0"
+        ]
       },
       "authentication": {},
-      "policy_tags": ["phi"],
+      "policy_tags": [
+        "phi"
+      ],
       "jurisdiction": "",
       "status": "active"
     },
     "env_overrides": {
       "NEXUS_GHARRA_ALLOWED_JURISDICTIONS": "UK,EU"
     },
-    "test_tags": ["gharra", "negative", "jurisdiction", "phi", "route-admission"],
-    "requirement_ids": ["NEXUS-GHARRA-007"],
+    "test_tags": [
+      "gharra",
+      "negative",
+      "jurisdiction",
+      "phi",
+      "route-admission"
+    ],
+    "requirement_ids": [
+      "NEXUS-GHARRA-007",
+      "FR-1",
+      "CR-3",
+      "SPR-4"
+    ],
     "expected_result": {
       "admitted": false,
       "policy_result": "deny"
@@ -325,15 +464,26 @@
       "transport": {
         "endpoint": "http://localhost:8021/rpc",
         "protocol": "nexus-a2a",
-        "protocol_versions": ["99.0"],
+        "protocol_versions": [
+          "99.0"
+        ],
         "feature_flags": []
       },
       "authentication": {},
       "policy_tags": [],
       "status": "active"
     },
-    "test_tags": ["gharra", "negative", "version", "route-admission"],
-    "requirement_ids": ["NEXUS-GHARRA-003"],
+    "test_tags": [
+      "gharra",
+      "negative",
+      "version",
+      "route-admission"
+    ],
+    "requirement_ids": [
+      "NEXUS-GHARRA-003",
+      "FR-1",
+      "IR-1"
+    ],
     "expected_result": {
       "admitted": false,
       "policy_result": "deny"
@@ -354,14 +504,25 @@
       "transport": {
         "endpoint": "http://localhost:8021/rpc",
         "protocol": "nexus-a2a",
-        "protocol_versions": ["1.0"]
+        "protocol_versions": [
+          "1.0"
+        ]
       },
       "authentication": {},
       "policy_tags": [],
       "status": "active"
     },
-    "test_tags": ["gharra", "edge", "parsing", "route-admission"],
-    "requirement_ids": ["NEXUS-GHARRA-001"],
+    "test_tags": [
+      "gharra",
+      "edge",
+      "parsing",
+      "route-admission"
+    ],
+    "requirement_ids": [
+      "NEXUS-GHARRA-001",
+      "FR-1",
+      "IR-1"
+    ],
     "expected_result": {
       "admitted": true,
       "policy_result": "admit"
@@ -383,8 +544,17 @@
         "endpoint": "http://localhost:8021/rpc"
       }
     },
-    "test_tags": ["gharra", "edge", "minimal", "route-admission"],
-    "requirement_ids": ["NEXUS-GHARRA-001"],
+    "test_tags": [
+      "gharra",
+      "edge",
+      "minimal",
+      "route-admission"
+    ],
+    "requirement_ids": [
+      "NEXUS-GHARRA-001",
+      "FR-1",
+      "IR-1"
+    ],
     "expected_result": {
       "admitted": true,
       "policy_result": "admit"

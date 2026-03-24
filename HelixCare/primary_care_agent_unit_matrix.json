@@ -1,0 +1,329 @@
+[
+  {
+    "use_case_id": "PC-UNIT-0001",
+    "poc_demo": "helixcare",
+    "scenario_title": "primary_care/manage_visit dispatches routine GP consultation",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-PRIMARY-CARE-1"],
+    "preconditions": ["primary-care-agent loaded in-process", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pc-test-001",
+      "method": "primary_care/manage_visit",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-TEST-001", "name": "Jane Doe", "age": 45, "gender": "female"},
+          "visit_type": "routine_checkup",
+          "chief_complaint": "Annual health check",
+          "urgency": "routine"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "patient_id", "method", "status"]},
+    "error_condition": "none",
+    "test_tags": ["primary-care", "unit", "positive", "manage-visit"]
+  },
+  {
+    "use_case_id": "PC-UNIT-0002",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/sendSubscribe returns task_id and resume_cursor",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-PRIMARY-CARE-2"],
+    "preconditions": ["primary-care-agent loaded in-process", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pc-test-002",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-TEST-002"},
+          "chief_complaint": "Persistent cough for two weeks"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "trace_id", "resume_cursor"]},
+    "error_condition": "none",
+    "test_tags": ["primary-care", "unit", "positive", "tasks-sendsubscribe"]
+  },
+  {
+    "use_case_id": "PC-UNIT-0003",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/get returns state for known task_id",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-PRIMARY-CARE-3"],
+    "preconditions": ["primary-care-agent loaded in-process", "valid task_id supplied"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pc-test-003",
+      "method": "tasks/get",
+      "params": {"task_id": "some-existing-task-id"}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "state"]},
+    "error_condition": "none",
+    "test_tags": ["primary-care", "unit", "positive", "tasks-get"]
+  },
+  {
+    "use_case_id": "PC-UNIT-0004",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/cancel returns cancelled field",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-PRIMARY-CARE-4"],
+    "preconditions": ["primary-care-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pc-test-004",
+      "method": "tasks/cancel",
+      "params": {"task_id": "cancel-test-task-id"}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "cancelled"]},
+    "error_condition": "none",
+    "test_tags": ["primary-care", "unit", "positive", "tasks-cancel"]
+  },
+  {
+    "use_case_id": "PC-UNIT-0005",
+    "poc_demo": "helixcare",
+    "scenario_title": "Agent card endpoint returns declared methods",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-PRIMARY-CARE-5"],
+    "preconditions": ["primary-care-agent loaded in-process"],
+    "input_payload": {"_http_method": "GET", "_path": "/.well-known/agent-card.json"},
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["primary-care", "unit", "positive", "agent-card"]
+  },
+  {
+    "use_case_id": "PC-UNIT-0006",
+    "poc_demo": "helixcare",
+    "scenario_title": "Health endpoint returns 200 with agent name",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-PRIMARY-CARE-6"],
+    "preconditions": ["primary-care-agent loaded in-process"],
+    "input_payload": {"_http_method": "GET", "_path": "/health"},
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["primary-care", "unit", "positive", "health"]
+  },
+  {
+    "use_case_id": "PC-UNIT-0007",
+    "poc_demo": "helixcare",
+    "scenario_title": "Domain method call without JWT returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["primary-care-agent loaded in-process", "no auth header"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pc-test-007",
+      "method": "primary_care/manage_visit",
+      "params": {"task": {"patient": {"patient_id": "P-SEC-01"}, "chief_complaint": "test"}}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"ok": false, "error_code": -32001, "reason": "auth_failed"},
+    "error_condition": "missing_bearer_token",
+    "test_tags": ["primary-care", "unit", "negative", "auth", "401"]
+  },
+  {
+    "use_case_id": "PC-UNIT-0008",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/sendSubscribe without JWT returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["primary-care-agent loaded in-process", "no auth header"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pc-test-008",
+      "method": "tasks/sendSubscribe",
+      "params": {"task": {"patient": {"patient_id": "P-SEC-02"}, "chief_complaint": "test"}}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"ok": false, "error_code": -32001, "reason": "auth_failed"},
+    "error_condition": "missing_bearer_token",
+    "test_tags": ["primary-care", "unit", "negative", "auth", "401"]
+  },
+  {
+    "use_case_id": "PC-UNIT-0009",
+    "poc_demo": "helixcare",
+    "scenario_title": "Unknown method returns JSON-RPC -32601",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-PRIMARY-CARE-7"],
+    "preconditions": ["primary-care-agent loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pc-test-009",
+      "method": "primary_care/nonExistentMethod",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32601},
+    "error_condition": "method_not_found",
+    "test_tags": ["primary-care", "unit", "negative", "rpc-error", "method-not-found"]
+  },
+  {
+    "use_case_id": "PC-UNIT-0010",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/get with missing task_id returns -32602",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-PRIMARY-CARE-8"],
+    "preconditions": ["primary-care-agent loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pc-test-010",
+      "method": "tasks/get",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32602},
+    "error_condition": "missing_task_id",
+    "test_tags": ["primary-care", "unit", "negative", "rpc-error", "invalid-params"]
+  },
+  {
+    "use_case_id": "PC-UNIT-0011",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/cancel without task_id returns -32602",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-PRIMARY-CARE-9"],
+    "preconditions": ["primary-care-agent loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pc-test-011",
+      "method": "tasks/cancel",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32602},
+    "error_condition": "missing_task_id",
+    "test_tags": ["primary-care", "unit", "negative", "rpc-error", "invalid-params"]
+  },
+  {
+    "use_case_id": "PC-UNIT-0012",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/get with expired JWT returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["primary-care-agent loaded in-process", "expired jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pc-test-012",
+      "method": "tasks/get",
+      "params": {"task_id": "some-task-id"}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt_expired",
+    "expected_http_status": 401,
+    "expected_result": {"ok": false, "error_code": -32001, "reason": "auth_failed"},
+    "error_condition": "expired_jwt",
+    "test_tags": ["primary-care", "unit", "negative", "auth", "401", "jwt-expired"]
+  },
+  {
+    "use_case_id": "PC-UNIT-0013",
+    "poc_demo": "helixcare",
+    "scenario_title": "Domain method with empty params dict returns result",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-PRIMARY-CARE-10"],
+    "preconditions": ["primary-care-agent loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pc-test-013",
+      "method": "primary_care/manage_visit",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["primary-care", "unit", "edge", "empty-params"]
+  },
+  {
+    "use_case_id": "PC-UNIT-0014",
+    "poc_demo": "helixcare",
+    "scenario_title": "Domain method with unicode patient_id handled gracefully",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-PRIMARY-CARE-11"],
+    "preconditions": ["primary-care-agent loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pc-test-014",
+      "method": "primary_care/manage_visit",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-测试-患者-001"},
+          "chief_complaint": "Routine visit"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["primary-care", "unit", "edge", "unicode"]
+  },
+  {
+    "use_case_id": "PC-UNIT-0015",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/cancel for non-existent task_id returns cancelled=false",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-PRIMARY-CARE-12"],
+    "preconditions": ["primary-care-agent loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pc-test-015",
+      "method": "tasks/cancel",
+      "params": {"task_id": "non-existent-task-id-xyz"}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["cancelled"]},
+    "error_condition": "none",
+    "test_tags": ["primary-care", "unit", "edge", "cancel", "non-existent"]
+  },
+  {
+    "use_case_id": "PC-UNIT-0016",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/resubscribe with invalid cursor returns -32002",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-PRIMARY-CARE-13"],
+    "preconditions": ["primary-care-agent loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pc-test-016",
+      "method": "tasks/resubscribe",
+      "params": {"cursor": "invalid-cursor-xyz"}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32002},
+    "error_condition": "invalid_cursor",
+    "test_tags": ["primary-care", "unit", "edge", "resubscribe", "invalid-cursor"]
+  }
+]

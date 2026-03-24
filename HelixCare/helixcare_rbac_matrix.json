@@ -1,7 +1,7 @@
 [
   {
     "use_case_id": "RBAC-POS-001",
-    "scenario_title": "Triage Nurse (P004) can assess a patient — full clinical scope chain",
+    "scenario_title": "Triage Nurse (P004) can assess a patient \u2014 full clinical scope chain",
     "poc_demo": "helixcare",
     "scenario_type": "positive",
     "agent": "triage-agent",
@@ -14,16 +14,30 @@
         "patient_id": "PAT-001"
       }
     },
-    "test_tags": ["rbac", "positive", "triage", "clinical"],
-    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-010"],
+    "test_tags": [
+      "rbac",
+      "positive",
+      "triage",
+      "clinical"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-001",
+      "NEXUS-RBAC-010",
+      "FR-2",
+      "FR-12",
+      "IR-1"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
       "json_path_checks": [
-        {"path": "result.status", "value": "ok"}
+        {
+          "path": "result.status",
+          "value": "ok"
+        }
       ]
     },
-    "notes": "Triage Nurse has patient.read + encounter.write delegated scopes — should be allowed."
+    "notes": "Triage Nurse has patient.read + encounter.write delegated scopes \u2014 should be allowed."
   },
   {
     "use_case_id": "RBAC-POS-002",
@@ -40,13 +54,27 @@
         "patient_id": "PAT-002"
       }
     },
-    "test_tags": ["rbac", "positive", "diagnosis", "clinical"],
-    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-011"],
+    "test_tags": [
+      "rbac",
+      "positive",
+      "diagnosis",
+      "clinical"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-001",
+      "NEXUS-RBAC-011",
+      "FR-2",
+      "FR-12",
+      "IR-1"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
       "json_path_checks": [
-        {"path": "result.status", "value": "ok"}
+        {
+          "path": "result.status",
+          "value": "ok"
+        }
       ]
     },
     "notes": "Consultant Physician has full clinical scopes including observation.write."
@@ -67,8 +95,18 @@
         "referral_note": "Rule out PE"
       }
     },
-    "test_tags": ["rbac", "positive", "imaging"],
-    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-012"],
+    "test_tags": [
+      "rbac",
+      "positive",
+      "imaging"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-001",
+      "NEXUS-RBAC-012",
+      "FR-4",
+      "FR-12",
+      "IR-1"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
@@ -92,8 +130,18 @@
         "dose_mg": 75
       }
     },
-    "test_tags": ["rbac", "positive", "pharmacy"],
-    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-013"],
+    "test_tags": [
+      "rbac",
+      "positive",
+      "pharmacy"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-001",
+      "NEXUS-RBAC-013",
+      "FR-6",
+      "FR-12",
+      "IR-1"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
@@ -116,8 +164,18 @@
         "patient_id": "PAT-005"
       }
     },
-    "test_tags": ["rbac", "positive", "operations"],
-    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-014"],
+    "test_tags": [
+      "rbac",
+      "positive",
+      "operations"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-001",
+      "NEXUS-RBAC-014",
+      "FR-2",
+      "FR-12",
+      "IR-1"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
@@ -127,7 +185,7 @@
   },
   {
     "use_case_id": "RBAC-POS-006",
-    "scenario_title": "Privacy Officer (P013) — auditor — can query consent-analyser",
+    "scenario_title": "Privacy Officer (P013) \u2014 auditor \u2014 can query consent-analyser",
     "poc_demo": "helixcare",
     "scenario_type": "positive",
     "agent": "consent-analyser",
@@ -140,8 +198,20 @@
         "consent_type": "data_sharing"
       }
     },
-    "test_tags": ["rbac", "positive", "governance", "consent"],
-    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-020"],
+    "test_tags": [
+      "rbac",
+      "positive",
+      "governance",
+      "consent"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-001",
+      "NEXUS-RBAC-020",
+      "FR-3",
+      "FR-12",
+      "CR-3",
+      "IR-1"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
@@ -151,7 +221,7 @@
   },
   {
     "use_case_id": "RBAC-POS-007",
-    "scenario_title": "Integration Engine Operator (P056) — connector — can invoke openhie mediator",
+    "scenario_title": "Integration Engine Operator (P056) \u2014 connector \u2014 can invoke openhie mediator",
     "poc_demo": "helixcare",
     "scenario_type": "positive",
     "agent": "openhie-mediator",
@@ -164,8 +234,18 @@
         "patient_id": "PAT-007"
       }
     },
-    "test_tags": ["rbac", "positive", "connector"],
-    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-030"],
+    "test_tags": [
+      "rbac",
+      "positive",
+      "connector"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-001",
+      "NEXUS-RBAC-030",
+      "FR-12",
+      "IR-1",
+      "IR-2"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
@@ -175,7 +255,7 @@
   },
   {
     "use_case_id": "RBAC-POS-008",
-    "scenario_title": "CMO (P058) — surveillance — can invoke hospital-reporter",
+    "scenario_title": "CMO (P058) \u2014 surveillance \u2014 can invoke hospital-reporter",
     "poc_demo": "helixcare",
     "scenario_type": "positive",
     "agent": "hospital-reporter",
@@ -189,8 +269,18 @@
         "disease": "influenza"
       }
     },
-    "test_tags": ["rbac", "positive", "surveillance"],
-    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-040"],
+    "test_tags": [
+      "rbac",
+      "positive",
+      "surveillance"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-001",
+      "NEXUS-RBAC-040",
+      "FR-9",
+      "FR-12",
+      "CR-4"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
@@ -213,8 +303,19 @@
         "patient_id": "PAT-009"
       }
     },
-    "test_tags": ["rbac", "positive", "avatar", "clinical"],
-    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-050"],
+    "test_tags": [
+      "rbac",
+      "positive",
+      "avatar",
+      "clinical"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-001",
+      "NEXUS-RBAC-050",
+      "FR-2",
+      "FR-8",
+      "FR-12"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
@@ -238,8 +339,18 @@
         "content": "Patient progressing well post-surgery."
       }
     },
-    "test_tags": ["rbac", "positive", "ehr"],
-    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-060"],
+    "test_tags": [
+      "rbac",
+      "positive",
+      "ehr"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-001",
+      "NEXUS-RBAC-060",
+      "FR-10",
+      "FR-12",
+      "IR-1"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
@@ -249,7 +360,7 @@
   },
   {
     "use_case_id": "RBAC-POS-011",
-    "scenario_title": "Billing Specialist (P022) — payer — can invoke insurer agent",
+    "scenario_title": "Billing Specialist (P022) \u2014 payer \u2014 can invoke insurer agent",
     "poc_demo": "helixcare",
     "scenario_type": "positive",
     "agent": "insurer-agent",
@@ -260,11 +371,23 @@
       "task": {
         "claim_id": "CLM-9001",
         "patient_id": "PAT-011",
-        "icd_codes": ["I25.10"]
+        "icd_codes": [
+          "I25.10"
+        ]
       }
     },
-    "test_tags": ["rbac", "positive", "billing"],
-    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-070"],
+    "test_tags": [
+      "rbac",
+      "positive",
+      "billing"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-001",
+      "NEXUS-RBAC-070",
+      "FR-3",
+      "FR-12",
+      "CR-3"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
@@ -281,17 +404,30 @@
     "agent_url_key": "discharge-agent",
     "persona_id": null,
     "method": "tasks/get",
-    "params": {"task_id": "T-DOESNOTEXIST"},
-    "test_tags": ["rbac", "positive", "bare-jwt"],
-    "requirement_ids": ["NEXUS-RBAC-002"],
+    "params": {
+      "task_id": "T-DOESNOTEXIST"
+    },
+    "test_tags": [
+      "rbac",
+      "positive",
+      "bare-jwt"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-002",
+      "FR-2",
+      "NFR-2"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
       "json_path_checks": [
-        {"path": "result.state", "value": "unknown"}
+        {
+          "path": "result.state",
+          "value": "unknown"
+        }
       ]
     },
-    "notes": "tasks/get only requires nexus:invoke — bare JWT without persona claims is sufficient."
+    "notes": "tasks/get only requires nexus:invoke \u2014 bare JWT without persona claims is sufficient."
   },
   {
     "use_case_id": "RBAC-POS-013",
@@ -309,8 +445,18 @@
         "chief_complaint": "hypertension follow-up"
       }
     },
-    "test_tags": ["rbac", "positive", "telehealth"],
-    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-051"],
+    "test_tags": [
+      "rbac",
+      "positive",
+      "telehealth"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-001",
+      "NEXUS-RBAC-051",
+      "FR-8",
+      "FR-12",
+      "IR-1"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
@@ -333,14 +479,25 @@
         "patient_id": "PAT-014"
       }
     },
-    "test_tags": ["rbac", "positive", "kenya", "triage"],
-    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-100"],
+    "test_tags": [
+      "rbac",
+      "positive",
+      "kenya",
+      "triage"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-001",
+      "NEXUS-RBAC-100",
+      "FR-2",
+      "FR-12",
+      "NFR-10"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
       "json_path_checks": []
     },
-    "notes": "Kenya Medical Officer has full clinical scopes — compatible with triage."
+    "notes": "Kenya Medical Officer has full clinical scopes \u2014 compatible with triage."
   },
   {
     "use_case_id": "RBAC-POS-015",
@@ -357,8 +514,18 @@
         "patient_id": "PAT-015"
       }
     },
-    "test_tags": ["rbac", "positive", "care-coordination"],
-    "requirement_ids": ["NEXUS-RBAC-001", "NEXUS-RBAC-052"],
+    "test_tags": [
+      "rbac",
+      "positive",
+      "care-coordination"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-001",
+      "NEXUS-RBAC-052",
+      "FR-7",
+      "FR-12",
+      "IR-1"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
@@ -375,10 +542,22 @@
     "agent_url_key": "triage-agent",
     "persona_id": null,
     "method": "tasks/sendSubscribe",
-    "params": {"task": {"patient_id": "PAT-100"}},
+    "params": {
+      "task": {
+        "patient_id": "PAT-100"
+      }
+    },
     "auth_mode": "jwt_missing",
-    "test_tags": ["rbac", "negative", "auth"],
-    "requirement_ids": ["NEXUS-RBAC-AUTH-001"],
+    "test_tags": [
+      "rbac",
+      "negative",
+      "auth"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-AUTH-001",
+      "SEC-1",
+      "NFR-2"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 401,
@@ -395,10 +574,22 @@
     "agent_url_key": "diagnosis-agent",
     "persona_id": null,
     "method": "tasks/sendSubscribe",
-    "params": {"task": {"patient_id": "PAT-101"}},
+    "params": {
+      "task": {
+        "patient_id": "PAT-101"
+      }
+    },
     "auth_mode": "jwt_expired",
-    "test_tags": ["rbac", "negative", "auth"],
-    "requirement_ids": ["NEXUS-RBAC-AUTH-002"],
+    "test_tags": [
+      "rbac",
+      "negative",
+      "auth"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-AUTH-002",
+      "SEC-1",
+      "NFR-2"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 401,
@@ -415,10 +606,22 @@
     "agent_url_key": "imaging-agent",
     "persona_id": null,
     "method": "tasks/sendSubscribe",
-    "params": {"task": {"patient_id": "PAT-102"}},
+    "params": {
+      "task": {
+        "patient_id": "PAT-102"
+      }
+    },
     "auth_mode": "jwt_invalid",
-    "test_tags": ["rbac", "negative", "auth"],
-    "requirement_ids": ["NEXUS-RBAC-AUTH-003"],
+    "test_tags": [
+      "rbac",
+      "negative",
+      "auth"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-AUTH-003",
+      "SEC-1",
+      "NFR-2"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 401,
@@ -435,10 +638,22 @@
     "agent_url_key": "pharmacy-agent",
     "persona_id": null,
     "method": "tasks/sendSubscribe",
-    "params": {"task": {"patient_id": "PAT-103"}},
+    "params": {
+      "task": {
+        "patient_id": "PAT-103"
+      }
+    },
     "auth_mode": "jwt_missing_scope",
-    "test_tags": ["rbac", "negative", "scope"],
-    "requirement_ids": ["NEXUS-RBAC-AUTH-004"],
+    "test_tags": [
+      "rbac",
+      "negative",
+      "scope"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-AUTH-004",
+      "SEC-1",
+      "FR-12"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 401,
@@ -455,10 +670,22 @@
     "agent_url_key": "bed-manager-agent",
     "persona_id": null,
     "method": "tasks/sendSubscribe",
-    "params": {"task": {"patient_id": "PAT-104"}},
+    "params": {
+      "task": {
+        "patient_id": "PAT-104"
+      }
+    },
     "auth_mode": "jwt_invalid",
-    "test_tags": ["rbac", "negative", "auth"],
-    "requirement_ids": ["NEXUS-RBAC-AUTH-005"],
+    "test_tags": [
+      "rbac",
+      "negative",
+      "auth"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-AUTH-005",
+      "SEC-1",
+      "NFR-2"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 401,
@@ -483,17 +710,29 @@
       }
     },
     "auth_mode": "persona_scope_mismatch",
-    "test_tags": ["rbac", "negative", "scope", "auditor"],
-    "requirement_ids": ["NEXUS-RBAC-SCOPE-001"],
+    "test_tags": [
+      "rbac",
+      "negative",
+      "scope",
+      "auditor"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-SCOPE-001",
+      "FR-12",
+      "CR-5",
+      "SPR-1"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
       "rbac_check": {
         "allowed": false,
-        "missing_scopes": ["medicationrequest.write"]
+        "missing_scopes": [
+          "medicationrequest.write"
+        ]
       }
     },
-    "notes": "Caldicott Guardian / Privacy Officer has only consent.read + audit.read — cannot write prescriptions."
+    "notes": "Caldicott Guardian / Privacy Officer has only consent.read + audit.read \u2014 cannot write prescriptions."
   },
   {
     "use_case_id": "RBAC-NEG-007",
@@ -511,21 +750,33 @@
       }
     },
     "auth_mode": "persona_scope_mismatch",
-    "test_tags": ["rbac", "negative", "scope", "patient-service"],
-    "requirement_ids": ["NEXUS-RBAC-SCOPE-002"],
+    "test_tags": [
+      "rbac",
+      "negative",
+      "scope",
+      "patient-service"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-SCOPE-002",
+      "FR-12",
+      "CR-5"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
       "rbac_check": {
         "allowed": false,
-        "missing_scopes": ["observation.read", "encounter.write"]
+        "missing_scopes": [
+          "observation.read",
+          "encounter.write"
+        ]
       }
     },
-    "notes": "Receptionist (P011) has only patient.read + appointment.read — cannot perform diagnosis."
+    "notes": "Receptionist (P011) has only patient.read + appointment.read \u2014 cannot perform diagnosis."
   },
   {
     "use_case_id": "RBAC-NEG-008",
-    "scenario_title": "OSINT agent receives request with only patient_service scopes — denied",
+    "scenario_title": "OSINT agent receives request with only patient_service scopes \u2014 denied",
     "poc_demo": "helixcare",
     "scenario_type": "negative",
     "agent": "osint-agent",
@@ -539,17 +790,28 @@
       }
     },
     "auth_mode": "persona_scope_mismatch",
-    "test_tags": ["rbac", "negative", "scope", "surveillance"],
-    "requirement_ids": ["NEXUS-RBAC-SCOPE-003"],
+    "test_tags": [
+      "rbac",
+      "negative",
+      "scope",
+      "surveillance"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-SCOPE-003",
+      "FR-12",
+      "FR-9"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
       "rbac_check": {
         "allowed": false,
-        "missing_scopes": ["system/*.read"]
+        "missing_scopes": [
+          "system/*.read"
+        ]
       }
     },
-    "notes": "OSINT requires system/*.read — patient_service persona cannot satisfy this."
+    "notes": "OSINT requires system/*.read \u2014 patient_service persona cannot satisfy this."
   },
   {
     "use_case_id": "RBAC-NEG-009",
@@ -560,10 +822,25 @@
     "agent_url_key": "consent-analyser",
     "persona_id": null,
     "method": "tasks/sendSubscribe",
-    "params": {"task": {"patient_id": "PAT-108", "consent_type": "research"}},
+    "params": {
+      "task": {
+        "patient_id": "PAT-108",
+        "consent_type": "research"
+      }
+    },
     "auth_mode": "jwt_missing",
-    "test_tags": ["rbac", "negative", "auth", "governance"],
-    "requirement_ids": ["NEXUS-RBAC-AUTH-006"],
+    "test_tags": [
+      "rbac",
+      "negative",
+      "auth",
+      "governance"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-AUTH-006",
+      "SEC-1",
+      "NFR-2",
+      "CR-3"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 401,
@@ -580,10 +857,24 @@
     "agent_url_key": "central-surveillance",
     "persona_id": null,
     "method": "tasks/sendSubscribe",
-    "params": {"task": {"report_id": "R-999"}},
+    "params": {
+      "task": {
+        "report_id": "R-999"
+      }
+    },
     "auth_mode": "jwt_missing",
-    "test_tags": ["rbac", "negative", "auth", "surveillance"],
-    "requirement_ids": ["NEXUS-RBAC-AUTH-007"],
+    "test_tags": [
+      "rbac",
+      "negative",
+      "auth",
+      "surveillance"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-AUTH-007",
+      "SEC-1",
+      "NFR-2",
+      "FR-9"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 401,
@@ -607,14 +898,23 @@
       }
     },
     "auth_mode": "bare_nexus_invoke",
-    "test_tags": ["rbac", "edge", "fallback"],
-    "requirement_ids": ["NEXUS-RBAC-FALLBACK-001"],
+    "test_tags": [
+      "rbac",
+      "edge",
+      "fallback"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-FALLBACK-001",
+      "FR-12",
+      "NFR-2",
+      "IR-1"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
       "json_path_checks": []
     },
-    "notes": "Bare nexus:invoke JWT — agent_registry fallback applies triage delegated_scopes."
+    "notes": "Bare nexus:invoke JWT \u2014 agent_registry fallback applies triage delegated_scopes."
   },
   {
     "use_case_id": "RBAC-EDGE-002",
@@ -631,8 +931,17 @@
         "patient_id": "PAT-201"
       }
     },
-    "test_tags": ["rbac", "edge", "safeguarding"],
-    "requirement_ids": ["NEXUS-RBAC-EDGE-001"],
+    "test_tags": [
+      "rbac",
+      "edge",
+      "safeguarding"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-EDGE-001",
+      "FR-2",
+      "NFR-10",
+      "FR-12"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
@@ -642,22 +951,33 @@
   },
   {
     "use_case_id": "RBAC-EDGE-003",
-    "scenario_title": "Kenya Community Health Promoter (P036) has reduced scopes — accepted for triage tasks/get",
+    "scenario_title": "Kenya Community Health Promoter (P036) has reduced scopes \u2014 accepted for triage tasks/get",
     "poc_demo": "helixcare",
     "scenario_type": "edge",
     "agent": "triage-agent",
     "agent_url_key": "triage-agent",
     "persona_id": "P036",
     "method": "tasks/get",
-    "params": {"task_id": "T-HEALTHCHECK"},
-    "test_tags": ["rbac", "edge", "kenya", "community-health"],
-    "requirement_ids": ["NEXUS-RBAC-EDGE-002"],
+    "params": {
+      "task_id": "T-HEALTHCHECK"
+    },
+    "test_tags": [
+      "rbac",
+      "edge",
+      "kenya",
+      "community-health"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-EDGE-002",
+      "FR-2",
+      "NFR-10"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
       "json_path_checks": []
     },
-    "notes": "tasks/get only needs nexus:invoke — CHW persona is sufficient."
+    "notes": "tasks/get only needs nexus:invoke \u2014 CHW persona is sufficient."
   },
   {
     "use_case_id": "RBAC-EDGE-004",
@@ -674,14 +994,24 @@
         "region": "Nairobi"
       }
     },
-    "test_tags": ["rbac", "edge", "connector", "surveillance"],
-    "requirement_ids": ["NEXUS-RBAC-EDGE-003"],
+    "test_tags": [
+      "rbac",
+      "edge",
+      "connector",
+      "surveillance"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-EDGE-003",
+      "FR-9",
+      "FR-12",
+      "IR-1"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
       "json_path_checks": []
     },
-    "notes": "Integration Engine Operator (P056) has system/*.read — covers OSINT requirement."
+    "notes": "Integration Engine Operator (P056) has system/*.read \u2014 covers OSINT requirement."
   },
   {
     "use_case_id": "RBAC-EDGE-005",
@@ -694,13 +1024,24 @@
     "method": "health_check",
     "params": {},
     "auth_mode": "none",
-    "test_tags": ["rbac", "edge", "health"],
-    "requirement_ids": ["NEXUS-RBAC-HEALTH-001"],
+    "test_tags": [
+      "rbac",
+      "edge",
+      "health"
+    ],
+    "requirement_ids": [
+      "NEXUS-RBAC-HEALTH-001",
+      "FR-1",
+      "NFR-7"
+    ],
     "expected_result": {
       "status": "pass",
       "http_status": 200,
       "json_path_checks": [
-        {"path": "status", "value": "healthy"}
+        {
+          "path": "status",
+          "value": "healthy"
+        }
       ]
     },
     "notes": "/health endpoint must be unauthenticated for monitoring systems."

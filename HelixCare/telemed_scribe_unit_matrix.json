@@ -5,16 +5,30 @@
     "scenario_title": "Transcriber accepts telehealth consultation and returns task cursor",
     "scenario_type": "positive",
     "agent": "transcriber-agent",
-    "requirement_ids": ["FR-30"],
+    "requirement_ids": [
+      "FR-30",
+      "FR-8",
+      "FR-11"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0001",
       "method": "tasks/sendSubscribe",
       "params": {
         "task": {
-          "patient": {"patient_id": "TP001", "name": "Sarah Mitchell", "age": 44, "gender": "female"},
+          "patient": {
+            "patient_id": "TP001",
+            "name": "Sarah Mitchell",
+            "age": 44,
+            "gender": "female"
+          },
           "chief_complaint": "follow-up for type 2 diabetes management",
-          "vitals": {"bp_systolic": 138, "bp_diastolic": 86, "heart_rate": 74, "spo2": 98}
+          "vitals": {
+            "bp_systolic": 138,
+            "bp_diastolic": 86,
+            "heart_rate": 74,
+            "spo2": 98
+          }
         }
       }
     },
@@ -22,10 +36,20 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["task_id", "trace_id", "resume_cursor"]
+      "contains": [
+        "task_id",
+        "trace_id",
+        "resume_cursor"
+      ]
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "transcriber", "unit", "positive", "subscribe"]
+    "test_tags": [
+      "telemed-scribe",
+      "transcriber",
+      "unit",
+      "positive",
+      "subscribe"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0002",
@@ -33,16 +57,31 @@
     "scenario_title": "Transcriber enriches response with patient_id from task",
     "scenario_type": "positive",
     "agent": "transcriber-agent",
-    "requirement_ids": ["FR-30"],
+    "requirement_ids": [
+      "FR-30",
+      "FR-8",
+      "FR-10"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0002",
       "method": "tasks/sendSubscribe",
       "params": {
         "task": {
-          "patient": {"patient_id": "TP002"},
+          "patient": {
+            "patient_id": "TP002"
+          },
           "chief_complaint": "chest tightness on exertion",
-          "medical_history": {"conditions": ["hypertension", "dyslipidaemia"], "medications": ["amlodipine", "atorvastatin"]}
+          "medical_history": {
+            "conditions": [
+              "hypertension",
+              "dyslipidaemia"
+            ],
+            "medications": [
+              "amlodipine",
+              "atorvastatin"
+            ]
+          }
         }
       }
     },
@@ -50,11 +89,22 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["task_id", "trace_id", "resume_cursor", "patient_id"],
+      "contains": [
+        "task_id",
+        "trace_id",
+        "resume_cursor",
+        "patient_id"
+      ],
       "patient_id": "TP002"
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "transcriber", "unit", "positive", "patient-id"]
+    "test_tags": [
+      "telemed-scribe",
+      "transcriber",
+      "unit",
+      "positive",
+      "patient-id"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0003",
@@ -62,14 +112,19 @@
     "scenario_title": "Transcriber tasks/send alias behaves like tasks/sendSubscribe",
     "scenario_type": "positive",
     "agent": "transcriber-agent",
-    "requirement_ids": ["FR-30"],
+    "requirement_ids": [
+      "FR-30",
+      "FR-8"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0003",
       "method": "tasks/send",
       "params": {
         "task": {
-          "patient": {"patient_id": "TP003"},
+          "patient": {
+            "patient_id": "TP003"
+          },
           "chief_complaint": "routine medication review"
         }
       }
@@ -78,10 +133,19 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["task_id", "trace_id"]
+      "contains": [
+        "task_id",
+        "trace_id"
+      ]
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "transcriber", "unit", "positive", "method-alias"]
+    "test_tags": [
+      "telemed-scribe",
+      "transcriber",
+      "unit",
+      "positive",
+      "method-alias"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0004",
@@ -89,21 +153,36 @@
     "scenario_title": "Transcriber tasks/get with valid task_id returns state",
     "scenario_type": "positive",
     "agent": "transcriber-agent",
-    "requirement_ids": ["FR-31"],
+    "requirement_ids": [
+      "FR-31",
+      "FR-8",
+      "FR-2"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0004",
       "method": "tasks/get",
-      "params": {"task_id": "some-task-id"}
+      "params": {
+        "task_id": "some-task-id"
+      }
     },
     "auth_mode": "jwt_hs256",
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["task_id", "state"]
+      "contains": [
+        "task_id",
+        "state"
+      ]
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "transcriber", "unit", "positive", "task-get"]
+    "test_tags": [
+      "telemed-scribe",
+      "transcriber",
+      "unit",
+      "positive",
+      "task-get"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0005",
@@ -111,18 +190,38 @@
     "scenario_title": "Transcriber no auth header returns 401",
     "scenario_type": "negative",
     "agent": "transcriber-agent",
-    "requirement_ids": ["SEC-1"],
+    "requirement_ids": [
+      "SEC-1",
+      "NFR-2"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0005",
       "method": "tasks/sendSubscribe",
-      "params": {"task": {"patient": {"patient_id": "TP005"}, "chief_complaint": "cough"}}
+      "params": {
+        "task": {
+          "patient": {
+            "patient_id": "TP005"
+          },
+          "chief_complaint": "cough"
+        }
+      }
     },
     "auth_mode": "jwt_missing",
     "expected_http_status": 401,
-    "expected_result": {"ok": false, "error": "AUTH_FAILED"},
+    "expected_result": {
+      "ok": false,
+      "error": "AUTH_FAILED"
+    },
     "error_condition": "missing_bearer_token",
-    "test_tags": ["telemed-scribe", "transcriber", "unit", "negative", "auth", "401"]
+    "test_tags": [
+      "telemed-scribe",
+      "transcriber",
+      "unit",
+      "negative",
+      "auth",
+      "401"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0006",
@@ -130,18 +229,38 @@
     "scenario_title": "Transcriber wrong JWT secret returns 401",
     "scenario_type": "negative",
     "agent": "transcriber-agent",
-    "requirement_ids": ["SEC-1"],
+    "requirement_ids": [
+      "SEC-1",
+      "NFR-2"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0006",
       "method": "tasks/sendSubscribe",
-      "params": {"task": {"patient": {"patient_id": "TP006"}, "chief_complaint": "fever"}}
+      "params": {
+        "task": {
+          "patient": {
+            "patient_id": "TP006"
+          },
+          "chief_complaint": "fever"
+        }
+      }
     },
     "auth_mode": "jwt_invalid",
     "expected_http_status": 401,
-    "expected_result": {"ok": false, "error": "AUTH_FAILED"},
+    "expected_result": {
+      "ok": false,
+      "error": "AUTH_FAILED"
+    },
     "error_condition": "invalid_jwt_signature",
-    "test_tags": ["telemed-scribe", "transcriber", "unit", "negative", "auth", "401"]
+    "test_tags": [
+      "telemed-scribe",
+      "transcriber",
+      "unit",
+      "negative",
+      "auth",
+      "401"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0007",
@@ -149,18 +268,38 @@
     "scenario_title": "Transcriber expired JWT returns 401",
     "scenario_type": "negative",
     "agent": "transcriber-agent",
-    "requirement_ids": ["SEC-1"],
+    "requirement_ids": [
+      "SEC-1",
+      "NFR-2"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0007",
       "method": "tasks/sendSubscribe",
-      "params": {"task": {"patient": {"patient_id": "TP007"}, "chief_complaint": "headache"}}
+      "params": {
+        "task": {
+          "patient": {
+            "patient_id": "TP007"
+          },
+          "chief_complaint": "headache"
+        }
+      }
     },
     "auth_mode": "jwt_expired",
     "expected_http_status": 401,
-    "expected_result": {"ok": false, "error": "AUTH_FAILED"},
+    "expected_result": {
+      "ok": false,
+      "error": "AUTH_FAILED"
+    },
     "error_condition": "expired_jwt",
-    "test_tags": ["telemed-scribe", "transcriber", "unit", "negative", "auth", "401"]
+    "test_tags": [
+      "telemed-scribe",
+      "transcriber",
+      "unit",
+      "negative",
+      "auth",
+      "401"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0008",
@@ -168,7 +307,11 @@
     "scenario_title": "Transcriber tasks/get missing task_id returns -32602",
     "scenario_type": "negative",
     "agent": "transcriber-agent",
-    "requirement_ids": ["FR-31"],
+    "requirement_ids": [
+      "FR-31",
+      "FR-8",
+      "FR-2"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0008",
@@ -177,32 +320,54 @@
     },
     "auth_mode": "jwt_hs256",
     "expected_http_status": 200,
-    "expected_result": {"ok": false, "error_code": -32602},
+    "expected_result": {
+      "ok": false,
+      "error_code": -32602
+    },
     "error_condition": "missing_task_id",
-    "test_tags": ["telemed-scribe", "transcriber", "unit", "negative", "rpc-error"]
+    "test_tags": [
+      "telemed-scribe",
+      "transcriber",
+      "unit",
+      "negative",
+      "rpc-error"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0009",
     "poc_demo": "telemed-scribe-unit",
-    "scenario_title": "Transcriber empty task dict — patient_id defaults to unknown",
+    "scenario_title": "Transcriber empty task dict \u2014 patient_id defaults to unknown",
     "scenario_type": "edge",
     "agent": "transcriber-agent",
-    "requirement_ids": ["FR-30"],
+    "requirement_ids": [
+      "FR-30",
+      "FR-8"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0009",
       "method": "tasks/sendSubscribe",
-      "params": {"task": {}}
+      "params": {
+        "task": {}
+      }
     },
     "auth_mode": "jwt_hs256",
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["task_id"],
+      "contains": [
+        "task_id"
+      ],
       "patient_id": "unknown"
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "transcriber", "unit", "edge", "empty-task"]
+    "test_tags": [
+      "telemed-scribe",
+      "transcriber",
+      "unit",
+      "edge",
+      "empty-task"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0010",
@@ -210,22 +375,36 @@
     "scenario_title": "Transcriber tasks/cancel returns not-supported gracefully",
     "scenario_type": "edge",
     "agent": "transcriber-agent",
-    "requirement_ids": ["FR-32"],
+    "requirement_ids": [
+      "FR-32",
+      "FR-8"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0010",
       "method": "tasks/cancel",
-      "params": {"task_id": "some-task-id"}
+      "params": {
+        "task_id": "some-task-id"
+      }
     },
     "auth_mode": "jwt_hs256",
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["task_id", "cancelled"],
+      "contains": [
+        "task_id",
+        "cancelled"
+      ],
       "cancelled": false
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "transcriber", "unit", "edge", "cancel"]
+    "test_tags": [
+      "telemed-scribe",
+      "transcriber",
+      "unit",
+      "edge",
+      "cancel"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0011",
@@ -233,14 +412,24 @@
     "scenario_title": "Summariser note/summarise returns note_markdown from clinical transcript",
     "scenario_type": "positive",
     "agent": "summariser-agent",
-    "requirement_ids": ["FR-33"],
+    "requirement_ids": [
+      "FR-33",
+      "FR-8",
+      "FR-10",
+      "CR-2"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0011",
       "method": "note/summarise",
       "params": {
         "task": {
-          "patient": {"patient_id": "TP011", "name": "Ahmed Hassan", "age": 52, "gender": "male"},
+          "patient": {
+            "patient_id": "TP011",
+            "name": "Ahmed Hassan",
+            "age": 52,
+            "gender": "male"
+          },
           "transcript": "Patient presents with a three-week history of productive cough with yellow sputum, low-grade fever, and general malaise. No haemoptysis. Examination reveals reduced breath sounds at the right base with dullness to percussion. Oxygen saturation 95% on room air.",
           "chief_complaint": "productive cough and fever"
         }
@@ -250,11 +439,20 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["note_markdown"],
+      "contains": [
+        "note_markdown"
+      ],
       "note_markdown_is_non_empty": true
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "summariser", "unit", "positive", "note-summarise", "soap"]
+    "test_tags": [
+      "telemed-scribe",
+      "summariser",
+      "unit",
+      "positive",
+      "note-summarise",
+      "soap"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0012",
@@ -262,14 +460,20 @@
     "scenario_title": "Summariser returns patient_id and status in response",
     "scenario_type": "positive",
     "agent": "summariser-agent",
-    "requirement_ids": ["FR-33"],
+    "requirement_ids": [
+      "FR-33",
+      "FR-8",
+      "FR-10"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0012",
       "method": "note/summarise",
       "params": {
         "task": {
-          "patient": {"patient_id": "TP012"},
+          "patient": {
+            "patient_id": "TP012"
+          },
           "transcript": "Short encounter. Patient feels well, no new concerns.",
           "chief_complaint": "routine check-up"
         }
@@ -279,11 +483,21 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["note_markdown", "patient_id", "status"],
+      "contains": [
+        "note_markdown",
+        "patient_id",
+        "status"
+      ],
       "patient_id": "TP012"
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "summariser", "unit", "positive", "note-summarise"]
+    "test_tags": [
+      "telemed-scribe",
+      "summariser",
+      "unit",
+      "positive",
+      "note-summarise"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0013",
@@ -291,14 +505,20 @@
     "scenario_title": "Summariser tasks/sendSubscribe also works for async invocation",
     "scenario_type": "positive",
     "agent": "summariser-agent",
-    "requirement_ids": ["FR-33"],
+    "requirement_ids": [
+      "FR-33",
+      "FR-8",
+      "FR-11"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0013",
       "method": "tasks/sendSubscribe",
       "params": {
         "task": {
-          "patient": {"patient_id": "TP013"},
+          "patient": {
+            "patient_id": "TP013"
+          },
           "transcript": "Patient complains of knee pain after exercise.",
           "chief_complaint": "knee pain"
         }
@@ -308,10 +528,20 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["task_id", "trace_id", "resume_cursor"]
+      "contains": [
+        "task_id",
+        "trace_id",
+        "resume_cursor"
+      ]
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "summariser", "unit", "positive", "subscribe"]
+    "test_tags": [
+      "telemed-scribe",
+      "summariser",
+      "unit",
+      "positive",
+      "subscribe"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0014",
@@ -319,19 +549,37 @@
     "scenario_title": "Summariser with rich clinical context including medical history",
     "scenario_type": "positive",
     "agent": "summariser-agent",
-    "requirement_ids": ["FR-33"],
+    "requirement_ids": [
+      "FR-33",
+      "FR-8",
+      "FR-10",
+      "CR-2"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0014",
       "method": "note/summarise",
       "params": {
         "task": {
-          "patient": {"patient_id": "TP014", "name": "Grace Adeyemi", "age": 67, "gender": "female"},
+          "patient": {
+            "patient_id": "TP014",
+            "name": "Grace Adeyemi",
+            "age": 67,
+            "gender": "female"
+          },
           "transcript": "Reviewed blood pressure log. Consistently above 145/90 despite amlodipine 10mg. Adding losartan 50mg. Follow-up in 4 weeks.",
           "chief_complaint": "hypertension review",
           "medical_history": {
-            "conditions": ["hypertension", "type_2_diabetes", "chronic_kidney_disease"],
-            "medications": ["amlodipine", "metformin", "furosemide"]
+            "conditions": [
+              "hypertension",
+              "type_2_diabetes",
+              "chronic_kidney_disease"
+            ],
+            "medications": [
+              "amlodipine",
+              "metformin",
+              "furosemide"
+            ]
           }
         }
       }
@@ -340,11 +588,19 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["note_markdown"],
+      "contains": [
+        "note_markdown"
+      ],
       "note_markdown_is_non_empty": true
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "summariser", "unit", "positive", "complex-history"]
+    "test_tags": [
+      "telemed-scribe",
+      "summariser",
+      "unit",
+      "positive",
+      "complex-history"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0015",
@@ -352,18 +608,38 @@
     "scenario_title": "Summariser no auth header returns 401",
     "scenario_type": "negative",
     "agent": "summariser-agent",
-    "requirement_ids": ["SEC-1"],
+    "requirement_ids": [
+      "SEC-1",
+      "NFR-2"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0015",
       "method": "note/summarise",
-      "params": {"task": {"patient": {"patient_id": "TP015"}, "transcript": "..."}}
+      "params": {
+        "task": {
+          "patient": {
+            "patient_id": "TP015"
+          },
+          "transcript": "..."
+        }
+      }
     },
     "auth_mode": "jwt_missing",
     "expected_http_status": 401,
-    "expected_result": {"ok": false, "error": "AUTH_FAILED"},
+    "expected_result": {
+      "ok": false,
+      "error": "AUTH_FAILED"
+    },
     "error_condition": "missing_bearer_token",
-    "test_tags": ["telemed-scribe", "summariser", "unit", "negative", "auth", "401"]
+    "test_tags": [
+      "telemed-scribe",
+      "summariser",
+      "unit",
+      "negative",
+      "auth",
+      "401"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0016",
@@ -371,18 +647,38 @@
     "scenario_title": "Summariser wrong JWT secret returns 401",
     "scenario_type": "negative",
     "agent": "summariser-agent",
-    "requirement_ids": ["SEC-1"],
+    "requirement_ids": [
+      "SEC-1",
+      "NFR-2"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0016",
       "method": "note/summarise",
-      "params": {"task": {"patient": {"patient_id": "TP016"}, "transcript": "..."}}
+      "params": {
+        "task": {
+          "patient": {
+            "patient_id": "TP016"
+          },
+          "transcript": "..."
+        }
+      }
     },
     "auth_mode": "jwt_invalid",
     "expected_http_status": 401,
-    "expected_result": {"ok": false, "error": "AUTH_FAILED"},
+    "expected_result": {
+      "ok": false,
+      "error": "AUTH_FAILED"
+    },
     "error_condition": "invalid_jwt_signature",
-    "test_tags": ["telemed-scribe", "summariser", "unit", "negative", "auth", "401"]
+    "test_tags": [
+      "telemed-scribe",
+      "summariser",
+      "unit",
+      "negative",
+      "auth",
+      "401"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0017",
@@ -390,7 +686,10 @@
     "scenario_title": "Summariser unknown method returns -32601",
     "scenario_type": "negative",
     "agent": "summariser-agent",
-    "requirement_ids": ["FR-33"],
+    "requirement_ids": [
+      "FR-33",
+      "FR-8"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0017",
@@ -399,9 +698,18 @@
     },
     "auth_mode": "jwt_hs256",
     "expected_http_status": 200,
-    "expected_result": {"ok": false, "error_code": -32601},
+    "expected_result": {
+      "ok": false,
+      "error_code": -32601
+    },
     "error_condition": "method_not_found",
-    "test_tags": ["telemed-scribe", "summariser", "unit", "negative", "rpc-error"]
+    "test_tags": [
+      "telemed-scribe",
+      "summariser",
+      "unit",
+      "negative",
+      "rpc-error"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0018",
@@ -409,18 +717,32 @@
     "scenario_title": "Summariser tasks/resubscribe with invalid cursor returns -32002",
     "scenario_type": "negative",
     "agent": "summariser-agent",
-    "requirement_ids": ["FR-34"],
+    "requirement_ids": [
+      "FR-34",
+      "FR-8"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0018",
       "method": "tasks/resubscribe",
-      "params": {"cursor": "garbage-cursor-value"}
+      "params": {
+        "cursor": "garbage-cursor-value"
+      }
     },
     "auth_mode": "jwt_hs256",
     "expected_http_status": 200,
-    "expected_result": {"ok": false, "error_code": -32002},
+    "expected_result": {
+      "ok": false,
+      "error_code": -32002
+    },
     "error_condition": "invalid_cursor",
-    "test_tags": ["telemed-scribe", "summariser", "unit", "negative", "cursor"]
+    "test_tags": [
+      "telemed-scribe",
+      "summariser",
+      "unit",
+      "negative",
+      "cursor"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0019",
@@ -428,14 +750,19 @@
     "scenario_title": "Summariser handles empty transcript without error",
     "scenario_type": "edge",
     "agent": "summariser-agent",
-    "requirement_ids": ["FR-33"],
+    "requirement_ids": [
+      "FR-33",
+      "FR-8"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0019",
       "method": "note/summarise",
       "params": {
         "task": {
-          "patient": {"patient_id": "TP019"},
+          "patient": {
+            "patient_id": "TP019"
+          },
           "transcript": "",
           "chief_complaint": ""
         }
@@ -445,10 +772,18 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["note_markdown"]
+      "contains": [
+        "note_markdown"
+      ]
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "summariser", "unit", "edge", "empty-transcript"]
+    "test_tags": [
+      "telemed-scribe",
+      "summariser",
+      "unit",
+      "edge",
+      "empty-transcript"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0020",
@@ -456,15 +791,22 @@
     "scenario_title": "Summariser handles unicode in transcript without error",
     "scenario_type": "edge",
     "agent": "summariser-agent",
-    "requirement_ids": ["FR-33"],
+    "requirement_ids": [
+      "FR-33",
+      "FR-8",
+      "NFR-1"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0020",
       "method": "note/summarise",
       "params": {
         "task": {
-          "patient": {"patient_id": "TP020", "name": "Björn Ångström"},
-          "transcript": "Patienten klagar på bröstsmärta. Patient complaints about douleur thoracique. 胸の痛み。",
+          "patient": {
+            "patient_id": "TP020",
+            "name": "Bj\u00f6rn \u00c5ngstr\u00f6m"
+          },
+          "transcript": "Patienten klagar p\u00e5 br\u00f6stsm\u00e4rta. Patient complaints about douleur thoracique. \u80f8\u306e\u75db\u307f\u3002",
           "chief_complaint": "chest pain"
         }
       }
@@ -473,10 +815,19 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["note_markdown"]
+      "contains": [
+        "note_markdown"
+      ]
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "summariser", "unit", "edge", "unicode", "i18n"]
+    "test_tags": [
+      "telemed-scribe",
+      "summariser",
+      "unit",
+      "edge",
+      "unicode",
+      "i18n"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0021",
@@ -484,12 +835,17 @@
     "scenario_title": "Summariser tasks/cancel returns not-supported",
     "scenario_type": "edge",
     "agent": "summariser-agent",
-    "requirement_ids": ["FR-32"],
+    "requirement_ids": [
+      "FR-32",
+      "FR-8"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0021",
       "method": "tasks/cancel",
-      "params": {"task_id": "any-task-id"}
+      "params": {
+        "task_id": "any-task-id"
+      }
     },
     "auth_mode": "jwt_hs256",
     "expected_http_status": 200,
@@ -498,7 +854,13 @@
       "cancelled": false
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "summariser", "unit", "edge", "cancel"]
+    "test_tags": [
+      "telemed-scribe",
+      "summariser",
+      "unit",
+      "edge",
+      "cancel"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0022",
@@ -506,14 +868,21 @@
     "scenario_title": "EHR writer ehr/save persists note and returns saved:true",
     "scenario_type": "positive",
     "agent": "ehr-writer-agent",
-    "requirement_ids": ["FR-35"],
+    "requirement_ids": [
+      "FR-35",
+      "FR-10",
+      "CR-2",
+      "IR-1"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0022",
       "method": "ehr/save",
       "params": {
         "task": {
-          "patient": {"patient_id": "EP001"},
+          "patient": {
+            "patient_id": "EP001"
+          },
           "note": "# SOAP Note\n## Subjective\nPatient reports chest pain.\n## Objective\nBP 145/90, HR 95.",
           "note_type": "SOAP",
           "encounter_id": "ENC-001"
@@ -524,11 +893,20 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["saved", "task_id"],
+      "contains": [
+        "saved",
+        "task_id"
+      ],
       "saved": true
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "ehr-writer", "unit", "positive", "ehr-save"]
+    "test_tags": [
+      "telemed-scribe",
+      "ehr-writer",
+      "unit",
+      "positive",
+      "ehr-save"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0023",
@@ -536,14 +914,21 @@
     "scenario_title": "EHR writer ehr/save with structured note dict",
     "scenario_type": "positive",
     "agent": "ehr-writer-agent",
-    "requirement_ids": ["FR-35"],
+    "requirement_ids": [
+      "FR-35",
+      "FR-10",
+      "CR-2"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0023",
       "method": "ehr/save",
       "params": {
         "task": {
-          "patient": {"patient_id": "EP002", "name": "Miriam Osei"},
+          "patient": {
+            "patient_id": "EP002",
+            "name": "Miriam Osei"
+          },
           "note": {
             "subjective": "Patient reports worsening shortness of breath.",
             "objective": "SpO2 91%, reduced air entry bilaterally.",
@@ -558,11 +943,20 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["saved"],
+      "contains": [
+        "saved"
+      ],
       "saved": true
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "ehr-writer", "unit", "positive", "ehr-save", "structured-note"]
+    "test_tags": [
+      "telemed-scribe",
+      "ehr-writer",
+      "unit",
+      "positive",
+      "ehr-save",
+      "structured-note"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0024",
@@ -570,14 +964,19 @@
     "scenario_title": "EHR writer ehr/getLatestNote returns found:true with note_markdown",
     "scenario_type": "positive",
     "agent": "ehr-writer-agent",
-    "requirement_ids": ["FR-36"],
+    "requirement_ids": [
+      "FR-36",
+      "FR-10"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0024",
       "method": "ehr/getLatestNote",
       "params": {
         "task": {
-          "patient": {"patient_id": "EP001"}
+          "patient": {
+            "patient_id": "EP001"
+          }
         }
       }
     },
@@ -585,11 +984,21 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["found", "note_markdown", "created_at"],
+      "contains": [
+        "found",
+        "note_markdown",
+        "created_at"
+      ],
       "found": true
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "ehr-writer", "unit", "positive", "ehr-get"]
+    "test_tags": [
+      "telemed-scribe",
+      "ehr-writer",
+      "unit",
+      "positive",
+      "ehr-get"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0025",
@@ -597,21 +1006,36 @@
     "scenario_title": "EHR writer tasks/get with valid task_id returns state",
     "scenario_type": "positive",
     "agent": "ehr-writer-agent",
-    "requirement_ids": ["FR-31"],
+    "requirement_ids": [
+      "FR-31",
+      "FR-10",
+      "FR-2"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0025",
       "method": "tasks/get",
-      "params": {"task_id": "some-task-id"}
+      "params": {
+        "task_id": "some-task-id"
+      }
     },
     "auth_mode": "jwt_hs256",
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["task_id", "state"]
+      "contains": [
+        "task_id",
+        "state"
+      ]
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "ehr-writer", "unit", "positive", "task-get"]
+    "test_tags": [
+      "telemed-scribe",
+      "ehr-writer",
+      "unit",
+      "positive",
+      "task-get"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0026",
@@ -619,18 +1043,38 @@
     "scenario_title": "EHR writer no auth header returns 401",
     "scenario_type": "negative",
     "agent": "ehr-writer-agent",
-    "requirement_ids": ["SEC-1"],
+    "requirement_ids": [
+      "SEC-1",
+      "NFR-2"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0026",
       "method": "ehr/save",
-      "params": {"task": {"patient": {"patient_id": "EP026"}, "note": "test"}}
+      "params": {
+        "task": {
+          "patient": {
+            "patient_id": "EP026"
+          },
+          "note": "test"
+        }
+      }
     },
     "auth_mode": "jwt_missing",
     "expected_http_status": 401,
-    "expected_result": {"ok": false, "error": "AUTH_FAILED"},
+    "expected_result": {
+      "ok": false,
+      "error": "AUTH_FAILED"
+    },
     "error_condition": "missing_bearer_token",
-    "test_tags": ["telemed-scribe", "ehr-writer", "unit", "negative", "auth", "401"]
+    "test_tags": [
+      "telemed-scribe",
+      "ehr-writer",
+      "unit",
+      "negative",
+      "auth",
+      "401"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0027",
@@ -638,18 +1082,38 @@
     "scenario_title": "EHR writer wrong JWT secret returns 401",
     "scenario_type": "negative",
     "agent": "ehr-writer-agent",
-    "requirement_ids": ["SEC-1"],
+    "requirement_ids": [
+      "SEC-1",
+      "NFR-2"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0027",
       "method": "ehr/save",
-      "params": {"task": {"patient": {"patient_id": "EP027"}, "note": "test"}}
+      "params": {
+        "task": {
+          "patient": {
+            "patient_id": "EP027"
+          },
+          "note": "test"
+        }
+      }
     },
     "auth_mode": "jwt_invalid",
     "expected_http_status": 401,
-    "expected_result": {"ok": false, "error": "AUTH_FAILED"},
+    "expected_result": {
+      "ok": false,
+      "error": "AUTH_FAILED"
+    },
     "error_condition": "invalid_jwt_signature",
-    "test_tags": ["telemed-scribe", "ehr-writer", "unit", "negative", "auth", "401"]
+    "test_tags": [
+      "telemed-scribe",
+      "ehr-writer",
+      "unit",
+      "negative",
+      "auth",
+      "401"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0028",
@@ -657,7 +1121,10 @@
     "scenario_title": "EHR writer unknown method returns -32601",
     "scenario_type": "negative",
     "agent": "ehr-writer-agent",
-    "requirement_ids": ["FR-35"],
+    "requirement_ids": [
+      "FR-35",
+      "FR-10"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0028",
@@ -666,9 +1133,18 @@
     },
     "auth_mode": "jwt_hs256",
     "expected_http_status": 200,
-    "expected_result": {"ok": false, "error_code": -32601},
+    "expected_result": {
+      "ok": false,
+      "error_code": -32601
+    },
     "error_condition": "method_not_found",
-    "test_tags": ["telemed-scribe", "ehr-writer", "unit", "negative", "rpc-error"]
+    "test_tags": [
+      "telemed-scribe",
+      "ehr-writer",
+      "unit",
+      "negative",
+      "rpc-error"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0029",
@@ -676,7 +1152,10 @@
     "scenario_title": "EHR writer tasks/get missing task_id returns -32602",
     "scenario_type": "negative",
     "agent": "ehr-writer-agent",
-    "requirement_ids": ["FR-31"],
+    "requirement_ids": [
+      "FR-31",
+      "FR-10"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0029",
@@ -685,9 +1164,18 @@
     },
     "auth_mode": "jwt_hs256",
     "expected_http_status": 200,
-    "expected_result": {"ok": false, "error_code": -32602},
+    "expected_result": {
+      "ok": false,
+      "error_code": -32602
+    },
     "error_condition": "missing_task_id",
-    "test_tags": ["telemed-scribe", "ehr-writer", "unit", "negative", "rpc-error"]
+    "test_tags": [
+      "telemed-scribe",
+      "ehr-writer",
+      "unit",
+      "negative",
+      "rpc-error"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0030",
@@ -695,14 +1183,19 @@
     "scenario_title": "EHR writer ehr/save with empty note returns saved:true",
     "scenario_type": "edge",
     "agent": "ehr-writer-agent",
-    "requirement_ids": ["FR-35"],
+    "requirement_ids": [
+      "FR-35",
+      "FR-10"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0030",
       "method": "ehr/save",
       "params": {
         "task": {
-          "patient": {"patient_id": "EP030"},
+          "patient": {
+            "patient_id": "EP030"
+          },
           "note": ""
         }
       }
@@ -711,11 +1204,19 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["saved"],
+      "contains": [
+        "saved"
+      ],
       "saved": true
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "ehr-writer", "unit", "edge", "empty-note"]
+    "test_tags": [
+      "telemed-scribe",
+      "ehr-writer",
+      "unit",
+      "edge",
+      "empty-note"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0031",
@@ -723,14 +1224,19 @@
     "scenario_title": "EHR writer ehr/getLatestNote without prior save still returns found:true in startup-safe mode",
     "scenario_type": "edge",
     "agent": "ehr-writer-agent",
-    "requirement_ids": ["FR-36"],
+    "requirement_ids": [
+      "FR-36",
+      "FR-10"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0031",
       "method": "ehr/getLatestNote",
       "params": {
         "task": {
-          "patient": {"patient_id": "EP-NOT-SAVED"}
+          "patient": {
+            "patient_id": "EP-NOT-SAVED"
+          }
         }
       }
     },
@@ -738,12 +1244,21 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["found", "note_markdown"],
+      "contains": [
+        "found",
+        "note_markdown"
+      ],
       "found": true
     },
     "error_condition": "none",
     "notes": "Startup-safe handler always returns found:true with placeholder note",
-    "test_tags": ["telemed-scribe", "ehr-writer", "unit", "edge", "startup-safe"]
+    "test_tags": [
+      "telemed-scribe",
+      "ehr-writer",
+      "unit",
+      "edge",
+      "startup-safe"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0032",
@@ -751,15 +1266,22 @@
     "scenario_title": "EHR writer ehr/save with unicode note content",
     "scenario_type": "edge",
     "agent": "ehr-writer-agent",
-    "requirement_ids": ["FR-35"],
+    "requirement_ids": [
+      "FR-35",
+      "FR-10",
+      "NFR-1"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0032",
       "method": "ehr/save",
       "params": {
         "task": {
-          "patient": {"patient_id": "EP032", "name": "Léa Dupont"},
-          "note": "# Note clinique\nPatient se plaint de douleur thoracique. Observation: pouls 110/min. 日本語テスト。",
+          "patient": {
+            "patient_id": "EP032",
+            "name": "L\u00e9a Dupont"
+          },
+          "note": "# Note clinique\nPatient se plaint de douleur thoracique. Observation: pouls 110/min. \u65e5\u672c\u8a9e\u30c6\u30b9\u30c8\u3002",
           "note_type": "clinical_note"
         }
       }
@@ -768,11 +1290,19 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["saved"],
+      "contains": [
+        "saved"
+      ],
       "saved": true
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "ehr-writer", "unit", "edge", "unicode"]
+    "test_tags": [
+      "telemed-scribe",
+      "ehr-writer",
+      "unit",
+      "edge",
+      "unicode"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0033",
@@ -780,12 +1310,17 @@
     "scenario_title": "EHR writer tasks/cancel returns not-supported",
     "scenario_type": "edge",
     "agent": "ehr-writer-agent",
-    "requirement_ids": ["FR-32"],
+    "requirement_ids": [
+      "FR-32",
+      "FR-10"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0033",
       "method": "tasks/cancel",
-      "params": {"task_id": "some-task"}
+      "params": {
+        "task_id": "some-task"
+      }
     },
     "auth_mode": "jwt_hs256",
     "expected_http_status": 200,
@@ -794,7 +1329,13 @@
       "cancelled": false
     },
     "error_condition": "none",
-    "test_tags": ["telemed-scribe", "ehr-writer", "unit", "edge", "cancel"]
+    "test_tags": [
+      "telemed-scribe",
+      "ehr-writer",
+      "unit",
+      "edge",
+      "cancel"
+    ]
   },
   {
     "use_case_id": "TMS-UNIT-0034",
@@ -802,17 +1343,31 @@
     "scenario_title": "EHR writer tasks/resubscribe with invalid cursor returns -32002",
     "scenario_type": "edge",
     "agent": "ehr-writer-agent",
-    "requirement_ids": ["FR-34"],
+    "requirement_ids": [
+      "FR-34",
+      "FR-10"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "tms-unit-0034",
       "method": "tasks/resubscribe",
-      "params": {"cursor": "bad-cursor"}
+      "params": {
+        "cursor": "bad-cursor"
+      }
     },
     "auth_mode": "jwt_hs256",
     "expected_http_status": 200,
-    "expected_result": {"ok": false, "error_code": -32002},
+    "expected_result": {
+      "ok": false,
+      "error_code": -32002
+    },
     "error_condition": "invalid_cursor",
-    "test_tags": ["telemed-scribe", "ehr-writer", "unit", "edge", "cursor"]
+    "test_tags": [
+      "telemed-scribe",
+      "ehr-writer",
+      "unit",
+      "edge",
+      "cursor"
+    ]
   }
 ]

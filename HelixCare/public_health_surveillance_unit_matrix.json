@@ -5,7 +5,11 @@
     "scenario_title": "Hospital reporter surveillance/report returns result without 5xx",
     "scenario_type": "positive",
     "agent": "hospital-reporter",
-    "requirement_ids": ["FR-50"],
+    "requirement_ids": [
+      "FR-50",
+      "FR-9",
+      "CR-4"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "phs-unit-0001",
@@ -15,7 +19,11 @@
           "pathogen": "influenza_a",
           "region": "North West England",
           "week": "2025-W10",
-          "case_counts": {"confirmed": 142, "suspected": 89, "deaths": 3}
+          "case_counts": {
+            "confirmed": 142,
+            "suspected": 89,
+            "deaths": 3
+          }
         }
       }
     },
@@ -23,10 +31,19 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["status", "method"]
+      "contains": [
+        "status",
+        "method"
+      ]
     },
     "error_condition": "none",
-    "test_tags": ["public-health", "hospital-reporter", "unit", "positive", "surveillance-report"]
+    "test_tags": [
+      "public-health",
+      "hospital-reporter",
+      "unit",
+      "positive",
+      "surveillance-report"
+    ]
   },
   {
     "use_case_id": "PHS-UNIT-0002",
@@ -34,7 +51,11 @@
     "scenario_title": "Hospital reporter tasks/sendSubscribe returns cursor",
     "scenario_type": "positive",
     "agent": "hospital-reporter",
-    "requirement_ids": ["FR-50"],
+    "requirement_ids": [
+      "FR-50",
+      "FR-9",
+      "FR-11"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "phs-unit-0002",
@@ -51,10 +72,20 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["task_id", "trace_id", "resume_cursor"]
+      "contains": [
+        "task_id",
+        "trace_id",
+        "resume_cursor"
+      ]
     },
     "error_condition": "none",
-    "test_tags": ["public-health", "hospital-reporter", "unit", "positive", "subscribe"]
+    "test_tags": [
+      "public-health",
+      "hospital-reporter",
+      "unit",
+      "positive",
+      "subscribe"
+    ]
   },
   {
     "use_case_id": "PHS-UNIT-0003",
@@ -62,7 +93,11 @@
     "scenario_title": "OSINT agent osint/headlines returns headlines array",
     "scenario_type": "positive",
     "agent": "osint-agent",
-    "requirement_ids": ["FR-51"],
+    "requirement_ids": [
+      "FR-51",
+      "FR-9",
+      "IR-1"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "phs-unit-0003",
@@ -79,11 +114,20 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["headlines", "source"],
+      "contains": [
+        "headlines",
+        "source"
+      ],
       "headlines_is_list": true
     },
     "error_condition": "none",
-    "test_tags": ["public-health", "osint-agent", "unit", "positive", "osint-headlines"]
+    "test_tags": [
+      "public-health",
+      "osint-agent",
+      "unit",
+      "positive",
+      "osint-headlines"
+    ]
   },
   {
     "use_case_id": "PHS-UNIT-0004",
@@ -91,7 +135,10 @@
     "scenario_title": "OSINT agent headlines for influenza",
     "scenario_type": "positive",
     "agent": "osint-agent",
-    "requirement_ids": ["FR-51"],
+    "requirement_ids": [
+      "FR-51",
+      "FR-9"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "phs-unit-0004",
@@ -107,11 +154,19 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["headlines"],
+      "contains": [
+        "headlines"
+      ],
       "headlines_is_list": true
     },
     "error_condition": "none",
-    "test_tags": ["public-health", "osint-agent", "unit", "positive", "influenza"]
+    "test_tags": [
+      "public-health",
+      "osint-agent",
+      "unit",
+      "positive",
+      "influenza"
+    ]
   },
   {
     "use_case_id": "PHS-UNIT-0005",
@@ -119,7 +174,11 @@
     "scenario_title": "Central surveillance synthesize returns result",
     "scenario_type": "positive",
     "agent": "central-surveillance",
-    "requirement_ids": ["FR-52"],
+    "requirement_ids": [
+      "FR-52",
+      "FR-9",
+      "CR-4"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "phs-unit-0005",
@@ -137,10 +196,19 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["status", "method"]
+      "contains": [
+        "status",
+        "method"
+      ]
     },
     "error_condition": "none",
-    "test_tags": ["public-health", "central-surveillance", "unit", "positive", "synthesize"]
+    "test_tags": [
+      "public-health",
+      "central-surveillance",
+      "unit",
+      "positive",
+      "synthesize"
+    ]
   },
   {
     "use_case_id": "PHS-UNIT-0006",
@@ -148,7 +216,11 @@
     "scenario_title": "Central surveillance tasks/sendSubscribe returns cursor",
     "scenario_type": "positive",
     "agent": "central-surveillance",
-    "requirement_ids": ["FR-52"],
+    "requirement_ids": [
+      "FR-52",
+      "FR-9",
+      "FR-11"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "phs-unit-0006",
@@ -164,10 +236,20 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["task_id", "trace_id", "resume_cursor"]
+      "contains": [
+        "task_id",
+        "trace_id",
+        "resume_cursor"
+      ]
     },
     "error_condition": "none",
-    "test_tags": ["public-health", "central-surveillance", "unit", "positive", "subscribe"]
+    "test_tags": [
+      "public-health",
+      "central-surveillance",
+      "unit",
+      "positive",
+      "subscribe"
+    ]
   },
   {
     "use_case_id": "PHS-UNIT-0007",
@@ -175,18 +257,35 @@
     "scenario_title": "Hospital reporter no auth returns 401",
     "scenario_type": "negative",
     "agent": "hospital-reporter",
-    "requirement_ids": ["SEC-1"],
+    "requirement_ids": [
+      "SEC-1",
+      "NFR-2"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "phs-unit-0007",
       "method": "surveillance/report",
-      "params": {"task": {"pathogen": "influenza_a"}}
+      "params": {
+        "task": {
+          "pathogen": "influenza_a"
+        }
+      }
     },
     "auth_mode": "jwt_missing",
     "expected_http_status": 401,
-    "expected_result": {"ok": false, "error": "AUTH_FAILED"},
+    "expected_result": {
+      "ok": false,
+      "error": "AUTH_FAILED"
+    },
     "error_condition": "missing_bearer_token",
-    "test_tags": ["public-health", "hospital-reporter", "unit", "negative", "auth", "401"]
+    "test_tags": [
+      "public-health",
+      "hospital-reporter",
+      "unit",
+      "negative",
+      "auth",
+      "401"
+    ]
   },
   {
     "use_case_id": "PHS-UNIT-0008",
@@ -194,18 +293,35 @@
     "scenario_title": "OSINT agent wrong JWT secret returns 401",
     "scenario_type": "negative",
     "agent": "osint-agent",
-    "requirement_ids": ["SEC-1"],
+    "requirement_ids": [
+      "SEC-1",
+      "NFR-2"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "phs-unit-0008",
       "method": "osint/headlines",
-      "params": {"task": {"pathogen": "mpox"}}
+      "params": {
+        "task": {
+          "pathogen": "mpox"
+        }
+      }
     },
     "auth_mode": "jwt_invalid",
     "expected_http_status": 401,
-    "expected_result": {"ok": false, "error": "AUTH_FAILED"},
+    "expected_result": {
+      "ok": false,
+      "error": "AUTH_FAILED"
+    },
     "error_condition": "invalid_jwt_signature",
-    "test_tags": ["public-health", "osint-agent", "unit", "negative", "auth", "401"]
+    "test_tags": [
+      "public-health",
+      "osint-agent",
+      "unit",
+      "negative",
+      "auth",
+      "401"
+    ]
   },
   {
     "use_case_id": "PHS-UNIT-0009",
@@ -213,18 +329,35 @@
     "scenario_title": "Central surveillance expired JWT returns 401",
     "scenario_type": "negative",
     "agent": "central-surveillance",
-    "requirement_ids": ["SEC-1"],
+    "requirement_ids": [
+      "SEC-1",
+      "NFR-2"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "phs-unit-0009",
       "method": "surveillance/synthesize",
-      "params": {"task": {"pathogen": "cholera"}}
+      "params": {
+        "task": {
+          "pathogen": "cholera"
+        }
+      }
     },
     "auth_mode": "jwt_expired",
     "expected_http_status": 401,
-    "expected_result": {"ok": false, "error": "AUTH_FAILED"},
+    "expected_result": {
+      "ok": false,
+      "error": "AUTH_FAILED"
+    },
     "error_condition": "expired_jwt",
-    "test_tags": ["public-health", "central-surveillance", "unit", "negative", "auth", "401"]
+    "test_tags": [
+      "public-health",
+      "central-surveillance",
+      "unit",
+      "negative",
+      "auth",
+      "401"
+    ]
   },
   {
     "use_case_id": "PHS-UNIT-0010",
@@ -232,7 +365,11 @@
     "scenario_title": "OSINT agent unknown method returns -32601",
     "scenario_type": "negative",
     "agent": "osint-agent",
-    "requirement_ids": ["FR-51"],
+    "requirement_ids": [
+      "FR-51",
+      "FR-9",
+      "FR-2"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "phs-unit-0010",
@@ -241,9 +378,18 @@
     },
     "auth_mode": "jwt_hs256",
     "expected_http_status": 200,
-    "expected_result": {"ok": false, "error_code": -32601},
+    "expected_result": {
+      "ok": false,
+      "error_code": -32601
+    },
     "error_condition": "method_not_found",
-    "test_tags": ["public-health", "osint-agent", "unit", "negative", "rpc-error"]
+    "test_tags": [
+      "public-health",
+      "osint-agent",
+      "unit",
+      "negative",
+      "rpc-error"
+    ]
   },
   {
     "use_case_id": "PHS-UNIT-0011",
@@ -251,7 +397,11 @@
     "scenario_title": "Hospital reporter tasks/get missing task_id returns -32602",
     "scenario_type": "negative",
     "agent": "hospital-reporter",
-    "requirement_ids": ["FR-50"],
+    "requirement_ids": [
+      "FR-50",
+      "FR-9",
+      "FR-2"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "phs-unit-0011",
@@ -260,39 +410,68 @@
     },
     "auth_mode": "jwt_hs256",
     "expected_http_status": 200,
-    "expected_result": {"ok": false, "error_code": -32602},
+    "expected_result": {
+      "ok": false,
+      "error_code": -32602
+    },
     "error_condition": "missing_task_id",
-    "test_tags": ["public-health", "hospital-reporter", "unit", "negative", "rpc-error"]
+    "test_tags": [
+      "public-health",
+      "hospital-reporter",
+      "unit",
+      "negative",
+      "rpc-error"
+    ]
   },
   {
     "use_case_id": "PHS-UNIT-0012",
     "poc_demo": "public-health-surveillance-unit",
-    "scenario_title": "OSINT agent headlines with empty pathogen — no crash",
+    "scenario_title": "OSINT agent headlines with empty pathogen \u2014 no crash",
     "scenario_type": "edge",
     "agent": "osint-agent",
-    "requirement_ids": ["FR-51"],
+    "requirement_ids": [
+      "FR-51",
+      "FR-9",
+      "NFR-1"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "phs-unit-0012",
       "method": "osint/headlines",
-      "params": {"task": {"pathogen": "", "region": ""}}
+      "params": {
+        "task": {
+          "pathogen": "",
+          "region": ""
+        }
+      }
     },
     "auth_mode": "jwt_hs256",
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["headlines"]
+      "contains": [
+        "headlines"
+      ]
     },
     "error_condition": "none",
-    "test_tags": ["public-health", "osint-agent", "unit", "edge", "empty-pathogen"]
+    "test_tags": [
+      "public-health",
+      "osint-agent",
+      "unit",
+      "edge",
+      "empty-pathogen"
+    ]
   },
   {
     "use_case_id": "PHS-UNIT-0013",
     "poc_demo": "public-health-surveillance-unit",
-    "scenario_title": "Hospital reporter without patient field — defaults to unknown",
+    "scenario_title": "Hospital reporter without patient field \u2014 defaults to unknown",
     "scenario_type": "edge",
     "agent": "hospital-reporter",
-    "requirement_ids": ["FR-50"],
+    "requirement_ids": [
+      "FR-50",
+      "FR-9"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "phs-unit-0013",
@@ -308,10 +487,18 @@
     "expected_http_status": 200,
     "expected_result": {
       "ok": true,
-      "contains": ["status"]
+      "contains": [
+        "status"
+      ]
     },
     "error_condition": "none",
-    "test_tags": ["public-health", "hospital-reporter", "unit", "edge", "no-patient"]
+    "test_tags": [
+      "public-health",
+      "hospital-reporter",
+      "unit",
+      "edge",
+      "no-patient"
+    ]
   },
   {
     "use_case_id": "PHS-UNIT-0014",
@@ -319,12 +506,17 @@
     "scenario_title": "Central surveillance tasks/cancel returns not-supported",
     "scenario_type": "edge",
     "agent": "central-surveillance",
-    "requirement_ids": ["FR-52"],
+    "requirement_ids": [
+      "FR-52",
+      "FR-9"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "phs-unit-0014",
       "method": "tasks/cancel",
-      "params": {"task_id": "any-task"}
+      "params": {
+        "task_id": "any-task"
+      }
     },
     "auth_mode": "jwt_hs256",
     "expected_http_status": 200,
@@ -333,7 +525,13 @@
       "cancelled": false
     },
     "error_condition": "none",
-    "test_tags": ["public-health", "central-surveillance", "unit", "edge", "cancel"]
+    "test_tags": [
+      "public-health",
+      "central-surveillance",
+      "unit",
+      "edge",
+      "cancel"
+    ]
   },
   {
     "use_case_id": "PHS-UNIT-0015",
@@ -341,17 +539,31 @@
     "scenario_title": "OSINT agent tasks/resubscribe with invalid cursor returns -32002",
     "scenario_type": "edge",
     "agent": "osint-agent",
-    "requirement_ids": ["FR-51"],
+    "requirement_ids": [
+      "FR-51",
+      "FR-9"
+    ],
     "input_payload": {
       "jsonrpc": "2.0",
       "id": "phs-unit-0015",
       "method": "tasks/resubscribe",
-      "params": {"cursor": "bad-cursor"}
+      "params": {
+        "cursor": "bad-cursor"
+      }
     },
     "auth_mode": "jwt_hs256",
     "expected_http_status": 200,
-    "expected_result": {"ok": false, "error_code": -32002},
+    "expected_result": {
+      "ok": false,
+      "error_code": -32002
+    },
     "error_condition": "invalid_cursor",
-    "test_tags": ["public-health", "osint-agent", "unit", "edge", "cursor"]
+    "test_tags": [
+      "public-health",
+      "osint-agent",
+      "unit",
+      "edge",
+      "cursor"
+    ]
   }
 ]
