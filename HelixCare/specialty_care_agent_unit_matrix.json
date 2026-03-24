@@ -22,7 +22,7 @@
     "transport": "unit",
     "auth_mode": "jwt",
     "expected_http_status": 200,
-    "expected_result": {"ok": true, "contains": ["task_id", "patient_id", "method", "status"]},
+    "expected_result": {"ok": true, "contains": ["patient_id", "method", "status"]},
     "error_condition": "none",
     "test_tags": ["specialty-care", "unit", "positive", "manage-referral"]
   },

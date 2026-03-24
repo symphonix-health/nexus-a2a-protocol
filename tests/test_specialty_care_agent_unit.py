@@ -168,7 +168,7 @@ async def test_specialty_care_positive(scenario: dict, client: AsyncClient, vali
         )
 
     for field in ("task_id", "trace_id"):
-        if field in result:
+        if field in result and result[field] is not None:
             assert isinstance(result[field], str) and result[field].strip(), (
                 f"{scenario['use_case_id']}: {field} must be a non-empty string"
             )

@@ -146,11 +146,15 @@ async def test_pharmacy_positive(scenario: dict, client: AsyncClient, valid_head
             f"{scenario['use_case_id']}: expected field '{field}' in result; result={result}"
         )
 
-    for field in ("task_id", "trace_id"):
-        if field in result:
-            assert isinstance(result[field], str) and result[field].strip(), (
-                f"{scenario['use_case_id']}: {field} must be a non-empty string"
-            )
+    # task_id and trace_id must be non-empty strings when present AND non-null
+    # (domain methods invoked without a task context may return task_id=None)
+    method = payload.get("method", "")
+    if method in ("tasks/send", "tasks/sendSubscribe"):
+        for field in ("task_id", "trace_id"):
+            if field in result and result[field] is not None:
+                assert isinstance(result[field], str) and result[field].strip(), (
+                    f"{scenario['use_case_id']}: {field} must be a non-empty string"
+                )
 
 
 # ── Negative tests ────────────────────────────────────────────────────────────

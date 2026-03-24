@@ -1,12 +1,10 @@
-"""In-process unit tests for the followup-scheduler agent.
+"""In-process unit tests for the audit agent.
 
-Loads the followup-scheduler's FastAPI app directly via importlib and routes
-requests through httpx ASGITransport — no live services required.
+Loads the audit agent's FastAPI app directly via importlib and
+routes requests through httpx ASGITransport — no live services required.
 
-The agent is built with build_generic_demo_app() and handles both standard
-tasks/* protocol methods and the domain method followup/schedule.
-No OpenAI calls are made unless NEXUS_AGENT_LLM_ENABLED is set; the
-deterministic startup-safe payload is returned instead.
+The audit agent is an interop stub built on build_generic_demo_app.
+No OpenAI calls are made in unit mode.
 """
 
 from __future__ import annotations
@@ -22,7 +20,7 @@ import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
-# ── Project root on sys.path ─────────────────────────────────────────────────
+# ── Project root on sys.path ────────────────────────────────────────────────
 _PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
@@ -30,7 +28,7 @@ if str(_PROJECT_ROOT) not in sys.path:
 from shared.nexus_common.auth import mint_jwt  # noqa: E402
 
 # ── Matrix helpers ────────────────────────────────────────────────────────────
-_MATRIX_FILE = _PROJECT_ROOT / "HelixCare" / "followup_scheduler_unit_matrix.json"
+_MATRIX_FILE = _PROJECT_ROOT / "HelixCare" / "audit_agent_unit_matrix.json"
 _SECRET = "dev-secret-change-me"
 
 
@@ -52,20 +50,25 @@ _edge = _scenarios("edge")
 
 # ── Agent app loader ──────────────────────────────────────────────────────────
 _AGENT_MAIN = (
-    _PROJECT_ROOT / "demos" / "helixcare" / "followup-scheduler" / "app" / "main.py"
+    _PROJECT_ROOT
+    / "demos"
+    / "interop"
+    / "audit-agent"
+    / "app"
+    / "main.py"
 )
 
 
 def _load_agent_module() -> ModuleType:
-    """Load followup-scheduler FastAPI app from its file path via importlib."""
+    """Load audit agent FastAPI app from its file path via importlib."""
     os.environ.setdefault("NEXUS_JWT_SECRET", _SECRET)
     os.environ.setdefault("NEXUS_AGENT_LLM_ENABLED", "false")
 
     spec = importlib.util.spec_from_file_location(
-        "followup_scheduler_main", str(_AGENT_MAIN)
+        "audit_agent_main", str(_AGENT_MAIN)
     )
     mod = importlib.util.module_from_spec(spec)
-    sys.modules["followup_scheduler_main"] = mod
+    sys.modules["audit_agent_main"] = mod
     spec.loader.exec_module(mod)
     return mod
 
@@ -85,7 +88,7 @@ def agent_app(agent_module):
 async def client(agent_app):
     async with AsyncClient(
         transport=ASGITransport(app=agent_app),
-        base_url="http://followup-scheduler",
+        base_url="http://audit-agent",
     ) as c:
         yield c
 
@@ -105,14 +108,6 @@ def _token_wrong_secret() -> str:
     return mint_jwt("test-harness", "totally-wrong-secret", scope="nexus:invoke")
 
 
-def _token_wrong_scope() -> str:
-    return mint_jwt("test-harness", _SECRET, scope="read:only")
-
-
-def _token_expired() -> str:
-    return mint_jwt("test-harness", _SECRET, ttl_seconds=-60, scope="nexus:invoke")
-
-
 def _headers_for_scenario(scenario: dict, valid_headers: dict) -> dict:
     """Return appropriate auth headers based on scenario auth_mode."""
     mode = scenario.get("auth_mode", "")
@@ -121,16 +116,6 @@ def _headers_for_scenario(scenario: dict, valid_headers: dict) -> dict:
     if mode == "jwt_invalid":
         return {
             "Authorization": f"Bearer {_token_wrong_secret()}",
-            "Content-Type": "application/json",
-        }
-    if mode == "jwt_missing_scope":
-        return {
-            "Authorization": f"Bearer {_token_wrong_scope()}",
-            "Content-Type": "application/json",
-        }
-    if mode == "jwt_expired":
-        return {
-            "Authorization": f"Bearer {_token_expired()}",
             "Content-Type": "application/json",
         }
     return valid_headers
@@ -144,13 +129,13 @@ async def _rpc(client: AsyncClient, headers: dict, payload: dict) -> tuple[int, 
 
 # ── Positive tests ────────────────────────────────────────────────────────────
 @pytest.mark.parametrize("scenario", _positive, ids=_ids(_positive))
-async def test_followup_scheduler_positive(
+async def test_audit_positive(
     scenario: dict, client: AsyncClient, valid_headers: dict
 ):
     payload = scenario["input_payload"]
-    if "_http_method" in payload or "_get" in payload:
-        pytest.skip("GET scenario handled by dedicated test")
-
+    if not payload:
+        # Agent-card scenario — handled by dedicated test
+        return
     status, body = await _rpc(client, valid_headers, payload)
 
     assert status == scenario["expected_http_status"], (
@@ -169,16 +154,10 @@ async def test_followup_scheduler_positive(
             f"{scenario['use_case_id']}: expected field '{field}' in result; result={result}"
         )
 
-    for field in ("task_id", "trace_id"):
-        if field in result and result[field] is not None:
-            assert isinstance(result[field], str) and result[field].strip(), (
-                f"{scenario['use_case_id']}: {field} must be a non-empty string"
-            )
-
 
 # ── Negative tests ────────────────────────────────────────────────────────────
 @pytest.mark.parametrize("scenario", _negative, ids=_ids(_negative))
-async def test_followup_scheduler_negative(
+async def test_audit_negative(
     scenario: dict, client: AsyncClient, valid_headers: dict
 ):
     payload = scenario["input_payload"]
@@ -192,9 +171,7 @@ async def test_followup_scheduler_negative(
         assert status == 401, (
             f"{scenario['use_case_id']}: expected 401, got {status}; body={body}"
         )
-        assert "error" in body, (
-            f"{scenario['use_case_id']}: missing error envelope; body={body}"
-        )
+        assert "error" in body, f"{scenario['use_case_id']}: missing error envelope; body={body}"
         error = body["error"]
         assert isinstance(error, dict), f"{scenario['use_case_id']}: error must be object"
         assert error.get("code") == -32001, (
@@ -208,10 +185,9 @@ async def test_followup_scheduler_negative(
         assert status == 200, (
             f"{scenario['use_case_id']}: expected HTTP 200, got {status}; body={body}"
         )
-        assert "error" in body, (
-            f"{scenario['use_case_id']}: missing error envelope; body={body}"
-        )
+        assert "error" in body, f"{scenario['use_case_id']}: missing error envelope; body={body}"
         error = body["error"]
+        assert isinstance(error, dict), f"{scenario['use_case_id']}: error must be object"
         assert error.get("code") == expected_error_code, (
             f"{scenario['use_case_id']}: expected error.code={expected_error_code}, "
             f"got {error.get('code')}; body={body}"
@@ -224,7 +200,7 @@ async def test_followup_scheduler_negative(
 
 # ── Edge tests ────────────────────────────────────────────────────────────────
 @pytest.mark.parametrize("scenario", _edge, ids=_ids(_edge))
-async def test_followup_scheduler_edge(
+async def test_audit_edge(
     scenario: dict, client: AsyncClient, valid_headers: dict
 ):
     payload = scenario["input_payload"]
@@ -238,50 +214,20 @@ async def test_followup_scheduler_edge(
         f"{scenario['use_case_id']}: response must be JSON object; body={body}"
     )
 
-    expected = scenario.get("expected_result", {})
 
-    if expected.get("ok") is True:
-        assert "result" in body, (
-            f"{scenario['use_case_id']}: expected result envelope; body={body}"
-        )
-        result = body["result"]
-        for field in expected.get("contains", []):
-            assert field in result, (
-                f"{scenario['use_case_id']}: expected field '{field}'; result={result}"
-            )
-        if "cancelled" in expected:
-            assert result.get("cancelled") == expected["cancelled"], (
-                f"{scenario['use_case_id']}: expected cancelled={expected['cancelled']!r}, "
-                f"got {result.get('cancelled')!r}"
-            )
-    elif expected.get("ok") is False:
-        assert "error" in body, (
-            f"{scenario['use_case_id']}: expected error envelope; body={body}"
-        )
-        if "error_code" in expected:
-            assert body["error"].get("code") == expected["error_code"], (
-                f"{scenario['use_case_id']}: expected error.code={expected['error_code']}, "
-                f"got {body['error'].get('code')}"
-            )
+# ── Agent-card endpoint test ──────────────────────────────────────────────────
+async def test_audit_agent_card(client: AsyncClient):
+    resp = await client.get("/.well-known/agent-card.json")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert isinstance(body, dict), "Agent card response must be a JSON object"
+    assert "name" in body, f"Agent card must have 'name' field; body={body}"
+    assert body["name"], "Agent card 'name' must be non-empty"
 
 
 # ── Health endpoint smoke test ────────────────────────────────────────────────
-async def test_followup_scheduler_health_endpoint(client: AsyncClient):
+async def test_audit_health_endpoint(client: AsyncClient):
     resp = await client.get("/health")
     assert resp.status_code == 200
     body = resp.json()
     assert isinstance(body, dict), "Health response must be a JSON object"
-
-
-# ── Agent card smoke test ─────────────────────────────────────────────────────
-async def test_followup_scheduler_agent_card(client: AsyncClient):
-    resp = await client.get("/.well-known/agent-card.json")
-    assert resp.status_code == 200
-    body = resp.json()
-    assert isinstance(body, dict), "Agent card must be a JSON object"
-    assert "methods" in body, "Agent card must declare methods"
-    methods = body["methods"]
-    assert isinstance(methods, list) and len(methods) > 0, "methods must be non-empty list"
-    assert "followup/schedule" in methods, (
-        "Agent card must declare followup/schedule"
-    )
