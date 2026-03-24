@@ -1,0 +1,328 @@
+[
+  {
+    "use_case_id": "CC-UNIT-0001",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/sendSubscribe accepts patient journey task",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-CC-1"],
+    "preconditions": ["care-coordinator loaded in-process", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "cc-test-001",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-CC-001", "name": "Margaret Evans", "age": 55, "gender": "female"},
+          "chief_complaint": "Post-op care coordination after knee replacement",
+          "journey_stage": "post_surgery"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "trace_id", "resume_cursor"]},
+    "error_condition": "none",
+    "test_tags": ["care-coordinator", "unit", "positive", "tasks-sendsubscribe"]
+  },
+  {
+    "use_case_id": "CC-UNIT-0002",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/send alias behaves identically to tasks/sendSubscribe",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-CC-2"],
+    "preconditions": ["care-coordinator loaded in-process", "jwt configured"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "cc-test-002",
+      "method": "tasks/send",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-CC-002"},
+          "chief_complaint": "Discharge planning for elderly patient"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["care-coordinator", "unit", "positive", "tasks-send"]
+  },
+  {
+    "use_case_id": "CC-UNIT-0003",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/get returns state for known task_id",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-CC-3"],
+    "preconditions": ["care-coordinator loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "cc-test-003",
+      "method": "tasks/get",
+      "params": {"task_id": "cc-existing-task-id"}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "state"]},
+    "error_condition": "none",
+    "test_tags": ["care-coordinator", "unit", "positive", "tasks-get"]
+  },
+  {
+    "use_case_id": "CC-UNIT-0004",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/cancel returns cancelled field",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-CC-4"],
+    "preconditions": ["care-coordinator loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "cc-test-004",
+      "method": "tasks/cancel",
+      "params": {"task_id": "cc-cancel-task-id"}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "cancelled"]},
+    "error_condition": "none",
+    "test_tags": ["care-coordinator", "unit", "positive", "tasks-cancel"]
+  },
+  {
+    "use_case_id": "CC-UNIT-0005",
+    "poc_demo": "helixcare",
+    "scenario_title": "Agent card endpoint returns declared methods",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-CC-5"],
+    "preconditions": ["care-coordinator loaded in-process"],
+    "input_payload": {"_http_method": "GET", "_path": "/.well-known/agent-card.json"},
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["care-coordinator", "unit", "positive", "agent-card"]
+  },
+  {
+    "use_case_id": "CC-UNIT-0006",
+    "poc_demo": "helixcare",
+    "scenario_title": "Health endpoint returns 200",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-CC-6"],
+    "preconditions": ["care-coordinator loaded in-process"],
+    "input_payload": {"_http_method": "GET", "_path": "/health"},
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["care-coordinator", "unit", "positive", "health"]
+  },
+  {
+    "use_case_id": "CC-UNIT-0007",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/sendSubscribe without JWT returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["care-coordinator loaded in-process", "no auth header"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "cc-test-007",
+      "method": "tasks/sendSubscribe",
+      "params": {"task": {"patient": {"patient_id": "P-SEC-CC-01"}, "chief_complaint": "test"}}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"ok": false, "error_code": -32001, "reason": "auth_failed"},
+    "error_condition": "missing_bearer_token",
+    "test_tags": ["care-coordinator", "unit", "negative", "auth", "401"]
+  },
+  {
+    "use_case_id": "CC-UNIT-0008",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/send without JWT returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["care-coordinator loaded in-process", "no auth header"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "cc-test-008",
+      "method": "tasks/send",
+      "params": {"task": {"patient": {"patient_id": "P-SEC-CC-02"}, "chief_complaint": "test"}}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"ok": false, "error_code": -32001, "reason": "auth_failed"},
+    "error_condition": "missing_bearer_token",
+    "test_tags": ["care-coordinator", "unit", "negative", "auth", "401"]
+  },
+  {
+    "use_case_id": "CC-UNIT-0009",
+    "poc_demo": "helixcare",
+    "scenario_title": "Unknown method returns JSON-RPC -32601",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-CC-7"],
+    "preconditions": ["care-coordinator loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "cc-test-009",
+      "method": "care_coordinator/nonExistentMethod",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32601},
+    "error_condition": "method_not_found",
+    "test_tags": ["care-coordinator", "unit", "negative", "rpc-error", "method-not-found"]
+  },
+  {
+    "use_case_id": "CC-UNIT-0010",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/get with missing task_id returns -32602",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-CC-8"],
+    "preconditions": ["care-coordinator loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "cc-test-010",
+      "method": "tasks/get",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32602},
+    "error_condition": "missing_task_id",
+    "test_tags": ["care-coordinator", "unit", "negative", "rpc-error", "invalid-params"]
+  },
+  {
+    "use_case_id": "CC-UNIT-0011",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/cancel without task_id returns -32602",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-CC-9"],
+    "preconditions": ["care-coordinator loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "cc-test-011",
+      "method": "tasks/cancel",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32602},
+    "error_condition": "missing_task_id",
+    "test_tags": ["care-coordinator", "unit", "negative", "rpc-error", "invalid-params"]
+  },
+  {
+    "use_case_id": "CC-UNIT-0012",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/get with expired JWT returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["care-coordinator loaded in-process", "expired jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "cc-test-012",
+      "method": "tasks/get",
+      "params": {"task_id": "some-cc-task-id"}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt_expired",
+    "expected_http_status": 401,
+    "expected_result": {"ok": false, "error_code": -32001, "reason": "auth_failed"},
+    "error_condition": "expired_jwt",
+    "test_tags": ["care-coordinator", "unit", "negative", "auth", "401", "jwt-expired"]
+  },
+  {
+    "use_case_id": "CC-UNIT-0013",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/sendSubscribe with empty task params returns result",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-CC-1"],
+    "preconditions": ["care-coordinator loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "cc-test-013",
+      "method": "tasks/sendSubscribe",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["care-coordinator", "unit", "edge", "empty-params"]
+  },
+  {
+    "use_case_id": "CC-UNIT-0014",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/sendSubscribe with unicode patient_id handled gracefully",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-CC-1"],
+    "preconditions": ["care-coordinator loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "cc-test-014",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-CC-한국어-001"},
+          "chief_complaint": "Care coordination needed"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["care-coordinator", "unit", "edge", "unicode"]
+  },
+  {
+    "use_case_id": "CC-UNIT-0015",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/cancel for non-existent task_id returns cancelled=false",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-CC-4"],
+    "preconditions": ["care-coordinator loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "cc-test-015",
+      "method": "tasks/cancel",
+      "params": {"task_id": "non-existent-cc-task-xyz"}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["cancelled"]},
+    "error_condition": "none",
+    "test_tags": ["care-coordinator", "unit", "edge", "cancel", "non-existent"]
+  },
+  {
+    "use_case_id": "CC-UNIT-0016",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/resubscribe with invalid cursor returns -32002",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-CC-10"],
+    "preconditions": ["care-coordinator loaded in-process", "valid jwt"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "cc-test-016",
+      "method": "tasks/resubscribe",
+      "params": {"cursor": "invalid-cc-cursor-xyz"}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32002},
+    "error_condition": "invalid_cursor",
+    "test_tags": ["care-coordinator", "unit", "edge", "resubscribe", "invalid-cursor"]
+  }
+]
