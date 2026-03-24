@@ -7,7 +7,8 @@
     "requirement_ids": [
       "FR-10",
       "CR-3",
-      "FR-2"
+      "FR-2",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -63,7 +64,8 @@
     "requirement_ids": [
       "FR-10",
       "CR-3",
-      "FR-2"
+      "FR-2",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -117,7 +119,8 @@
     "requirement_ids": [
       "FR-10",
       "CR-4",
-      "FR-2"
+      "FR-2",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -170,7 +173,8 @@
     "requirement_ids": [
       "FR-10",
       "CR-3",
-      "FR-2"
+      "FR-2",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -221,7 +225,8 @@
     "requirement_ids": [
       "FR-10",
       "CR-4",
-      "FR-2"
+      "FR-2",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -272,7 +277,8 @@
     "scenario_type": "positive",
     "requirement_ids": [
       "FR-10",
-      "FR-2"
+      "FR-2",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -323,7 +329,8 @@
     "scenario_type": "positive",
     "requirement_ids": [
       "FR-10",
-      "FR-2"
+      "FR-2",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -375,7 +382,8 @@
     "requirement_ids": [
       "FR-10",
       "CR-3",
-      "FR-2"
+      "FR-2",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -428,7 +436,8 @@
     "requirement_ids": [
       "FR-15",
       "FR-2",
-      "NFR-4"
+      "NFR-4",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -526,7 +535,9 @@
     "scenario_type": "negative",
     "requirement_ids": [
       "SEC-1",
-      "NFR-2"
+      "NFR-2",
+      "FR-2",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -563,7 +574,9 @@
     "scenario_type": "negative",
     "requirement_ids": [
       "SEC-1",
-      "NFR-2"
+      "NFR-2",
+      "FR-2",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -602,7 +615,10 @@
     "requirement_ids": [
       "SEC-2",
       "SEC-1",
-      "NFR-2"
+      "NFR-2",
+      "FR-2",
+      "FR-11",
+      "FR-12"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -640,7 +656,9 @@
     "scenario_type": "negative",
     "requirement_ids": [
       "SEC-1",
-      "NFR-2"
+      "NFR-2",
+      "FR-2",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -801,7 +819,8 @@
     "scenario_type": "edge",
     "requirement_ids": [
       "FR-10",
-      "FR-2"
+      "FR-2",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -841,11 +860,12 @@
   {
     "use_case_id": "EDT-UNIT-0020",
     "poc_demo": "ed-triage-unit",
-    "scenario_title": "Missing vitals dict \u2014 triage by complaint only",
+    "scenario_title": "Missing vitals dict — triage by complaint only",
     "scenario_type": "edge",
     "requirement_ids": [
       "FR-10",
-      "FR-2"
+      "FR-2",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -881,12 +901,13 @@
   {
     "use_case_id": "EDT-UNIT-0021",
     "poc_demo": "ed-triage-unit",
-    "scenario_title": "Laceration complaint with low SpO2 \u2014 SpO2 vital rule wins (ESI-2)",
+    "scenario_title": "Laceration complaint with low SpO2 — SpO2 vital rule wins (ESI-2)",
     "scenario_type": "edge",
     "requirement_ids": [
       "FR-10",
       "CR-4",
-      "FR-2"
+      "FR-2",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -934,7 +955,8 @@
     "requirement_ids": [
       "FR-10",
       "CR-4",
-      "FR-2"
+      "FR-2",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -977,11 +999,12 @@
   {
     "use_case_id": "EDT-UNIT-0023",
     "poc_demo": "ed-triage-unit",
-    "scenario_title": "No patient field \u2014 patient_id defaults to 'unknown'",
+    "scenario_title": "No patient field — patient_id defaults to 'unknown'",
     "scenario_type": "edge",
     "requirement_ids": [
       "FR-10",
-      "FR-2"
+      "FR-2",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -1019,12 +1042,13 @@
   {
     "use_case_id": "EDT-UNIT-0024",
     "poc_demo": "ed-triage-unit",
-    "scenario_title": "Very long chief complaint string \u2014 no server error",
+    "scenario_title": "Very long chief complaint string — no server error",
     "scenario_type": "edge",
     "requirement_ids": [
       "FR-10",
       "FR-2",
-      "NFR-1"
+      "NFR-1",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",

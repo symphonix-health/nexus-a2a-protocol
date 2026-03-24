@@ -2,13 +2,14 @@
   {
     "use_case_id": "UC-PERSONA-0001",
     "poc_demo": "clinician-avatar",
-    "scenario_title": "Persona registry loads \u2014 all 68 personas accessible",
+    "scenario_title": "Persona registry loads — all 68 personas accessible",
     "scenario_type": "positive",
     "requirement_ids": [
       "FR-PERSONA-1",
       "NFR-10",
       "FR-1",
-      "IR-1"
+      "IR-1",
+      "FR-8"
     ],
     "preconditions": [
       "config/personas.json present",
@@ -42,7 +43,8 @@
       "FR-PERSONA-2",
       "FR-AVATAR-1",
       "FR-2",
-      "NFR-10"
+      "NFR-10",
+      "FR-8"
     ],
     "preconditions": [
       "clinician-avatar-agent running on port 8039",
@@ -94,7 +96,8 @@
       "FR-AVATAR-1",
       "FR-2",
       "NFR-10",
-      "IR-1"
+      "IR-1",
+      "FR-8"
     ],
     "preconditions": [
       "clinician-avatar-agent running on port 8039",
@@ -144,7 +147,8 @@
       "FR-PERSONA-3",
       "FR-2",
       "NFR-10",
-      "IR-1"
+      "IR-1",
+      "FR-8"
     ],
     "preconditions": [
       "clinician-avatar-agent running on port 8039",
@@ -193,7 +197,8 @@
     "requirement_ids": [
       "FR-PERSONA-4",
       "FR-8",
-      "NFR-10"
+      "NFR-10",
+      "FR-2"
     ],
     "preconditions": [
       "clinician-avatar-agent running on port 8039",
@@ -243,7 +248,8 @@
     "requirement_ids": [
       "FR-PERSONA-5",
       "FR-1",
-      "NFR-10"
+      "NFR-10",
+      "FR-8"
     ],
     "preconditions": [
       "clinician-avatar-agent running on port 8039",
@@ -282,7 +288,8 @@
     "requirement_ids": [
       "FR-IAM-1",
       "NFR-10",
-      "FR-12"
+      "FR-12",
+      "FR-8"
     ],
     "preconditions": [
       "clinician-avatar-agent running on port 8039",
@@ -319,7 +326,8 @@
     "requirement_ids": [
       "NFR-10",
       "FR-IAM-1",
-      "FR-1"
+      "FR-1",
+      "FR-8"
     ],
     "preconditions": [
       "clinician-avatar-agent running on port 8039"
@@ -348,7 +356,7 @@
   {
     "use_case_id": "UC-PERSONA-0009",
     "poc_demo": "clinician-avatar",
-    "scenario_title": "Full avatar consultation with persona_id P002 (GP) \u2014 UK primary care",
+    "scenario_title": "Full avatar consultation with persona_id P002 (GP) — UK primary care",
     "scenario_type": "positive",
     "requirement_ids": [
       "FR-PERSONA-2",
@@ -398,13 +406,14 @@
   {
     "use_case_id": "UC-PERSONA-0010",
     "poc_demo": "clinician-avatar",
-    "scenario_title": "Full avatar consultation with persona_id P065 (Psychiatrist) \u2014 mental health",
+    "scenario_title": "Full avatar consultation with persona_id P065 (Psychiatrist) — mental health",
     "scenario_type": "positive",
     "requirement_ids": [
       "FR-PERSONA-2",
       "FR-AVATAR-2",
       "FR-2",
-      "NFR-10"
+      "NFR-10",
+      "FR-8"
     ],
     "preconditions": [
       "clinician-avatar-agent running on port 8039",
@@ -453,7 +462,8 @@
       "FR-PERSONA-3",
       "FR-2",
       "NFR-10",
-      "IR-1"
+      "IR-1",
+      "FR-8"
     ],
     "preconditions": [
       "clinician-avatar-agent running on port 8039",
@@ -500,7 +510,8 @@
       "FR-PERSONA-5",
       "FR-IAM-2",
       "NFR-10",
-      "FR-12"
+      "FR-12",
+      "FR-8"
     ],
     "preconditions": [
       "config/personas.json present"
@@ -530,12 +541,13 @@
   {
     "use_case_id": "UC-PERSONA-0013",
     "poc_demo": "clinician-avatar",
-    "scenario_title": "Agent identity delegation graph is consistent \u2014 no circular delegation",
+    "scenario_title": "Agent identity delegation graph is consistent — no circular delegation",
     "scenario_type": "positive",
     "requirement_ids": [
       "FR-IAM-3",
       "NFR-10",
-      "FR-12"
+      "FR-12",
+      "FR-8"
     ],
     "preconditions": [
       "config/agent_personas.json present"
@@ -562,12 +574,14 @@
   {
     "use_case_id": "UC-PERSONA-0014",
     "poc_demo": "clinician-avatar",
-    "scenario_title": "Communication permissions \u2014 discharge agent can send email but not SMS",
+    "scenario_title": "Communication permissions — discharge agent can send email but not SMS",
     "scenario_type": "positive",
     "requirement_ids": [
       "FR-IAM-4",
       "NFR-10",
-      "CR-3"
+      "CR-3",
+      "FR-8",
+      "FR-12"
     ],
     "preconditions": [
       "config/agent_personas.json present"
@@ -604,7 +618,9 @@
     "requirement_ids": [
       "FR-IAM-4",
       "NFR-10",
-      "IR-2"
+      "IR-2",
+      "FR-8",
+      "FR-12"
     ],
     "preconditions": [
       "config/agent_personas.json present"
@@ -643,7 +659,9 @@
     "scenario_type": "negative",
     "requirement_ids": [
       "SEC-1",
-      "NFR-2"
+      "NFR-2",
+      "FR-8",
+      "NFR-10"
     ],
     "preconditions": [
       "clinician-avatar-agent running on port 8039"
@@ -679,7 +697,8 @@
     "requirement_ids": [
       "FR-PERSONA-2",
       "FR-2",
-      "NFR-10"
+      "NFR-10",
+      "FR-8"
     ],
     "preconditions": [
       "clinician-avatar-agent running on port 8039",
@@ -726,7 +745,10 @@
     "scenario_type": "negative",
     "requirement_ids": [
       "SEC-1",
-      "NFR-2"
+      "NFR-2",
+      "FR-8",
+      "FR-12",
+      "NFR-10"
     ],
     "preconditions": [
       "clinician-avatar-agent running on port 8039"
@@ -752,12 +774,14 @@
   {
     "use_case_id": "UC-PERSONA-NEG-004",
     "poc_demo": "clinician-avatar",
-    "scenario_title": "Clinician avatar agent cannot send SMS \u2014 permission denied at payload build",
+    "scenario_title": "Clinician avatar agent cannot send SMS — permission denied at payload build",
     "scenario_type": "negative",
     "requirement_ids": [
       "FR-IAM-4",
       "NFR-10",
-      "CR-5"
+      "CR-5",
+      "FR-8",
+      "FR-12"
     ],
     "preconditions": [
       "config/agent_personas.json present"
@@ -785,12 +809,14 @@
   {
     "use_case_id": "UC-PERSONA-NEG-005",
     "poc_demo": "clinician-avatar",
-    "scenario_title": "Consent analyser agent cannot send email \u2014 permission denied",
+    "scenario_title": "Consent analyser agent cannot send email — permission denied",
     "scenario_type": "negative",
     "requirement_ids": [
       "FR-IAM-4",
       "NFR-10",
-      "CR-5"
+      "CR-5",
+      "FR-8",
+      "FR-12"
     ],
     "preconditions": [
       "config/agent_personas.json present"
@@ -823,7 +849,8 @@
     "requirement_ids": [
       "FR-PERSONA-2",
       "FR-2",
-      "NFR-10"
+      "NFR-10",
+      "FR-8"
     ],
     "preconditions": [
       "clinician-avatar-agent running on port 8039",
@@ -871,7 +898,8 @@
     "requirement_ids": [
       "FR-PERSONA-5",
       "FR-1",
-      "NFR-10"
+      "NFR-10",
+      "FR-8"
     ],
     "preconditions": [
       "clinician-avatar-agent running on port 8039",
@@ -906,7 +934,8 @@
     "requirement_ids": [
       "FR-PERSONA-3",
       "NFR-10",
-      "IR-1"
+      "IR-1",
+      "FR-8"
     ],
     "preconditions": [
       "config/personas.json present"

@@ -187,7 +187,8 @@
     "requirement_ids": [
       "NEXUS-GHARRA-001",
       "FR-1",
-      "SEC-1"
+      "SEC-1",
+      "IR-1"
     ],
     "expected_result": {
       "admitted": false,
@@ -352,7 +353,8 @@
     "requirement_ids": [
       "NEXUS-GHARRA-004",
       "FR-1",
-      "CR-5"
+      "CR-5",
+      "IR-1"
     ],
     "expected_result": {
       "admitted": false,
@@ -395,7 +397,8 @@
       "NEXUS-GHARRA-002",
       "FR-1",
       "SEC-1",
-      "CR-5"
+      "CR-5",
+      "IR-1"
     ],
     "expected_result": {
       "admitted": false,
@@ -442,7 +445,8 @@
       "NEXUS-GHARRA-007",
       "FR-1",
       "CR-3",
-      "SPR-4"
+      "SPR-4",
+      "IR-1"
     ],
     "expected_result": {
       "admitted": false,

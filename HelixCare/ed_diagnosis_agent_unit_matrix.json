@@ -411,7 +411,8 @@
     "scenario_type": "negative",
     "requirement_ids": [
       "SEC-1",
-      "NFR-2"
+      "NFR-2",
+      "FR-2"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -449,7 +450,8 @@
     "scenario_type": "negative",
     "requirement_ids": [
       "SEC-1",
-      "NFR-2"
+      "NFR-2",
+      "FR-2"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -488,7 +490,9 @@
     "requirement_ids": [
       "SEC-2",
       "SEC-1",
-      "NFR-2"
+      "NFR-2",
+      "FR-2",
+      "FR-12"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -527,7 +531,8 @@
     "scenario_type": "negative",
     "requirement_ids": [
       "SEC-1",
-      "NFR-2"
+      "NFR-2",
+      "FR-2"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -626,7 +631,8 @@
     "scenario_type": "negative",
     "requirement_ids": [
       "FR-13",
-      "FR-2"
+      "FR-2",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -654,7 +660,7 @@
   {
     "use_case_id": "EDD-UNIT-0016",
     "poc_demo": "ed-diagnosis-unit",
-    "scenario_title": "Empty chief complaint \u2014 LLM still returns a non-empty rationale",
+    "scenario_title": "Empty chief complaint — LLM still returns a non-empty rationale",
     "scenario_type": "edge",
     "requirement_ids": [
       "FR-20",
@@ -701,7 +707,7 @@
   {
     "use_case_id": "EDD-UNIT-0017",
     "poc_demo": "ed-diagnosis-unit",
-    "scenario_title": "Missing patient field \u2014 assessment still completes with unknown patient_id",
+    "scenario_title": "Missing patient field — assessment still completes with unknown patient_id",
     "scenario_type": "edge",
     "requirement_ids": [
       "FR-20",
@@ -792,7 +798,7 @@
   {
     "use_case_id": "EDD-UNIT-0019",
     "poc_demo": "ed-diagnosis-unit",
-    "scenario_title": "Unicode characters in complaint \u2014 no server error",
+    "scenario_title": "Unicode characters in complaint — no server error",
     "scenario_type": "edge",
     "requirement_ids": [
       "FR-20",
@@ -808,9 +814,9 @@
         "task": {
           "patient": {
             "patient_id": "P119",
-            "name": "\u00c1ngel Mart\u00ednez"
+            "name": "Ángel Martínez"
           },
-          "chief_complaint": "Dolor en el pecho y dificultad para respirar \u2014 \u80f8\u306e\u75db\u307f",
+          "chief_complaint": "Dolor en el pecho y dificultad para respirar — 胸の痛み",
           "vitals": {
             "spo2": 95,
             "temp_c": 37.2

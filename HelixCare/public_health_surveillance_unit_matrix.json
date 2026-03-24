@@ -8,7 +8,8 @@
     "requirement_ids": [
       "FR-50",
       "FR-9",
-      "CR-4"
+      "CR-4",
+      "FR-2"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -54,7 +55,8 @@
     "requirement_ids": [
       "FR-50",
       "FR-9",
-      "FR-11"
+      "FR-11",
+      "FR-2"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -96,7 +98,8 @@
     "requirement_ids": [
       "FR-51",
       "FR-9",
-      "IR-1"
+      "IR-1",
+      "FR-2"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -137,7 +140,8 @@
     "agent": "osint-agent",
     "requirement_ids": [
       "FR-51",
-      "FR-9"
+      "FR-9",
+      "FR-2"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -177,7 +181,8 @@
     "requirement_ids": [
       "FR-52",
       "FR-9",
-      "CR-4"
+      "CR-4",
+      "FR-2"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -219,7 +224,8 @@
     "requirement_ids": [
       "FR-52",
       "FR-9",
-      "FR-11"
+      "FR-11",
+      "FR-2"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -259,7 +265,9 @@
     "agent": "hospital-reporter",
     "requirement_ids": [
       "SEC-1",
-      "NFR-2"
+      "NFR-2",
+      "FR-2",
+      "FR-9"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -295,7 +303,9 @@
     "agent": "osint-agent",
     "requirement_ids": [
       "SEC-1",
-      "NFR-2"
+      "NFR-2",
+      "FR-2",
+      "FR-9"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -331,7 +341,9 @@
     "agent": "central-surveillance",
     "requirement_ids": [
       "SEC-1",
-      "NFR-2"
+      "NFR-2",
+      "FR-2",
+      "FR-9"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -426,13 +438,14 @@
   {
     "use_case_id": "PHS-UNIT-0012",
     "poc_demo": "public-health-surveillance-unit",
-    "scenario_title": "OSINT agent headlines with empty pathogen \u2014 no crash",
+    "scenario_title": "OSINT agent headlines with empty pathogen — no crash",
     "scenario_type": "edge",
     "agent": "osint-agent",
     "requirement_ids": [
       "FR-51",
       "FR-9",
-      "NFR-1"
+      "NFR-1",
+      "FR-2"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -465,12 +478,13 @@
   {
     "use_case_id": "PHS-UNIT-0013",
     "poc_demo": "public-health-surveillance-unit",
-    "scenario_title": "Hospital reporter without patient field \u2014 defaults to unknown",
+    "scenario_title": "Hospital reporter without patient field — defaults to unknown",
     "scenario_type": "edge",
     "agent": "hospital-reporter",
     "requirement_ids": [
       "FR-50",
-      "FR-9"
+      "FR-9",
+      "FR-2"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -508,7 +522,8 @@
     "agent": "central-surveillance",
     "requirement_ids": [
       "FR-52",
-      "FR-9"
+      "FR-9",
+      "FR-2"
     ],
     "input_payload": {
       "jsonrpc": "2.0",
@@ -541,7 +556,9 @@
     "agent": "osint-agent",
     "requirement_ids": [
       "FR-51",
-      "FR-9"
+      "FR-9",
+      "FR-2",
+      "FR-11"
     ],
     "input_payload": {
       "jsonrpc": "2.0",

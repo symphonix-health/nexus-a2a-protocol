@@ -7,7 +7,8 @@
     "requirement_ids": [
       "FR-1",
       "NFR-7",
-      "IR-1"
+      "IR-1",
+      "FR-8"
     ],
     "preconditions": [
       "clinician_avatar_agent_running"
@@ -37,7 +38,8 @@
     "scenario_type": "positive",
     "requirement_ids": [
       "NFR-7",
-      "FR-1"
+      "FR-1",
+      "FR-8"
     ],
     "preconditions": [
       "clinician_avatar_agent_running"
@@ -66,7 +68,7 @@
   {
     "use_case_id": "HC-AVATAR-00003",
     "poc_demo": "helixcare-clinician-avatar",
-    "scenario_title": "Start avatar session \u2014 cardiac emergency persona",
+    "scenario_title": "Start avatar session — cardiac emergency persona",
     "scenario_type": "positive",
     "requirement_ids": [
       "FR-15",
@@ -124,7 +126,7 @@
   {
     "use_case_id": "HC-AVATAR-00004",
     "poc_demo": "helixcare-clinician-avatar",
-    "scenario_title": "Patient message \u2014 clinician responds with SOCRATES assessment",
+    "scenario_title": "Patient message — clinician responds with SOCRATES assessment",
     "scenario_type": "positive",
     "requirement_ids": [
       "FR-16",
@@ -173,7 +175,8 @@
     "requirement_ids": [
       "FR-18",
       "NFR-3",
-      "FR-2"
+      "FR-2",
+      "FR-8"
     ],
     "preconditions": [
       "clinician_avatar_agent_running",
@@ -215,7 +218,8 @@
     "requirement_ids": [
       "FR-19",
       "FR-2",
-      "NFR-4"
+      "NFR-4",
+      "FR-8"
     ],
     "preconditions": [
       "clinician_avatar_agent_running",
@@ -256,7 +260,8 @@
       "FR-20",
       "NFR-2",
       "NFR-3",
-      "FR-11"
+      "FR-11",
+      "FR-8"
     ],
     "preconditions": [
       "clinician_avatar_agent_running",
@@ -294,7 +299,8 @@
     "scenario_type": "positive",
     "requirement_ids": [
       "FR-21",
-      "FR-11"
+      "FR-11",
+      "FR-8"
     ],
     "preconditions": [
       "clinician_avatar_agent_running",
@@ -332,7 +338,8 @@
     "scenario_type": "positive",
     "requirement_ids": [
       "NFR-8",
-      "IR-1"
+      "IR-1",
+      "FR-8"
     ],
     "preconditions": [
       "clinician_avatar_agent_running",
@@ -360,7 +367,7 @@
   {
     "use_case_id": "HC-AVATAR-00010",
     "poc_demo": "helixcare-clinician-avatar",
-    "scenario_title": "Start session \u2014 diabetic foot ulcer, medium urgency",
+    "scenario_title": "Start session — diabetic foot ulcer, medium urgency",
     "scenario_type": "positive",
     "requirement_ids": [
       "FR-15",
@@ -420,7 +427,9 @@
       "SPR-1",
       "CR-5",
       "SEC-1",
-      "NFR-2"
+      "NFR-2",
+      "FR-2",
+      "FR-8"
     ],
     "preconditions": [
       "clinician_avatar_agent_running"
@@ -458,7 +467,8 @@
     "requirement_ids": [
       "FR-22",
       "CR-3",
-      "FR-2"
+      "FR-2",
+      "FR-8"
     ],
     "preconditions": [
       "clinician_avatar_agent_running",
@@ -493,7 +503,8 @@
     "requirement_ids": [
       "FR-17",
       "CR-3",
-      "FR-2"
+      "FR-2",
+      "FR-8"
     ],
     "preconditions": [
       "clinician_avatar_agent_running",
@@ -530,7 +541,8 @@
     "scenario_type": "negative",
     "requirement_ids": [
       "FR-18",
-      "FR-2"
+      "FR-2",
+      "FR-8"
     ],
     "preconditions": [
       "clinician_avatar_agent_running",
@@ -566,7 +578,8 @@
     "scenario_type": "negative",
     "requirement_ids": [
       "NFR-8",
-      "FR-2"
+      "FR-2",
+      "FR-8"
     ],
     "preconditions": [
       "clinician_avatar_agent_running"
@@ -597,7 +610,8 @@
     "requirement_ids": [
       "SPR-3",
       "CR-5",
-      "SPR-1"
+      "SPR-1",
+      "FR-8"
     ],
     "preconditions": [
       "clinician_avatar_agent_running"
@@ -630,7 +644,9 @@
       "SPR-1",
       "CR-5",
       "SEC-1",
-      "NFR-2"
+      "NFR-2",
+      "FR-8",
+      "FR-11"
     ],
     "preconditions": [
       "clinician_avatar_agent_running"
@@ -661,7 +677,8 @@
     "scenario_type": "edge",
     "requirement_ids": [
       "FR-20",
-      "FR-11"
+      "FR-11",
+      "FR-8"
     ],
     "preconditions": [
       "clinician_avatar_agent_running",
@@ -700,7 +717,8 @@
       "FR-15",
       "NFR-5",
       "FR-2",
-      "NFR-1"
+      "NFR-1",
+      "FR-8"
     ],
     "preconditions": [
       "clinician_avatar_agent_running",
@@ -740,12 +758,13 @@
   {
     "use_case_id": "HC-AVATAR-E003",
     "poc_demo": "helixcare-clinician-avatar",
-    "scenario_title": "avatar/end_session is idempotent \u2014 second call returns ended=false",
+    "scenario_title": "avatar/end_session is idempotent — second call returns ended=false",
     "scenario_type": "edge",
     "requirement_ids": [
       "FR-19",
       "FR-2",
-      "NFR-4"
+      "NFR-4",
+      "FR-8"
     ],
     "preconditions": [
       "clinician_avatar_agent_running",
@@ -780,7 +799,8 @@
     "requirement_ids": [
       "FR-20",
       "NFR-4",
-      "FR-11"
+      "FR-11",
+      "FR-8"
     ],
     "preconditions": [
       "clinician_avatar_agent_running",

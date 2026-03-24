@@ -21,7 +21,8 @@
       "NEXUS-IAM-NONENCOUNTER-CONTROLPLANE",
       "FR-2",
       "FR-12",
-      "NFR-2"
+      "NFR-2",
+      "NFR-10"
     ],
     "test_tags": [
       "helixcare",
@@ -52,7 +53,10 @@
       "NEXUS-IAM-STEP3",
       "NEXUS-IAM-NONENCOUNTER-AUTH",
       "SEC-1",
-      "NFR-2"
+      "NFR-2",
+      "FR-2",
+      "FR-12",
+      "NFR-10"
     ],
     "test_tags": [
       "helixcare",
@@ -85,7 +89,8 @@
       "NEXUS-IAM-NONENCOUNTER-RBAC",
       "FR-12",
       "CR-2",
-      "CR-5"
+      "CR-5",
+      "NFR-10"
     ],
     "test_tags": [
       "helixcare",
@@ -121,7 +126,8 @@
       "NEXUS-IAM-NONENCOUNTER-PERSONA",
       "FR-12",
       "NFR-10",
-      "CR-5"
+      "CR-5",
+      "FR-2"
     ],
     "test_tags": [
       "helixcare",
@@ -160,7 +166,9 @@
       "FR-12",
       "CR-1",
       "CR-5",
-      "SPR-1"
+      "SPR-1",
+      "CR-2",
+      "NFR-10"
     ],
     "test_tags": [
       "helixcare",
@@ -200,7 +208,8 @@
       "NEXUS-IAM-NONENCOUNTER-BREAKGLASS",
       "FR-12",
       "CR-1",
-      "CR-2"
+      "CR-2",
+      "NFR-10"
     ],
     "test_tags": [
       "helixcare",
@@ -238,7 +247,9 @@
       "NEXUS-IAM-NONENCOUNTER-POU",
       "FR-12",
       "CR-5",
-      "SPR-4"
+      "SPR-4",
+      "CR-2",
+      "NFR-10"
     ],
     "test_tags": [
       "helixcare",
@@ -277,7 +288,8 @@
       "NEXUS-IAM-NONENCOUNTER-SHADOW",
       "FR-12",
       "CR-2",
-      "CR-5"
+      "CR-5",
+      "NFR-10"
     ],
     "test_tags": [
       "helixcare",
