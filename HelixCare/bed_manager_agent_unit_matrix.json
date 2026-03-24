@@ -1,0 +1,334 @@
+[
+  {
+    "use_case_id": "BED-UNIT-0001",
+    "poc_demo": "helixcare",
+    "scenario_title": "admission/assign_bed allocates available ward bed",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-BED-1"],
+    "preconditions": ["bed-manager-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "bed-test-001",
+      "method": "admission/assign_bed",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-TEST-001"},
+          "ward": "cardiology",
+          "priority": "urgent"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["bed-manager", "unit", "positive", "assign-bed"]
+  },
+  {
+    "use_case_id": "BED-UNIT-0002",
+    "poc_demo": "helixcare",
+    "scenario_title": "admission/check_availability returns bed status",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-BED-2"],
+    "preconditions": ["bed-manager-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "bed-test-002",
+      "method": "admission/check_availability",
+      "params": {
+        "task": {
+          "ward": "general",
+          "bed_type": "standard"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["bed-manager", "unit", "positive", "check-availability"]
+  },
+  {
+    "use_case_id": "BED-UNIT-0003",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/sendSubscribe for admission request returns task_id and trace_id",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-BED-3"],
+    "preconditions": ["bed-manager-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "bed-test-003",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-TEST-003"},
+          "ward": "orthopaedics",
+          "priority": "routine"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "trace_id"]},
+    "error_condition": "none",
+    "test_tags": ["bed-manager", "unit", "positive", "tasks-send-subscribe"]
+  },
+  {
+    "use_case_id": "BED-UNIT-0004",
+    "poc_demo": "helixcare",
+    "scenario_title": "agent-card GET returns 200 with name field",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-BED-4"],
+    "preconditions": ["bed-manager-agent loaded in-process"],
+    "input_payload": {"_endpoint": "GET /.well-known/agent-card.json"},
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "has_name_field": true},
+    "error_condition": "none",
+    "test_tags": ["bed-manager", "unit", "positive", "agent-card"]
+  },
+  {
+    "use_case_id": "BED-UNIT-0005",
+    "poc_demo": "helixcare",
+    "scenario_title": "health GET returns 200",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-BED-5"],
+    "preconditions": ["bed-manager-agent loaded in-process"],
+    "input_payload": {"_endpoint": "GET /health"},
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["bed-manager", "unit", "positive", "health"]
+  },
+  {
+    "use_case_id": "BED-UNIT-0006",
+    "poc_demo": "helixcare",
+    "scenario_title": "admission/assign_bed with ICU priority bed request",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-BED-1"],
+    "preconditions": ["bed-manager-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "bed-test-006",
+      "method": "admission/assign_bed",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-TEST-006"},
+          "ward": "icu",
+          "priority": "critical",
+          "bed_type": "monitored"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["bed-manager", "unit", "positive", "assign-bed", "icu"]
+  },
+  {
+    "use_case_id": "BED-UNIT-0007",
+    "poc_demo": "helixcare",
+    "scenario_title": "Missing Authorization header returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["bed-manager-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "bed-neg-001",
+      "method": "admission/assign_bed",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-NEG-001"},
+          "ward": "general"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"ok": false, "error": "AUTH_FAILED"},
+    "error_condition": "missing_bearer_token",
+    "test_tags": ["bed-manager", "unit", "negative", "auth", "401"]
+  },
+  {
+    "use_case_id": "BED-UNIT-0008",
+    "poc_demo": "helixcare",
+    "scenario_title": "JWT signed with wrong secret returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["bed-manager-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "bed-neg-002",
+      "method": "admission/assign_bed",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-NEG-002"},
+          "ward": "general"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt_invalid",
+    "expected_http_status": 401,
+    "expected_result": {"ok": false, "error": "AUTH_FAILED"},
+    "error_condition": "invalid_jwt_signature",
+    "test_tags": ["bed-manager", "unit", "negative", "auth", "401", "jwt-invalid"]
+  },
+  {
+    "use_case_id": "BED-UNIT-0009",
+    "poc_demo": "helixcare",
+    "scenario_title": "Unknown RPC method returns -32601 method-not-found",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-BED-6"],
+    "preconditions": ["bed-manager-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "bed-neg-003",
+      "method": "admission/nonexistent_method",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32601},
+    "error_condition": "method_not_found",
+    "test_tags": ["bed-manager", "unit", "negative", "rpc-error", "method-not-found"]
+  },
+  {
+    "use_case_id": "BED-UNIT-0010",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/get without task_id returns -32602 invalid-params",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-BED-7"],
+    "preconditions": ["bed-manager-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "bed-neg-004",
+      "method": "tasks/get",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32602},
+    "error_condition": "missing_task_id",
+    "test_tags": ["bed-manager", "unit", "negative", "rpc-error", "invalid-params"]
+  },
+  {
+    "use_case_id": "BED-UNIT-0011",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/cancel without task_id returns -32602 invalid-params",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-BED-7"],
+    "preconditions": ["bed-manager-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "bed-neg-005",
+      "method": "tasks/cancel",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32602},
+    "error_condition": "missing_task_id",
+    "test_tags": ["bed-manager", "unit", "negative", "rpc-error", "invalid-params"]
+  },
+  {
+    "use_case_id": "BED-UNIT-0012",
+    "poc_demo": "helixcare",
+    "scenario_title": "admission/assign_bed with empty params handles gracefully",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-BED-8"],
+    "preconditions": ["bed-manager-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "bed-edge-001",
+      "method": "admission/assign_bed",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["bed-manager", "unit", "edge", "empty-params"]
+  },
+  {
+    "use_case_id": "BED-UNIT-0013",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/cancel with non-existent task_id returns cancelled=false",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-BED-9"],
+    "preconditions": ["bed-manager-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "bed-edge-002",
+      "method": "tasks/cancel",
+      "params": {
+        "task_id": "nonexistent-bed-task-xyz"
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "cancelled"], "cancelled": false},
+    "error_condition": "none",
+    "test_tags": ["bed-manager", "unit", "edge", "cancel-nonexistent"]
+  },
+  {
+    "use_case_id": "BED-UNIT-0014",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/sendSubscribe with missing patient field defaults patient_id to unknown",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-BED-10"],
+    "preconditions": ["bed-manager-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "bed-edge-003",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "ward": "cardiology"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["bed-manager", "unit", "edge", "missing-patient"]
+  },
+  {
+    "use_case_id": "BED-UNIT-0015",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/resubscribe with invalid cursor returns -32002",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-BED-11"],
+    "preconditions": ["bed-manager-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "bed-edge-004",
+      "method": "tasks/resubscribe",
+      "params": {
+        "cursor": "not-a-real-cursor-for-bed-agent"
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32002},
+    "error_condition": "invalid_cursor",
+    "test_tags": ["bed-manager", "unit", "edge", "cursor", "resubscribe"]
+  }
+]

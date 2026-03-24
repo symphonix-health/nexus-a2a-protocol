@@ -1,0 +1,340 @@
+[
+  {
+    "use_case_id": "IMG-UNIT-0001",
+    "poc_demo": "helixcare",
+    "scenario_title": "imaging/request for chest X-ray returns task_id",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-IMG-1"],
+    "preconditions": ["imaging-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "img-test-001",
+      "method": "imaging/request",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-IMG-001"},
+          "modality": "XR",
+          "body_part": "chest",
+          "clinical_indication": "rule out pneumonia"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["imaging", "unit", "positive", "imaging-request", "xray"]
+  },
+  {
+    "use_case_id": "IMG-UNIT-0002",
+    "poc_demo": "helixcare",
+    "scenario_title": "imaging/request for MRI brain returns task_id",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-IMG-1"],
+    "preconditions": ["imaging-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "img-test-002",
+      "method": "imaging/request",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-IMG-002"},
+          "modality": "MRI",
+          "body_part": "brain",
+          "clinical_indication": "suspected stroke"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["imaging", "unit", "positive", "imaging-request", "mri"]
+  },
+  {
+    "use_case_id": "IMG-UNIT-0003",
+    "poc_demo": "helixcare",
+    "scenario_title": "imaging/analyze processes imaging study and returns findings",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-IMG-2"],
+    "preconditions": ["imaging-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "img-test-003",
+      "method": "imaging/analyze",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-IMG-003"},
+          "study_id": "STUDY-001",
+          "modality": "XR",
+          "body_part": "chest"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["imaging", "unit", "positive", "imaging-analyze"]
+  },
+  {
+    "use_case_id": "IMG-UNIT-0004",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/sendSubscribe for imaging request returns task_id and trace_id",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-IMG-3"],
+    "preconditions": ["imaging-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "img-test-004",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-IMG-004"},
+          "modality": "CT",
+          "body_part": "abdomen",
+          "clinical_indication": "abdominal pain"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "trace_id"]},
+    "error_condition": "none",
+    "test_tags": ["imaging", "unit", "positive", "tasks-send-subscribe"]
+  },
+  {
+    "use_case_id": "IMG-UNIT-0005",
+    "poc_demo": "helixcare",
+    "scenario_title": "agent-card GET returns 200 with name field",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-IMG-4"],
+    "preconditions": ["imaging-agent loaded in-process"],
+    "input_payload": {"_endpoint": "GET /.well-known/agent-card.json"},
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "has_name_field": true},
+    "error_condition": "none",
+    "test_tags": ["imaging", "unit", "positive", "agent-card"]
+  },
+  {
+    "use_case_id": "IMG-UNIT-0006",
+    "poc_demo": "helixcare",
+    "scenario_title": "health GET returns 200",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-IMG-5"],
+    "preconditions": ["imaging-agent loaded in-process"],
+    "input_payload": {"_endpoint": "GET /health"},
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["imaging", "unit", "positive", "health"]
+  },
+  {
+    "use_case_id": "IMG-UNIT-0007",
+    "poc_demo": "helixcare",
+    "scenario_title": "Missing Authorization header returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["imaging-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "img-neg-001",
+      "method": "imaging/request",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-NEG-001"},
+          "modality": "XR",
+          "body_part": "chest"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"ok": false, "error": "AUTH_FAILED"},
+    "error_condition": "missing_bearer_token",
+    "test_tags": ["imaging", "unit", "negative", "auth", "401"]
+  },
+  {
+    "use_case_id": "IMG-UNIT-0008",
+    "poc_demo": "helixcare",
+    "scenario_title": "JWT signed with wrong secret returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["imaging-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "img-neg-002",
+      "method": "imaging/request",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-NEG-002"},
+          "modality": "XR"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt_invalid",
+    "expected_http_status": 401,
+    "expected_result": {"ok": false, "error": "AUTH_FAILED"},
+    "error_condition": "invalid_jwt_signature",
+    "test_tags": ["imaging", "unit", "negative", "auth", "401", "jwt-invalid"]
+  },
+  {
+    "use_case_id": "IMG-UNIT-0009",
+    "poc_demo": "helixcare",
+    "scenario_title": "Unknown RPC method returns -32601 method-not-found",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-IMG-6"],
+    "preconditions": ["imaging-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "img-neg-003",
+      "method": "imaging/nonexistent",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32601},
+    "error_condition": "method_not_found",
+    "test_tags": ["imaging", "unit", "negative", "rpc-error", "method-not-found"]
+  },
+  {
+    "use_case_id": "IMG-UNIT-0010",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/get without task_id returns -32602 invalid-params",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-IMG-7"],
+    "preconditions": ["imaging-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "img-neg-004",
+      "method": "tasks/get",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32602},
+    "error_condition": "missing_task_id",
+    "test_tags": ["imaging", "unit", "negative", "rpc-error", "invalid-params"]
+  },
+  {
+    "use_case_id": "IMG-UNIT-0011",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/cancel without task_id returns -32602 invalid-params",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-IMG-7"],
+    "preconditions": ["imaging-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "img-neg-005",
+      "method": "tasks/cancel",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32602},
+    "error_condition": "missing_task_id",
+    "test_tags": ["imaging", "unit", "negative", "rpc-error", "invalid-params"]
+  },
+  {
+    "use_case_id": "IMG-UNIT-0012",
+    "poc_demo": "helixcare",
+    "scenario_title": "imaging/request with empty params handles gracefully",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-IMG-8"],
+    "preconditions": ["imaging-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "img-edge-001",
+      "method": "imaging/request",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["imaging", "unit", "edge", "empty-params"]
+  },
+  {
+    "use_case_id": "IMG-UNIT-0013",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/cancel with non-existent task_id returns cancelled=false",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-IMG-9"],
+    "preconditions": ["imaging-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "img-edge-002",
+      "method": "tasks/cancel",
+      "params": {
+        "task_id": "nonexistent-imaging-task-xyz"
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "cancelled"], "cancelled": false},
+    "error_condition": "none",
+    "test_tags": ["imaging", "unit", "edge", "cancel-nonexistent"]
+  },
+  {
+    "use_case_id": "IMG-UNIT-0014",
+    "poc_demo": "helixcare",
+    "scenario_title": "imaging/analyze with missing patient field handles gracefully",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-IMG-10"],
+    "preconditions": ["imaging-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "img-edge-003",
+      "method": "imaging/analyze",
+      "params": {
+        "task": {
+          "study_id": "STUDY-EDGE-001",
+          "modality": "CT"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["imaging", "unit", "edge", "missing-patient"]
+  },
+  {
+    "use_case_id": "IMG-UNIT-0015",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/resubscribe with invalid cursor returns -32002",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-IMG-11"],
+    "preconditions": ["imaging-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "img-edge-004",
+      "method": "tasks/resubscribe",
+      "params": {
+        "cursor": "not-a-real-cursor-for-imaging-agent"
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32002},
+    "error_condition": "invalid_cursor",
+    "test_tags": ["imaging", "unit", "edge", "cursor", "resubscribe"]
+  }
+]

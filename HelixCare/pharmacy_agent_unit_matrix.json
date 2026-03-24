@@ -1,0 +1,337 @@
+[
+  {
+    "use_case_id": "PHARM-UNIT-0001",
+    "poc_demo": "helixcare",
+    "scenario_title": "pharmacy/recommend for a medication returns task_id",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-PHARM-1"],
+    "preconditions": ["pharmacy-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pharm-test-001",
+      "method": "pharmacy/recommend",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-PHARM-001"},
+          "condition": "hypertension",
+          "allergies": []
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["pharmacy", "unit", "positive", "pharmacy-recommend"]
+  },
+  {
+    "use_case_id": "PHARM-UNIT-0002",
+    "poc_demo": "helixcare",
+    "scenario_title": "pharmacy/check_interactions returns interaction alerts",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-PHARM-2"],
+    "preconditions": ["pharmacy-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pharm-test-002",
+      "method": "pharmacy/check_interactions",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-PHARM-002"},
+          "medications": ["warfarin", "aspirin"],
+          "new_medication": "ibuprofen"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["pharmacy", "unit", "positive", "check-interactions"]
+  },
+  {
+    "use_case_id": "PHARM-UNIT-0003",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/sendSubscribe for pharmacy request returns task_id and trace_id",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-PHARM-3"],
+    "preconditions": ["pharmacy-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pharm-test-003",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-PHARM-003"},
+          "condition": "diabetes type 2",
+          "allergies": ["penicillin"]
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "trace_id"]},
+    "error_condition": "none",
+    "test_tags": ["pharmacy", "unit", "positive", "tasks-send-subscribe"]
+  },
+  {
+    "use_case_id": "PHARM-UNIT-0004",
+    "poc_demo": "helixcare",
+    "scenario_title": "agent-card GET returns 200 with name field",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-PHARM-4"],
+    "preconditions": ["pharmacy-agent loaded in-process"],
+    "input_payload": {"_endpoint": "GET /.well-known/agent-card.json"},
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "has_name_field": true},
+    "error_condition": "none",
+    "test_tags": ["pharmacy", "unit", "positive", "agent-card"]
+  },
+  {
+    "use_case_id": "PHARM-UNIT-0005",
+    "poc_demo": "helixcare",
+    "scenario_title": "health GET returns 200",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-PHARM-5"],
+    "preconditions": ["pharmacy-agent loaded in-process"],
+    "input_payload": {"_endpoint": "GET /health"},
+    "transport": "unit",
+    "auth_mode": "none",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["pharmacy", "unit", "positive", "health"]
+  },
+  {
+    "use_case_id": "PHARM-UNIT-0006",
+    "poc_demo": "helixcare",
+    "scenario_title": "pharmacy/recommend for antibiotic treatment returns task_id",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-PHARM-1"],
+    "preconditions": ["pharmacy-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pharm-test-006",
+      "method": "pharmacy/recommend",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-PHARM-006"},
+          "condition": "community-acquired pneumonia",
+          "allergies": ["penicillin"],
+          "severity": "mild"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["pharmacy", "unit", "positive", "pharmacy-recommend", "antibiotic"]
+  },
+  {
+    "use_case_id": "PHARM-UNIT-0007",
+    "poc_demo": "helixcare",
+    "scenario_title": "Missing Authorization header returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["pharmacy-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pharm-neg-001",
+      "method": "pharmacy/recommend",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-NEG-001"},
+          "condition": "hypertension"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {"ok": false, "error": "AUTH_FAILED"},
+    "error_condition": "missing_bearer_token",
+    "test_tags": ["pharmacy", "unit", "negative", "auth", "401"]
+  },
+  {
+    "use_case_id": "PHARM-UNIT-0008",
+    "poc_demo": "helixcare",
+    "scenario_title": "JWT signed with wrong secret returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "preconditions": ["pharmacy-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pharm-neg-002",
+      "method": "pharmacy/recommend",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-NEG-002"},
+          "condition": "hypertension"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt_invalid",
+    "expected_http_status": 401,
+    "expected_result": {"ok": false, "error": "AUTH_FAILED"},
+    "error_condition": "invalid_jwt_signature",
+    "test_tags": ["pharmacy", "unit", "negative", "auth", "401", "jwt-invalid"]
+  },
+  {
+    "use_case_id": "PHARM-UNIT-0009",
+    "poc_demo": "helixcare",
+    "scenario_title": "Unknown RPC method returns -32601 method-not-found",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-PHARM-6"],
+    "preconditions": ["pharmacy-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pharm-neg-003",
+      "method": "pharmacy/nonexistent_method",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32601},
+    "error_condition": "method_not_found",
+    "test_tags": ["pharmacy", "unit", "negative", "rpc-error", "method-not-found"]
+  },
+  {
+    "use_case_id": "PHARM-UNIT-0010",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/get without task_id returns -32602 invalid-params",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-PHARM-7"],
+    "preconditions": ["pharmacy-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pharm-neg-004",
+      "method": "tasks/get",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32602},
+    "error_condition": "missing_task_id",
+    "test_tags": ["pharmacy", "unit", "negative", "rpc-error", "invalid-params"]
+  },
+  {
+    "use_case_id": "PHARM-UNIT-0011",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/cancel without task_id returns -32602 invalid-params",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-PHARM-7"],
+    "preconditions": ["pharmacy-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pharm-neg-005",
+      "method": "tasks/cancel",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32602},
+    "error_condition": "missing_task_id",
+    "test_tags": ["pharmacy", "unit", "negative", "rpc-error", "invalid-params"]
+  },
+  {
+    "use_case_id": "PHARM-UNIT-0012",
+    "poc_demo": "helixcare",
+    "scenario_title": "pharmacy/recommend with empty params handles gracefully",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-PHARM-8"],
+    "preconditions": ["pharmacy-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pharm-edge-001",
+      "method": "pharmacy/recommend",
+      "params": {}
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true},
+    "error_condition": "none",
+    "test_tags": ["pharmacy", "unit", "edge", "empty-params"]
+  },
+  {
+    "use_case_id": "PHARM-UNIT-0013",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/cancel with non-existent task_id returns cancelled=false",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-PHARM-9"],
+    "preconditions": ["pharmacy-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pharm-edge-002",
+      "method": "tasks/cancel",
+      "params": {
+        "task_id": "nonexistent-pharmacy-task-xyz"
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id", "cancelled"], "cancelled": false},
+    "error_condition": "none",
+    "test_tags": ["pharmacy", "unit", "edge", "cancel-nonexistent"]
+  },
+  {
+    "use_case_id": "PHARM-UNIT-0014",
+    "poc_demo": "helixcare",
+    "scenario_title": "pharmacy/check_interactions with empty medication list handles gracefully",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-PHARM-10"],
+    "preconditions": ["pharmacy-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pharm-edge-003",
+      "method": "pharmacy/check_interactions",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P-EDGE-003"},
+          "medications": [],
+          "new_medication": "paracetamol"
+        }
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": true, "contains": ["task_id"]},
+    "error_condition": "none",
+    "test_tags": ["pharmacy", "unit", "edge", "empty-medications"]
+  },
+  {
+    "use_case_id": "PHARM-UNIT-0015",
+    "poc_demo": "helixcare",
+    "scenario_title": "tasks/resubscribe with invalid cursor returns -32002",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-PHARM-11"],
+    "preconditions": ["pharmacy-agent loaded in-process"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "pharm-edge-004",
+      "method": "tasks/resubscribe",
+      "params": {
+        "cursor": "not-a-real-cursor-for-pharmacy-agent"
+      }
+    },
+    "transport": "unit",
+    "auth_mode": "jwt",
+    "expected_http_status": 200,
+    "expected_result": {"ok": false, "error_code": -32002},
+    "error_condition": "invalid_cursor",
+    "test_tags": ["pharmacy", "unit", "edge", "cursor", "resubscribe"]
+  }
+]
