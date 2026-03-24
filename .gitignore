@@ -11,6 +11,7 @@ temp/nexus_seed.sqlite3
 temp/task_event_store/
 **/temp/task_event_store/
 **/temp/*.sqlite3
+**/temp/*.json
 *.db
 *.jsonl
 
