@@ -1,0 +1,668 @@
+[
+  {
+    "use_case_id": "EDT-UNIT-0001",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "Chest pain triggers ESI-2 triage",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-10", "CR-3"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0001",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P001", "name": "John Smith", "age": 55, "gender": "male"},
+          "chief_complaint": "chest pain radiating to left arm",
+          "vitals": {"spo2": 96, "temp_c": 37.2, "heart_rate": 110, "bp_systolic": 160, "bp_diastolic": 95}
+        }
+      }
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["task_id", "trace_id", "triage_level", "patient_id", "rationale"],
+      "triage_level": "ESI-2"
+    },
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "unit", "positive", "triage-level", "esi-2", "chest-pain"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0002",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "Shortness of breath triggers ESI-2 triage",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-10", "CR-3"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0002",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P002", "name": "Maria Garcia", "age": 68, "gender": "female"},
+          "chief_complaint": "shortness of breath and difficulty breathing",
+          "vitals": {"spo2": 92, "temp_c": 37.5, "heart_rate": 102, "resp_rate": 24}
+        }
+      }
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["task_id", "trace_id", "triage_level", "patient_id"],
+      "triage_level": "ESI-2"
+    },
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "unit", "positive", "triage-level", "esi-2", "respiratory"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0003",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "SpO2 below 90% triggers ESI-2 regardless of complaint",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-10", "CR-4"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0003",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P003", "name": "David Lee", "age": 45, "gender": "male"},
+          "chief_complaint": "general weakness",
+          "vitals": {"spo2": 87, "temp_c": 37.0, "heart_rate": 95, "resp_rate": 20}
+        }
+      }
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["task_id", "triage_level"],
+      "triage_level": "ESI-2"
+    },
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "unit", "positive", "triage-level", "esi-2", "vital-threshold", "spo2"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0004",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "Confusion as chief complaint triggers ESI-2",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-10", "CR-3"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0004",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P004", "name": "Agnes Okonkwo", "age": 78, "gender": "female"},
+          "chief_complaint": "sudden onset confusion and disorientation",
+          "vitals": {"spo2": 95, "temp_c": 37.1, "heart_rate": 88}
+        }
+      }
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["task_id", "triage_level"],
+      "triage_level": "ESI-2"
+    },
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "unit", "positive", "triage-level", "esi-2", "neuro"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0005",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "Temperature >= 39.0 degrees triggers ESI-2",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-10", "CR-4"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0005",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P005", "name": "Samuel Osei", "age": 32, "gender": "male"},
+          "chief_complaint": "feeling unwell, malaise",
+          "vitals": {"spo2": 97, "temp_c": 39.5, "heart_rate": 105}
+        }
+      }
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["task_id", "triage_level"],
+      "triage_level": "ESI-2"
+    },
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "unit", "positive", "triage-level", "esi-2", "vital-threshold", "temperature"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0006",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "Minor laceration without critical vitals triggers ESI-4",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-10"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0006",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P006", "name": "Emily Chen", "age": 25, "gender": "female"},
+          "chief_complaint": "laceration on right forearm from kitchen accident",
+          "vitals": {"spo2": 99, "temp_c": 36.8, "heart_rate": 78, "bp_systolic": 118}
+        }
+      }
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["task_id", "triage_level"],
+      "triage_level": "ESI-4"
+    },
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "unit", "positive", "triage-level", "esi-4", "wound"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0007",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "Non-urgent headache defaults to ESI-3",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-10"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0007",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P007", "name": "Robert Mensah", "age": 38, "gender": "male"},
+          "chief_complaint": "mild tension headache for two days",
+          "vitals": {"spo2": 98, "temp_c": 36.9, "heart_rate": 72, "bp_systolic": 122}
+        }
+      }
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["task_id", "triage_level"],
+      "triage_level": "ESI-3"
+    },
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "unit", "positive", "triage-level", "esi-3", "default"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0008",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "Paediatric patient with chest pain is correctly triaged ESI-2",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-10", "CR-3"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0008",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P008", "name": "Liam Okafor", "age": 6, "gender": "male"},
+          "chief_complaint": "chest tightness and wheezing",
+          "vitals": {"spo2": 93, "temp_c": 37.8, "heart_rate": 130, "resp_rate": 30}
+        }
+      }
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["task_id", "triage_level", "patient_id"],
+      "triage_level": "ESI-2"
+    },
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "unit", "positive", "triage-level", "esi-2", "paediatric"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0009",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "Duplicate request with same idempotency key returns same task_id",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-15"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0009",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P009", "name": "Fatima Al-Hassan", "age": 42, "gender": "female"},
+          "chief_complaint": "abdominal pain",
+          "vitals": {"spo2": 97, "temp_c": 37.3}
+        },
+        "idempotency": {
+          "idempotency_key": "idem-edt-unit-0009-abdo-p009",
+          "dedup_window_ms": 300000,
+          "scope": "triage"
+        }
+      }
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["task_id"],
+      "idempotency_check": "same_task_id_on_repeat"
+    },
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "unit", "positive", "idempotency"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0010",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "tasks/send alias behaves identically to tasks/sendSubscribe",
+    "scenario_type": "positive",
+    "requirement_ids": ["FR-11"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0010",
+      "method": "tasks/send",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P010", "name": "Carlos Rivera", "age": 29, "gender": "male"},
+          "chief_complaint": "ankle sprain from sports injury",
+          "vitals": {"spo2": 99, "temp_c": 36.7}
+        }
+      }
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["task_id", "triage_level"],
+      "triage_level": "ESI-3"
+    },
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "unit", "positive", "method-alias"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0011",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "Missing Authorization header returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0011",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P011"},
+          "chief_complaint": "chest pain"
+        }
+      }
+    },
+    "auth_mode": "jwt_missing",
+    "expected_http_status": 401,
+    "expected_result": {
+      "ok": false,
+      "error": "AUTH_FAILED"
+    },
+    "error_condition": "missing_bearer_token",
+    "test_tags": ["ed-triage", "unit", "negative", "auth", "401"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0012",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "JWT signed with wrong secret returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0012",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P012"},
+          "chief_complaint": "chest pain"
+        }
+      }
+    },
+    "auth_mode": "jwt_invalid",
+    "expected_http_status": 401,
+    "expected_result": {
+      "ok": false,
+      "error": "AUTH_FAILED"
+    },
+    "error_condition": "invalid_jwt_signature",
+    "test_tags": ["ed-triage", "unit", "negative", "auth", "401", "jwt-invalid"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0013",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "JWT with wrong scope returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-2"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0013",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P013"},
+          "chief_complaint": "shortness of breath"
+        }
+      }
+    },
+    "auth_mode": "jwt_missing_scope",
+    "expected_http_status": 401,
+    "expected_result": {
+      "ok": false,
+      "error": "AUTH_FAILED"
+    },
+    "error_condition": "wrong_jwt_scope",
+    "test_tags": ["ed-triage", "unit", "negative", "auth", "401", "scope"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0014",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "Expired JWT returns 401",
+    "scenario_type": "negative",
+    "requirement_ids": ["SEC-1"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0014",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P014"},
+          "chief_complaint": "fever"
+        }
+      }
+    },
+    "auth_mode": "jwt_expired",
+    "expected_http_status": 401,
+    "expected_result": {
+      "ok": false,
+      "error": "AUTH_FAILED"
+    },
+    "error_condition": "expired_jwt",
+    "test_tags": ["ed-triage", "unit", "negative", "auth", "401", "jwt-expired"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0015",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "Unknown RPC method returns method-not-found error",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-12"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0015",
+      "method": "tasks/nonExistentMethod",
+      "params": {}
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": false,
+      "error_code": -32601
+    },
+    "error_condition": "method_not_found",
+    "test_tags": ["ed-triage", "unit", "negative", "rpc-error", "method-not-found"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0016",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "tasks/get with missing task_id returns invalid-params error",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-12"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0016",
+      "method": "tasks/get",
+      "params": {}
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": false,
+      "error_code": -32602
+    },
+    "error_condition": "missing_task_id",
+    "test_tags": ["ed-triage", "unit", "negative", "rpc-error", "invalid-params"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0017",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "tasks/cancel with missing task_id returns invalid-params error",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-12"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0017",
+      "method": "tasks/cancel",
+      "params": {}
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": false,
+      "error_code": -32602
+    },
+    "error_condition": "missing_task_id",
+    "test_tags": ["ed-triage", "unit", "negative", "rpc-error", "invalid-params"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0018",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "tasks/resubscribe with invalid cursor returns validation error",
+    "scenario_type": "negative",
+    "requirement_ids": ["FR-13"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0018",
+      "method": "tasks/resubscribe",
+      "params": {
+        "cursor": "not-a-real-cursor-xyz"
+      }
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": false,
+      "error_code": -32002
+    },
+    "error_condition": "invalid_cursor",
+    "test_tags": ["ed-triage", "unit", "negative", "rpc-error", "cursor"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0019",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "Empty chief complaint defaults to ESI-3",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-10"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0019",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P019"},
+          "chief_complaint": "",
+          "vitals": {"spo2": 98, "temp_c": 37.0}
+        }
+      }
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["task_id", "triage_level"],
+      "triage_level": "ESI-3"
+    },
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "unit", "edge", "empty-complaint"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0020",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "Missing vitals dict — triage by complaint only",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-10"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0020",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P020"},
+          "chief_complaint": "chest pain"
+        }
+      }
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["task_id", "triage_level"],
+      "triage_level": "ESI-2"
+    },
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "unit", "edge", "missing-vitals"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0021",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "Laceration complaint with low SpO2 — SpO2 vital rule wins (ESI-2)",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-10", "CR-4"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0021",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P021"},
+          "chief_complaint": "laceration on hand",
+          "vitals": {"spo2": 86, "temp_c": 37.0}
+        }
+      }
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["task_id", "triage_level"],
+      "triage_level": "ESI-2"
+    },
+    "error_condition": "none",
+    "notes": "ESI rules are evaluated top-down; SpO2 < 90 fires before the laceration keyword rule",
+    "test_tags": ["ed-triage", "unit", "edge", "rule-priority", "esi-2", "vital-threshold"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0022",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "SpO2 exactly at threshold (90) does NOT trigger ESI-2",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-10", "CR-4"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0022",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P022"},
+          "chief_complaint": "mild cough",
+          "vitals": {"spo2": 90, "temp_c": 37.0}
+        }
+      }
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["task_id", "triage_level"],
+      "triage_level": "ESI-3"
+    },
+    "error_condition": "none",
+    "notes": "Rule is spo2 < 90 (strict less-than); 90 itself must not trigger ESI-2",
+    "test_tags": ["ed-triage", "unit", "edge", "boundary", "spo2", "esi-3"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0023",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "No patient field — patient_id defaults to 'unknown'",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-10"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0023",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "chief_complaint": "nausea and vomiting",
+          "vitals": {"spo2": 97, "temp_c": 37.2}
+        }
+      }
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["task_id", "triage_level", "patient_id"],
+      "patient_id": "unknown"
+    },
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "unit", "edge", "missing-patient"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0024",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "Very long chief complaint string — no server error",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-10"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0024",
+      "method": "tasks/sendSubscribe",
+      "params": {
+        "task": {
+          "patient": {"patient_id": "P024"},
+          "chief_complaint": "Patient presents with a complex multi-system presentation including persistent lower back pain radiating to both legs that has been worsening over the past three weeks, accompanied by intermittent episodes of chest discomfort, shortness of breath on exertion, bilateral leg swelling, occasional dizziness, and a two-week history of productive cough with yellow sputum. The patient also reports recent fatigue, unintentional weight loss of approximately five kilograms, and reduced appetite. Background history includes type 2 diabetes, hypertension, and a remote history of pulmonary embolism.",
+          "vitals": {"spo2": 95, "temp_c": 38.1}
+        }
+      }
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["task_id", "triage_level"]
+    },
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "unit", "edge", "long-input", "robustness"]
+  },
+  {
+    "use_case_id": "EDT-UNIT-0025",
+    "poc_demo": "ed-triage-unit",
+    "scenario_title": "tasks/cancel returns not-supported gracefully",
+    "scenario_type": "edge",
+    "requirement_ids": ["FR-14"],
+    "input_payload": {
+      "jsonrpc": "2.0",
+      "id": "edt-unit-0025",
+      "method": "tasks/cancel",
+      "params": {
+        "task_id": "some-task-id-that-may-not-exist"
+      }
+    },
+    "auth_mode": "jwt_hs256",
+    "expected_http_status": 200,
+    "expected_result": {
+      "ok": true,
+      "contains": ["task_id", "cancelled"],
+      "cancelled": false
+    },
+    "error_condition": "none",
+    "test_tags": ["ed-triage", "unit", "edge", "cancel", "not-supported"]
+  }
+]
