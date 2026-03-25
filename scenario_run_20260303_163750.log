@@ -1,4 +1,0 @@
-  File "C:\nexus-a2a-protocol\tools\run_all_scenarios.py", line 74
-    cwd=r"C:
-        ^
-SyntaxError: unterminated string literal (detected at line 74)

@@ -1,6 +1,0 @@
-INFO:     Started server process [39748]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8022 (Press CTRL+C to quit)
-2026-02-16 16:31:47,353 httpx INFO HTTP Request: POST http://127.0.0.1:8023/rpc "HTTP/1.1 200 OK"
-2026-02-16 16:31:53,468 httpx INFO HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"

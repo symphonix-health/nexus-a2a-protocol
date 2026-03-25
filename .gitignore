@@ -62,3 +62,15 @@ playwright-headed-run.log
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Temp log files
+.tmp_*.log
+compliance_results_gw*.log
+launch.log
+scenario_run_*.log
+
+# Old license backup
+LICENSE-MIT-original
+
+# Misc artifacts
+0.6
