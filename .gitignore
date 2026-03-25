@@ -39,3 +39,26 @@ _pytest_ver.txt
 
 # Code review graph cache
 .code-review-graph/
+
+# Runtime temp logs (numbered compliance/scenario logs)
+compliance_results_gw*.log
+scenario_run_*.log
+launch.log
+.tmp_*.err.log
+.tmp_*.out.log
+.tmp_*.log
+test_cc_*.txt
+test_results_*.txt
+test_harness_full.txt
+
+# Stale version markers
+0.6
+
+# Playwright/browser artifacts
+.playwright-mcp/
+playwright-headed-run.log
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
