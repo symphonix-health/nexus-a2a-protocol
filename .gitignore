@@ -85,3 +85,14 @@ helixcare_validation.json
 
 # Build tools that shouldn't be committed
 get-pip.py
+
+# More runtime artifacts
+agent.log
+*.log
+test_cc_debug.txt
+NEXT_STEPS.md
+README-original.md
+README-v2.md
+helixcare_results.json
+.playwright-mcp/*.log
+temp/*.log
