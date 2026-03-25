@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import logging
 import os
@@ -27,7 +28,13 @@ from shared.nexus_common.trace_context import build_traceparent, extract_trace_c
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 logger = logging.getLogger("nexus.openhie-mediator")
 
-app = FastAPI(title="openhie-mediator")
+@contextlib.asynccontextmanager
+async def _lifespan(application: FastAPI):
+    yield
+    await bus.close()
+
+
+app = FastAPI(title="openhie-mediator", lifespan=_lifespan)
 bus = TaskEventBus(agent_name="openhie-mediator")
 health_monitor = HealthMonitor("openhie-mediator")
 
@@ -451,6 +458,3 @@ async def rpc(request: Request) -> JSONResponse:
         )
 
 
-@app.on_event("shutdown")
-async def _shutdown() -> None:
-    await bus.close()

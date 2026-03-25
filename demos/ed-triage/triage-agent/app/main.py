@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import logging
 import os
@@ -28,7 +29,18 @@ from shared.nexus_common.trace_context import build_traceparent, extract_trace_c
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 logger = logging.getLogger("nexus.triage-agent")
 
-app = FastAPI(title="triage-agent")
+@contextlib.asynccontextmanager
+async def _lifespan(application: FastAPI):
+    yield
+    close_method = getattr(idempotency_store, "close", None)
+    if callable(close_method):
+        result = close_method()
+        if isawaitable(result):
+            await result
+    await bus.close()
+
+
+app = FastAPI(title="triage-agent", lifespan=_lifespan)
 bus = TaskEventBus(agent_name="triage-agent")
 health_monitor = HealthMonitor("triage-agent")
 inflight_tasks = 0
@@ -462,11 +474,3 @@ async def rpc(request: Request):
         )
 
 
-@app.on_event("shutdown")
-async def _shutdown() -> None:
-    close_method = getattr(idempotency_store, "close", None)
-    if callable(close_method):
-        result = close_method()
-        if isawaitable(result):
-            await result
-    await bus.close()
