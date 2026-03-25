@@ -96,3 +96,12 @@ README-v2.md
 helixcare_results.json
 .playwright-mcp/*.log
 temp/*.log
+
+# More test outputs
+scenario_run_results.txt
+test_cc_complete.txt
+test_harness_full.txt
+test_results_cc.txt
+test_page.html
+mcp_scenario_results.json
+pr_body.md
