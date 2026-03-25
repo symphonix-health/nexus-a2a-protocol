@@ -489,12 +489,6 @@ async def api_patient_respond(request: Request) -> JSONResponse:
     """
     _require_auth(request)
 
-    if not os.getenv("OPENAI_API_KEY"):
-        raise HTTPException(
-            status_code=503,
-            detail="OPENAI_API_KEY is not configured. Set it to enable AI patient responses.",
-        )
-
     body = await request.json()
     clinician_message = str(body.get("clinician_message") or "").strip()
     patient_context = body.get("patient_context") or {}
@@ -502,6 +496,12 @@ async def api_patient_respond(request: Request) -> JSONResponse:
 
     if not clinician_message:
         raise HTTPException(status_code=400, detail="clinician_message is required")
+
+    if not os.getenv("OPENAI_API_KEY"):
+        raise HTTPException(
+            status_code=503,
+            detail="OPENAI_API_KEY is not configured. Set it to enable AI patient responses.",
+        )
 
     # Build patient persona description
     name = str(patient_context.get("name") or "the patient")

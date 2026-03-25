@@ -39,7 +39,9 @@ def _load_matrix() -> list[dict]:
 
 
 def _scenarios(scenario_type: str) -> list[dict]:
-    return [s for s in _load_matrix() if s.get("scenario_type") == scenario_type]
+    return [s for s in _load_matrix() if s.get("scenario_type") == scenario_type
+            and "_http_method" not in s.get("input_payload", {})
+            and "_get" not in s.get("input_payload", {})]
 
 
 def _ids(scenarios: list[dict]) -> list[str]:
@@ -144,9 +146,6 @@ async def _rpc(client: AsyncClient, headers: dict, payload: dict) -> tuple[int, 
 @pytest.mark.parametrize("scenario", _positive, ids=_ids(_positive))
 async def test_ccm_positive(scenario: dict, client: AsyncClient, valid_headers: dict):
     payload = scenario["input_payload"]
-    if "_http_method" in payload or "_get" in payload:
-        pytest.skip("GET scenario handled by dedicated test")
-
     status, body = await _rpc(client, valid_headers, payload)
 
     assert status == scenario["expected_http_status"], (

@@ -7,19 +7,22 @@ Covers:
 3. chat_controller.js — AI patient functions, mode toggle, old code removed
 4. avatar.html — new patient UI elements, v7 JS versions
 5. patient_script_pack.json — v3, patient_context objects, no audio_clip refs
-6. /api/patient/respond — HTTP-level integration test (requires live avatar agent on port 8039)
+6. /api/patient/respond — in-process ASGI integration tests (no live agent required)
 """
 
 from __future__ import annotations
 
 import ast
+import importlib.util
 import json
 import os
+import sys
 from pathlib import Path
 
 import httpx
 import pytest
 import pytest_asyncio  # noqa: F401
+from httpx import ASGITransport, AsyncClient
 
 ROOT = Path(__file__).parent.parent
 STATIC = ROOT / "demos/helixcare/clinician-avatar-agent/app/static"
@@ -625,131 +628,153 @@ class TestPatientScriptPack:
         assert "returning_patient_followup_call" in ids
 
 
-# ── 6. HTTP integration tests (requires live avatar agent) ────────────────────
+# ── 6. In-process ASGI integration tests for avatar HTTP endpoints ────────────
+
+_AGENT_DIR = ROOT / "demos" / "helixcare" / "clinician-avatar-agent"
 
 
-@pytest.mark.skipif(
-    not os.getenv("NEXUS_JWT_SECRET"),
-    reason="NEXUS_JWT_SECRET not set — skip live HTTP tests",
-)
+def _load_avatar_app():
+    agent_app_dir = str(_AGENT_DIR)
+    if agent_app_dir not in sys.path:
+        sys.path.insert(0, agent_app_dir)
+    spec = importlib.util.spec_from_file_location(
+        "avatar_audio_main",
+        str(_AGENT_DIR / "app" / "main.py"),
+    )
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["avatar_audio_main"] = module
+    spec.loader.exec_module(module)  # type: ignore[union-attr]
+    return module.app
+
+
+@pytest.fixture(scope="module")
+def _avatar_app_instance():
+    return _load_avatar_app()
+
+
+@pytest.fixture(scope="module")
+def _avatar_token():
+    from shared.nexus_common.auth import mint_jwt
+    return mint_jwt("test", os.environ.get("NEXUS_JWT_SECRET", "dev-secret-change-me"))
+
+
+@pytest.fixture(scope="module")
+def _avatar_headers(_avatar_token):
+    return {"Authorization": f"Bearer {_avatar_token}", "Content-Type": "application/json"}
+
+
 class TestPatientRespondEndpoint:
-    """Live integration tests against the running avatar agent on port 8039."""
+    """In-process ASGI tests for avatar HTTP endpoints — no live agent required."""
 
-    @pytest.fixture(scope="class")
-    def token(self):
-        from shared.nexus_common.auth import mint_jwt
-
-        return mint_jwt("test", os.environ["NEXUS_JWT_SECRET"])
-
-    @pytest.fixture(scope="class")
-    def headers(self, token):
-        return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-
-    @pytest.fixture(scope="class")
-    def patient_context(self, pack_data):
-        return pack_data["scenarios"][0]["patient_context"]
-
-    def test_endpoint_reachable(self, token, headers, avatar_running):
-        if not avatar_running:
-            pytest.skip("Avatar agent not running on port 8039")
-        resp = httpx.post(
-            f"{AVATAR_URL}/api/patient/respond",
-            headers=headers,
-            json={
-                "clinician_message": "Hello, how can I help you today?",
-                "patient_context": {
-                    "name": "Amina Njeri",
-                    "age": 35,
-                    "gender": "female",
-                    "chief_complaint": "Chest pressure",
-                    "medical_history": "Hypertension",
-                    "medications": "Amlodipine",
-                    "allergies": "None",
-                    "family_history": "Father had MI",
-                    "social_history": "Non-smoker",
+    @pytest.mark.asyncio
+    async def test_endpoint_reachable(self, _avatar_app_instance, _avatar_headers):
+        async with AsyncClient(
+            transport=ASGITransport(app=_avatar_app_instance), base_url="http://test"
+        ) as client:
+            resp = await client.post(
+                "/api/patient/respond",
+                headers=_avatar_headers,
+                json={
+                    "clinician_message": "Hello, how can I help you today?",
+                    "patient_context": {
+                        "name": "Amina Njeri",
+                        "age": 35,
+                        "gender": "female",
+                        "chief_complaint": "Chest pressure",
+                        "medical_history": "Hypertension",
+                        "medications": "Amlodipine",
+                        "allergies": "None",
+                        "family_history": "Father had MI",
+                        "social_history": "Non-smoker",
+                    },
+                    "conversation_history": [],
                 },
-                "conversation_history": [],
-            },
-            timeout=30,
-        )
-        assert resp.status_code in (200, 503), f"Unexpected status {resp.status_code}: {resp.text}"
+            )
+        assert resp.status_code in (200, 503), f"status={resp.status_code} body={resp.text}"
         if resp.status_code == 503:
-            # No OPENAI_API_KEY set on running agent — expected in CI
             assert "OPENAI_API_KEY" in resp.json().get("detail", "")
         else:
             assert "patient_response" in resp.json()
             assert len(resp.json()["patient_response"]) > 0
 
-    def test_endpoint_rejects_no_auth(self, avatar_running):
-        if not avatar_running:
-            pytest.skip("Avatar agent not running on port 8039")
-        resp = httpx.post(
-            f"{AVATAR_URL}/api/patient/respond",
-            headers={"Content-Type": "application/json"},
-            json={"clinician_message": "Hello", "patient_context": {}, "conversation_history": []},
-            timeout=10,
-        )
+    @pytest.mark.asyncio
+    async def test_endpoint_rejects_no_auth(self, _avatar_app_instance):
+        async with AsyncClient(
+            transport=ASGITransport(app=_avatar_app_instance), base_url="http://test"
+        ) as client:
+            resp = await client.post(
+                "/api/patient/respond",
+                headers={"Content-Type": "application/json"},
+                json={"clinician_message": "Hello", "patient_context": {}, "conversation_history": []},
+            )
         assert resp.status_code in (401, 403)
 
-    def test_endpoint_rejects_empty_clinician_message(self, headers, avatar_running):
-        if not avatar_running:
-            pytest.skip("Avatar agent not running on port 8039")
-        resp = httpx.post(
-            f"{AVATAR_URL}/api/patient/respond",
-            headers=headers,
-            json={"clinician_message": "", "patient_context": {}, "conversation_history": []},
-            timeout=10,
-        )
+    @pytest.mark.asyncio
+    async def test_endpoint_rejects_empty_clinician_message(self, _avatar_app_instance, _avatar_headers):
+        async with AsyncClient(
+            transport=ASGITransport(app=_avatar_app_instance), base_url="http://test"
+        ) as client:
+            resp = await client.post(
+                "/api/patient/respond",
+                headers=_avatar_headers,
+                json={"clinician_message": "", "patient_context": {}, "conversation_history": []},
+            )
         assert resp.status_code == 400
 
-    def test_health_endpoint_still_works(self, avatar_running):
-        if not avatar_running:
-            pytest.skip("Avatar agent not running on port 8039")
-        resp = httpx.get(f"{AVATAR_URL}/health", timeout=5)
+    @pytest.mark.asyncio
+    async def test_health_endpoint_still_works(self, _avatar_app_instance):
+        async with AsyncClient(
+            transport=ASGITransport(app=_avatar_app_instance), base_url="http://test"
+        ) as client:
+            resp = await client.get("/health")
         assert resp.status_code == 200
-        data = resp.json()
-        assert "name" in data  # required by Command Centre
+        assert "name" in resp.json()
 
-    def test_static_pack_served(self, avatar_running):
-        if not avatar_running:
-            pytest.skip("Avatar agent not running on port 8039")
-        resp = httpx.get(f"{AVATAR_URL}/static/patient_script_pack.json", timeout=5)
+    @pytest.mark.asyncio
+    async def test_static_pack_served(self, _avatar_app_instance):
+        async with AsyncClient(
+            transport=ASGITransport(app=_avatar_app_instance), base_url="http://test"
+        ) as client:
+            resp = await client.get("/static/patient_script_pack.json")
         assert resp.status_code == 200
         data = resp.json()
         assert data["version"] == 3
         assert len(data["scenarios"]) == 3
 
-    def test_realtime_token_rejects_no_auth(self, avatar_running):
+    @pytest.mark.asyncio
+    async def test_realtime_token_rejects_no_auth(self, _avatar_app_instance):
         """POST /api/realtime/token rejects requests without JWT."""
-        if not avatar_running:
-            pytest.skip("Avatar agent not running on port 8039")
-        resp = httpx.post(
-            f"{AVATAR_URL}/api/realtime/token",
-            headers={"Content-Type": "application/json"},
-            json={"voice": "coral"},
-            timeout=10,
-        )
+        async with AsyncClient(
+            transport=ASGITransport(app=_avatar_app_instance), base_url="http://test"
+        ) as client:
+            resp = await client.post(
+                "/api/realtime/token",
+                headers={"Content-Type": "application/json"},
+                json={"voice": "coral"},
+            )
         assert resp.status_code in (401, 403)
 
-    def test_realtime_token_with_auth(self, headers, avatar_running):
+    @pytest.mark.asyncio
+    async def test_realtime_token_with_auth(self, _avatar_app_instance, _avatar_headers):
         """POST /api/realtime/token returns 200 or 503 (no API key) with valid auth."""
-        if not avatar_running:
-            pytest.skip("Avatar agent not running on port 8039")
-        resp = httpx.post(
-            f"{AVATAR_URL}/api/realtime/token",
-            headers=headers,
-            json={"voice": "coral"},
-            timeout=15,
-        )
-        # 200 = ephemeral key returned, 503 = OPENAI_API_KEY not set, 502 = OpenAI error
+        async with AsyncClient(
+            transport=ASGITransport(app=_avatar_app_instance), base_url="http://test"
+        ) as client:
+            resp = await client.post(
+                "/api/realtime/token",
+                headers=_avatar_headers,
+                json={"voice": "coral"},
+            )
         assert resp.status_code in (200, 502, 503)
         if resp.status_code == 503:
             assert "OPENAI_API_KEY" in resp.json().get("detail", "")
 
-    def test_realtime_client_js_served(self, avatar_running):
+    @pytest.mark.asyncio
+    async def test_realtime_client_js_served(self, _avatar_app_instance):
         """realtime_client.js is served as a static file."""
-        if not avatar_running:
-            pytest.skip("Avatar agent not running on port 8039")
-        resp = httpx.get(f"{AVATAR_URL}/static/realtime_client.js", timeout=5)
+        async with AsyncClient(
+            transport=ASGITransport(app=_avatar_app_instance), base_url="http://test"
+        ) as client:
+            resp = await client.get("/static/realtime_client.js")
         assert resp.status_code == 200
         assert "RealtimeClient" in resp.text

@@ -5,16 +5,16 @@ from pathlib import Path
 
 import pytest
 
-MATRIX = (
-    Path(__file__).resolve().parents[1]
-    / "nexus-a2a"
-    / "artefacts"
-    / "matrices"
-    / "nexus_sdk_transport_matrix.json"
-)
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+# Prefer the in-repo copy; fall back to the optional nexus-a2a sub-repo.
+_CANDIDATES = [
+    _REPO_ROOT / "HelixCare" / "artefacts" / "matrices" / "nexus_sdk_transport_matrix.json",
+    _REPO_ROOT / "nexus-a2a" / "artefacts" / "matrices" / "nexus_sdk_transport_matrix.json",
+]
+MATRIX = next((p for p in _CANDIDATES if p.exists()), _CANDIDATES[0])
 
 _skip = not MATRIX.exists()
-_reason = f"SDK matrix not found (requires nexus-a2a repo): {MATRIX}"
+_reason = f"SDK matrix not found: {MATRIX}"
 
 
 @pytest.mark.skipif(_skip, reason=_reason)

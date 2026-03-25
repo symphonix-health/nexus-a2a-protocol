@@ -5,17 +5,17 @@ from pathlib import Path
 
 import pytest
 
-MATRIX_PATH = (
-    Path(__file__).resolve().parents[1]
-    / "nexus-a2a"
-    / "artefacts"
-    / "matrices"
-    / "nexus_command_centre_load_matrix.json"
-)
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+# Prefer the in-repo copy; fall back to the optional nexus-a2a sub-repo.
+_CANDIDATES = [
+    _REPO_ROOT / "HelixCare" / "artefacts" / "matrices" / "nexus_command_centre_load_matrix.json",
+    _REPO_ROOT / "nexus-a2a" / "artefacts" / "matrices" / "nexus_command_centre_load_matrix.json",
+]
+MATRIX_PATH = next((p for p in _CANDIDATES if p.exists()), _CANDIDATES[0])
 GATE_DIR = MATRIX_PATH.parent / "gates"
 
 _skip = not MATRIX_PATH.exists()
-_reason = f"Load matrix not found (requires nexus-a2a repo): {MATRIX_PATH}"
+_reason = f"Load matrix not found: {MATRIX_PATH}"
 
 
 def _load_rows() -> list[dict]:
