@@ -555,15 +555,14 @@ def test_g2_failover_resume_cursor_out_of_retention_rejected() -> None:
         raise AssertionError("Expected failover resume cursor outside retention to fail")
 
 
-_SCALE_MATRIX = (
-    Path(__file__).resolve().parents[1]
-    / "nexus-a2a"
-    / "artefacts"
-    / "matrices"
-    / "nexus_protocol_scale_profile_v1_1_matrix.json"
-)
+_REPO_ROOT_V11 = Path(__file__).resolve().parents[1]
+_SCALE_MATRIX_CANDIDATES = [
+    _REPO_ROOT_V11 / "HelixCare" / "artefacts" / "matrices" / "nexus_protocol_scale_profile_v1_1_matrix.json",
+    _REPO_ROOT_V11 / "nexus-a2a" / "artefacts" / "matrices" / "nexus_protocol_scale_profile_v1_1_matrix.json",
+]
+_SCALE_MATRIX = next((p for p in _SCALE_MATRIX_CANDIDATES if p.exists()), _SCALE_MATRIX_CANDIDATES[0])
 _skip_matrix = not _SCALE_MATRIX.exists()
-_skip_reason = f"Scale profile matrix not found (requires nexus-a2a repo): {_SCALE_MATRIX}"
+_skip_reason = f"Scale profile matrix not found: {_SCALE_MATRIX}"
 
 
 @pytest.mark.skipif(_skip_matrix, reason=_skip_reason)

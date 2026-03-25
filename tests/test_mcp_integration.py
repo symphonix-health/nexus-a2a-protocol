@@ -14,6 +14,9 @@ from pathlib import Path
 import pytest
 from httpx import ASGITransport, AsyncClient
 
+# This file tests functionality via the deprecated mcp_adapter shim.
+pytestmark = pytest.mark.filterwarnings("ignore::DeprecationWarning")
+
 # Ensure shared/ and src/ are importable
 REPO_ROOT = Path(__file__).resolve().parents[1]
 for sub in ("shared", "src"):

@@ -13,6 +13,9 @@ from unittest.mock import patch
 
 import pytest
 
+# This file tests the deprecated mcp_adapter shim — suppress the expected warning.
+pytestmark = pytest.mark.filterwarnings("ignore::DeprecationWarning")
+
 # Ensure shared/ is importable
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SHARED_DIR = REPO_ROOT / "shared"

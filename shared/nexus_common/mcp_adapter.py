@@ -60,8 +60,8 @@ def _warn_deprecated() -> None:
     global _WARNED
     if _WARNED:
         return
+    _WARNED = True  # set before warn so re-entry is blocked even if warn raises
     warnings.warn(_DEPRECATION_MESSAGE, DeprecationWarning, stacklevel=2)
-    _WARNED = True
 
 
 @dataclass(slots=True)
