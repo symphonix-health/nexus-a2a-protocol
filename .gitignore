@@ -106,3 +106,47 @@ test_page.html
 mcp_scenario_results.json
 pr_body.md
 temp/additional_results.txt
+
+# ============================================================
+# PRIVATE — Test infrastructure, harnesses, scenarios, matrices
+# These MUST NOT be public. They reveal:
+#   - Internal security test vectors and attack surfaces
+#   - RBAC/IAM privilege escalation test cases
+#   - Protocol vulnerability probes and compliance gaps
+#   - Clinical scenario data with PHI-adjacent patterns
+#   - Infrastructure topology and port mappings used in tests
+# ============================================================
+tests/
+HelixCare/*.json
+HelixCare/coverage_analysis.json
+integration/harness/
+integration/scenarios/
+integration/tests/
+integration/prompts/
+tools/helixcare_scenarios.json
+tools/helixcare_all_scenarios.json
+tools/scenario_*.py
+tools/run_*scenarios*.py
+tools/validate_scenarios.py
+tools/scenario_manager.py
+tools/scenario_coverage.py
+tools/scenario_summaries.md
+tools/scenario_run_output.txt
+tools/representative_scenarios.py
+tools/clinical_negative_scenarios.py
+tools/generate_*_matrix.py
+tools/generate_*_scenarios.py
+tools/diff_harness.py
+tools/run_harness.py
+tools/burst_test.py
+tools/test_mcp_scenarios.py
+tools/additional_scenarios.py
+shared/clinical_pathways/tests/
+test_all_scenarios.py
+temp/scenario_run_output.txt
+
+# Database files (runtime artifacts, may contain test data)
+*.db
+*.db-wal
+*.db-shm
+temp/*.sqlite3
